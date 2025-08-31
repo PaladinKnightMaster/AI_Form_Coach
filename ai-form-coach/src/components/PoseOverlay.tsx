@@ -11,7 +11,7 @@ const EDGES: [number, number][] = [
 	[24, 26], [26, 28],
 ];
 
-export default function PoseOverlay({ landmarks, video }: { landmarks: SmoothedLandmark[] | null; video: HTMLVideoElement | null }) {
+export default function PoseOverlay({ landmarks, video, mirror = false }: { landmarks: SmoothedLandmark[] | null; video: HTMLVideoElement | null; mirror?: boolean }) {
 	const ref = useRef<HTMLCanvasElement>(null);
 	useEffect(() => {
 		const canvas = ref.current; if (!canvas || !video) return;
@@ -19,6 +19,8 @@ export default function PoseOverlay({ landmarks, video }: { landmarks: SmoothedL
 		canvas.width = video.videoWidth; canvas.height = video.videoHeight;
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		if (!landmarks) return;
+		ctx.save();
+		if (mirror) { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
 		ctx.lineWidth = 4; ctx.strokeStyle = '#22c55e'; ctx.fillStyle = '#22c55e';
 		for (const [a, b] of EDGES) {
 			const p1 = landmarks[a]; const p2 = landmarks[b]; if (!p1 || !p2) continue;
@@ -32,6 +34,7 @@ export default function PoseOverlay({ landmarks, video }: { landmarks: SmoothedL
 			ctx.arc(p.x * canvas.width, p.y * canvas.height, 3, 0, Math.PI * 2);
 			ctx.fill();
 		}
-	}, [landmarks, video]);
+		ctx.restore();
+	}, [landmarks, video, mirror]);
 	return <canvas ref={ref} className="absolute inset-0 pointer-events-none" />;
 } 

@@ -17,6 +17,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 					<div className="flex items-center gap-3 text-sm">
 						<Link href="/coach">Coach</Link>
 						<Link href="/history">History</Link>
+						<Link href="/privacy">Privacy</Link>
 						<AuthStatus />
 					</div>
 				</nav>

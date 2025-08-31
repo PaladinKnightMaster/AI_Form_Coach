@@ -32,22 +32,30 @@ export async function estimate(video: HTMLVideoElement): Promise<PoseLandmarkerR
 	if (!landmarker) return null;
 	if (!video || video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) return null;
 	const ts = performance.now();
+	// Suppress Mediapipe's XNNPACK INFO noise during detect call
+	const origInfo = console.info;
+	const origWarn = console.warn;
+	const origError = console.error;
+	console.info = () => {};
+	console.warn = (msg?: unknown, ...rest: unknown[]) => {
+		if (typeof msg === 'string' && msg.includes('TensorFlow Lite XNNPACK delegate')) return;
+		origWarn(String(msg), ...rest.map((a) => String(a)));
+	};
+	console.error = (msg?: unknown, ...rest: unknown[]) => {
+		if (typeof msg === 'string' && msg.includes('TensorFlow Lite XNNPACK delegate')) return;
+		origError(String(msg), ...rest.map((a) => String(a)));
+	};
+	let res: PoseLandmarkerResult | null = null;
 	try {
-		const origInfo = console.info;
-		const origWarn = console.warn;
-		// Silence Mediapipe's one-time INFO noise in dev overlay
-		console.info = () => {};
-		console.warn = (msg?: unknown) => {
-			if (typeof msg === 'string' && msg.includes('TensorFlow Lite XNNPACK delegate')) return;
-			origWarn(String(msg));
-		};
-		const res = landmarker.detectForVideo(video, ts);
+		res = landmarker.detectForVideo(video, ts);
+	} catch {
+		res = null;
+	} finally {
 		console.info = origInfo;
 		console.warn = origWarn;
-		return res;
-	} catch {
-		return null;
+		console.error = origError;
 	}
+	return res;
 }
 
 export type SmoothedLandmark = Point3 & { visibility?: number };
