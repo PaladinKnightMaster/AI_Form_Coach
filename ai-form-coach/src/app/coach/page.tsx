@@ -7,6 +7,7 @@ import { speak, setMuted } from '@/lib/voice/coachVoice';
 import PoseOverlay from '@/components/PoseOverlay';
 import HUD from '@/components/HUD';
 import { enqueueWrite, flushWrites } from '@/lib/storage/offlineQueue';
+import TutorialOverlay from '@/components/TutorialOverlay';
 
 export default function Coach() {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -39,6 +40,7 @@ export default function Coach() {
 	// Rest timer
 	const [restLeft, setRestLeft] = useState<number | null>(null);
 	const restTimerRef = useRef<number | null>(null);
+	const [showTutorial, setShowTutorial] = useState(false);
 
 	function onGoalTypeChange(val: string) {
 		if (val === 'none' || val === 'reps' || val === 'time') setGoalType(val);
@@ -49,6 +51,10 @@ export default function Coach() {
 	}, [exercise]);
 
 	useEffect(() => { setMuted(muted); }, [muted]);
+
+	useEffect(() => {
+		try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {}
+	}, []);
 
 	useEffect(() => {
 		function onKey(e: KeyboardEvent) {
@@ -200,6 +206,7 @@ export default function Coach() {
 					{saving && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent" /><p className="mt-3">Saving your session…</p></div>)}
 					{restLeft !== null && (<div className="absolute bottom-4 left-4 bg-white/80 rounded px-3 py-2 text-sm">Rest: {restLeft}s</div>)}
 					<div className="absolute bottom-2 right-2 text-xs opacity-80 bg-white/70 rounded px-2 py-1">Camera stays on your device. We save only rep summaries.</div>
+					{showTutorial && <TutorialOverlay onClose={() => setShowTutorial(false)} />}
 				</div>
 				<div className="space-y-4">
 					<div className="rounded-lg border p-3 space-y-2">
