@@ -8,6 +8,7 @@ import PoseOverlay from '@/components/PoseOverlay';
 import HUD from '@/components/HUD';
 import { enqueueWrite, flushWrites } from '@/lib/storage/offlineQueue';
 import TutorialOverlay from '@/components/TutorialOverlay';
+import CalibrationModal from '@/components/CalibrationModal';
 
 export default function Coach() {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -42,6 +43,7 @@ export default function Coach() {
 	const [restLeft, setRestLeft] = useState<number | null>(null);
 	const restTimerRef = useRef<number | null>(null);
 	const [showTutorial, setShowTutorial] = useState(false);
+	const [showCalib, setShowCalib] = useState(false);
 
 	function onGoalTypeChange(val: string) {
 		if (val === 'none' || val === 'reps' || val === 'time') setGoalType(val);
@@ -210,6 +212,7 @@ export default function Coach() {
 					{saving && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent" /><p className="mt-3">Saving your session…</p></div>)}
 					{restLeft !== null && (<div className="absolute bottom-4 left-4 bg-white/80 rounded px-3 py-2 text-sm">Rest: {restLeft}s</div>)}
 					<div className="absolute bottom-2 right-2 text-xs opacity-80 bg-white/70 rounded px-2 py-1">Camera stays on your device. We save only rep summaries.</div>
+					{showCalib && <CalibrationModal exercise={exercise} landmarks={landmarks} onClose={() => setShowCalib(false)} onSaved={() => alert('Calibration saved')} />}
 					{showTutorial && <TutorialOverlay onClose={() => setShowTutorial(false)} />}
 				</div>
 				<div className="space-y-4">
@@ -218,6 +221,7 @@ export default function Coach() {
 						<div className="flex items-center gap-2">
 							<select value={goalType} onChange={(e) => onGoalTypeChange(e.target.value)} className="border rounded px-2 py-1"><option value="none">None</option><option value="reps">Target reps</option><option value="time">Target time (s)</option></select>
 							<input type="number" min={1} value={goalValue} onChange={(e) => setGoalValue(parseInt(e.target.value || '0', 10))} className="border rounded px-2 py-1 w-24" />
+							<button onClick={() => setShowCalib(true)} className="px-2 py-1 rounded bg-emerald-600 text-white">Calibrate</button>
 						</div>
 					</div>
 					<button onClick={handleStartPause} className="w-full py-3 rounded-lg bg-black text-white">{running ? 'Pause' : 'Start'} Session</button>
