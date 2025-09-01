@@ -3,12 +3,14 @@ import { useEffect, useRef, useState } from 'react';
 import { initPose, PoseEngine, type SmoothedLandmark, type StatsListener } from '@/lib/pose';
 import { createValidator } from '@/lib/validators';
 import type { Exercise } from '@/lib/validators/types';
+import type { ValidatorConfig } from '@/lib/validators/types';
 import { speak, setMuted } from '@/lib/voice/coachVoice';
 import PoseOverlay from '@/components/PoseOverlay';
 import HUD from '@/components/HUD';
 import { enqueueWrite, flushWrites } from '@/lib/storage/offlineQueue';
 import TutorialOverlay from '@/components/TutorialOverlay';
 import CalibrationModal from '@/components/CalibrationModal';
+import { loadExerciseThresholds } from '@/lib/calibration';
 
 export default function Coach() {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -22,7 +24,6 @@ export default function Coach() {
 	const [cue, setCue] = useState('');
 	const [spark, setSpark] = useState<number[]>([]);
 	const engineRef = useRef<PoseEngine | null>(null);
-	const [fps, setFps] = useState(0);
 	const validatorRef = useRef(createValidator(exercise));
 	const [startTs, setStartTs] = useState<number | null>(null);
 	const [muted, updateMuted] = useState(false);
@@ -34,30 +35,32 @@ export default function Coach() {
 	const [pausedByQuality, setPausedByQuality] = useState(false);
 	const [largeText, setLargeText] = useState(false);
 	const [highContrast, setHighContrast] = useState(false);
-	// Goals
 	const [goalType, setGoalType] = useState<'none' | 'reps' | 'time'>('none');
 	const [goalValue, setGoalValue] = useState<number>(10);
 	const [elapsedMs, setElapsedMs] = useState(0);
 	const elapsedTimerRef = useRef<number | null>(null);
-	// Rest timer
 	const [restLeft, setRestLeft] = useState<number | null>(null);
 	const restTimerRef = useRef<number | null>(null);
 	const [showTutorial, setShowTutorial] = useState(false);
 	const [showCalib, setShowCalib] = useState(false);
+	const [fps, setFps] = useState(0);
+	const [thrCfg, setThrCfg] = useState<ValidatorConfig>({ debounceFrames: 3 });
 
-	function onGoalTypeChange(val: string) {
-		if (val === 'none' || val === 'reps' || val === 'time') setGoalType(val);
-	}
-
-	useEffect(() => {
-		validatorRef.current = createValidator(exercise);
-	}, [exercise]);
+	function onGoalTypeChange(val: string) { if (val === 'none' || val === 'reps' || val === 'time') setGoalType(val); }
 
 	useEffect(() => { setMuted(muted); }, [muted]);
+	useEffect(() => { try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {} }, []);
 
-	useEffect(() => {
-		try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {}
-	}, []);
+	// Load thresholds (all exercises) once, and reload after calibration
+	async function reloadThresholds() {
+		const [sq, pu, pl] = await Promise.all([
+			loadExerciseThresholds('squat'),
+			loadExerciseThresholds('pushup'),
+			loadExerciseThresholds('plank'),
+		]);
+		setThrCfg({ debounceFrames: 3, squat: sq?.squat, pushup: pu?.pushup, plank: pl?.plank });
+	}
+	useEffect(() => { reloadThresholds(); }, []);
 
 	useEffect(() => {
 		function onKey(e: KeyboardEvent) {
@@ -74,8 +77,7 @@ export default function Coach() {
 	}, []);
 
 	useEffect(() => {
-		let active = true;
-		let stream: MediaStream | null = null;
+		let active = true; let stream: MediaStream | null = null;
 		(async () => {
 			const cached = localStorage.getItem('afc_model') as ('lite'|'full'|null);
 			await initPose(cached ?? 'lite');
@@ -83,8 +85,7 @@ export default function Coach() {
 			const video = videoRef.current; if (!video) return;
 			if (video.srcObject !== stream) { video.srcObject = stream; }
 			await new Promise<void>((resolve) => {
-				if (!video) return resolve();
-				if (video.readyState >= 2) return resolve();
+				if (!video) return resolve(); if (video.readyState >= 2) return resolve();
 				const handler = () => { video.removeEventListener('loadedmetadata', handler); resolve(); };
 				video.addEventListener('loadedmetadata', handler);
 			});
@@ -95,96 +96,36 @@ export default function Coach() {
 			engine.subscribe(onPose);
 			engine.subscribeStats(({ fps }) => setFps(fps));
 		})();
-		return () => {
-			active = false;
-			engineRef.current?.stop();
-			if (stream) { for (const t of stream.getTracks()) t.stop(); }
-			if (wakeLockRef.current) { try { wakeLockRef.current.release?.(); } catch {} }
-		};
+		return () => { active = false; engineRef.current?.stop(); if (stream) { for (const t of stream.getTracks()) t.stop(); } if (wakeLockRef.current) { try { wakeLockRef.current.release?.(); } catch {} } };
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
-		if (running) {
-			setStartTs(performance.now());
-			engineRef.current?.start();
-			const wlApi = (navigator as unknown as { wakeLock?: { request: (type: 'screen') => Promise<{ release?: () => Promise<void> }> } }).wakeLock;
-			wlApi?.request('screen').then((s) => { wakeLockRef.current = s; }).catch(() => {});
-			// elapsed timer
-			elapsedTimerRef.current = window.setInterval(() => setElapsedMs((v) => v + 1000), 1000);
-		} else {
-			engineRef.current?.stop();
-			if (wakeLockRef.current) { try { wakeLockRef.current.release?.(); } catch {} }
-			if (elapsedTimerRef.current) { window.clearInterval(elapsedTimerRef.current); elapsedTimerRef.current = null; }
-		}
+		if (running) { setStartTs(performance.now()); engineRef.current?.start(); const wlApi = (navigator as unknown as { wakeLock?: { request: (type: 'screen') => Promise<{ release?: () => Promise<void> }> } }).wakeLock; wlApi?.request('screen').then((s) => { wakeLockRef.current = s; }).catch(() => {}); elapsedTimerRef.current = window.setInterval(() => setElapsedMs((v) => v + 1000), 1000); }
+		else { engineRef.current?.stop(); if (wakeLockRef.current) { try { wakeLockRef.current.release?.(); } catch {} } if (elapsedTimerRef.current) { window.clearInterval(elapsedTimerRef.current); elapsedTimerRef.current = null; } }
 	}, [running]);
 
-	useEffect(() => {
-		if (running) {
-			flushTimerRef.current = window.setInterval(() => { flushWrites(); }, 10_000);
-			return () => { if (flushTimerRef.current) window.clearInterval(flushTimerRef.current); flushTimerRef.current = null; };
-		}
-	}, [running]);
+	useEffect(() => { if (running) { flushTimerRef.current = window.setInterval(() => { flushWrites(); }, 10_000); return () => { if (flushTimerRef.current) window.clearInterval(flushTimerRef.current); flushTimerRef.current = null; }; } }, [running]);
 
-	function onPose(landmarks: SmoothedLandmark[] | null) {
-		if (!landmarks) return;
-		const ts = performance.now();
-		const vis = landmarks.map(l => (l.visibility ?? 0));
-		const avgVis = vis.reduce((a, b) => a + b, 0) / Math.max(1, vis.length);
+	function onPose(lms: SmoothedLandmark[] | null) {
+		if (!lms) return; const ts = performance.now();
+		const vis = lms.map(l => (l.visibility ?? 0)); const avgVis = vis.reduce((a, b) => a + b, 0) / Math.max(1, vis.length);
 		if (avgVis > 0.7) { setQuality('good'); lowQualityFramesRef.current = 0; setPausedByQuality(false); }
 		else if (avgVis > 0.4) { setQuality('warn'); lowQualityFramesRef.current++; }
 		else { setQuality('bad'); lowQualityFramesRef.current++; }
 		if (lowQualityFramesRef.current > 45 && running) { setRunning(false); setPausedByQuality(true); return; }
-
-		const s = validatorRef.current(landmarks, ts);
+		const s = validatorRef.current(lms, ts, thrCfg);
 		setRepCount(s.repCount);
-		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) {
-			const m = s.metrics[s.metrics.length - 1];
-			repMetricsRef.current.push({ idx: s.metrics.length, start_ms: Math.round(m.startTs), end_ms: Math.round(m.endTs), peak_depth: (m as unknown as { peakDepth?: number }).peakDepth });
-		}
-		const firstCue = s.cues[0] ?? '';
-		if (firstCue && firstCue !== cue && !muted) speak(firstCue);
-		setCue(firstCue);
-		setSpark((prev) => (prev.concat([s.phase === 'down' ? 1 : 0]).slice(-100)));
-		setLandmarks(landmarks);
+		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) { const m = s.metrics[s.metrics.length - 1]; repMetricsRef.current.push({ idx: s.metrics.length, start_ms: Math.round(m.startTs), end_ms: Math.round(m.endTs), peak_depth: (m as unknown as { peakDepth?: number }).peakDepth }); }
+		const firstCue = s.cues[0] ?? ''; if (firstCue && firstCue !== cue && !muted) speak(firstCue); setCue(firstCue);
+		setSpark((prev) => (prev.concat([s.phase === 'down' ? 1 : 0]).slice(-100))); setLandmarks(lms);
 	}
 
-	function handleStartPause() {
-		if (running) { setRunning(false); return; }
-		setCountdown(3); let left = 3;
-		const iv = setInterval(() => { left -= 1; setCountdown(left); if (left <= 0) { clearInterval(iv); setCountdown(null); setElapsedMs(0); setRunning(true); } }, 1000);
-	}
-
+	function handleStartPause() { if (running) { setRunning(false); return; } setCountdown(3); let left = 3; const iv = setInterval(() => { left -= 1; setCountdown(left); if (left <= 0) { clearInterval(iv); setCountdown(null); setElapsedMs(0); setRunning(true); } }, 1000); }
 	function undoLastRep() { if (repMetricsRef.current.length === 0 || repCount === 0) return; repMetricsRef.current.pop(); setRepCount((c) => Math.max(0, c - 1)); }
-
-	function goalSubtext(): string | undefined {
-		if (goalType === 'reps') return `${repCount}/${goalValue} reps`;
-		if (goalType === 'time') return `${Math.floor(elapsedMs/1000)}s / ${goalValue}s`;
-		return undefined;
-	}
-
-	function startRest(seconds: number) {
-		setRunning(false);
-		setRestLeft(seconds);
-		if (restTimerRef.current) window.clearInterval(restTimerRef.current);
-		restTimerRef.current = window.setInterval(() => {
-			setRestLeft((v) => {
-				const next = (v ?? 0) - 1;
-				if (next <= 0) { window.clearInterval(restTimerRef.current!); restTimerRef.current = null; speak('Rest over'); return null; }
-				return next;
-			});
-		}, 1000);
-	}
-
-	async function endSession() {
-		setRunning(false); setSaving(true);
-		const endTs = performance.now(); const start = startTs ?? endTs;
-		const { getCurrentUserId } = await import('@/lib/supabase/client'); const userId = await getCurrentUserId();
-		const sessionPayload = { user_id: userId, exercise, started_at: new Date(start).toISOString(), ended_at: new Date(endTs).toISOString(), total_reps: repMetricsRef.current.length, total_time_seconds: Math.round((endTs - start) / 1000), goal_type: goalType === 'none' ? null : goalType, goal_value: goalType === 'none' ? null : goalValue } as Record<string, unknown>;
-		await enqueueWrite({ table: 'sessions', payload: sessionPayload });
-		for (const r of repMetricsRef.current) { await enqueueWrite({ table: 'reps', payload: { ...r, session_id: 'PENDING' } }); }
-		await flushWrites(); setSaving(false); alert('Session saved');
-	}
+	function goalSubtext(): string | undefined { if (goalType === 'reps') return `${repCount}/${goalValue} reps`; if (goalType === 'time') return `${Math.floor(elapsedMs/1000)}s / ${goalValue}s`; return undefined; }
+	function startRest(seconds: number) { setRunning(false); setRestLeft(seconds); if (restTimerRef.current) window.clearInterval(restTimerRef.current); restTimerRef.current = window.setInterval(() => { setRestLeft((v) => { const next = (v ?? 0) - 1; if (next <= 0) { window.clearInterval(restTimerRef.current!); restTimerRef.current = null; speak('Rest over'); return null; } return next; }); }, 1000); }
+	async function endSession() { setRunning(false); setSaving(true); const endTs = performance.now(); const start = startTs ?? endTs; const { getCurrentUserId } = await import('@/lib/supabase/client'); const userId = await getCurrentUserId(); const sessionPayload = { user_id: userId, exercise, started_at: new Date(start).toISOString(), ended_at: new Date(endTs).toISOString(), total_reps: repMetricsRef.current.length, total_time_seconds: Math.round((endTs - start) / 1000), goal_type: goalType === 'none' ? null : goalType, goal_value: goalType === 'none' ? null : goalValue } as Record<string, unknown>; await enqueueWrite({ table: 'sessions', payload: sessionPayload }); for (const r of repMetricsRef.current) { await enqueueWrite({ table: 'reps', payload: { ...r, session_id: 'PENDING' } }); } await flushWrites(); setSaving(false); alert('Session saved'); }
 
 	return (
 		<div className={`min-h-screen grid grid-rows-[auto_1fr_auto] ${highContrast ? 'contrast-150' : ''}`}>
@@ -212,7 +153,7 @@ export default function Coach() {
 					{saving && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent" /><p className="mt-3">Saving your session…</p></div>)}
 					{restLeft !== null && (<div className="absolute bottom-4 left-4 bg-white/80 rounded px-3 py-2 text-sm">Rest: {restLeft}s</div>)}
 					<div className="absolute bottom-2 right-2 text-xs opacity-80 bg-white/70 rounded px-2 py-1">Camera stays on your device. We save only rep summaries.</div>
-					{showCalib && <CalibrationModal exercise={exercise} landmarks={landmarks} onClose={() => setShowCalib(false)} onSaved={() => alert('Calibration saved')} />}
+					{showCalib && <CalibrationModal exercise={exercise} landmarks={landmarks} onClose={() => setShowCalib(false)} onSaved={() => { reloadThresholds(); alert('Calibration saved'); }} />}
 					{showTutorial && <TutorialOverlay onClose={() => setShowTutorial(false)} />}
 				</div>
 				<div className="space-y-4">

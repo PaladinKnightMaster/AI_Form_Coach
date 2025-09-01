@@ -13,19 +13,22 @@ export type Calibration = {
 
 export type ExerciseThresholds = {
 	exercise: 'squat' | 'pushup' | 'plank';
-	// Squat: depth thresholds derived from knee angle
 	squat?: { downDepth: number; upDepth: number };
-	// Pushup: elbow angle thresholds
 	pushup?: { bottomElbow: number; topElbow: number };
-	// Plank: hip straightness angle target
 	plank?: { minHipAngle: number };
 	createdAt: number;
 };
 
 async function db() {
-	return openDB(DB_NAME, 2, {
-		upgrade(database, oldVersion) {
-			if (oldVersion < 2) database.createObjectStore(STORE, { keyPath: 'id' });
+	return openDB(DB_NAME, 3, {
+		upgrade(database) {
+			// Ensure both stores exist regardless of prior version
+			if (!database.objectStoreNames.contains(STORE)) {
+				database.createObjectStore(STORE, { keyPath: 'id' });
+			}
+			if (!database.objectStoreNames.contains('write_buffer')) {
+				database.createObjectStore('write_buffer', { keyPath: 'id', autoIncrement: true });
+			}
 		},
 	});
 }

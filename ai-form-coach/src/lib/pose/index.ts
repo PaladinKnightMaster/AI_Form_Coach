@@ -32,27 +32,22 @@ export async function estimate(video: HTMLVideoElement): Promise<PoseLandmarkerR
 	if (!landmarker) return null;
 	if (!video || video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) return null;
 	const ts = performance.now();
-	const origInfo = console.info;
-	const origWarn = console.warn;
-	const origError = console.error;
-	console.info = () => {};
-	console.warn = (msg?: unknown, ...rest: unknown[]) => {
-		if (typeof msg === 'string' && msg.includes('TensorFlow Lite XNNPACK delegate')) return;
-		origWarn(String(msg), ...rest.map((a) => String(a)));
-	};
-	console.error = (msg?: unknown, ...rest: unknown[]) => {
-		if (typeof msg === 'string' && msg.includes('TensorFlow Lite XNNPACK delegate')) return;
-		origError(String(msg), ...rest.map((a) => String(a)));
-	};
 	let res: PoseLandmarkerResult | null = null;
+	// Suppress Mediapipe XNNPACK INFO without breaking console in SSR
+	const ci = typeof console !== 'undefined' ? console.info : undefined;
+	const cw = typeof console !== 'undefined' ? console.warn : undefined;
+	const ce = typeof console !== 'undefined' ? console.error : undefined;
 	try {
+		if (ci && cw && ce) {
+			console.info = () => {};
+			console.warn = (msg?: unknown, ...rest: unknown[]) => { if (typeof msg === 'string' && msg.includes('TensorFlow Lite XNNPACK delegate')) return; cw.call(console, String(msg), ...rest.map((a) => String(a))); };
+			console.error = (msg?: unknown, ...rest: unknown[]) => { if (typeof msg === 'string' && msg.includes('TensorFlow Lite XNNPACK delegate')) return; ce.call(console, String(msg), ...rest.map((a) => String(a))); };
+		}
 		res = landmarker.detectForVideo(video, ts);
 	} catch {
 		res = null;
 	} finally {
-		console.info = origInfo;
-		console.warn = origWarn;
-		console.error = origError;
+		if (ci) console.info = ci; if (cw) console.warn = cw; if (ce) console.error = ce;
 	}
 	return res;
 }
@@ -70,59 +65,32 @@ export class PoseEngine {
 	private statsListeners = new Set<StatsListener>();
 	private lastTickTs = 0;
 	private fps = 0;
-	private intervalMs = 1000 / 30; // adaptive cadence
+	private intervalMs = 1000 / 30;
 
 	constructor(video: HTMLVideoElement, alpha = 0.5) {
 		this.video = video;
 		this.alpha = alpha;
 	}
 
-	subscribe(listener: PoseListener) {
-		this.listeners.add(listener);
-		return () => this.listeners.delete(listener);
-	}
-
-	subscribeStats(listener: StatsListener) {
-		this.statsListeners.add(listener);
-		return () => this.statsListeners.delete(listener);
-	}
-
-	private emit(data: SmoothedLandmark[] | null) {
-		this.listeners.forEach((l) => l(data));
-	}
-	private emitStats() {
-		this.statsListeners.forEach((l) => l({ fps: this.fps }));
-	}
+	subscribe(listener: PoseListener) { this.listeners.add(listener); return () => this.listeners.delete(listener); }
+	subscribeStats(listener: StatsListener) { this.statsListeners.add(listener); return () => this.statsListeners.delete(listener); }
+	private emit(data: SmoothedLandmark[] | null) { this.listeners.forEach((l) => l(data)); }
+	private emitStats() { this.statsListeners.forEach((l) => l({ fps: this.fps })); }
 
 	start() {
 		const tick = async () => {
 			const now = performance.now();
 			if (this.lastTickTs) {
-				const dt = now - this.lastTickTs;
-				this.fps = Math.round(1000 / dt);
-				this.emitStats();
-				// Adapt cadence: if FPS < 15, slow down to 20 Hz; if > 25, speed back to 30 Hz
-				if (this.fps < 15) this.intervalMs = 1000 / 20;
-				else if (this.fps > 25) this.intervalMs = 1000 / 30;
+				const dt = now - this.lastTickTs; this.fps = Math.round(1000 / dt); this.emitStats();
+				if (this.fps < 15) this.intervalMs = 1000 / 20; else if (this.fps > 25) this.intervalMs = 1000 / 30;
 			}
 			this.lastTickTs = now;
-
 			const result = await estimate(this.video);
 			let output: SmoothedLandmark[] | null = null;
 			if (result && result.landmarks && result.landmarks[0]) {
 				const curr = result.landmarks[0].map((p) => ({ x: p.x, y: p.y, z: p.z, visibility: p.visibility }));
-				if (!this.last) {
-					this.last = curr;
-					output = curr;
-				} else {
-					output = curr.map((p, i) => ({
-						x: exponentialMovingAverage(this.last![i].x, p.x, this.alpha),
-						y: exponentialMovingAverage(this.last![i].y, p.y, this.alpha),
-						z: exponentialMovingAverage(this.last![i].z ?? 0, p.z ?? 0, this.alpha),
-						visibility: p.visibility,
-					}));
-					this.last = output;
-				}
+				if (!this.last) { this.last = curr; output = curr; }
+				else { output = curr.map((p, i) => ({ x: exponentialMovingAverage(this.last![i].x, p.x, this.alpha), y: exponentialMovingAverage(this.last![i].y, p.y, this.alpha), z: exponentialMovingAverage(this.last![i].z ?? 0, p.z ?? 0, this.alpha), visibility: p.visibility })); this.last = output; }
 			}
 			this.emit(output);
 			this.timerId = window.setTimeout(tick, this.intervalMs);
@@ -130,10 +98,5 @@ export class PoseEngine {
 		if (this.timerId == null) tick();
 	}
 
-	stop() {
-		if (this.timerId != null) {
-			clearTimeout(this.timerId);
-			this.timerId = null;
-		}
-	}
+	stop() { if (this.timerId != null) { clearTimeout(this.timerId); this.timerId = null; } }
 } 

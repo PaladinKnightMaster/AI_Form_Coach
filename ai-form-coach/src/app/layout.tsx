@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from 'next/link';
 import AuthStatus from '@/components/AuthStatus';
+import LogSilencer from '@/components/LogSilencer';
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 					</div>
 				</nav>
 				{children}
+				<LogSilencer />
 				<footer className="border-t p-4 text-center text-sm opacity-70">All processing happens in your browser.</footer>
 			</body>
 		</html>

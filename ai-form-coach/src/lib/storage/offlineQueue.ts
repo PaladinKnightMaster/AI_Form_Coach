@@ -5,9 +5,15 @@ const DB_NAME = 'ai-form-coach';
 const STORE = 'write_buffer';
 
 async function db() {
-	return openDB(DB_NAME, 1, {
+	return openDB(DB_NAME, 3, {
 		upgrade(database) {
-			database.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+			// Ensure required stores exist (resilient across versions)
+			if (!database.objectStoreNames.contains(STORE)) {
+				database.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+			}
+			if (!database.objectStoreNames.contains('device_calibration')) {
+				database.createObjectStore('device_calibration', { keyPath: 'id' });
+			}
 		},
 	});
 }
