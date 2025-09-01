@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { initPose, PoseEngine, type SmoothedLandmark } from '@/lib/pose';
+import { initPose, PoseEngine, type SmoothedLandmark, type StatsListener } from '@/lib/pose';
 import { createValidator } from '@/lib/validators';
 import type { Exercise } from '@/lib/validators/types';
 import { speak, setMuted } from '@/lib/voice/coachVoice';
@@ -21,6 +21,7 @@ export default function Coach() {
 	const [cue, setCue] = useState('');
 	const [spark, setSpark] = useState<number[]>([]);
 	const engineRef = useRef<PoseEngine | null>(null);
+	const [fps, setFps] = useState(0);
 	const validatorRef = useRef(createValidator(exercise));
 	const [startTs, setStartTs] = useState<number | null>(null);
 	const [muted, updateMuted] = useState(false);
@@ -74,7 +75,8 @@ export default function Coach() {
 		let active = true;
 		let stream: MediaStream | null = null;
 		(async () => {
-			await initPose('lite');
+			const cached = localStorage.getItem('afc_model') as ('lite'|'full'|null);
+			await initPose(cached ?? 'lite');
 			stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
 			const video = videoRef.current; if (!video) return;
 			if (video.srcObject !== stream) { video.srcObject = stream; }
@@ -89,6 +91,7 @@ export default function Coach() {
 			const engine = new PoseEngine(video);
 			engineRef.current = engine;
 			engine.subscribe(onPose);
+			engine.subscribeStats(({ fps }) => setFps(fps));
 		})();
 		return () => {
 			active = false;
@@ -189,6 +192,7 @@ export default function Coach() {
 					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={muted} onChange={(e) => updateMuted(e.target.checked)} /> Mute</label>
 					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} /> Large HUD</label>
 					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={highContrast} onChange={(e) => setHighContrast(e.target.checked)} /> High contrast</label>
+					<select onChange={(e) => { localStorage.setItem('afc_model', e.target.value); }} className="border rounded-md px-2 py-1"><option value="lite">Lite</option><option value="full">Full</option></select>
 				</div>
 				<div className="flex items-center gap-3 text-sm">
 					<span className={`px-2 py-0.5 rounded ${quality==='good'?'bg-green-500/30 text-green-800':quality==='warn'?'bg-yellow-500/30 text-yellow-800':'bg-red-500/30 text-red-800'}`}>{quality}</span>
@@ -201,7 +205,7 @@ export default function Coach() {
 					<video ref={videoRef} className="w-full h-full object-contain" playsInline muted />
 					<canvas ref={canvasRef} className="absolute inset-0" />
 					{videoRef.current && (<PoseOverlay landmarks={landmarks} video={videoRef.current} mirror />)}
-					<HUD repCount={repCount} cue={pausedByQuality ? 'Step back into frame' : cue} spark={spark} subtext={goalSubtext()} large={largeText} />
+					<HUD repCount={repCount} cue={pausedByQuality ? 'Step back into frame' : cue} spark={spark} subtext={`${goalSubtext() ?? ''}${goalSubtext() ? ' • ' : ''}${fps ? fps + ' FPS' : ''}`} large={largeText} />
 					{countdown !== null && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="text-6xl font-bold">{countdown || 'Go!'}</div></div>)}
 					{saving && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent" /><p className="mt-3">Saving your session…</p></div>)}
 					{restLeft !== null && (<div className="absolute bottom-4 left-4 bg-white/80 rounded px-3 py-2 text-sm">Rest: {restLeft}s</div>)}

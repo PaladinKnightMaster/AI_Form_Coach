@@ -32,7 +32,6 @@ export async function estimate(video: HTMLVideoElement): Promise<PoseLandmarkerR
 	if (!landmarker) return null;
 	if (!video || video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) return null;
 	const ts = performance.now();
-	// Suppress Mediapipe's XNNPACK INFO noise during detect call
 	const origInfo = console.info;
 	const origWarn = console.warn;
 	const origError = console.error;
@@ -60,6 +59,7 @@ export async function estimate(video: HTMLVideoElement): Promise<PoseLandmarkerR
 
 export type SmoothedLandmark = Point3 & { visibility?: number };
 export type PoseListener = (landmarks: SmoothedLandmark[] | null) => void;
+export type StatsListener = (stats: { fps: number }) => void;
 
 export class PoseEngine {
 	private video: HTMLVideoElement;
@@ -67,6 +67,10 @@ export class PoseEngine {
 	private timerId: number | null = null;
 	private last: SmoothedLandmark[] | null = null;
 	private listeners = new Set<PoseListener>();
+	private statsListeners = new Set<StatsListener>();
+	private lastTickTs = 0;
+	private fps = 0;
+	private intervalMs = 1000 / 30; // adaptive cadence
 
 	constructor(video: HTMLVideoElement, alpha = 0.5) {
 		this.video = video;
@@ -78,12 +82,31 @@ export class PoseEngine {
 		return () => this.listeners.delete(listener);
 	}
 
+	subscribeStats(listener: StatsListener) {
+		this.statsListeners.add(listener);
+		return () => this.statsListeners.delete(listener);
+	}
+
 	private emit(data: SmoothedLandmark[] | null) {
 		this.listeners.forEach((l) => l(data));
+	}
+	private emitStats() {
+		this.statsListeners.forEach((l) => l({ fps: this.fps }));
 	}
 
 	start() {
 		const tick = async () => {
+			const now = performance.now();
+			if (this.lastTickTs) {
+				const dt = now - this.lastTickTs;
+				this.fps = Math.round(1000 / dt);
+				this.emitStats();
+				// Adapt cadence: if FPS < 15, slow down to 20 Hz; if > 25, speed back to 30 Hz
+				if (this.fps < 15) this.intervalMs = 1000 / 20;
+				else if (this.fps > 25) this.intervalMs = 1000 / 30;
+			}
+			this.lastTickTs = now;
+
 			const result = await estimate(this.video);
 			let output: SmoothedLandmark[] | null = null;
 			if (result && result.landmarks && result.landmarks[0]) {
@@ -102,7 +125,7 @@ export class PoseEngine {
 				}
 			}
 			this.emit(output);
-			this.timerId = window.setTimeout(tick, 1000 / 30);
+			this.timerId = window.setTimeout(tick, this.intervalMs);
 		};
 		if (this.timerId == null) tick();
 	}

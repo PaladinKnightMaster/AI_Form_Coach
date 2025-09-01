@@ -19,4 +19,12 @@ export type ValidatorState = {
 	metrics: RepMetric[];
 };
 
-export type Validator = (landmarks: SmoothedLandmark[] | null, ts: number) => ValidatorState; 
+export type ValidatorConfig = {
+	debounceFrames?: number; // frames required to confirm a phase change
+	// Optional thresholds per exercise
+	squat?: { downDepth: number; upDepth: number };
+	pushup?: { bottomElbow: number; topElbow: number };
+	plank?: { minHipAngle: number };
+};
+
+export type Validator = (landmarks: SmoothedLandmark[] | null, ts: number, cfg?: ValidatorConfig) => ValidatorState; 

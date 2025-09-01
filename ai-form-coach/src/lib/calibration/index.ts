@@ -11,6 +11,17 @@ export type Calibration = {
 	createdAt: number;
 };
 
+export type ExerciseThresholds = {
+	exercise: 'squat' | 'pushup' | 'plank';
+	// Squat: depth thresholds derived from knee angle
+	squat?: { downDepth: number; upDepth: number };
+	// Pushup: elbow angle thresholds
+	pushup?: { bottomElbow: number; topElbow: number };
+	// Plank: hip straightness angle target
+	plank?: { minHipAngle: number };
+	createdAt: number;
+};
+
 async function db() {
 	return openDB(DB_NAME, 2, {
 		upgrade(database, oldVersion) {
@@ -27,4 +38,14 @@ export async function saveCalibration(cal: Calibration) {
 export async function loadCalibration(): Promise<Calibration | null> {
 	const d = await db();
 	return (await d.get(STORE, 'default')) ?? null;
+}
+
+export async function saveExerciseThresholds(t: ExerciseThresholds) {
+	const d = await db();
+	await d.put(STORE, { id: `thr_${t.exercise}`, ...t });
+}
+
+export async function loadExerciseThresholds(exercise: 'squat' | 'pushup' | 'plank'): Promise<ExerciseThresholds | null> {
+	const d = await db();
+	return (await d.get(STORE, `thr_${exercise}`)) ?? null;
 } 

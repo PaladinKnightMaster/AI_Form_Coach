@@ -1,42 +1,56 @@
 import { angleBetween, clamp } from '../math/poseMath';
-import type { Validator, ValidatorState } from './types';
+import type { Validator, ValidatorState, ValidatorConfig } from './types';
 import type { SmoothedLandmark } from '../pose';
 
-const LEFT_HIP = 23, LEFT_KNEE = 25, LEFT_ANKLE = 27;
-const RIGHT_HIP = 24, RIGHT_KNEE = 26, RIGHT_ANKLE = 28;
+const L = { HIP: 23, KNEE: 25, ANKLE: 27 } as const;
+const R = { HIP: 24, KNEE: 26, ANKLE: 28 } as const;
 
 export function createSquatValidator(): Validator {
 	const state: ValidatorState = { repCount: 0, phase: 'idle', cues: [], metrics: [] };
 	let currentRepStart: number | null = null;
 	let peakDepth = 0;
+	let stable = 0;
 
-	return (lm: SmoothedLandmark[] | null, ts: number) => {
+	return (lm: SmoothedLandmark[] | null, ts: number, cfg?: ValidatorConfig) => {
 		state.cues = [];
 		if (!lm) return state;
-		const lk = angleBetween(lm[LEFT_HIP], lm[LEFT_KNEE], lm[LEFT_ANKLE]);
-		const rk = angleBetween(lm[RIGHT_HIP], lm[RIGHT_KNEE], lm[RIGHT_ANKLE]);
-		const kneeAngle = (lk + rk) / 2;
-		const depth = clamp(180 - kneeAngle, 0, 120);
+		// Pick side with higher visibility
+		const lv = (lm[L.KNEE]?.visibility ?? 0) + (lm[L.HIP]?.visibility ?? 0) + (lm[L.ANKLE]?.visibility ?? 0);
+		const rv = (lm[R.KNEE]?.visibility ?? 0) + (lm[R.HIP]?.visibility ?? 0) + (lm[R.ANKLE]?.visibility ?? 0);
+		const side = rv > lv ? R : L;
+		const k = angleBetween(lm[side.HIP], lm[side.KNEE], lm[side.ANKLE]);
+		const depth = clamp(180 - k, 0, 120);
 
-		switch (state.phase) {
-			case 'idle':
-			case 'up':
-				if (depth > 35) {
-					state.phase = 'down';
+		const downDepth = cfg?.squat?.downDepth ?? 35;
+		const upDepth = cfg?.squat?.upDepth ?? 10;
+		const debounce = cfg?.debounceFrames ?? 3;
+
+		let desiredPhase: ValidatorState['phase'] = state.phase;
+		if (state.phase === 'idle' || state.phase === 'up') {
+			if (depth > downDepth) desiredPhase = 'down';
+		} else if (state.phase === 'down') {
+			peakDepth = Math.max(peakDepth, depth);
+			if (depth < 20) desiredPhase = 'up';
+		}
+
+		if (desiredPhase !== state.phase) {
+			stable += 1;
+			if (stable >= debounce) {
+				state.phase = desiredPhase;
+				stable = 0;
+				if (desiredPhase === 'down') {
 					currentRepStart = currentRepStart ?? ts;
 					state.cues.push('Hips back, chest up');
 				}
-				break;
-			case 'down':
-				peakDepth = Math.max(peakDepth, depth);
-				if (depth < 20) {
-					state.phase = 'up';
+				if (desiredPhase === 'up') {
 					state.cues.push('Drive up through heels');
 				}
-				break;
+			}
+		} else {
+			stable = 0;
 		}
 
-		if (state.phase === 'up' && depth < 10 && currentRepStart !== null) {
+		if (state.phase === 'up' && depth < upDepth && currentRepStart !== null) {
 			state.repCount += 1;
 			state.metrics.push({ startTs: currentRepStart, endTs: ts, peakDepth });
 			currentRepStart = null;
