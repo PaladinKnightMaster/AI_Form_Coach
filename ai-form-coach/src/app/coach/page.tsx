@@ -45,8 +45,32 @@ export default function Coach() {
 	const [showCalib, setShowCalib] = useState(false);
 	const [fps, setFps] = useState(0);
 	const [thrCfg, setThrCfg] = useState<ValidatorConfig>({ debounceFrames: 3 });
+	const [pillCues, setPillCues] = useState<string[]>([]);
+	const lastCueAtRef = useRef(0);
+	const [tip, setTip] = useState<string | null>(null);
+	// AMRAP/EMOM presets
+	const [template, setTemplate] = useState<'custom'|'amrap_2'|'emom_5'|'tabata'>('custom');
 
 	function onGoalTypeChange(val: string) { if (val === 'none' || val === 'reps' || val === 'time') setGoalType(val); }
+
+	function rateLimitedCue(newCue: string) {
+		const now = performance.now();
+		if (now - lastCueAtRef.current < 1500) return; // 1.5s throttle
+		lastCueAtRef.current = now; setCue(newCue);
+		if (!muted) speak(newCue);
+	}
+
+	function updatePillsFrom(s: { cues: string[] }) {
+		setPillCues(s.cues.slice(1, 3));
+	}
+
+	function applyTemplate(t: typeof template) {
+		setTemplate(t);
+		if (t === 'amrap_2') { setGoalType('time'); setGoalValue(120); }
+		else if (t === 'emom_5') { setGoalType('time'); setGoalValue(300); }
+		else if (t === 'tabata') { setGoalType('time'); setGoalValue(240); }
+		else { setGoalType('none'); }
+	}
 
 	useEffect(() => { setMuted(muted); }, [muted]);
 	useEffect(() => { try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {} }, []);
@@ -116,8 +140,17 @@ export default function Coach() {
 		if (lowQualityFramesRef.current > 45 && running) { setRunning(false); setPausedByQuality(true); return; }
 		const s = validatorRef.current(lms, ts, thrCfg);
 		setRepCount(s.repCount);
-		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) { const m = s.metrics[s.metrics.length - 1]; repMetricsRef.current.push({ idx: s.metrics.length, start_ms: Math.round(m.startTs), end_ms: Math.round(m.endTs), peak_depth: (m as unknown as { peakDepth?: number }).peakDepth }); }
-		const firstCue = s.cues[0] ?? ''; if (firstCue && firstCue !== cue && !muted) speak(firstCue); setCue(firstCue);
+		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) {
+			const m = s.metrics[s.metrics.length - 1]; repMetricsRef.current.push({ idx: s.metrics.length, start_ms: Math.round(m.startTs), end_ms: Math.round(m.endTs), peak_depth: (m as unknown as { peakDepth?: number }).peakDepth });
+			// shallow rep tip for squats if peak_depth < threshold
+			if (exercise === 'squat') {
+				const d = (m as unknown as { peakDepth?: number }).peakDepth ?? 0;
+				if (d < (thrCfg.squat?.downDepth ?? 35)) setTip('Try sitting back a bit more to hit depth.');
+			}
+		}
+		const primary = s.cues[0] ?? '';
+		if (primary) rateLimitedCue(primary);
+		updatePillsFrom(s);
 		setSpark((prev) => (prev.concat([s.phase === 'down' ? 1 : 0]).slice(-100))); setLandmarks(lms);
 	}
 
