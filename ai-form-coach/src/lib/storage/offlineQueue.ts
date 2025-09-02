@@ -28,6 +28,15 @@ export async function enqueueWrite(write: BufferedWrite) {
 	await d.add(STORE, write);
 }
 
+export async function getPendingCount(): Promise<number> {
+	const d = await db();
+	const tx = d.transaction(STORE, 'readonly');
+	const store = tx.objectStore(STORE);
+	const count = await store.count();
+	await tx.done;
+	return count;
+}
+
 export async function flushWrites() {
 	const d = await db();
 	const tx = d.transaction(STORE, 'readwrite');

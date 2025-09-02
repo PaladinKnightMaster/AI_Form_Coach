@@ -7,10 +7,11 @@ import type { ValidatorConfig } from '@/lib/validators/types';
 import { speak, setMuted } from '@/lib/voice/coachVoice';
 import PoseOverlay from '@/components/PoseOverlay';
 import HUD from '@/components/HUD';
-import { enqueueWrite, flushWrites } from '@/lib/storage/offlineQueue';
+import { enqueueWrite, flushWrites, getPendingCount } from '@/lib/storage/offlineQueue';
 import TutorialOverlay from '@/components/TutorialOverlay';
 import CalibrationModal from '@/components/CalibrationModal';
 import { loadExerciseThresholds } from '@/lib/calibration';
+import SafetyChecklist from '@/components/SafetyChecklist';
 
 export default function Coach() {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -52,6 +53,10 @@ export default function Coach() {
 	const [tip, setTip] = useState<string | null>(null);
 	// AMRAP/EMOM presets
 	const [template, setTemplate] = useState<'custom'|'amrap_2'|'emom_5'|'tabata'>('custom');
+	const [offline, setOffline] = useState<boolean>(typeof navigator !== 'undefined' ? !navigator.onLine : false);
+	const [pending, setPending] = useState(0);
+	const [cameraError, setCameraError] = useState<string | null>(null);
+	const [showSafety, setShowSafety] = useState(false);
 
 	function onGoalTypeChange(val: string) { if (val === 'none' || val === 'reps' || val === 'time') setGoalType(val); }
 
@@ -77,6 +82,8 @@ export default function Coach() {
 	useEffect(() => { setMuted(muted); }, [muted]);
 	useEffect(() => { try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {} }, []);
 	useEffect(() => { const onKey = (e: KeyboardEvent) => { if (e.key === '?') setShowHelp(true); }; window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey); }, []);
+	useEffect(() => { const update = () => setOffline(!navigator.onLine); window.addEventListener('online', update); window.addEventListener('offline', update); return () => { window.removeEventListener('online', update); window.removeEventListener('offline', update); }; }, []);
+	useEffect(() => { getPendingCount().then(setPending).catch(() => setPending(0)); }, [saving, running]);
 
 	// Load thresholds (all exercises) once, and reload after calibration
 	async function reloadThresholds() {
@@ -108,20 +115,19 @@ export default function Coach() {
 		(async () => {
 			const cached = localStorage.getItem('afc_model') as ('lite'|'full'|null);
 			await initPose(cached ?? 'lite');
-			stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+			try {
+				stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+			} catch (e) {
+				setCameraError('Camera permission blocked or no camera found. Enable camera in your browser settings (Chrome: Site settings → Camera; Safari iOS: Settings → Safari → Camera). Then reload.');
+				return;
+			}
 			const video = videoRef.current; if (!video) return;
 			if (video.srcObject !== stream) { video.srcObject = stream; }
-			await new Promise<void>((resolve) => {
-				if (!video) return resolve(); if (video.readyState >= 2) return resolve();
-				const handler = () => { video.removeEventListener('loadedmetadata', handler); resolve(); };
-				video.addEventListener('loadedmetadata', handler);
-			});
+			await new Promise<void>((resolve) => { if (!video) return resolve(); if (video.readyState >= 2) return resolve(); const handler = () => { video.removeEventListener('loadedmetadata', handler); resolve(); }; video.addEventListener('loadedmetadata', handler); });
 			if (!active || !video) return;
 			try { await video.play(); } catch {}
 			const engine = new PoseEngine(video);
-			engineRef.current = engine;
-			engine.subscribe(onPose);
-			engine.subscribeStats(({ fps }) => setFps(fps));
+			engineRef.current = engine; engine.subscribe(onPose); engine.subscribeStats(({ fps }) => setFps(fps));
 		})();
 		return () => { active = false; engineRef.current?.stop(); if (stream) { for (const t of stream.getTracks()) t.stop(); } if (wakeLockRef.current) { try { wakeLockRef.current.release?.(); } catch {} } };
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,7 +167,11 @@ export default function Coach() {
 	}
 
 	function vibrate(ms: number) { try { navigator.vibrate?.(ms); } catch {} }
-	function handleStartPause() { if (running) { setRunning(false); return; } setCountdown(3); vibrate(30); let left = 3; const iv = setInterval(() => { left -= 1; setCountdown(left); if (left <= 0) { clearInterval(iv); setCountdown(null); setElapsedMs(0); setRunning(true); vibrate(60); } }, 1000); }
+	function handleStartPause() {
+		if (running) { setRunning(false); return; }
+		try { if (!localStorage.getItem('afc_safety_ok')) { setShowSafety(true); return; } } catch {}
+		setCountdown(3); vibrate(30); let left = 3; const iv = setInterval(() => { left -= 1; setCountdown(left); if (left <= 0) { clearInterval(iv); setCountdown(null); setElapsedMs(0); setRunning(true); vibrate(60); } }, 1000);
+	}
 	function undoLastRep() { if (repMetricsRef.current.length === 0 || repCount === 0) return; repMetricsRef.current.pop(); setRepCount((c) => Math.max(0, c - 1)); }
 	function goalSubtext(): string | undefined { if (goalType === 'reps') return `${repCount}/${goalValue} reps`; if (goalType === 'time') return `${Math.floor(elapsedMs/1000)}s / ${goalValue}s`; return undefined; }
 	function startRest(seconds: number) { setRunning(false); setRestLeft(seconds); if (restTimerRef.current) window.clearInterval(restTimerRef.current); restTimerRef.current = window.setInterval(() => { setRestLeft((v) => { const next = (v ?? 0) - 1; if (next <= 0) { window.clearInterval(restTimerRef.current!); restTimerRef.current = null; speak('Rest over'); return null; } return next; }); }, 1000); }
@@ -192,6 +202,7 @@ export default function Coach() {
 					{countdown !== null && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="text-6xl font-bold">{countdown || 'Go!'}</div></div>)}
 					{saving && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent" /><p className="mt-3">Saving your session…</p></div>)}
 					{restLeft !== null && (<div className="absolute bottom-4 left-4 bg-white/80 rounded px-3 py-2 text-sm">Rest: {restLeft}s</div>)}
+					{offline && (<div className="absolute bottom-2 left-2 text-xs bg-amber-500/20 text-amber-800 rounded px-2 py-1">Offline • {pending} pending <button className="underline ml-1" onClick={() => flushWrites().then(()=>getPendingCount().then(setPending))}>Retry now</button></div>)}
 					<div className="absolute bottom-2 right-2 text-xs opacity-80 bg-white/70 rounded px-2 py-1">Camera stays on your device. We save only rep summaries.</div>
 					{showCalib && <CalibrationModal exercise={exercise} landmarks={landmarks} onClose={() => setShowCalib(false)} onSaved={() => { reloadThresholds(); alert('Calibration saved'); }} />}
 					{showTutorial && <TutorialOverlay onClose={() => setShowTutorial(false)} />}
@@ -209,16 +220,17 @@ export default function Coach() {
 							</div>
 						</div>
 					)}
+					{showSafety && <SafetyChecklist open={showSafety} onAgree={() => { setShowSafety(false); handleStartPause(); }} onClose={() => setShowSafety(false)} />}
 				</div>
 				<div className="space-y-4">
-					<div className="rounded-lg border p-3 space-y-2">
-						<div className="font-medium">Goal</div>
-						<div className="flex items-center gap-2">
-							<select value={goalType} onChange={(e) => onGoalTypeChange(e.target.value)} className="border rounded px-2 py-1"><option value="none">None</option><option value="reps">Target reps</option><option value="time">Target time (s)</option></select>
-							<input type="number" min={1} value={goalValue} onChange={(e) => setGoalValue(parseInt(e.target.value || '0', 10))} className="border rounded px-2 py-1 w-24" />
-							<button onClick={() => setShowCalib(true)} className="px-2 py-1 rounded bg-emerald-600 text-white">Calibrate</button>
-						</div>
+									<div className="rounded-lg border p-3 space-y-2">
+					<div className="font-medium">Goal</div>
+					<div className="flex items-center gap-2">
+						<select value={goalType} onChange={(e) => onGoalTypeChange(e.target.value)} className="border rounded px-2 py-1"><option value="none">None</option><option value="reps">Target reps</option><option value="time">Target time (s)</option></select>
+						<input aria-label="Goal value" type="number" min={1} value={goalValue} onChange={(e) => setGoalValue(parseInt(e.target.value || '0', 10))} className="border rounded px-2 py-1 w-24" />
+						<button aria-label="Open calibration" onClick={() => setShowCalib(true)} className="px-2 py-1 rounded bg-emerald-600 text-white">Calibrate</button>
 					</div>
+				</div>
 					<button onClick={handleStartPause} className="w-full py-3 rounded-lg bg-black text-white">{running ? 'Pause' : 'Start'} Session</button>
 					<div className="grid grid-cols-3 gap-2"><button onClick={() => startRest(30)} className="py-2 rounded bg-gray-200">Rest 30s</button><button onClick={() => startRest(60)} className="py-2 rounded bg-gray-200">Rest 60s</button><button onClick={() => startRest(90)} className="py-2 rounded bg-gray-200">Rest 90s</button></div>
 					<button onClick={undoLastRep} className="w-full py-3 rounded-lg bg-gray-200">Undo last rep</button>
