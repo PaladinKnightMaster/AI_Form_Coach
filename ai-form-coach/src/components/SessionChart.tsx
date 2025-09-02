@@ -14,8 +14,8 @@ export default function SessionChart({ reps }: { reps: Rep[] }) {
 				const h = Math.round(((r.peak_depth ?? 0) / maxDepth) * (height - 20));
 				const x = i * (barW + 2);
 				const y = height - h - 10;
-				const good = (r.rom_score ?? 0) >= 0.8;
-				return <rect key={r.idx} x={x} y={y} width={barW} height={h} rx={2} className={good ? 'fill-green-500' : 'fill-yellow-500'} />;
+				const strongROM = (r.rom_score ?? 0) >= 0.8;
+				return <rect key={r.idx} x={x} y={y} width={barW} height={h} rx={2} className={strongROM ? 'fill-sky-500' : 'fill-amber-600'} />;
 			})}
 		</svg>
 	);

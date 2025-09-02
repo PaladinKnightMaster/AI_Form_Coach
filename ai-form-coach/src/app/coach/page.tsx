@@ -43,6 +43,8 @@ export default function Coach() {
 	const restTimerRef = useRef<number | null>(null);
 	const [showTutorial, setShowTutorial] = useState(false);
 	const [showCalib, setShowCalib] = useState(false);
+	const [showHelp, setShowHelp] = useState(false);
+	const repsAtGoalRef = useRef<number>(0);
 	const [fps, setFps] = useState(0);
 	const [thrCfg, setThrCfg] = useState<ValidatorConfig>({ debounceFrames: 3 });
 	const [pillCues, setPillCues] = useState<string[]>([]);
@@ -74,6 +76,7 @@ export default function Coach() {
 
 	useEffect(() => { setMuted(muted); }, [muted]);
 	useEffect(() => { try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {} }, []);
+	useEffect(() => { const onKey = (e: KeyboardEvent) => { if (e.key === '?') setShowHelp(true); }; window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey); }, []);
 
 	// Load thresholds (all exercises) once, and reload after calibration
 	async function reloadThresholds() {
@@ -139,6 +142,9 @@ export default function Coach() {
 		else { setQuality('bad'); lowQualityFramesRef.current++; }
 		if (lowQualityFramesRef.current > 45 && running) { setRunning(false); setPausedByQuality(true); return; }
 		const s = validatorRef.current(lms, ts, thrCfg);
+		if (s.metrics.length > repMetricsRef.current.length) vibrate(20);
+		// goal met haptic
+		if (goalType === 'reps' && repCount >= goalValue && repsAtGoalRef.current === 0) { vibrate(120); repsAtGoalRef.current = repCount; }
 		setRepCount(s.repCount);
 		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) {
 			const m = s.metrics[s.metrics.length - 1]; repMetricsRef.current.push({ idx: s.metrics.length, start_ms: Math.round(m.startTs), end_ms: Math.round(m.endTs), peak_depth: (m as unknown as { peakDepth?: number }).peakDepth });
@@ -154,7 +160,8 @@ export default function Coach() {
 		setSpark((prev) => (prev.concat([s.phase === 'down' ? 1 : 0]).slice(-100))); setLandmarks(lms);
 	}
 
-	function handleStartPause() { if (running) { setRunning(false); return; } setCountdown(3); let left = 3; const iv = setInterval(() => { left -= 1; setCountdown(left); if (left <= 0) { clearInterval(iv); setCountdown(null); setElapsedMs(0); setRunning(true); } }, 1000); }
+	function vibrate(ms: number) { try { navigator.vibrate?.(ms); } catch {} }
+	function handleStartPause() { if (running) { setRunning(false); return; } setCountdown(3); vibrate(30); let left = 3; const iv = setInterval(() => { left -= 1; setCountdown(left); if (left <= 0) { clearInterval(iv); setCountdown(null); setElapsedMs(0); setRunning(true); vibrate(60); } }, 1000); }
 	function undoLastRep() { if (repMetricsRef.current.length === 0 || repCount === 0) return; repMetricsRef.current.pop(); setRepCount((c) => Math.max(0, c - 1)); }
 	function goalSubtext(): string | undefined { if (goalType === 'reps') return `${repCount}/${goalValue} reps`; if (goalType === 'time') return `${Math.floor(elapsedMs/1000)}s / ${goalValue}s`; return undefined; }
 	function startRest(seconds: number) { setRunning(false); setRestLeft(seconds); if (restTimerRef.current) window.clearInterval(restTimerRef.current); restTimerRef.current = window.setInterval(() => { setRestLeft((v) => { const next = (v ?? 0) - 1; if (next <= 0) { window.clearInterval(restTimerRef.current!); restTimerRef.current = null; speak('Rest over'); return null; } return next; }); }, 1000); }
@@ -171,8 +178,8 @@ export default function Coach() {
 					<select onChange={(e) => { localStorage.setItem('afc_model', e.target.value); }} className="border rounded-md px-2 py-1"><option value="lite">Lite</option><option value="full">Full</option></select>
 				</div>
 				<div className="flex items-center gap-3 text-sm">
-					<span className={`px-2 py-0.5 rounded ${quality==='good'?'bg-green-500/30 text-green-800':quality==='warn'?'bg-yellow-500/30 text-yellow-800':'bg-red-500/30 text-red-800'}`}>{quality}</span>
-					<div className="opacity-70">Shortcuts: Space, U undo, R rest 60s, 1/2/3</div>
+					<span className={`px-2 py-0.5 rounded ${quality==='good'?'bg-sky-500/30 text-sky-800':quality==='warn'?'bg-amber-500/30 text-amber-800':'bg-rose-500/30 text-rose-800'}`}>{quality}</span>
+					<div className="opacity-70">Shortcuts: Space, U undo, R rest 60s, 1/2/3, ? help</div>
 				</div>
 			</header>
 
@@ -188,6 +195,20 @@ export default function Coach() {
 					<div className="absolute bottom-2 right-2 text-xs opacity-80 bg-white/70 rounded px-2 py-1">Camera stays on your device. We save only rep summaries.</div>
 					{showCalib && <CalibrationModal exercise={exercise} landmarks={landmarks} onClose={() => setShowCalib(false)} onSaved={() => { reloadThresholds(); alert('Calibration saved'); }} />}
 					{showTutorial && <TutorialOverlay onClose={() => setShowTutorial(false)} />}
+					{showHelp && (
+						<div role="dialog" aria-modal="true" className="fixed inset-0 z-50 grid place-items-center bg-black/60">
+							<div className="bg-white text-black rounded-xl p-4 max-w-md w-full">
+								<div className="flex items-center justify-between mb-2"><h2 className="text-lg font-semibold">Keyboard shortcuts</h2><button aria-label="Close help" onClick={() => setShowHelp(false)}>×</button></div>
+								<ul className="text-sm space-y-1">
+									<li><kbd>Space</kbd> start/pause</li>
+									<li><kbd>U</kbd> undo last rep</li>
+									<li><kbd>R</kbd> rest 60s</li>
+									<li><kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> select exercise</li>
+									<li><kbd>?</kbd> this help</li>
+								</ul>
+							</div>
+						</div>
+					)}
 				</div>
 				<div className="space-y-4">
 					<div className="rounded-lg border p-3 space-y-2">
