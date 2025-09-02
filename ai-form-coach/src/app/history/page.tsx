@@ -43,7 +43,13 @@ export default function History() {
 		const days = Array.from(new Set(sessions.map(s => new Date(s.started_at).toDateString()))).sort((a,b) => new Date(b).getTime() - new Date(a).getTime());
 		let streak = 0; let last = new Date().toDateString();
 		for (const d of days) { const dd = new Date(d).getTime(); const ll = new Date(last).getTime(); const delta = Math.round((ll - dd)/dayMs); if (delta <= 1) { streak += 1; last = d; } else break; }
-		return { t7, t30, bestRom: Number(bestRom.toFixed(2)), bestSessionReps, bestTempoMs, streak };
+		const totalRepsAll = total(sessions, 'total_reps');
+		const badges = {
+			streak7: streak >= 7,
+			reps100: totalRepsAll >= 100,
+			rom90: bestRom >= 0.9
+		};
+		return { t7, t30, bestRom: Number(bestRom.toFixed(2)), bestSessionReps, bestTempoMs, streak, badges };
 	}, [sessions, reps]);
 
 	return (
@@ -56,6 +62,12 @@ export default function History() {
 				<InsightCard title="Best set (reps)" value={insights.bestSessionReps.toString()} />
 				<InsightCard title="Best tempo (ms)" value={isFinite(Number(insights.bestTempoMs)) ? insights.bestTempoMs : '-'} />
 				<InsightCard title="Consistency streak" value={`${insights.streak} days`} />
+			</div>
+			{/* Badges */}
+			<div className="flex items-center gap-2 flex-wrap">
+				{insights.badges.streak7 && <Badge label="7-day streak" />}
+				{insights.badges.reps100 && <Badge label="100+ total reps" />}
+				{insights.badges.rom90 && <Badge label="Best ROM ≥ 0.90" />}
 			</div>
 			{sessions.length === 0 ? (
 				<div className="rounded-lg border p-6 text-center opacity-80">No sessions yet. Start one on the Coach page.</div>
@@ -83,4 +95,6 @@ function InsightCard({ title, value }: { title: string; value: string }) {
 			<div className="text-xl font-semibold">{value}</div>
 		</div>
 	);
-} 
+}
+
+function Badge({ label }: { label: string }) { return <span className="px-2 py-1 rounded-full bg-emerald-600/15 text-emerald-700 text-xs">{label}</span>; } 

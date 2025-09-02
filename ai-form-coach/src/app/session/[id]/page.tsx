@@ -84,6 +84,34 @@ export default function SessionDetail() {
 	const quickTags = [ 'knee cave', 'fatigue', 'PR', 'depth', 'form', 'tempo' ];
 	function addTag(t: string) { setNotes((n) => (n ? n + `, ${t}` : t)); }
 
+	async function shareImage() {
+		const w = 800, h = 400;
+		const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+		const ctx = canvas.getContext('2d'); if (!ctx || !session) return;
+		ctx.fillStyle = '#0b0b0b'; ctx.fillRect(0,0,w,h);
+		ctx.fillStyle = '#ffffff'; ctx.font = 'bold 28px system-ui'; ctx.fillText('AI Form Coach', 24, 48);
+		ctx.font = '16px system-ui'; ctx.fillText(`Exercise: ${session.exercise}`, 24, 80);
+		const totalSeconds = session.ended_at ? Math.round((new Date(session.ended_at).getTime() - new Date(session.started_at).getTime()) / 1000) : 0;
+		const avgRom = reps.length ? Number((reps.reduce((a, r) => a + (r.rom_score ?? 0), 0) / reps.length).toFixed(2)) : null;
+		ctx.fillText(`${session.total_reps ?? 0} reps • ${totalSeconds}s${avgRom !== null ? ` • ROM ${avgRom}` : ''}`, 24, 108);
+		// simple sparkline
+		const sx = 24, sy = 140, sw = 752, sh = 160;
+		ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2; ctx.strokeRect(sx, sy, sw, sh);
+		if (reps.length) {
+			let x = sx; const step = sw / reps.length;
+			ctx.beginPath();
+			reps.forEach((r, i) => {
+				const v = Math.max(0, Math.min(1, (r.rom_score ?? 0)));
+				const y = sy + sh - v * sh;
+				if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+				x += step;
+			});
+			ctx.stroke();
+		}
+		const dataUrl = canvas.toDataURL('image/png');
+		const a = document.createElement('a'); a.href = dataUrl; a.download = `session_${session.id}_share.png`; a.click();
+	}
+
 	return (
 		<div className="p-6 max-w-4xl mx-auto space-y-4">
 			<h1 className="text-2xl font-semibold flex items-center gap-2">Session {pr.reps || pr.rom ? <span className="px-2 py-0.5 text-xs rounded bg-emerald-600 text-white">PR</span> : null}</h1>
@@ -94,6 +122,7 @@ export default function SessionDetail() {
 			<div className="flex items-center gap-2">
 				<button onClick={copySummary} className="px-3 py-2 rounded bg-black text-white">Copy summary</button>
 				<button onClick={exportCSV} className="px-3 py-2 rounded border">Export CSV</button>
+				<button onClick={shareImage} className="px-3 py-2 rounded border">Share image</button>
 			</div>
 			<div className="rounded-lg border p-4">
 				<h2 className="font-medium mb-2">Reps</h2>
