@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function Card({ children, className }: { children: React.ReactNode; className?: string }) {
 	return <section className={`rounded-xl border bg-white/80 dark:bg-white/5 ${className ?? ''}`}>{children}</section>;

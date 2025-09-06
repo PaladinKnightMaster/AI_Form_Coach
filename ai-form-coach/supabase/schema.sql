@@ -78,4 +78,32 @@ create policy if not exists reps_select_own on public.reps for select using (exi
 create policy if not exists reps_cud_own on public.reps for all using (exists (select 1 from public.sessions s where s.id = session_id and s.user_id = auth.uid())) with check (exists (select 1 from public.sessions s where s.id = session_id and s.user_id = auth.uid()));
 
 create policy if not exists fb_select_own on public.feedback for select using (exists (select 1 from public.sessions s where s.id = session_id and s.user_id = auth.uid()));
-create policy if not exists fb_cud_own on public.feedback for all using (exists (select 1 from public.sessions s where s.id = session_id and s.user_id = auth.uid())) with check (exists (select 1 from public.sessions s where s.id = session_id and s.user_id = auth.uid())); 
+create policy if not exists fb_cud_own on public.feedback for all using (exists (select 1 from public.sessions s where s.id = session_id and s.user_id = auth.uid())) with check (exists (select 1 from public.sessions s where s.id = session_id and s.user_id = auth.uid()));
+
+-- Additive columns for new features
+alter table public.sessions add column if not exists goal_type text;
+alter table public.sessions add column if not exists goal_value integer;
+alter table public.sessions add column if not exists rpe integer check (rpe between 1 and 10);
+alter table public.sessions add column if not exists device_info jsonb;
+alter table public.sessions add column if not exists avg_pose_quality real;
+
+alter table public.reps add column if not exists valid boolean default true;
+
+-- Events table for lightweight observability
+create table if not exists public.events (
+	id uuid primary key default uuid_generate_v4(),
+	user_id uuid references public.profiles(id) on delete set null,
+	name text not null,
+	payload jsonb,
+	session_id uuid references public.sessions(id) on delete set null,
+	created_at timestamptz default now()
+);
+
+alter table public.events enable row level security;
+
+create index if not exists events_user_created_idx on public.events (user_id, created_at desc);
+
+drop policy if exists events_select_own on public.events;
+create policy events_select_own on public.events for select using (user_id = auth.uid());
+drop policy if exists events_insert_self_or_anon on public.events;
+create policy events_insert_self_or_anon on public.events for insert with check (user_id = auth.uid() or user_id is null); 

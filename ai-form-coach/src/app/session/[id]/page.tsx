@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';

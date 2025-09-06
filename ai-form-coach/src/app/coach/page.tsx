@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
-import { initPose, PoseEngine, type SmoothedLandmark, type StatsListener } from '@/lib/pose';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { initPose, PoseEngine, type SmoothedLandmark } from '@/lib/pose';
 import { createValidator } from '@/lib/validators';
 import type { Exercise } from '@/lib/validators/types';
 import type { ValidatorConfig } from '@/lib/validators/types';
@@ -21,7 +21,7 @@ export default function Coach() {
 	const [running, setRunning] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [repCount, setRepCount] = useState(0);
-	const repMetricsRef = useRef<{ idx: number; start_ms: number; end_ms: number; peak_depth?: number; rom_score?: number; cues?: string[] }[]>([]);
+	const repMetricsRef = useRef<{ idx: number; start_ms: number; end_ms: number; peak_depth?: number; rom_score?: number; cues?: string[]; valid?: boolean }[]>([]);
 	const [cue, setCue] = useState('');
 	const [spark, setSpark] = useState<number[]>([]);
 	const engineRef = useRef<PoseEngine | null>(null);
@@ -50,13 +50,15 @@ export default function Coach() {
 	const [thrCfg, setThrCfg] = useState<ValidatorConfig>({ debounceFrames: 3 });
 	const [pillCues, setPillCues] = useState<string[]>([]);
 	const lastCueAtRef = useRef(0);
-	const [tip, setTip] = useState<string | null>(null);
-	// AMRAP/EMOM presets
-	const [template, setTemplate] = useState<'custom'|'amrap_2'|'emom_5'|'tabata'>('custom');
+	// AMRAP/EMOM presets (currently not used)
+	// const [template, setTemplate] = useState<'custom'|'amrap_2'|'emom_5'|'tabata'>('custom');
 	const [offline, setOffline] = useState<boolean>(typeof navigator !== 'undefined' ? !navigator.onLine : false);
 	const [pending, setPending] = useState(0);
-	const [cameraError, setCameraError] = useState<string | null>(null);
+	// const [cameraError, setCameraError] = useState<string | null>(null);
 	const [showSafety, setShowSafety] = useState(false);
+	// Track average pose visibility for quality
+	const visSumRef = useRef(0);
+	const visCountRef = useRef(0);
 
 	function onGoalTypeChange(val: string) { if (val === 'none' || val === 'reps' || val === 'time') setGoalType(val); }
 
@@ -71,17 +73,13 @@ export default function Coach() {
 		setPillCues(s.cues.slice(1, 3));
 	}
 
-	function applyTemplate(t: typeof template) {
-		setTemplate(t);
-		if (t === 'amrap_2') { setGoalType('time'); setGoalValue(120); }
-		else if (t === 'emom_5') { setGoalType('time'); setGoalValue(300); }
-		else if (t === 'tabata') { setGoalType('time'); setGoalValue(240); }
-		else { setGoalType('none'); }
-	}
+	// useEffect(() => { setTemplate(template); }, [template]);
 
 	useEffect(() => { setMuted(muted); }, [muted]);
 	useEffect(() => { try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {} }, []);
-	useEffect(() => { const onKey = (e: KeyboardEvent) => { if (e.key === '?') setShowHelp(true); }; window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey); }, []);
+	// Keyboard help opener
+	const onHelpKey = useCallback((e: KeyboardEvent) => { if (e.key === '?') setShowHelp(true); }, []);
+	useEffect(() => { window.addEventListener('keydown', onHelpKey); return () => window.removeEventListener('keydown', onHelpKey); }, [onHelpKey]);
 	useEffect(() => { const update = () => setOffline(!navigator.onLine); window.addEventListener('online', update); window.addEventListener('offline', update); return () => { window.removeEventListener('online', update); window.removeEventListener('offline', update); }; }, []);
 	useEffect(() => { getPendingCount().then(setPending).catch(() => setPending(0)); }, [saving, running]);
 
@@ -96,36 +94,46 @@ export default function Coach() {
 	}
 	useEffect(() => { reloadThresholds(); }, []);
 
-	useEffect(() => {
-		function onKey(e: KeyboardEvent) {
-			if (e.code === 'Space') { e.preventDefault(); handleStartPause(); }
-			if (e.key === '1') setExercise('squat');
-			if (e.key === '2') setExercise('pushup');
-			if (e.key === '3') setExercise('plank');
-			if (e.key.toLowerCase() === 'u') undoLastRep();
-			if (e.key === '?') alert('Shortcuts: Space start/stop, U undo, 1/2/3 select, R rest 60s');
-			if (e.key.toLowerCase() === 'r') startRest(60);
-		}
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
-	}, []);
+	// memoized handlers and key listener
+	const handleStartPause = useCallback(() => {
+		if (running) { setRunning(false); return; }
+		try { if (!localStorage.getItem('afc_safety_ok')) { setShowSafety(true); return; } } catch {}
+		setCountdown(3); vibrate(30); let left = 3; const iv = setInterval(() => { left -= 1; setCountdown(left); if (left <= 0) { clearInterval(iv); setCountdown(null); setElapsedMs(0); setRunning(true); vibrate(60); import('@/lib/observability/events').then(m => m.logEvent('session_started', { exercise })).catch(()=>{}); } }, 1000);
+	}, [running, exercise]);
+	const undoLastRep = useCallback(() => { if (repMetricsRef.current.length === 0 || repCount === 0) return; const last = repMetricsRef.current[repMetricsRef.current.length - 1]; if (last) last.valid = false; setRepCount((c) => Math.max(0, c - 1)); import('@/lib/observability/events').then(m => m.logEvent('undo_used', { exercise })).catch(()=>{}); }, [repCount, exercise]);
+	const startRest = useCallback((seconds: number) => { setRunning(false); setRestLeft(seconds); import('@/lib/observability/events').then(m => m.logEvent('rest_started', { seconds, exercise })).catch(()=>{}); if (restTimerRef.current) window.clearInterval(restTimerRef.current); restTimerRef.current = window.setInterval(() => { setRestLeft((v) => { const next = (v ?? 0) - 1; if (next <= 0) { window.clearInterval(restTimerRef.current!); restTimerRef.current = null; speak('Rest over'); return null; } return next; }); }, 1000); }, [exercise]);
+	const onKey = useCallback((e: KeyboardEvent) => {
+		if (e.code === 'Space') { e.preventDefault(); handleStartPause(); }
+		if (e.key === '1') setExercise('squat');
+		if (e.key === '2') setExercise('pushup');
+		if (e.key === '3') setExercise('plank');
+		if (e.key.toLowerCase() === 'u') undoLastRep();
+		if (e.key === '?') setShowHelp(true);
+		if (e.key.toLowerCase() === 'r') startRest(60);
+	}, [handleStartPause, undoLastRep, startRest]);
+	useEffect(() => { window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey); }, [onKey]);
 
 	useEffect(() => {
 		let active = true; let stream: MediaStream | null = null;
 		(async () => {
 			const cached = localStorage.getItem('afc_model') as ('lite'|'full'|null);
-			await initPose(cached ?? 'lite');
+			try {
+				await initPose(cached ?? 'lite');
+			} catch (err) {
+				import('@/lib/observability/sentry').then(({ Sentry }) => { try { Sentry.captureException(err); } catch {} }).catch(() => {});
+			}
 			try {
 				stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-			} catch (e) {
-				setCameraError('Camera permission blocked or no camera found. Enable camera in your browser settings (Chrome: Site settings → Camera; Safari iOS: Settings → Safari → Camera). Then reload.');
+			} catch (err) {
+				import('@/lib/observability/sentry').then(({ Sentry }) => { try { Sentry.captureException(err); } catch {} }).catch(() => {});
+				// setCameraError('Camera permission blocked or no camera found. Enable camera in your browser settings.');
 				return;
 			}
 			const video = videoRef.current; if (!video) return;
 			if (video.srcObject !== stream) { video.srcObject = stream; }
 			await new Promise<void>((resolve) => { if (!video) return resolve(); if (video.readyState >= 2) return resolve(); const handler = () => { video.removeEventListener('loadedmetadata', handler); resolve(); }; video.addEventListener('loadedmetadata', handler); });
 			if (!active || !video) return;
-			try { await video.play(); } catch {}
+			try { await video.play(); } catch (err) { import('@/lib/observability/sentry').then(({ Sentry }) => { try { Sentry.captureException(err); } catch {} }).catch(() => {}); }
 			const engine = new PoseEngine(video);
 			engineRef.current = engine; engine.subscribe(onPose); engine.subscribeStats(({ fps }) => setFps(fps));
 		})();
@@ -134,8 +142,24 @@ export default function Coach() {
 	}, []);
 
 	useEffect(() => {
-		if (running) { setStartTs(performance.now()); engineRef.current?.start(); const wlApi = (navigator as unknown as { wakeLock?: { request: (type: 'screen') => Promise<{ release?: () => Promise<void> }> } }).wakeLock; wlApi?.request('screen').then((s) => { wakeLockRef.current = s; }).catch(() => {}); elapsedTimerRef.current = window.setInterval(() => setElapsedMs((v) => v + 1000), 1000); }
-		else { engineRef.current?.stop(); if (wakeLockRef.current) { try { wakeLockRef.current.release?.(); } catch {} } if (elapsedTimerRef.current) { window.clearInterval(elapsedTimerRef.current); elapsedTimerRef.current = null; } }
+		if (running) {
+			setStartTs(performance.now());
+			visSumRef.current = 0;
+			visCountRef.current = 0;
+			engineRef.current?.start();
+			const wlApi = (navigator as unknown as { wakeLock?: { request: (type: 'screen') => Promise<{ release?: () => Promise<void> }> } }).wakeLock;
+			wlApi?.request('screen').then((s) => { wakeLockRef.current = s; }).catch(() => {});
+			elapsedTimerRef.current = window.setInterval(() => setElapsedMs((v) => v + 1000), 1000);
+		} else {
+			engineRef.current?.stop();
+			if (wakeLockRef.current) {
+				try { wakeLockRef.current.release?.(); } catch {}
+			}
+			if (elapsedTimerRef.current) {
+				window.clearInterval(elapsedTimerRef.current);
+				elapsedTimerRef.current = null;
+			}
+		}
 	}, [running]);
 
 	useEffect(() => { if (running) { flushTimerRef.current = window.setInterval(() => { flushWrites(); }, 10_000); return () => { if (flushTimerRef.current) window.clearInterval(flushTimerRef.current); flushTimerRef.current = null; }; } }, [running]);
@@ -143,21 +167,23 @@ export default function Coach() {
 	function onPose(lms: SmoothedLandmark[] | null) {
 		if (!lms) return; const ts = performance.now();
 		const vis = lms.map(l => (l.visibility ?? 0)); const avgVis = vis.reduce((a, b) => a + b, 0) / Math.max(1, vis.length);
+		if (running) { visSumRef.current += avgVis; visCountRef.current += 1; }
 		if (avgVis > 0.7) { setQuality('good'); lowQualityFramesRef.current = 0; setPausedByQuality(false); }
 		else if (avgVis > 0.4) { setQuality('warn'); lowQualityFramesRef.current++; }
 		else { setQuality('bad'); lowQualityFramesRef.current++; }
+		if (lowQualityFramesRef.current === 45 && running) { import('@/lib/observability/events').then(m => m.logEvent('pose_quality_low', { avgVis })).catch(()=>{}); }
 		if (lowQualityFramesRef.current > 45 && running) { setRunning(false); setPausedByQuality(true); return; }
 		const s = validatorRef.current(lms, ts, thrCfg);
 		if (s.metrics.length > repMetricsRef.current.length) vibrate(20);
 		// goal met haptic
-		if (goalType === 'reps' && repCount >= goalValue && repsAtGoalRef.current === 0) { vibrate(120); repsAtGoalRef.current = repCount; }
+		if (goalType === 'reps' && repCount >= goalValue && repsAtGoalRef.current === 0) { vibrate(120); repsAtGoalRef.current = repCount; import('@/lib/observability/events').then(m => m.logEvent('goal_met', { goalType, goalValue, repCount })).catch(()=>{}); }
 		setRepCount(s.repCount);
 		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) {
-			const m = s.metrics[s.metrics.length - 1]; repMetricsRef.current.push({ idx: s.metrics.length, start_ms: Math.round(m.startTs), end_ms: Math.round(m.endTs), peak_depth: (m as unknown as { peakDepth?: number }).peakDepth });
+			const m = s.metrics[s.metrics.length - 1]; repMetricsRef.current.push({ idx: s.metrics.length, start_ms: Math.round(m.startTs), end_ms: Math.round(m.endTs), peak_depth: (m as unknown as { peakDepth?: number }).peakDepth, cues: (s.cues ?? []).slice(0, 4), valid: true });
 			// shallow rep tip for squats if peak_depth < threshold
 			if (exercise === 'squat') {
 				const d = (m as unknown as { peakDepth?: number }).peakDepth ?? 0;
-				if (d < (thrCfg.squat?.downDepth ?? 35)) setTip('Try sitting back a bit more to hit depth.');
+				if (d < (thrCfg.squat?.downDepth ?? 35)) {/* optional tip */}
 			}
 		}
 		const primary = s.cues[0] ?? '';
@@ -167,15 +193,27 @@ export default function Coach() {
 	}
 
 	function vibrate(ms: number) { try { navigator.vibrate?.(ms); } catch {} }
-	function handleStartPause() {
-		if (running) { setRunning(false); return; }
-		try { if (!localStorage.getItem('afc_safety_ok')) { setShowSafety(true); return; } } catch {}
-		setCountdown(3); vibrate(30); let left = 3; const iv = setInterval(() => { left -= 1; setCountdown(left); if (left <= 0) { clearInterval(iv); setCountdown(null); setElapsedMs(0); setRunning(true); vibrate(60); } }, 1000);
-	}
-	function undoLastRep() { if (repMetricsRef.current.length === 0 || repCount === 0) return; repMetricsRef.current.pop(); setRepCount((c) => Math.max(0, c - 1)); }
 	function goalSubtext(): string | undefined { if (goalType === 'reps') return `${repCount}/${goalValue} reps`; if (goalType === 'time') return `${Math.floor(elapsedMs/1000)}s / ${goalValue}s`; return undefined; }
-	function startRest(seconds: number) { setRunning(false); setRestLeft(seconds); if (restTimerRef.current) window.clearInterval(restTimerRef.current); restTimerRef.current = window.setInterval(() => { setRestLeft((v) => { const next = (v ?? 0) - 1; if (next <= 0) { window.clearInterval(restTimerRef.current!); restTimerRef.current = null; speak('Rest over'); return null; } return next; }); }, 1000); }
-	async function endSession() { setRunning(false); setSaving(true); const endTs = performance.now(); const start = startTs ?? endTs; const { getCurrentUserId } = await import('@/lib/supabase/client'); const userId = await getCurrentUserId(); const sessionPayload = { user_id: userId, exercise, started_at: new Date(start).toISOString(), ended_at: new Date(endTs).toISOString(), total_reps: repMetricsRef.current.length, total_time_seconds: Math.round((endTs - start) / 1000), goal_type: goalType === 'none' ? null : goalType, goal_value: goalType === 'none' ? null : goalValue } as Record<string, unknown>; await enqueueWrite({ table: 'sessions', payload: sessionPayload }); for (const r of repMetricsRef.current) { await enqueueWrite({ table: 'reps', payload: { ...r, session_id: 'PENDING' } }); } await flushWrites(); setSaving(false); alert('Session saved'); }
+	async function endSession() {
+		setRunning(false); setSaving(true);
+		const endTs = performance.now(); const start = startTs ?? endTs;
+		const { getCurrentUserId } = await import('@/lib/supabase/client');
+		const userId = await getCurrentUserId();
+		let rpe: number | null = null;
+		try {
+			const val = prompt('How hard was that? RPE 1-10 (optional)');
+			if (val) { const n = Math.max(1, Math.min(10, parseInt(val, 10))); if (!Number.isNaN(n)) rpe = n; }
+		} catch {}
+		const model = (() => { try { return localStorage.getItem('afc_model') ?? 'lite'; } catch { return 'lite'; } })();
+		const device_info = { ua: navigator.userAgent, viewport: { w: window.innerWidth, h: window.innerHeight }, model };
+		const avg_pose_quality = visCountRef.current ? (visSumRef.current / visCountRef.current) : null;
+		const total_valid_reps = repMetricsRef.current.filter(r => r.valid !== false).length;
+		const sessionPayload = { user_id: userId, exercise, started_at: new Date(start).toISOString(), ended_at: new Date(endTs).toISOString(), total_reps: total_valid_reps, total_time_seconds: Math.round((endTs - start) / 1000), goal_type: goalType === 'none' ? null : goalType, goal_value: goalType === 'none' ? null : goalValue, rpe, device_info, avg_pose_quality } as Record<string, unknown>;
+		await enqueueWrite({ table: 'sessions', payload: sessionPayload });
+		for (const r of repMetricsRef.current) { await enqueueWrite({ table: 'reps', payload: { ...r, session_id: 'PENDING', valid: r.valid !== false } }); }
+		await flushWrites(); setSaving(false); alert('Session saved');
+		import('@/lib/observability/events').then(m => m.logEvent('session_ended', { exercise, total_valid_reps, duration_s: Math.round((endTs - start)/1000) })).catch(()=>{});
+	}
 
 	return (
 		<div className={`min-h-screen grid grid-rows-[auto_1fr_auto] ${highContrast ? 'contrast-150' : ''}`}>
@@ -188,7 +226,7 @@ export default function Coach() {
 					<select onChange={(e) => { localStorage.setItem('afc_model', e.target.value); }} className="border rounded-md px-2 py-1"><option value="lite">Lite</option><option value="full">Full</option></select>
 				</div>
 				<div className="flex items-center gap-3 text-sm">
-					<span className={`px-2 py-0.5 rounded ${quality==='good'?'bg-sky-500/30 text-sky-800':quality==='warn'?'bg-amber-500/30 text-amber-800':'bg-rose-500/30 text-rose-800'}`}>{quality}</span>
+					<span className={`${quality==='good'?'bg-sky-500/30 text-sky-800':quality==='warn'?'bg-amber-500/30 text-amber-800':'bg-rose-500/30 text-rose-800'} px-2 py-0.5 rounded`}>{quality}</span>
 					<div className="opacity-70">Shortcuts: Space, U undo, R rest 60s, 1/2/3, ? help</div>
 				</div>
 			</header>
@@ -223,14 +261,14 @@ export default function Coach() {
 					{showSafety && <SafetyChecklist open={showSafety} onAgree={() => { setShowSafety(false); handleStartPause(); }} onClose={() => setShowSafety(false)} />}
 				</div>
 				<div className="space-y-4">
-									<div className="rounded-lg border p-3 space-y-2">
-					<div className="font-medium">Goal</div>
-					<div className="flex items-center gap-2">
-						<select value={goalType} onChange={(e) => onGoalTypeChange(e.target.value)} className="border rounded px-2 py-1"><option value="none">None</option><option value="reps">Target reps</option><option value="time">Target time (s)</option></select>
-						<input aria-label="Goal value" type="number" min={1} value={goalValue} onChange={(e) => setGoalValue(parseInt(e.target.value || '0', 10))} className="border rounded px-2 py-1 w-24" />
-						<button aria-label="Open calibration" onClick={() => setShowCalib(true)} className="px-2 py-1 rounded bg-emerald-600 text-white">Calibrate</button>
+					<div className="rounded-lg border p-3 space-y-2">
+						<div className="font-medium">Goal</div>
+						<div className="flex items-center gap-2">
+							<select value={goalType} onChange={(e) => onGoalTypeChange(e.target.value)} className="border rounded px-2 py-1"><option value="none">None</option><option value="reps">Target reps</option><option value="time">Target time (s)</option></select>
+							<input aria-label="Goal value" type="number" min={1} value={goalValue} onChange={(e) => setGoalValue(parseInt(e.target.value || '0', 10))} className="border rounded px-2 py-1 w-24" />
+							<button aria-label="Open calibration" onClick={() => setShowCalib(true)} className="px-2 py-1 rounded bg-emerald-600 text-white">Calibrate</button>
+						</div>
 					</div>
-				</div>
 					<button onClick={handleStartPause} className="w-full py-3 rounded-lg bg-black text-white">{running ? 'Pause' : 'Start'} Session</button>
 					<div className="grid grid-cols-3 gap-2"><button onClick={() => startRest(30)} className="py-2 rounded bg-gray-200">Rest 30s</button><button onClick={() => startRest(60)} className="py-2 rounded bg-gray-200">Rest 60s</button><button onClick={() => startRest(90)} className="py-2 rounded bg-gray-200">Rest 90s</button></div>
 					<button onClick={undoLastRep} className="w-full py-3 rounded-lg bg-gray-200">Undo last rep</button>

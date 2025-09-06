@@ -19,7 +19,7 @@ async function db() {
 }
 
 export type BufferedWrite = {
-	table: 'sessions' | 'reps';
+	table: 'sessions' | 'reps' | 'events';
 	payload: Record<string, unknown>;
 };
 
@@ -60,6 +60,12 @@ export async function flushWrites() {
 					payload.session_id = lastSessionId;
 				}
 				const { error } = await supabase.from('reps').insert(payload);
+				if (error) throw error;
+				await store.delete(w.id);
+				continue;
+			}
+			if (w.table === 'events') {
+				const { error } = await supabase.from('events').insert(w.payload);
 				if (error) throw error;
 				await store.delete(w.id);
 				continue;

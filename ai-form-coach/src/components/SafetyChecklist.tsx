@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function SafetyChecklist({ open, onAgree, onClose }: { open: boolean; onAgree: () => void; onClose: () => void }) {
 	const [dontShow, setDontShow] = useState(false);

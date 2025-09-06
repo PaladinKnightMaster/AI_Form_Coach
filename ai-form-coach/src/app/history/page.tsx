@@ -23,7 +23,7 @@ export default function History() {
 				} else {
 					setReps([]);
 				}
-			} catch (_) { setSessions([]); setReps([]); }
+			} catch { setSessions([]); setReps([]); }
 		})();
 	}, []);
 
