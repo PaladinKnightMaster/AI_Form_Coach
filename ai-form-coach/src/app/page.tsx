@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { Container, Section, Button, Badge, Icon } from '@/ui/DS';
 import Reveal from '@/ui/Reveal';
+import HeroCanvas from '@/components/HeroCanvas';
+import { logos, testimonials } from './marketing/data';
 
 export default function Home() {
 	return (
-		<main>
+		<main id="main">
 			<section className="relative overflow-hidden">
 				<div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
 					<div className="absolute -top-20 -left-20 h-80 w-80 rounded-full blur-3xl blob-a" style={{ background: 'radial-gradient(closest-side, #22c55e55, transparent)' }} />
@@ -19,7 +21,7 @@ export default function Home() {
 								<p className="opacity-80 max-w-xl">Get instant cues, rep counts, and progress—without uploading video. MediaPipe runs on‑device for privacy and speed. Start a guided session in seconds.</p>
 								<div className="flex flex-wrap items-center gap-3">
 									<Link href="/signin"><Button variant="primary">Start free</Button></Link>
-									<Link href="/coach"><Button variant="secondary">Try demo</Button></Link>
+									<a href="#demo" className="btn btn-secondary">Watch demo</a>
 								</div>
 								<div className="flex items-center gap-3 pt-2 text-sm opacity-80">
 									<Icon name="check" /> No video leaves your device
@@ -30,7 +32,7 @@ export default function Home() {
 						</Reveal>
 						<div className="relative">
 							<div className="card p-3 shadow-lg hero-float">
-								<img src="/hero.svg" alt="On-device AI coaching illustration" className="w-full rounded-lg" />
+								<HeroCanvas />
 							</div>
 						</div>
 					</div>
@@ -39,16 +41,31 @@ export default function Home() {
 
 			<Section>
 				<Container>
-					<div className="grid md:grid-cols-3 gap-6">
-						<Reveal><Feature title="Private on‑device" body="All pose detection runs locally with MediaPipe—no uploads, just insights." icon={<Icon name="check" />} /></Reveal>
-						<Reveal delay={60}><Feature title="Real‑time cues" body="Hear actionable guidance as you move to improve form instantly." icon={<Icon name="check" />} /></Reveal>
-						<Reveal delay={120}><Feature title="Rep & ROM tracking" body="Automatic counting with depth/ROM metrics to measure progress." icon={<Icon name="check" />} /></Reveal>
-						<Reveal delay={180}><Feature title="Goals & rest timers" body="Hit targets for reps or time; built‑in rest with haptic cues." icon={<Icon name="check" />} /></Reveal>
-						<Reveal delay={240}><Feature title="Offline first" body="Train anywhere; sessions sync when you’re back online." icon={<Icon name="check" />} /></Reveal>
-						<Reveal delay={300}><Feature title="Export & history" body="Review past sessions, copy summaries, and export CSV." icon={<Icon name="check" />} /></Reveal>
+					<div className="grid sm:grid-cols-2 gap-3 text-sm" id="demo">
+						<div className="rounded-md border p-3 flex items-center gap-2"><span className="badge badge-success">Privacy first</span><span className="opacity-80">All processing is on-device</span></div>
+						<div className="rounded-md border p-3 flex items-center gap-2"><span className="badge badge-success">On-device analysis</span><span className="opacity-80">No video uploads</span></div>
+					</div>
+				</Container>
+			</Section>
+
+			<Section>
+				<Container>
+					<div className="text-xs uppercase tracking-wide opacity-70 mb-3">Trusted by builders</div>
+					<div className="grid grid-cols-2 sm:grid-cols-4 gap-6 items-center">
+						{logos.map((l, i) => (<img key={i} src={l.src} alt={l.alt} className="h-6 opacity-70 logo" />))}
+					</div>
+				</Container>
+			</Section>
+
+			<Section>
+				<Container>
+					<div className="grid md:grid-cols-3 gap-4">
+						{testimonials.map((t, i) => (
+							<Reveal key={i} delay={i * 80}><Testimonial quote={t.quote} name={t.name} role={t.role} /></Reveal>
+						))}
 					</div>
 					<div className="text-center mt-8">
-						<Link href="/signin"><Button variant="primary">Create free account</Button></Link>
+						<Link href="/signin"><Button variant="primary">Start your first session</Button></Link>
 					</div>
 				</Container>
 			</Section>
@@ -67,5 +84,17 @@ function Feature({ title, body, icon }: { title: string; body: string; icon: Rea
 				</div>
 			</div>
 		</div>
+	);
+}
+
+function Testimonial({ quote, name, role }: { quote: string; name: string; role: string }) {
+	return (
+		<figure className="card p-4">
+			<blockquote className="italic">“{quote}”</blockquote>
+			<figcaption className="mt-3 flex items-center gap-2 text-sm opacity-80">
+				<span className="inline-grid place-items-center h-8 w-8 rounded-full bg-black text-white text-xs">{name.charAt(0)}</span>
+				<span>{name} · {role}</span>
+			</figcaption>
+		</figure>
 	);
 }

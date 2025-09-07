@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Link from 'next/link';
-import AuthStatus from '@/components/AuthStatus';
 import LogSilencer from '@/components/LogSilencer';
 import "./globals.css";
 import Script from 'next/script';

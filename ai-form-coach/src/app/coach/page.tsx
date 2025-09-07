@@ -12,6 +12,7 @@ import TutorialOverlay from '@/components/TutorialOverlay';
 import CalibrationModal from '@/components/CalibrationModal';
 import { loadExerciseThresholds } from '@/lib/calibration';
 import SafetyChecklist from '@/components/SafetyChecklist';
+import Link from 'next/link';
 
 export default function Coach() {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -279,7 +280,7 @@ export default function Coach() {
 					<div className="grid grid-cols-3 gap-2"><button onClick={() => startRest(30)} className="py-2 rounded bg-gray-200">Rest 30s</button><button onClick={() => startRest(60)} className="py-2 rounded bg-gray-200">Rest 60s</button><button onClick={() => startRest(90)} className="py-2 rounded bg-gray-200">Rest 90s</button></div>
 					<button onClick={undoLastRep} className="w-full py-3 rounded-lg bg-gray-200">Undo last rep</button>
 					<button onClick={endSession} className="w-full py-3 rounded-lg bg-gray-200">End & Save</button>
-					<a href="/history" className="block text-center text-blue-600">History</a>
+					<Link href="/history" className="block text-center text-blue-600">History</Link>
 				</div>
 			</main>
 		</div>

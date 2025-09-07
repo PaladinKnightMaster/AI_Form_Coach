@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48">
+	<g fill="#111827">
+		<rect x="10" y="8" width="8" height="32" rx="4" />
+		<rect x="24" y="12" width="8" height="24" rx="4" />
+		<rect x="38" y="16" width="8" height="16" rx="4" />
+		<text x="60" y="30" font-family="system-ui, -apple-system, Segoe UI, Roboto" font-weight="700" font-size="20">MotionKit</text>
+	</g>
+</svg> 
