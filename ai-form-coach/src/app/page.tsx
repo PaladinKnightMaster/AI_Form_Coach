@@ -3,6 +3,7 @@ import { Container, Section, Button, Badge, Icon } from '@/ui/DS';
 import Reveal from '@/ui/Reveal';
 import HeroCanvas from '@/components/HeroCanvas';
 import { logos, testimonials } from './marketing/data';
+import SocialProofBand from '@/components/SocialProofBand';
 
 export default function Home() {
 	return (
@@ -66,6 +67,13 @@ export default function Home() {
 					</div>
 				</Container>
 			</Section>
+
+			{/* Social proof and outcomes */}
+			<section className="bg-gray-50 dark:bg-white/5">
+				<Container>
+					<SocialProofBand />
+				</Container>
+			</section>
 
 			<Section>
 				<Container>

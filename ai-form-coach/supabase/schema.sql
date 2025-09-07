@@ -107,3 +107,22 @@ drop policy if exists events_select_own on public.events;
 create policy events_select_own on public.events for select using (user_id = auth.uid());
 drop policy if exists events_insert_self_or_anon on public.events;
 create policy events_insert_self_or_anon on public.events for insert with check (user_id = auth.uid() or user_id is null); 
+
+-- Public aggregate metrics (sitewide; anon-readable)
+create table if not exists public.metrics_public (
+	id integer primary key default 1,
+	updated_at timestamptz default now(),
+	avg_session_minutes integer default 0,
+	total_reps_counted bigint default 0,
+	rom_improved_pct integer default 0
+);
+
+alter table public.metrics_public enable row level security;
+
+-- Anyone can read
+drop policy if exists metrics_public_select on public.metrics_public;
+create policy metrics_public_select on public.metrics_public for select using (true);
+-- Only service role can write
+drop policy if exists metrics_public_write_service on public.metrics_public;
+create policy metrics_public_write_service on public.metrics_public for all
+	using (auth.role() = 'service_role') with check (auth.role() = 'service_role'); 

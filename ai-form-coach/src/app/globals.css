@@ -67,6 +67,8 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 .blob-b { animation: floatSway 14s ease-in-out infinite; }
 .hero-float { animation: floatUpDown 12s ease-in-out infinite; }
 
+@keyframes scrollLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
 /* Logo theming */
 .logo { filter: none; transition: filter 200ms ease; }
 [data-theme="dark"] .logo { filter: invert(1) brightness(1.2); }
