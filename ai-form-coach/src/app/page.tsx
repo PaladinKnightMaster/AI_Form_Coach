@@ -39,6 +39,25 @@ export default function Home() {
 				</Container>
 			</section>
 
+			{/* Core values and feature grid */}
+			<Section>
+				<Container>
+					<div className="grid md:grid-cols-3 gap-4 mb-8">
+						<div className="card p-4"><div className="flex items-start gap-3"><Icon name="activity" /><div><h3 className="font-semibold">Instant feedback</h3><p className="opacity-80 text-sm">Hear cues as you move—improve form in real time.</p></div></div></div>
+						<div className="card p-4"><div className="flex items-start gap-3"><Icon name="sun" /><div><h3 className="font-semibold">Private by default</h3><p className="opacity-80 text-sm">On-device analysis. No video uploads—ever.</p></div></div></div>
+						<div className="card p-4"><div className="flex items-start gap-3"><Icon name="download" /><div><h3 className="font-semibold">Start free</h3><p className="opacity-80 text-sm">No subscription required to begin training.</p></div></div></div>
+					</div>
+					<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+						<a href="#rep-counter" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="activity" /><div><h3 className="font-semibold">Rep counter</h3><p className="opacity-80 text-sm">Automatic counting for every set.</p></div></div></a>
+						<a href="#form-cues" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="message" /><div><h3 className="font-semibold">Form cues</h3><p className="opacity-80 text-sm">Actionable voice tips while you move.</p></div></div></a>
+						<a href="#pose-quality" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="sun" /><div><h3 className="font-semibold">Pose quality light</h3><p className="opacity-80 text-sm">Simple indicator to stay in frame.</p></div></div></a>
+						<a href="#auto-pause" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="pause" /><div><h3 className="font-semibold">Auto pause</h3><p className="opacity-80 text-sm">Automatically pauses on low visibility.</p></div></div></a>
+						<a href="#history-charts" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="chart" /><div><h3 className="font-semibold">History with charts</h3><p className="opacity-80 text-sm">Track progress over time at a glance.</p></div></div></a>
+						<a href="#export" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="download" /><div><h3 className="font-semibold">Export</h3><p className="opacity-80 text-sm">One-click CSV exports for analysis.</p></div></div></a>
+					</div>
+				</Container>
+			</Section>
+
 			<Section>
 				<Container>
 					<div className="grid sm:grid-cols-2 gap-3 text-sm" id="demo">
