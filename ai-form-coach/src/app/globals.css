@@ -1,26 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary: #111827;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-border: #e5e7eb;
+  --radius-md: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 28px rgba(0,0,0,0.12);
+
+  /* Fluid type scale */
+  --step--1: clamp(0.79rem, calc(0.75rem + 0.21vw), 0.89rem);
+  --step-0: clamp(0.89rem, calc(0.84rem + 0.26vw), 1.00rem);
+  --step-1: clamp(1.00rem, calc(0.94rem + 0.31vw), 1.13rem);
+  --step-2: clamp(1.13rem, calc(1.05rem + 0.37vw), 1.27rem);
+  --step-3: clamp(1.27rem, calc(1.17rem + 0.44vw), 1.42rem);
+  --step-4: clamp(1.42rem, calc(1.30rem + 0.52vw), 1.60rem);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-theme="dark"] {
+  --color-primary: #e5e7eb;
+  --color-surface: #0b0b0b;
+  --color-text: #e5e7eb;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-border: #1f2937;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { color-scheme: light dark; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial;
+  font-size: var(--step-0);
+  line-height: 1.5;
 }
+
+h1 { font-size: var(--step-3); font-weight: 700; }
+h2 { font-size: var(--step-2); font-weight: 600; }
+
+.container { max-width: 1200px; margin: 0 auto; padding-inline: 1rem; }
+.section { padding-block: 2rem; }
+
+.card { background: color-mix(in oklab, var(--color-surface) 85%, transparent); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+.btn { border-radius: 10px; padding: 0.5rem 0.75rem; box-shadow: var(--shadow-sm); }
+.btn-primary { background: var(--color-primary); color: white; }
+.btn-secondary { background: color-mix(in oklab, var(--color-primary) 10%, transparent); color: var(--color-text); }
+
+.badge { border-radius: 999px; padding: 0.125rem 0.5rem; font-size: 12px; }
+.badge-success { background: color-mix(in oklab, var(--color-success) 20%, transparent); color: var(--color-success); }
+.badge-warning { background: color-mix(in oklab, var(--color-warning) 20%, transparent); color: var(--color-warning); }
+
+/* Simple breakpoints */
+@media (min-width: 640px) { .section { padding-block: 2.5rem; } }
+@media (min-width: 1024px) { .section { padding-block: 3rem; } }
+
+/* Subtle motion */
+@keyframes floatUpDown { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+@keyframes floatSway { 0% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(6px,-6px) rotate(1deg); } 100% { transform: translate(0,0) rotate(0deg); } }
+
+.blob-a { animation: floatUpDown 10s ease-in-out infinite; }
+.blob-b { animation: floatSway 14s ease-in-out infinite; }
+.hero-float { animation: floatUpDown 12s ease-in-out infinite; }

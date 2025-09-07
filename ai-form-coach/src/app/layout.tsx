@@ -4,10 +4,18 @@ import AuthStatus from '@/components/AuthStatus';
 import LogSilencer from '@/components/LogSilencer';
 import "./globals.css";
 import Script from 'next/script';
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 
 export const metadata: Metadata = {
-	title: "AI Form Coach",
-	description: "Private, real-time form coaching in the browser",
+	title: {
+		default: 'AI Form Coach',
+		template: '%s · AI Form Coach'
+	},
+	description: 'Private, real-time form coaching in the browser',
+	metadataBase: new URL('https://example.com'),
+	openGraph: { title: 'AI Form Coach', description: 'Private, real-time form coaching in the browser', type: 'website' },
+	twitter: { card: 'summary_large_image', title: 'AI Form Coach', description: 'Private, real-time form coaching in the browser' }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -16,18 +24,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body className="antialiased" suppressHydrationWarning>
-				<nav className="border-b p-4 flex items-center justify-between">
-					<Link href="/" className="font-semibold">AI Form Coach</Link>
-					<div className="flex items-center gap-3 text-sm">
-						<Link href="/coach">Coach</Link>
-						<Link href="/history">History</Link>
-						<Link href="/privacy">Privacy</Link>
-						<AuthStatus />
-					</div>
-				</nav>
+				<SiteHeader />
 				{children}
 				<LogSilencer />
-				<footer className="border-t p-4 text-center text-sm opacity-70">All processing happens in your browser.</footer>
+				<SiteFooter />
 				{umamiWebsiteId ? (
 					<Script async defer src={umamiSrc} data-website-id={umamiWebsiteId} />
 				) : null}
