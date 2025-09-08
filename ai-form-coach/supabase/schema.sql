@@ -126,3 +126,8 @@ create policy metrics_public_select on public.metrics_public for select using (t
 drop policy if exists metrics_public_write_service on public.metrics_public;
 create policy metrics_public_write_service on public.metrics_public for all
 	using (auth.role() = 'service_role') with check (auth.role() = 'service_role'); 
+
+-- Billing columns on profiles
+alter table public.profiles add column if not exists plan text default 'free';
+alter table public.profiles add column if not exists plan_renews_at timestamptz;
+alter table public.profiles add column if not exists stripe_customer_id text; 

@@ -23,6 +23,7 @@ export default function SiteHeader() {
 					<Link href="/coach">Coach</Link>
 					<Link href="/history">History</Link>
 					<Link href="/privacy">Privacy</Link>
+					{isAuthed ? <Link href="/account">Account</Link> : null}
 					<ThemeToggle />
 					{isAuthed ? <Link href="/coach" className="btn btn-primary">Start session</Link> : null}
 					<AuthStatus />
@@ -38,6 +39,7 @@ export default function SiteHeader() {
 						<Link href="/coach" onClick={() => setOpen(false)}>Coach</Link>
 						<Link href="/history" onClick={() => setOpen(false)}>History</Link>
 						<Link href="/privacy" onClick={() => setOpen(false)}>Privacy</Link>
+						{isAuthed ? <Link href="/account" onClick={() => setOpen(false)}>Account</Link> : null}
 						<div className="pt-2"><ThemeToggle /></div>
 						{isAuthed ? <Link href="/coach" className="btn btn-primary" onClick={() => setOpen(false)}>Start session</Link> : <Link href="/signin" className="btn btn-primary" onClick={() => setOpen(false)}>Sign in</Link>}
 					</aside>

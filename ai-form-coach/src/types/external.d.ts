@@ -1,1 +1,2 @@
-declare module '@sentry/browser'; 
+declare module '@sentry/browser';
+declare module 'stripe'; 

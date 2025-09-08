@@ -270,9 +270,9 @@ export default function Coach() {
 				<div className="space-y-4">
 					<div className="rounded-lg border p-3 space-y-2">
 						<div className="font-medium">Goal</div>
-						<div className="flex items-center gap-2">
-							<select value={goalType} onChange={(e) => onGoalTypeChange(e.target.value)} className="border rounded px-2 py-1"><option value="none">None</option><option value="reps">Target reps</option><option value="time">Target time (s)</option></select>
-							<input aria-label="Goal value" type="number" min={1} value={goalValue} onChange={(e) => setGoalValue(parseInt(e.target.value || '0', 10))} className="border rounded px-2 py-1 w-24" />
+						<div className="flex flex-wrap items-center gap-2">
+							<select value={goalType} onChange={(e) => onGoalTypeChange(e.target.value)} className="border rounded px-2 py-1 min-w-[140px]"><option value="none">None</option><option value="reps">Target reps</option><option value="time">Target time (s)</option></select>
+							<input aria-label="Goal value" type="number" min={1} value={goalValue} onChange={(e) => setGoalValue(parseInt(e.target.value || '0', 10))} className="border rounded px-2 py-1 w-24 disabled:opacity-50" placeholder={goalType==='time' ? 'sec' : 'count'} disabled={goalType==='none'} />
 							<button aria-label="Open calibration" onClick={() => setShowCalib(true)} className="px-2 py-1 rounded bg-emerald-600 text-white">Calibrate</button>
 						</div>
 					</div>

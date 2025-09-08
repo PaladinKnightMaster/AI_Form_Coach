@@ -4,6 +4,7 @@ import Reveal from '@/ui/Reveal';
 import HeroCanvas from '@/components/HeroCanvas';
 import { logos, testimonials } from './marketing/data';
 import SocialProofBand from '@/components/SocialProofBand';
+import PricingTeaser from '@/components/PricingTeaser';
 
 export default function Home() {
 	return (
@@ -96,6 +97,8 @@ export default function Home() {
 					</div>
 				</Container>
 			</Section>
+
+			<PricingTeaser />
 		</main>
 	);
 }
