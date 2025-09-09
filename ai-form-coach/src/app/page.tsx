@@ -5,6 +5,8 @@ import HeroCanvas from '@/components/HeroCanvas';
 import { logos, testimonials } from './marketing/data';
 import SocialProofBand from '@/components/SocialProofBand';
 import PricingTeaser from '@/components/PricingTeaser';
+import FAQ from '@/components/FAQ';
+import FinalCTA from '@/components/FinalCTA';
 
 export default function Home() {
 	return (
@@ -99,6 +101,10 @@ export default function Home() {
 			</Section>
 
 			<PricingTeaser />
+
+			<FAQ />
+
+			<FinalCTA />
 		</main>
 	);
 }
