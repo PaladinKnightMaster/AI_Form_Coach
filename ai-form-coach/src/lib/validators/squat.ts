@@ -13,7 +13,14 @@ export function createSquatValidator(): Validator {
 
 	return (lm: SmoothedLandmark[] | null, ts: number, cfg?: ValidatorConfig) => {
 		state.cues = [];
-		if (!lm) return state;
+		if (!lm || lm.length < 29) return state; // Ensure we have all required landmarks
+		
+		// Check if required landmarks exist and have valid positions
+		const requiredLandmarks = [L.HIP, L.KNEE, L.ANKLE, R.HIP, R.KNEE, R.ANKLE];
+		if (!requiredLandmarks.every(idx => lm[idx] && typeof lm[idx].x === 'number' && typeof lm[idx].y === 'number')) {
+			return state;
+		}
+		
 		// Pick side with higher visibility
 		const lv = (lm[L.KNEE]?.visibility ?? 0) + (lm[L.HIP]?.visibility ?? 0) + (lm[L.ANKLE]?.visibility ?? 0);
 		const rv = (lm[R.KNEE]?.visibility ?? 0) + (lm[R.HIP]?.visibility ?? 0) + (lm[R.ANKLE]?.visibility ?? 0);

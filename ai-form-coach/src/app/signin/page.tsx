@@ -32,8 +32,13 @@ export default function SignIn() {
 	async function ensureProfile(userId: string) {
 		try {
 			const supabase = getSupabaseClient();
-			await supabase.from('profiles').upsert({ id: userId }, { onConflict: 'id' });
-		} catch {}
+			const { error } = await supabase.from('profiles').upsert({ id: userId }, { onConflict: 'id' });
+			if (error) {
+				console.error('Profile creation error:', error);
+			}
+		} catch (err) {
+			console.error('Unexpected profile error:', err);
+		}
 	}
 
 	async function sendMagicLink() {

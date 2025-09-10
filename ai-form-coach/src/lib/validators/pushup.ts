@@ -13,7 +13,14 @@ export function createPushupValidator(): Validator {
 
 	return (lm: SmoothedLandmark[] | null, ts: number, cfg?: ValidatorConfig) => {
 		state.cues = [];
-		if (!lm) return state;
+		if (!lm || lm.length < 17) return state; // Ensure we have all required landmarks
+		
+		// Check if required landmarks exist and have valid positions
+		const requiredLandmarks = [L.SHOULDER, L.ELBOW, L.WRIST, R.SHOULDER, R.ELBOW, R.WRIST];
+		if (!requiredLandmarks.every(idx => lm[idx] && typeof lm[idx].x === 'number' && typeof lm[idx].y === 'number')) {
+			return state;
+		}
+		
 		const lv = (lm[L.SHOULDER]?.visibility ?? 0) + (lm[L.ELBOW]?.visibility ?? 0) + (lm[L.WRIST]?.visibility ?? 0);
 		const rv = (lm[R.SHOULDER]?.visibility ?? 0) + (lm[R.ELBOW]?.visibility ?? 0) + (lm[R.WRIST]?.visibility ?? 0);
 		const side = rv > lv ? R : L;

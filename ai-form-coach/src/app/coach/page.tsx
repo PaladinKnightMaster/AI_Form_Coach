@@ -133,7 +133,25 @@ export default function Coach() {
 		} catch {
 			if (!safetyBypassRef.current) { setShowSafety(true); return; }
 		}
-		setCountdown(3); vibrate(30); let left = 3; const iv = setInterval(() => { left -= 1; setCountdown(left); if (left <= 0) { clearInterval(iv); setCountdown(null); setElapsedMs(0); ensureSpeechReady(); setRunning(true); safetyBypassRef.current = false; vibrate(60); import('@/lib/observability/events').then(m => m.logEvent('session_started', { exercise })).catch(()=>{}); } }, 1000);
+		setCountdown(3); 
+		vibrate(30); 
+		let left = 3; 
+		const iv = setInterval(() => { 
+			left -= 1; 
+			setCountdown(left); 
+			if (left <= 0) { 
+				clearInterval(iv); 
+				setCountdown(null); 
+				setElapsedMs(0); 
+				ensureSpeechReady(); 
+				setRunning(true); 
+				safetyBypassRef.current = false; 
+				vibrate(60); 
+				import('@/lib/observability/events')
+					.then(m => m.logEvent('session_started', { exercise }))
+					.catch(err => console.warn('Failed to log session start:', err)); 
+			} 
+		}, 1000);
 	}, [running, exercise]);
 	const undoLastRep = useCallback(() => { if (repMetricsRef.current.length === 0 || repCount === 0) return; const last = repMetricsRef.current[repMetricsRef.current.length - 1]; if (last) last.valid = false; setRepCount((c) => Math.max(0, c - 1)); import('@/lib/observability/events').then(m => m.logEvent('undo_used', { exercise })).catch(()=>{}); }, [repCount, exercise]);
 	const startRest = useCallback((seconds: number) => { setRunning(false); setRestLeft(seconds); import('@/lib/observability/events').then(m => m.logEvent('rest_started', { seconds, exercise })).catch(()=>{}); if (restTimerRef.current) window.clearInterval(restTimerRef.current); restTimerRef.current = window.setInterval(() => { setRestLeft((v) => { const next = (v ?? 0) - 1; if (next <= 0) { window.clearInterval(restTimerRef.current!); restTimerRef.current = null; speak('Rest over'); return null; } return next; }); }, 1000); }, [exercise]);

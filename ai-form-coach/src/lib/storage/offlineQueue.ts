@@ -42,9 +42,15 @@ export async function flushWrites() {
 	const tx = d.transaction(STORE, 'readwrite');
 	const store = tx.objectStore(STORE);
 	const all = await store.getAll();
-	if (!all.length) return 0;
+	if (!all.length) {
+		await tx.done;
+		return 0;
+	}
+	
 	const supabase = getSupabaseClient();
 	let lastSessionId: string | null = null;
+	let processedCount = 0;
+	
 	for (const w of all) {
 		try {
 			if (w.table === 'sessions') {
@@ -52,6 +58,7 @@ export async function flushWrites() {
 				if (error) throw error;
 				lastSessionId = data?.id ?? null;
 				await store.delete(w.id);
+				processedCount++;
 				continue;
 			}
 			if (w.table === 'reps') {
@@ -62,20 +69,23 @@ export async function flushWrites() {
 				const { error } = await supabase.from('reps').insert(payload);
 				if (error) throw error;
 				await store.delete(w.id);
+				processedCount++;
 				continue;
 			}
 			if (w.table === 'events') {
 				const { error } = await supabase.from('events').insert(w.payload);
 				if (error) throw error;
 				await store.delete(w.id);
+				processedCount++;
 				continue;
 			}
-		} catch (e) {
-			console.warn('flush failed; will retry later', e);
+		} catch (err) {
+			console.warn('Flush failed for item, will retry later:', err);
+			// Don't delete failed items so they can be retried
 		}
 	}
 	await tx.done;
-	return all.length;
+	return processedCount;
 }
 
 if (typeof window !== 'undefined') {

@@ -6,8 +6,18 @@ export async function POST(req: NextRequest) {
 	try {
 		const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 		const body = await req.json().catch(() => ({} as Record<string, unknown>));
+		
+		// Validate input parameters
 		const cycle = (body?.cycle as 'monthly'|'yearly'|undefined) ?? 'monthly';
+		if (cycle !== 'monthly' && cycle !== 'yearly') {
+			return NextResponse.json({ error: 'Invalid cycle parameter' }, { status: 400 });
+		}
+		
 		const userId = (body?.userId as string | undefined) ?? undefined;
+		if (userId && (typeof userId !== 'string' || userId.length === 0)) {
+			return NextResponse.json({ error: 'Invalid userId parameter' }, { status: 400 });
+		}
+		
 		const explicitPrice = (body?.priceId as string | undefined) ?? undefined;
 		const mappedByCycle = cycle === 'yearly' ? (process.env.STRIPE_PRICE_YEARLY_ID || '') : (process.env.STRIPE_PRICE_MONTHLY_ID || '');
 		const fallback = process.env.STRIPE_PRICE_ID || '';
@@ -39,7 +49,11 @@ export async function POST(req: NextRequest) {
 			allow_promotion_codes: true,
 		});
 		return NextResponse.json({ url: session.url });
-	} catch (e) {
-		return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
+	} catch (err) {
+		console.error('Checkout error:', err);
+		return NextResponse.json({ 
+			error: 'Failed to create session',
+			details: process.env.NODE_ENV === 'development' ? String(err) : undefined
+		}, { status: 500 });
 	}
 } 

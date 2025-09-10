@@ -13,8 +13,9 @@ export async function POST(req: NextRequest) {
 	let event: Stripe.Event;
 	try {
 		event = stripe.webhooks.constructEvent(raw, sig, secret);
-	} catch (e) {
-		return new NextResponse(`Webhook Error: ${(e as Error).message}`, { status: 400 });
+	} catch (err) {
+		const errorMessage = err instanceof Error ? err.message : String(err);
+		return new NextResponse(`Webhook Error: ${errorMessage}`, { status: 400 });
 	}
 	const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 	try {
@@ -60,8 +61,12 @@ export async function POST(req: NextRequest) {
 				break;
 		}
 		return NextResponse.json({ received: true });
-	} catch (e) {
-		return NextResponse.json({ error: 'Handler failed' }, { status: 500 });
+	} catch (err) {
+		console.error('Webhook handler error:', err);
+		return NextResponse.json({ 
+			error: 'Handler failed',
+			details: process.env.NODE_ENV === 'development' ? String(err) : undefined
+		}, { status: 500 });
 	}
 }
 

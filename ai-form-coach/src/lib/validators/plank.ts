@@ -12,7 +12,14 @@ export function createPlankValidator(): Validator {
 
 	return (lm: SmoothedLandmark[] | null, ts: number, cfg?: ValidatorConfig) => {
 		state.cues = [];
-		if (!lm) return state;
+		if (!lm || lm.length < 27) return state; // Ensure we have all required landmarks
+		
+		// Check if required landmarks exist and have valid positions
+		const requiredLandmarks = [LEFT_SHOULDER, LEFT_HIP, LEFT_KNEE, RIGHT_SHOULDER, RIGHT_HIP, RIGHT_KNEE];
+		if (!requiredLandmarks.every(idx => lm[idx] && typeof lm[idx].x === 'number' && typeof lm[idx].y === 'number')) {
+			return state;
+		}
+		
 		const lh = angleBetween(lm[LEFT_SHOULDER], lm[LEFT_HIP], lm[LEFT_KNEE]);
 		const rh = angleBetween(lm[RIGHT_SHOULDER], lm[RIGHT_HIP], lm[RIGHT_KNEE]);
 		const hipAngle = (lh + rh) / 2;

@@ -12,8 +12,7 @@ export async function initPose(model: PoseModel = 'lite') {
 			process.env.NEXT_PUBLIC_MEDIAPIPE_WASM_URL || 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm'
 		);
 	}
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const fileset = (await filesetReady) as any;
+	const fileset = await filesetReady;
 	landmarker = await PoseLandmarker.createFromOptions(fileset, {
 		baseOptions: {
 			modelAssetPath:
@@ -28,7 +27,14 @@ export async function initPose(model: PoseModel = 'lite') {
 }
 
 export async function estimate(video: HTMLVideoElement): Promise<PoseLandmarkerResult | null> {
-	if (!landmarker) await initPose('lite');
+	if (!landmarker) {
+		try {
+			await initPose('lite');
+		} catch (err) {
+			console.error('Failed to initialize pose detection:', err);
+			return null;
+		}
+	}
 	if (!landmarker) return null;
 	if (!video || video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) return null;
 	const ts = performance.now();
