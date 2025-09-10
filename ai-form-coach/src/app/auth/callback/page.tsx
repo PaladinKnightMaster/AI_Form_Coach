@@ -30,8 +30,8 @@ export default function AuthCallback() {
 						console.error('Profile creation error:', profileError);
 					}
 					
-					// Redirect to main app
-					router.push('/coach');
+					// Redirect to coach with welcome flag
+					router.push('/coach?welcome=true');
 				} else {
 					router.push('/signin?error=no_session');
 				}

@@ -136,7 +136,7 @@ export default function SignIn() {
 				return;
 			}
 			if (data.user) await ensureProfile(data.user.id);
-			router.push('/');
+			router.push('/coach?welcome=true');
 		} finally {
 			setLoading(false);
 		}
@@ -148,7 +148,7 @@ export default function SignIn() {
 		const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
 			if (event === 'SIGNED_IN' && session?.user) {
 				await ensureProfile(session.user.id);
-				router.push('/');
+				router.push('/coach?welcome=true');
 			}
 		});
 

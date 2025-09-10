@@ -45,8 +45,21 @@ export default function Account() {
 					<span className={`badge ${plan==='pro'?'badge-success':'badge-warning'}`}>{plan.toUpperCase()}</span>
 					{renewsAt ? <span className="text-sm opacity-80">Renews {new Date(renewsAt).toLocaleDateString()}</span> : null}
 				</div>
-				<div className="mt-3">
+				<div className="mt-3 space-x-2">
 					<button onClick={goManage} className="btn btn-secondary">Manage plan</button>
+					<button 
+						onClick={() => {
+							try {
+								localStorage.removeItem('afc_first_run_seen');
+								alert('First-run tutorial reset. Visit the Coach page to see it again.');
+							} catch {
+								alert('Unable to reset tutorial.');
+							}
+						}}
+						className="btn btn-secondary text-sm"
+					>
+						Reset tutorial
+					</button>
 				</div>
 			</div>
 		</div>

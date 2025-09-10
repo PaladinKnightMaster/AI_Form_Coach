@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 
 "use client";
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { initPose, PoseEngine, type SmoothedLandmark } from '@/lib/pose';
 import { createValidator } from '@/lib/validators';
 import type { Exercise } from '@/lib/validators/types';
@@ -25,8 +26,11 @@ import CalibrationModal from '@/components/CalibrationModal';
 import { loadExerciseThresholds } from '@/lib/calibration';
 import SafetyChecklist from '@/components/SafetyChecklist';
 import Link from 'next/link';
+import WelcomeToast from '@/components/WelcomeToast';
+import FirstRunTutorial from '@/components/FirstRunTutorial';
 
 export default function Coach() {
+	const searchParams = useSearchParams();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [landmarks, setLandmarks] = useState<SmoothedLandmark[] | null>(null);
@@ -45,6 +49,10 @@ export default function Coach() {
 	const [countdown, setCountdown] = useState<number | null>(null);
 	const wakeLockRef = useRef<{ release?: () => Promise<void> } | null>(null);
 	const [quality, setQuality] = useState<'good' | 'warn' | 'bad'>('good');
+	
+	// Welcome and first-run tutorial states
+	const [showWelcome, setShowWelcome] = useState(false);
+	const [showFirstRun, setShowFirstRun] = useState(false);
 	const lowQualityFramesRef = useRef(0);
 	const [pausedByQuality, setPausedByQuality] = useState(false);
 	const [largeText, setLargeText] = useState(false);
@@ -91,7 +99,27 @@ export default function Coach() {
 	// useEffect(() => { setTemplate(template); }, [template]);
 
 	useEffect(() => { setMuted(muted); }, [muted]);
-	useEffect(() => { try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {} }, []);
+	// Handle welcome message and first-run tutorial
+	useEffect(() => {
+		// Show welcome toast if coming from auth
+		const welcome = searchParams.get('welcome');
+		if (welcome === 'true') {
+			setShowWelcome(true);
+			// Remove the query param from URL without reload
+			window.history.replaceState({}, '', '/coach');
+		}
+		
+		// Show first-run tutorial if not seen before
+		try { 
+			if (!localStorage.getItem('afc_first_run_seen')) {
+				// Delay tutorial to show after welcome toast
+				setTimeout(() => setShowFirstRun(true), welcome === 'true' ? 2000 : 500);
+			}
+		} catch {} 
+		
+		// Original tutorial logic
+		try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {} 
+	}, [searchParams]);
 	// Keyboard help opener
 	const onHelpKey = useCallback((e: KeyboardEvent) => { if (e.key === '?') setShowHelp(true); }, []);
 	useEffect(() => { window.addEventListener('keydown', onHelpKey); return () => window.removeEventListener('keydown', onHelpKey); }, [onHelpKey]);
@@ -263,6 +291,23 @@ export default function Coach() {
 					<div className="absolute bottom-2 right-2 text-xs opacity-80 bg-white/70 rounded px-2 py-1">Camera stays on your device. We save only rep summaries.</div>
 					{showCalib && <CalibrationModal exercise={exercise} landmarks={landmarks} onClose={() => setShowCalib(false)} onSaved={() => { reloadThresholds(); alert('Calibration saved'); }} />}
 					{showTutorial && <TutorialOverlay onClose={() => setShowTutorial(false)} />}
+		{showWelcome && (
+			<WelcomeToast 
+				message="Ready to start your first session? Check out the quick tutorial below!"
+				onClose={() => setShowWelcome(false)}
+			/>
+		)}
+		{showFirstRun && (
+			<FirstRunTutorial
+				open={showFirstRun}
+				onClose={() => setShowFirstRun(false)}
+				onComplete={() => {
+					try {
+						localStorage.setItem('afc_first_run_seen', 'true');
+					} catch {}
+				}}
+			/>
+		)}
 					{showHelp && (
 						<div role="dialog" aria-modal="true" className="fixed inset-0 z-50 grid place-items-center bg-black/60">
 							<div className="bg-white text-black rounded-xl p-4 max-w-md w-full">
