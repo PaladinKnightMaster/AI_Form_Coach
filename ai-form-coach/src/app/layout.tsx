@@ -61,9 +61,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 	const umamiSrc = process.env.NEXT_PUBLIC_UMAMI_SRC || 'https://analytics.umami.is/script.js';
 	return (
 		<html lang="en" suppressHydrationWarning>
+			<head>
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+				<meta name="theme-color" content="#111827" />
+				<meta name="color-scheme" content="light dark" />
+			</head>
 			<body className="antialiased" suppressHydrationWarning>
 				<SiteHeader />
-				{children}
+				<main id="main-content">
+					{children}
+				</main>
 				<LogSilencer />
 				<SiteFooter />
 				{umamiWebsiteId ? (

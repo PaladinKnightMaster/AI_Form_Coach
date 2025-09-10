@@ -39,12 +39,20 @@ export default function FAQ() {
 
 	const toggleItem = (index: number) => {
 		setOpenIndex(openIndex === index ? null : index);
+		// Track FAQ interaction
+		import('@/lib/analytics').then(({ analytics }) => {
+			analytics.faqExpand(faqData[index].question);
+		}).catch(() => {});
 	};
 
 	const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
 			toggleItem(index);
+			// Track FAQ interaction
+			import('@/lib/analytics').then(({ analytics }) => {
+				analytics.faqExpand(faqData[index].question);
+			}).catch(() => {});
 		}
 	};
 

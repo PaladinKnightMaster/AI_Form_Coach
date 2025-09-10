@@ -7,12 +7,13 @@ import SocialProofBand from '@/components/SocialProofBand';
 import PricingTeaser from '@/components/PricingTeaser';
 import FAQ from '@/components/FAQ';
 import FinalCTA from '@/components/FinalCTA';
+import LazyImage from '@/components/LazyImage';
 
 export default function Home() {
 	return (
-		<main id="main">
+		<div>
 			<section className="relative overflow-hidden">
-				<div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+				<div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
 					<div className="absolute -top-20 -left-20 h-80 w-80 rounded-full blur-3xl blob-a" style={{ background: 'radial-gradient(closest-side, #22c55e55, transparent)' }} />
 					<div className="absolute -bottom-20 -right-10 h-96 w-96 rounded-full blur-3xl blob-b" style={{ background: 'radial-gradient(closest-side, #0ea5e955, transparent)' }} />
 				</div>
@@ -25,7 +26,7 @@ export default function Home() {
 								<p className="opacity-80 max-w-xl">Get instant cues, rep counts, and progress—without uploading video. MediaPipe runs on‑device for privacy and speed. Start a guided session in seconds.</p>
 								<div className="flex flex-wrap items-center gap-3">
 									<Link href="/signin"><Button variant="primary">Start free</Button></Link>
-									<a href="#demo" className="btn btn-secondary">Watch demo</a>
+									<button className="btn btn-secondary" onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}>Watch demo</button>
 								</div>
 								<div className="flex items-center gap-3 pt-2 text-sm opacity-80">
 									<Icon name="check" /> No video leaves your device
@@ -35,7 +36,7 @@ export default function Home() {
 							</div>
 						</Reveal>
 						<div className="relative">
-							<div className="card p-3 shadow-lg hero-float">
+							<div className="card p-3 shadow-lg hero-float" id="demo">
 								<HeroCanvas />
 							</div>
 						</div>
@@ -82,7 +83,9 @@ export default function Home() {
 				<Container>
 					<div className="text-xs uppercase tracking-wide opacity-70 mb-3">Trusted by builders</div>
 					<div className="grid grid-cols-2 sm:grid-cols-4 gap-6 items-center">
-						{logos.map((l, i) => (<img key={i} src={l.src} alt={l.alt} className="h-6 opacity-70 logo" />))}
+						{logos.map((l, i) => (
+							<LazyImage key={i} src={l.src} alt={l.alt} className="h-6 opacity-70 logo" height={24} />
+						))}
 					</div>
 				</Container>
 			</Section>
@@ -105,7 +108,7 @@ export default function Home() {
 			<FAQ />
 
 			<FinalCTA />
-		</main>
+		</div>
 	);
 }
 
