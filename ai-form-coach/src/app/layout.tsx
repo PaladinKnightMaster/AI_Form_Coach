@@ -7,13 +7,53 @@ import SiteFooter from '@/components/SiteFooter';
 
 export const metadata: Metadata = {
 	title: {
-		default: 'AI Form Coach',
+		default: 'AI Form Coach - Real-time AI Form Coaching in Your Browser',
 		template: '%s · AI Form Coach'
 	},
-	description: 'Private, real-time form coaching in the browser',
-	metadataBase: new URL('https://example.com'),
-	openGraph: { title: 'AI Form Coach', description: 'Private, real-time form coaching in the browser', type: 'website' },
-	twitter: { card: 'summary_large_image', title: 'AI Form Coach', description: 'Private, real-time form coaching in the browser' }
+	description: 'Get instant form cues, rep counts, and progress tracking with AI coaching that runs privately in your browser. No video uploads, works offline.',
+	keywords: ['AI fitness coach', 'form checker', 'workout tracker', 'pose detection', 'privacy-first fitness', 'browser-based coaching'],
+	authors: [{ name: 'AI Form Coach' }],
+	creator: 'AI Form Coach',
+	publisher: 'AI Form Coach',
+	metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://aiformcoach.com'),
+	openGraph: {
+		type: 'website',
+		locale: 'en_US',
+		url: '/',
+		siteName: 'AI Form Coach',
+		title: 'AI Form Coach - Real-time AI Form Coaching in Your Browser',
+		description: 'Get instant form cues, rep counts, and progress tracking with AI coaching that runs privately in your browser. No video uploads, works offline.',
+		images: [
+			{
+				url: '/og-image?title=AI Form Coach&subtitle=Real-time AI Form Coaching — right in your browser',
+				width: 1200,
+				height: 630,
+				alt: 'AI Form Coach - Private, real-time form coaching in your browser'
+			}
+		]
+	},
+	twitter: {
+		card: 'summary_large_image',
+		site: '@aiformcoach',
+		creator: '@aiformcoach',
+		title: 'AI Form Coach - Real-time AI Form Coaching in Your Browser',
+		description: 'Get instant form cues, rep counts, and progress tracking with AI coaching that runs privately in your browser. No video uploads, works offline.',
+		images: ['/og-image?title=AI Form Coach&subtitle=Real-time AI Form Coaching — right in your browser']
+	},
+	robots: {
+		index: true,
+		follow: true,
+		googleBot: {
+			index: true,
+			follow: true,
+			'max-video-preview': -1,
+			'max-image-preview': 'large',
+			'max-snippet': -1,
+		},
+	},
+	verification: {
+		google: process.env.GOOGLE_SITE_VERIFICATION,
+	}
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

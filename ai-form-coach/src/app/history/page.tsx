@@ -1,3 +1,15 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: 'Workout History',
+	description: 'Track your progress with detailed workout history, charts, and analytics. Export your data and see your fitness journey.',
+	openGraph: {
+		title: 'Workout History - Track Your Progress',
+		description: 'Track your progress with detailed workout history, charts, and analytics. Export your data and see your fitness journey.',
+		images: ['/og-image?title=Workout History&subtitle=Track your progress and export your data']
+	}
+};
+
 "use client";
 import { useEffect, useMemo, useState } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';

@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import { Container } from '@/ui/DS';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+	title: 'Privacy Policy',
+	description: 'Learn how AI Form Coach protects your privacy. All video processing happens in your browser - no uploads, complete privacy.',
+	openGraph: {
+		title: 'Privacy Policy - AI Form Coach',
+		description: 'Learn how AI Form Coach protects your privacy. All video processing happens in your browser - no uploads, complete privacy.',
+		images: ['/og-image?title=Privacy Policy&subtitle=Your video never leaves your device']
+	}
+};
 
 export default function Privacy() {
 	return (

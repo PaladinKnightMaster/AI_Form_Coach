@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import { Container } from '@/ui/DS';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+	title: 'Terms of Service',
+	description: 'Terms of Service for AI Form Coach. The legal stuff, explained in plain English. Fair terms for privacy-first fitness coaching.',
+	openGraph: {
+		title: 'Terms of Service - AI Form Coach',
+		description: 'Terms of Service for AI Form Coach. The legal stuff, explained in plain English. Fair terms for privacy-first fitness coaching.',
+		images: ['/og-image?title=Terms of Service&subtitle=The legal stuff, explained in plain English']
+	}
+};
 
 export default function Terms() {
 	return (

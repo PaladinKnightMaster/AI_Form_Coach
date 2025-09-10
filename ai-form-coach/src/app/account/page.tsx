@@ -1,3 +1,16 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: 'Account Settings',
+	description: 'Manage your AI Form Coach account, subscription, and preferences. View your plan details and billing information.',
+	robots: { index: false, follow: true },
+	openGraph: {
+		title: 'Account Settings - AI Form Coach',
+		description: 'Manage your AI Form Coach account, subscription, and preferences. View your plan details and billing information.',
+		images: ['/og-image?title=Account Settings&subtitle=Manage your subscription and preferences']
+	}
+};
+
 "use client";
 import { useEffect, useState } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
