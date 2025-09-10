@@ -41,7 +41,7 @@ export default function PricingTeaser() {
 							<li className="flex items-center gap-2"><Icon name="check" /> Live form tracking (squat, pushup, plank)</li>
 							<li className="flex items-center gap-2"><Icon name="check" /> Basic history</li>
 						</ul>
-						<Link href="/signin"><Button variant="secondary" className="w-full">Start free</Button></Link>
+						<Link href="/signin"><Button variant="secondary" className="w-full">Begin training</Button></Link>
 					</div>
 					<div className="card p-4 border-emerald-500/50">
 						<h3 className="font-semibold mb-1">Pro</h3>
@@ -54,7 +54,7 @@ export default function PricingTeaser() {
 							<li className="flex items-center gap-2"><Icon name="check" /> Export without watermark</li>
 							<li className="flex items-center gap-2"><Icon name="check" /> Health sync</li>
 						</ul>
-						<Button variant="primary" className="w-full" onClick={startCheckout} disabled={loading}>{loading ? 'Redirecting…' : 'Sign up for Pro'}</Button>
+						<Button variant="primary" className="w-full" onClick={startCheckout} disabled={loading}>{loading ? 'Redirecting…' : 'Upgrade to Pro'}</Button>
 						<p className="text-xs opacity-70 mt-2">Limited lifetime tier coming soon.</p>
 					</div>
 				</div>

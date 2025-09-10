@@ -13,24 +13,24 @@ const faqData: FAQItem[] = [
 		answer: "No, never. All pose detection runs locally in your browser using MediaPipe. Your video stream never leaves your device—we only receive motion summaries that you control."
 	},
 	{
-		question: "How accurate is the AI coaching?",
-		answer: "Our form analysis is built on MediaPipe's proven pose detection, achieving 90%+ accuracy in controlled conditions. The AI provides real-time cues for common form issues like depth, alignment, and tempo."
+		question: "How accurate is the coaching?",
+		answer: "Our form analysis uses proven computer vision technology, achieving 90%+ accuracy in good lighting. You'll get real-time tips for common issues like squat depth, pushup alignment, and movement tempo."
 	},
 	{
-		question: "Does it work on mobile devices?",
-		answer: "Yes! The coach works on modern smartphones and tablets with front-facing cameras. For the best experience, we recommend using landscape mode and ensuring good lighting."
+		question: "Does it work on phones?",
+		answer: "Yes! Works on modern smartphones and tablets with front cameras. For best results, use landscape mode and good lighting."
 	},
 	{
-		question: "How can I improve pose tracking quality?",
-		answer: "Ensure good lighting, position yourself fully in frame, wear contrasting colors, and maintain a stable camera position. The pose quality indicator will help you find the optimal setup."
+		question: "How can I improve tracking quality?",
+		answer: "Use good lighting, stay fully in frame, wear contrasting colors, and keep your camera steady. The green light indicator shows when you're positioned correctly."
 	},
 	{
 		question: "Can I use it offline?",
-		answer: "Yes, once loaded, the core coaching features work offline. Your session data is stored locally and synced when you're back online. Perfect for gym environments with poor connectivity."
+		answer: "Yes, once loaded, the coaching works offline. Your workout data saves locally and syncs when you're back online. Perfect for gyms with poor internet."
 	},
 	{
 		question: "What does Pro include?",
-		answer: "Pro adds unlimited session history, advanced analytics, custom workout plans, priority support, and early access to new exercises. Free users get 10 recent sessions and basic coaching."
+		answer: "Pro adds unlimited workout history, detailed progress charts, custom training plans, priority support, and early access to new exercises. Free users get 10 recent sessions and basic coaching."
 	}
 ];
 
@@ -60,8 +60,8 @@ export default function FAQ() {
 		<section className="section">
 			<div className="container">
 				<div className="text-center mb-8">
-					<h2 className="font-bold mb-2">Frequently Asked Questions</h2>
-					<p className="opacity-80">Everything you need to know about AI Form Coach</p>
+					<h2 className="font-bold mb-2">Questions & Answers</h2>
+					<p className="opacity-80">Everything you need to know about getting started</p>
 				</div>
 				<div className="max-w-3xl mx-auto space-y-2">
 					{faqData.map((item, index) => (

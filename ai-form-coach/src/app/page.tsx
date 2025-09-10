@@ -21,12 +21,23 @@ export default function Home() {
 					<div className="grid lg:grid-cols-2 gap-10 items-center section">
 						<Reveal>
 							<div className="space-y-6">
+								{/* 
+								HEADLINE VARIANTS FOR A/B TESTING:
+								1. "Perfect Your Form Instantly" (4 words)
+								2. "AI Coaching Made Simple" (4 words) 
+								3. "Train Smarter, Form Better" (4 words)
+								
+								SUBHEAD VARIANTS FOR A/B TESTING:
+								1. "Get instant form tips and rep counts. No video uploads—everything stays private on your device." (97 chars)
+								2. "Real-time coaching that counts reps and fixes your form. Private, fast, works offline." (92 chars)
+								3. "Smart coaching for better workouts. Counts reps, improves form, keeps data private." (87 chars)
+								*/}
 								<Badge>Private by design</Badge>
-								<h1 className="font-extrabold leading-tight" style={{ fontSize: 'var(--step-4)' }}>Real‑time AI Form Coaching — right in your browser</h1>
-								<p className="opacity-80 max-w-xl">Get instant cues, rep counts, and progress—without uploading video. MediaPipe runs on‑device for privacy and speed. Start a guided session in seconds.</p>
+								<h1 className="font-extrabold leading-tight" style={{ fontSize: 'var(--step-4)' }}>Perfect Your Form Instantly</h1>
+								<p className="opacity-80 max-w-xl">Get instant form tips and rep counts. No video uploads—everything stays private on your device.</p>
 								<div className="flex flex-wrap items-center gap-3">
-									<Link href="/signin"><Button variant="primary">Start free</Button></Link>
-									<button className="btn btn-secondary" onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}>Watch demo</button>
+									<Link href="/signin"><Button variant="primary">Start training</Button></Link>
+									<button className="btn btn-secondary" onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}>See demo</button>
 								</div>
 								<div className="flex items-center gap-3 pt-2 text-sm opacity-80">
 									<Icon name="check" /> No video leaves your device
@@ -49,16 +60,16 @@ export default function Home() {
 				<Container>
 					<div className="grid md:grid-cols-3 gap-4 mb-8">
 						<div className="card p-4"><div className="flex items-start gap-3"><Icon name="activity" /><div><h3 className="font-semibold">Instant feedback</h3><p className="opacity-80 text-sm">Hear cues as you move—improve form in real time.</p></div></div></div>
-						<div className="card p-4"><div className="flex items-start gap-3"><Icon name="sun" /><div><h3 className="font-semibold">Private by default</h3><p className="opacity-80 text-sm">On-device analysis. No video uploads—ever.</p></div></div></div>
-						<div className="card p-4"><div className="flex items-start gap-3"><Icon name="download" /><div><h3 className="font-semibold">Start free</h3><p className="opacity-80 text-sm">No subscription required to begin training.</p></div></div></div>
+							<div className="card p-4"><div className="flex items-start gap-3"><Icon name="sun" /><div><h3 className="font-semibold">Completely private</h3><p className="opacity-80 text-sm">Your video never leaves your device—guaranteed.</p></div></div></div>
+							<div className="card p-4"><div className="flex items-start gap-3"><Icon name="download" /><div><h3 className="font-semibold">Free to start</h3><p className="opacity-80 text-sm">Begin training immediately—no payment required.</p></div></div></div>
 					</div>
 					<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-						<a href="#rep-counter" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="activity" /><div><h3 className="font-semibold">Rep counter</h3><p className="opacity-80 text-sm">Automatic counting for every set.</p></div></div></a>
-						<a href="#form-cues" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="message" /><div><h3 className="font-semibold">Form cues</h3><p className="opacity-80 text-sm">Actionable voice tips while you move.</p></div></div></a>
-						<a href="#pose-quality" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="sun" /><div><h3 className="font-semibold">Pose quality light</h3><p className="opacity-80 text-sm">Simple indicator to stay in frame.</p></div></div></a>
-						<a href="#auto-pause" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="pause" /><div><h3 className="font-semibold">Auto pause</h3><p className="opacity-80 text-sm">Automatically pauses on low visibility.</p></div></div></a>
-						<a href="#history-charts" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="chart" /><div><h3 className="font-semibold">History with charts</h3><p className="opacity-80 text-sm">Track progress over time at a glance.</p></div></div></a>
-						<a href="#export" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="download" /><div><h3 className="font-semibold">Export</h3><p className="opacity-80 text-sm">One-click CSV exports for analysis.</p></div></div></a>
+					<a href="#rep-counter" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="activity" /><div><h3 className="font-semibold">Counts reps</h3><p className="opacity-80 text-sm">Never lose track of your sets again.</p></div></div></a>
+					<a href="#form-cues" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="message" /><div><h3 className="font-semibold">Coaches your form</h3><p className="opacity-80 text-sm">Get helpful tips as you exercise.</p></div></div></a>
+					<a href="#pose-quality" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="sun" /><div><h3 className="font-semibold">Shows when visible</h3><p className="opacity-80 text-sm">Green light means you&apos;re in frame.</p></div></div></a>
+					<a href="#auto-pause" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="pause" /><div><h3 className="font-semibold">Pauses automatically</h3><p className="opacity-80 text-sm">Stops when you step out of view.</p></div></div></a>
+					<a href="#history-charts" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="chart" /><div><h3 className="font-semibold">Tracks progress</h3><p className="opacity-80 text-sm">See your improvement over time.</p></div></div></a>
+					<a href="#export" className="card p-4 block hover:shadow-md transition"><div className="flex items-start gap-3"><Icon name="download" /><div><h3 className="font-semibold">Export data</h3><p className="opacity-80 text-sm">Download your workout history as CSV.</p></div></div></a>
 					</div>
 				</Container>
 			</Section>
@@ -66,8 +77,8 @@ export default function Home() {
 			<Section>
 				<Container>
 					<div className="grid sm:grid-cols-2 gap-3 text-sm" id="demo">
-						<div className="rounded-md border p-3 flex items-center gap-2"><span className="badge badge-success">Privacy first</span><span className="opacity-80">All processing is on-device</span></div>
-						<div className="rounded-md border p-3 flex items-center gap-2"><span className="badge badge-success">On-device analysis</span><span className="opacity-80">No video uploads</span></div>
+					<div className="rounded-md border p-3 flex items-center gap-2"><span className="badge badge-success">Completely private</span><span className="opacity-80">Everything runs on your device</span></div>
+					<div className="rounded-md border p-3 flex items-center gap-2"><span className="badge badge-success">No uploads</span><span className="opacity-80">Your video stays with you</span></div>
 					</div>
 				</Container>
 			</Section>
@@ -98,7 +109,7 @@ export default function Home() {
 						))}
 					</div>
 					<div className="text-center mt-8">
-						<Link href="/signin"><Button variant="primary">Start your first session</Button></Link>
+						<Link href="/signin"><Button variant="primary">Begin training</Button></Link>
 					</div>
 				</Container>
 			</Section>
@@ -112,19 +123,7 @@ export default function Home() {
 	);
 }
 
-function Feature({ title, body, icon }: { title: string; body: string; icon: React.ReactNode }) {
-	return (
-		<div className="card p-4">
-			<div className="flex items-start gap-3">
-				<div className="mt-0.5 text-emerald-600">{icon}</div>
-				<div>
-					<h3 className="font-semibold mb-1">{title}</h3>
-					<p className="opacity-80 text-sm">{body}</p>
-				</div>
-			</div>
-		</div>
-	);
-}
+// Unused Feature component removed - functionality moved inline above
 
 function Testimonial({ quote, name, role }: { quote: string; name: string; role: string }) {
 	return (
