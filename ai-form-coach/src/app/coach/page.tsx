@@ -1,15 +1,3 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-	title: 'AI Coach Session',
-	description: 'Start your guided workout session with real-time AI form coaching. Get instant feedback, rep counting, and form analysis.',
-	openGraph: {
-		title: 'AI Coach Session - Real-time Form Coaching',
-		description: 'Start your guided workout session with real-time AI form coaching. Get instant feedback, rep counting, and form analysis.',
-		images: ['/og-image?title=AI Coach Session&subtitle=Real-time form coaching and rep counting']
-	}
-};
-
 "use client";
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';

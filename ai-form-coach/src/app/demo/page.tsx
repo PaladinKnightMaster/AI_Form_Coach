@@ -181,57 +181,90 @@ function AuthCardsDemo() {
 					<div className="border rounded-lg p-4 bg-white dark:bg-black">
 						<h3 className="font-medium mb-3">Sign In Card</h3>
 						<div className="scale-75 origin-top-left w-[133%]">
-							<AuthCard title="Welcome back">
-								<form className="space-y-4">
-									<div>
-										<label className="block text-sm font-medium mb-1">Email</label>
-										<input
-											type="email"
-											className="w-full px-3 py-2 border rounded-md"
-											placeholder="you@example.com"
-										/>
+							<div className="min-h-screen flex items-center justify-center p-6">
+								<div className="w-full max-w-md">
+									<div className="text-center mb-8">
+										<div className="font-extrabold tracking-tight text-2xl">
+											AI Form Coach
+										</div>
 									</div>
-									<div>
-										<label className="block text-sm font-medium mb-1">Password</label>
-										<input
-											type="password"
-											className="w-full px-3 py-2 border rounded-md"
-											placeholder="••••••••"
-										/>
+									<div className="card p-8 space-y-6">
+										<div className="text-center">
+											<h1 className="text-2xl font-semibold mb-2">Welcome back</h1>
+											<p className="text-sm opacity-80">Private, real-time form coaching</p>
+										</div>
+										<form className="space-y-4">
+											<div>
+												<label className="block text-sm font-medium mb-1">Email</label>
+												<input
+													type="email"
+													className="w-full px-3 py-2 border rounded-md"
+													placeholder="you@example.com"
+													disabled
+												/>
+											</div>
+											<div>
+												<label className="block text-sm font-medium mb-1">Password</label>
+												<input
+													type="password"
+													className="w-full px-3 py-2 border rounded-md"
+													placeholder="••••••••"
+													disabled
+												/>
+											</div>
+											<div className="btn btn-primary w-full opacity-50 cursor-not-allowed">Sign in</div>
+										</form>
 									</div>
-									<Button variant="primary" className="w-full">Sign in</Button>
-								</form>
-							</AuthCard>
+								</div>
+							</div>
 						</div>
 					</div>
 
 					<div className="border rounded-lg p-4 bg-white dark:bg-black">
 						<h3 className="font-medium mb-3">Sign Up Card</h3>
 						<div className="scale-75 origin-top-left w-[133%]">
-							<AuthCard title="Create account">
-								<form className="space-y-4">
-									<div>
-										<label className="block text-sm font-medium mb-1">Email</label>
-										<input
-											type="email"
-											className="w-full px-3 py-2 border rounded-md"
-											placeholder="you@example.com"
-										/>
+							<div className="min-h-screen flex items-center justify-center p-6">
+								<div className="w-full max-w-md">
+									<div className="text-center mb-8">
+										<div className="font-extrabold tracking-tight text-2xl">
+											AI Form Coach
+										</div>
 									</div>
-									<div>
-										<label className="block text-sm font-medium mb-1">Password</label>
-										<input
-											type="password"
-											className="w-full px-3 py-2 border rounded-md"
-											placeholder="••••••••"
-										/>
+									<div className="card p-8 space-y-6">
+										<div className="text-center">
+											<h1 className="text-2xl font-semibold mb-2">Create account</h1>
+											<p className="text-sm opacity-80">Private, real-time form coaching</p>
+										</div>
+										<form className="space-y-4">
+											<div>
+												<label className="block text-sm font-medium mb-1">Email</label>
+												<input
+													type="email"
+													className="w-full px-3 py-2 border rounded-md"
+													placeholder="you@example.com"
+													disabled
+												/>
+											</div>
+											<div>
+												<label className="block text-sm font-medium mb-1">Password</label>
+												<input
+													type="password"
+													className="w-full px-3 py-2 border rounded-md"
+													placeholder="••••••••"
+													disabled
+												/>
+											</div>
+											<div className="btn btn-primary w-full opacity-50 cursor-not-allowed">Create account</div>
+										</form>
 									</div>
-									<Button variant="primary" className="w-full">Create account</Button>
-								</form>
-							</AuthCard>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
+				<p className="text-sm opacity-70 text-center">
+					Note: Form inputs are disabled for demo purposes. Visit <a href="/signin" className="text-blue-600 hover:underline">/signin</a> for functional forms.
+				</p>
 			</div>
 		</div>
 	);
@@ -248,23 +281,34 @@ function LandingSectionsDemo() {
 			</div>
 
 			<div>
-				<h2 className="text-xl font-semibold mb-4">Pricing Section</h2>
-				<div className="border rounded-lg">
-					<PricingTeaser />
-				</div>
-			</div>
-
-			<div>
-				<h2 className="text-xl font-semibold mb-4">FAQ Section</h2>
-				<div className="border rounded-lg">
-					<FAQ />
-				</div>
-			</div>
-
-			<div>
-				<h2 className="text-xl font-semibold mb-4">Final CTA</h2>
-				<div className="border rounded-lg overflow-hidden">
-					<FinalCTA />
+				<h2 className="text-xl font-semibold mb-4">Interactive Landing Sections</h2>
+				<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+					<p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+						The following sections contain interactive elements and are best viewed on the live landing page:
+					</p>
+					<div className="grid md:grid-cols-3 gap-4">
+						<div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
+							<h3 className="font-medium mb-2">Pricing Section</h3>
+							<p className="text-xs opacity-70 mb-3">Monthly/yearly toggle, upgrade buttons</p>
+							<a href="/#pricing" className="text-blue-600 hover:underline text-sm">
+								View on landing →
+							</a>
+						</div>
+						<div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
+							<h3 className="font-medium mb-2">FAQ Section</h3>
+							<p className="text-xs opacity-70 mb-3">Expandable questions and answers</p>
+							<a href="/#faq" className="text-blue-600 hover:underline text-sm">
+								View on landing →
+							</a>
+						</div>
+						<div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
+							<h3 className="font-medium mb-2">Final CTA</h3>
+							<p className="text-xs opacity-70 mb-3">Gradient background, action buttons</p>
+							<a href="/#cta" className="text-blue-600 hover:underline text-sm">
+								View on landing →
+							</a>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -1,21 +1,7 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-	title: 'Sign In',
-	description: 'Sign in to AI Form Coach to access your workout history, progress tracking, and personalized coaching sessions.',
-	robots: { index: false, follow: true },
-	openGraph: {
-		title: 'Sign In to AI Form Coach',
-		description: 'Sign in to access your workout history, progress tracking, and personalized coaching sessions.',
-		images: ['/og-image?title=Sign In&subtitle=Access your personalized coaching sessions']
-	}
-};
-
 "use client";
 import { useState, useEffect } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import AuthCard from '@/components/AuthCard';
 import Toast from '@/components/Toast';
 
