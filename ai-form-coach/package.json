@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "seed": "tsx scripts/seed.ts",
+    "seed:nutrition": "tsx scripts/seed-nutrition.ts",
     "screenshots": "node scripts/screenshot-mobile.js",
     "demo": "echo 'Component demo available at http://localhost:3000/demo'"
   },
@@ -18,12 +19,13 @@
     "@sentry/browser": "^8.36.0",
     "@supabase/supabase-js": "^2.56.1",
     "classnames": "^2.5.1",
+    "dotenv": "^17.2.2",
     "idb": "^8.0.3",
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "zustand": "^5.0.8",
-    "stripe": "^16.6.0"
+    "stripe": "^16.6.0",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

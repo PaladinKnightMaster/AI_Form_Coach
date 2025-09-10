@@ -25,7 +25,7 @@ export function Badge({ children, tone = 'success', className }: { children: Rea
 	return <span className={`${styles} ${className ?? ''}`}>{children}</span>;
 }
 
-export function Icon({ name, className }: { name: 'check'|'alert'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'; className?: string }) {
+export function Icon({ name, className }: { name: 'check'|'alert'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'|'chevron-left'|'chevron-right'|'plus'|'search'|'x'; className?: string }) {
 	const paths: Record<string, string> = {
 		check: 'M5 13l4 4L19 7',
 		alert: 'M12 9v4m0 4h.01M10.29 3.86l-7.98 13.8A2 2 0 004 20h16a2 2 0 001.69-3.14l-7.98-13.8a2 2 0 00-3.42 0z',
@@ -37,7 +37,12 @@ export function Icon({ name, className }: { name: 'check'|'alert'|'moon'|'sun'|'
 		chart: 'M3 3v18h18M7 13v4M11 9v8M15 5v12',
 		download: 'M12 3v12m0 0l-4-4m4 4l4-4M5 21h14',
 		'chevron-down': 'M6 9l6 6 6-6',
-		'chevron-up': 'M18 15l-6-6-6 6'
+		'chevron-up': 'M18 15l-6-6-6 6',
+		'chevron-left': 'M15 18l-6-6 6-6',
+		'chevron-right': 'M9 18l6-6-6-6',
+		plus: 'M12 5v14m-7-7h14',
+		search: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
+		x: 'M18 6L6 18M6 6l12 12'
 	};
 	return (
 		<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
