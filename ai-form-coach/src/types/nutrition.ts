@@ -5,13 +5,14 @@ export interface Food {
 	barcode?: string;
 	name: string;
 	brand?: string;
+	category?: string;
 	calories_per_100g: number;
 	protein_per_100g: number;
 	carbs_per_100g: number;
 	fat_per_100g: number;
-	fiber_per_100g: number;
-	sugar_per_100g: number;
-	sodium_per_100g: number;
+	fiber_per_100g?: number;
+	sugar_per_100g?: number;
+	sodium_per_100g?: number;
 	verified: boolean;
 	created_by?: string;
 	created_at: string;
@@ -96,11 +97,13 @@ export interface CreateFoodRequest {
 	barcode?: string;
 	name: string;
 	brand?: string;
+	category?: string;
 	calories_per_100g: number;
 	protein_per_100g: number;
 	carbs_per_100g: number;
 	fat_per_100g: number;
-	fiber_per_100g: number;
-	sugar_per_100g: number;
-	sodium_per_100g: number;
+	fiber_per_100g?: number;
+	sugar_per_100g?: number;
+	sodium_per_100g?: number;
+	verified?: boolean;
 }

@@ -132,9 +132,34 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   50% { transform: translateY(-20px); }
 }
 
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6); }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .animate-fade-in { animation: fade-in 0.8s ease-out; }
 .animate-slide-in-left { animation: slide-in-left 0.6s ease-out; }
 .animate-slide-in-right { animation: slide-in-right 0.6s ease-out; }
 .animate-scale-in { animation: scale-in 0.5s ease-out; }
 .animate-glow { animation: glow 2s ease-in-out infinite; }
 .animate-float { animation: float 6s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-slide-up { animation: slide-up 0.6s ease-out; }
+.animate-bounce-in { animation: bounce-in 0.6s ease-out; }

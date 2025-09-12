@@ -15,9 +15,12 @@
     "demo": "echo 'Component demo available at http://localhost:3000/demo'"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@mediapipe/tasks-vision": "^0.10.22-rc.20250304",
     "@sentry/browser": "^8.36.0",
+    "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.56.1",
+    "@zxing/library": "^0.21.3",
     "classnames": "^2.5.1",
     "dotenv": "^17.2.2",
     "idb": "^8.0.3",

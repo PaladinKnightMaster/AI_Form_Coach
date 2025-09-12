@@ -25,10 +25,12 @@ export function Badge({ children, tone = 'success', className }: { children: Rea
 	return <span className={`${styles} ${className ?? ''}`}>{children}</span>;
 }
 
-export function Icon({ name, className }: { name: 'check'|'alert'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'|'chevron-left'|'chevron-right'|'plus'|'search'|'x'; className?: string }) {
+export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'|'camera'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'|'chevron-left'|'chevron-right'|'plus'|'search'|'x'; className?: string }) {
 	const paths: Record<string, string> = {
 		check: 'M5 13l4 4L19 7',
 		alert: 'M12 9v4m0 4h.01M10.29 3.86l-7.98 13.8A2 2 0 004 20h16a2 2 0 001.69-3.14l-7.98-13.8a2 2 0 00-3.42 0z',
+		'alert-circle': 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+		camera: 'M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11zM12 17a4 4 0 100-8 4 4 0 000 8z',
 		moon: 'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z',
 		sun: 'M12 2v2m0 16v2m10-10h-2M6 12H4m15.364 6.364l-1.414-1.414M6.05 6.05L4.636 4.636m12.728 0l1.414 1.414M6.05 17.95l-1.414 1.414',
 		activity: 'M22 12H18L15 21L9 3L6 12H2',

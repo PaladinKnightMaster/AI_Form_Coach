@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/supabase/client';
+import { getSupabaseServerClient, getSupabaseServiceClient } from '@/lib/supabase/server';
 import type { AddFoodRequest, NutritionDay } from '@/types/nutrition';
 
 export async function GET(req: NextRequest) {
@@ -7,18 +7,25 @@ export async function GET(req: NextRequest) {
 		const { searchParams } = new URL(req.url);
 		const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
 
-		const supabase = getSupabaseClient();
-		const { data: { user } } = await supabase.auth.getUser();
+		// Get user ID from Authorization header
+		const authHeader = req.headers.get('authorization');
+		const userId = authHeader?.replace('Bearer ', '');
 
-		if (!user) {
+		console.log('API Route - Auth check:', { userId, authHeader });
+
+		if (!userId) {
+			console.log('API Route - No user ID found, returning 401');
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
+
+		// Use service role client for database operations
+		const supabase = getSupabaseServiceClient();
 
 		// Get daily totals
 		const { data: totalsData } = await supabase
 			.from('daily_totals')
 			.select('*')
-			.eq('user_id', user.id)
+			.eq('user_id', userId)
 			.eq('date', date)
 			.single();
 
@@ -32,7 +39,7 @@ export async function GET(req: NextRequest) {
 					food:foods (*)
 				)
 			`)
-			.eq('user_id', user.id)
+			.eq('user_id', userId)
 			.eq('date', date)
 			.order('created_at');
 
@@ -71,12 +78,16 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
 	try {
-		const supabase = getSupabaseClient();
-		const { data: { user } } = await supabase.auth.getUser();
+		// Get user ID from Authorization header
+		const authHeader = req.headers.get('authorization');
+		const userId = authHeader?.replace('Bearer ', '');
 
-		if (!user) {
+		if (!userId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
+
+		// Use service role client for database operations
+		const supabase = getSupabaseServiceClient();
 
 		const body = await req.json() as AddFoodRequest;
 
@@ -91,7 +102,7 @@ export async function POST(req: NextRequest) {
 		let { data: meal, error: mealError } = await supabase
 			.from('meals')
 			.select('*')
-			.eq('user_id', user.id)
+			.eq('user_id', userId)
 			.eq('date', date)
 			.eq('meal_type', body.meal_type)
 			.is('name', null) // Only get default meals, not custom named ones
@@ -102,7 +113,7 @@ export async function POST(req: NextRequest) {
 			const { data: newMeal, error: createError } = await supabase
 				.from('meals')
 				.insert({
-					user_id: user.id,
+					user_id: userId,
 					date,
 					meal_type: body.meal_type
 				})

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/supabase/client';
+import { getSupabaseServiceClient } from '@/lib/supabase/server';
 import type { CreateFoodRequest, FoodSearchResult } from '@/types/nutrition';
 
 export async function GET(req: NextRequest) {
@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 		const limit = parseInt(searchParams.get('limit') || '20');
 		const offset = parseInt(searchParams.get('offset') || '0');
 
-		const supabase = getSupabaseClient();
+		const supabase = getSupabaseServiceClient();
 
 		if (barcode) {
 			// Search by barcode
@@ -75,12 +75,15 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
 	try {
-		const supabase = getSupabaseClient();
-		const { data: { user } } = await supabase.auth.getUser();
+		// Get user ID from Authorization header
+		const authHeader = req.headers.get('authorization');
+		const userId = authHeader?.replace('Bearer ', '');
 
-		if (!user) {
+		if (!userId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
+
+		const supabase = getSupabaseServiceClient();
 
 		const body = await req.json() as CreateFoodRequest;
 
@@ -91,7 +94,7 @@ export async function POST(req: NextRequest) {
 
 		const foodData = {
 			...body,
-			created_by: user.id
+			created_by: userId
 		};
 
 		const { data, error } = await supabase

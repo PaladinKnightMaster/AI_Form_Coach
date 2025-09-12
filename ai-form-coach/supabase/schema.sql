@@ -142,6 +142,7 @@ create table if not exists public.foods (
 	barcode text unique,
 	name text not null,
 	brand text,
+	category text, -- Food category (fruits, vegetables, protein, etc.)
 	-- Macros per 100g
 	calories_per_100g real not null default 0,
 	protein_per_100g real not null default 0,

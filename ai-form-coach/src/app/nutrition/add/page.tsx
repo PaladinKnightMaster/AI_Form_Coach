@@ -4,6 +4,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Container, Button, Icon } from '@/ui/DS';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { Food, MealType, FoodSearchResult } from '@/types/nutrition';
+import BarcodeScanner from '@/components/BarcodeScanner';
+import { lookupProductByBarcode } from '@/lib/nutrition/openFoodFacts';
+import { foodCacheManager } from '@/lib/nutrition/foodCache';
 
 export default function AddFoodPage() {
 	const searchParams = useSearchParams();
@@ -16,6 +19,9 @@ export default function AddFoodPage() {
 	const [grams, setGrams] = useState(100);
 	const [adding, setAdding] = useState(false);
 	const [authChecked, setAuthChecked] = useState(false);
+	const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
+	const [barcodeLoading, setBarcodeLoading] = useState(false);
+	const [barcodeError, setBarcodeError] = useState<string | null>(null);
 	
 	const mealType = (searchParams.get('meal_type') as MealType) || 'breakfast';
 	const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
@@ -37,10 +43,109 @@ export default function AddFoodPage() {
 		checkAuth();
 	}, [router]);
 
+	// Initialize food cache
+	useEffect(() => {
+		if (authChecked) {
+			foodCacheManager.init().catch(console.error);
+		}
+	}, [authChecked]);
+
+	const handleBarcodeDetected = useCallback(async (barcode: string, format?: string) => {
+		try {
+			setBarcodeLoading(true);
+			setBarcodeError(null);
+			setShowBarcodeScanner(false);
+
+			console.log('Code detected:', { barcode, format });
+
+			// Handle QR codes differently
+			if (format === 'QR_CODE') {
+				// Check if QR code contains a URL
+				if (barcode.startsWith('http://') || barcode.startsWith('https://')) {
+					setBarcodeError('QR code contains a URL. Please use manual search for food items.');
+					return;
+				}
+				// Check if QR code contains a barcode number
+				if (/^\d{8,14}$/.test(barcode)) {
+					console.log('QR code contains barcode number:', barcode);
+					// Treat as barcode and continue with normal flow
+				} else {
+					setBarcodeError('QR code format not supported for food lookup. Please use manual search.');
+					return;
+				}
+			}
+
+			// Check cache first
+			const cachedFood = await foodCacheManager.getCachedFood(barcode);
+			if (cachedFood) {
+				console.log('Using cached food data');
+				convertBarcodeFoodToAppFood(cachedFood);
+				return;
+			}
+
+			// Look up product from Open Food Facts
+			const foodData = await lookupProductByBarcode(barcode);
+			if (!foodData) {
+				setBarcodeError('Product not found in database. Please try manual search.');
+				return;
+			}
+
+			// Cache the food data
+			await foodCacheManager.cacheFood(barcode, foodData);
+			
+			// Convert to app format and select
+			convertBarcodeFoodToAppFood(foodData);
+
+		} catch (error) {
+			console.error('Barcode lookup error:', error);
+			setBarcodeError('Failed to lookup product. Please try manual search.');
+		} finally {
+			setBarcodeLoading(false);
+		}
+	}, []);
+
+	const convertBarcodeFoodToAppFood = (barcodeFood: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+		// Convert barcode food data to app Food format
+		const appFood: Food = {
+			id: `barcode_${Date.now()}`, // Temporary ID for barcode foods
+			name: barcodeFood.name,
+			brand: barcodeFood.brand || null,
+			category: barcodeFood.category || null,
+			calories_per_100g: (barcodeFood.calories / barcodeFood.serving_size) * 100,
+			protein_per_100g: (barcodeFood.protein / barcodeFood.serving_size) * 100,
+			carbs_per_100g: (barcodeFood.carbs / barcodeFood.serving_size) * 100,
+			fat_per_100g: (barcodeFood.fat / barcodeFood.serving_size) * 100,
+		fiber_per_100g: barcodeFood.fiber ? (barcodeFood.fiber / barcodeFood.serving_size) * 100 : undefined,
+		sugar_per_100g: barcodeFood.sugar ? (barcodeFood.sugar / barcodeFood.serving_size) * 100 : undefined,
+		sodium_per_100g: barcodeFood.sodium ? (barcodeFood.sodium / barcodeFood.serving_size) * 100 : undefined,
+			verified: false, // Barcode foods are not verified in our database
+			created_at: new Date().toISOString(),
+			updated_at: new Date().toISOString()
+		};
+
+		setSelectedFood(appFood);
+		setGrams(barcodeFood.serving_size); // Set default serving size
+	};
+
 	const searchFoods = useCallback(async () => {
 		try {
 			setLoading(true);
-			const response = await fetch(`/api/nutrition/foods?q=${encodeURIComponent(searchQuery)}&limit=20`);
+			
+			// Get user ID for authorization
+			const supabase = getSupabaseClient();
+			const { data: { user } } = await supabase.auth.getUser();
+			
+			if (!user) {
+				throw new Error('User not authenticated');
+			}
+			
+			const response = await fetch(`/api/nutrition/foods?q=${encodeURIComponent(searchQuery)}&limit=20`, {
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${user.id}`,
+				},
+			});
 			if (!response.ok) throw new Error('Search failed');
 			
 			const data: FoodSearchResult = await response.json();
@@ -52,11 +157,12 @@ export default function AddFoodPage() {
 		}
 	}, [searchQuery]);
 
+	// Real-time search suggestions as user types
 	useEffect(() => {
-		if (authChecked && searchQuery.trim()) {
+		if (authChecked && searchQuery.trim().length >= 2) {
 			const timeoutId = setTimeout(() => {
 				searchFoods();
-			}, 300);
+			}, 300); // 300ms debounce for real-time search
 			return () => clearTimeout(timeoutId);
 		} else {
 			setSearchResults([]);
@@ -68,12 +174,58 @@ export default function AddFoodPage() {
 
 		try {
 			setAdding(true);
+			
+			// Get user ID for authorization
+			const supabase = getSupabaseClient();
+			const { data: { user } } = await supabase.auth.getUser();
+			
+			if (!user) {
+				throw new Error('User not authenticated');
+			}
+			
+			// For barcode foods, we need to create a temporary food entry first
+			let foodId = selectedFood.id;
+			
+			if (selectedFood.id.startsWith('barcode_')) {
+				// Create a temporary food entry for barcode foods
+				const response = await fetch('/api/nutrition/foods', {
+					method: 'POST',
+					credentials: 'include',
+					headers: { 
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${user.id}`,
+					},
+					body: JSON.stringify({
+						name: selectedFood.name,
+						brand: selectedFood.brand,
+						category: selectedFood.category,
+						calories_per_100g: selectedFood.calories_per_100g,
+						protein_per_100g: selectedFood.protein_per_100g,
+						carbs_per_100g: selectedFood.carbs_per_100g,
+						fat_per_100g: selectedFood.fat_per_100g,
+						fiber_per_100g: selectedFood.fiber_per_100g,
+						sugar_per_100g: selectedFood.sugar_per_100g,
+						sodium_per_100g: selectedFood.sodium_per_100g,
+						verified: false
+					})
+				});
+
+				if (!response.ok) throw new Error('Failed to create food entry');
+				const foodData = await response.json();
+				foodId = foodData.id;
+			}
+
+			// Add food to meal
 			const response = await fetch('/api/nutrition/meals', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				credentials: 'include',
+				headers: { 
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${user.id}`,
+				},
 				body: JSON.stringify({
 					meal_type: mealType,
-					food_id: selectedFood.id,
+					food_id: foodId,
 					grams,
 					date
 				})
@@ -115,43 +267,113 @@ export default function AddFoodPage() {
 					{/* Header */}
 					<div className="flex items-center gap-4 mb-6">
 						<BackButton onBack={() => router.back()} />
-						<div>
+						<div className="flex-1">
 							<h1 className="text-2xl font-bold">Add Food</h1>
 							<p className="text-sm opacity-70 capitalize">
 								{mealType} • {new Date(date).toLocaleDateString()}
 							</p>
 						</div>
+						{/* Quick Scan Button */}
+						<button
+							onClick={() => setShowBarcodeScanner(true)}
+							className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-xl transition-colors shadow-lg"
+							disabled={barcodeLoading}
+							title="Scan Barcode or QR Code"
+						>
+							<Icon name="camera" className="w-6 h-6" />
+						</button>
 					</div>
 
 					{!selectedFood ? (
 						<>
 							{/* Search */}
 							<div className="card p-4 mb-6">
-								<div className="relative">
+								<div className="relative mb-4">
 									<Icon name="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50" />
 									<input
 										type="text"
 										placeholder="Search for foods..."
 										value={searchQuery}
 										onChange={(e) => setSearchQuery(e.target.value)}
-										className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+										onKeyDown={(e) => {
+											if (e.key === 'Enter') {
+												searchFoods();
+											}
+										}}
+										className="w-full pl-10 pr-20 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 									/>
+									<button
+										onClick={searchFoods}
+										disabled={!searchQuery.trim() || loading}
+										className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+									>
+										{loading ? 'Searching...' : 'Search'}
+									</button>
 								</div>
+								
+								{/* Search Help Text */}
+								{searchQuery.trim() && searchQuery.trim().length < 2 && (
+									<p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+										💡 Type at least 2 characters to see food suggestions
+									</p>
+								)}
+								{searchQuery.trim() && searchQuery.trim().length >= 2 && (
+									<p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+										🔍 Showing suggestions for &quot;{searchQuery}&quot; • Click &quot;Search&quot; for more results
+									</p>
+								)}
+								
+								{/* Divider */}
+								<div className="flex items-center my-4">
+									<div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+									<span className="px-3 text-sm text-gray-500 dark:text-gray-400">or</span>
+									<div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+								</div>
+
+								{/* Barcode Scanner Button */}
+								<div className="text-center">
+									<button
+										onClick={() => setShowBarcodeScanner(true)}
+										className="w-full bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+										disabled={barcodeLoading}
+									>
+										<Icon name="camera" className="w-6 h-6" />
+										{barcodeLoading ? 'Scanning...' : '📱 Scan Barcode or QR Code'}
+									</button>
+									<p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+										Point your camera at a product barcode or QR code for instant food lookup
+									</p>
+								</div>
+
+								{/* Barcode Error */}
+								{barcodeError && (
+									<div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+										<div className="flex items-center gap-2">
+											<Icon name="alert-circle" className="text-red-500" />
+											<p className="text-sm text-red-700 dark:text-red-300">{barcodeError}</p>
+										</div>
+									</div>
+								)}
 							</div>
 
 							{/* Search Results */}
 							{loading && (
-								<div className="text-center py-8">
-									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-									<p className="text-sm opacity-70">Searching...</p>
+								<div className="text-center py-4">
+									<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+									<p className="text-sm opacity-70">Finding suggestions...</p>
 								</div>
 							)}
 
 							{searchResults.length > 0 && (
-								<FoodSearchResults 
-									foods={searchResults}
-									onSelectFood={setSelectedFood}
-								/>
+								<div>
+									<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+										🍽️ Food Suggestions
+									</h3>
+									<FoodSearchResults 
+										foods={searchResults}
+										onSelectFood={setSelectedFood}
+									/>
+								</div>
 							)}
 
 							{searchQuery && !loading && searchResults.length === 0 && (
@@ -251,6 +473,15 @@ export default function AddFoodPage() {
 					)}
 				</div>
 			</Container>
+
+			{/* Barcode Scanner Modal */}
+			{showBarcodeScanner && (
+				<BarcodeScanner
+					onBarcodeDetected={handleBarcodeDetected}
+					onClose={() => setShowBarcodeScanner(false)}
+					title="Scan Barcode or QR Code"
+				/>
+			)}
 		</div>
 	);
 }
