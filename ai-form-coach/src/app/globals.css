@@ -142,11 +142,6 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   to { transform: translateY(0); opacity: 1; }
 }
 
-@keyframes scale-in {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
 @keyframes bounce-in {
   0% { transform: scale(0.3); opacity: 0; }
   50% { transform: scale(1.05); }

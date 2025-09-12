@@ -10,6 +10,9 @@ import MealCard from '@/components/nutrition/MealCard';
 import NutritionInsights from '@/components/nutrition/NutritionInsights';
 import DatePicker from '@/components/nutrition/DatePicker';
 import QuickAddFoodModal from '@/components/nutrition/QuickAddFoodModal';
+import GoalsPanel from '@/components/nutrition/GoalsPanel';
+import ProgressPanel from '@/components/nutrition/ProgressPanel';
+import ProteinAdvisory from '@/components/nutrition/ProteinAdvisory';
 
 export default function NutritionPage() {
 	const router = useRouter();
@@ -19,6 +22,8 @@ export default function NutritionPage() {
 	const [authChecked, setAuthChecked] = useState(false);
 	const [showQuickAddModal, setShowQuickAddModal] = useState(false);
 	const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast');
+	const [showGoalsPanel, setShowGoalsPanel] = useState(false);
+	const [showProgressPanel, setShowProgressPanel] = useState(false);
 	const [goals] = useState<MacroGoals>({
 		calories: 2000,
 		protein: 150,
@@ -126,30 +131,48 @@ export default function NutritionPage() {
 			<Container>
 				<div className="py-8 space-y-8">
 					{/* Header */}
-					<div className="flex items-center justify-between">
-						<div>
-							<h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-								Nutrition
+					<div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+						<div className="flex-1">
+							<h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-2">
+								Nutrition Tracker
 							</h1>
-							<p className="text-gray-600 dark:text-gray-400 mt-2">
+							<p className="text-gray-600 dark:text-gray-400 text-lg">
 								Track your daily nutrition and achieve your health goals
 							</p>
 						</div>
-						<Button 
-							variant="primary" 
-							onClick={() => {
-								setSelectedMealType('breakfast');
-								setShowQuickAddModal(true);
-							}}
-							className="bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 shadow-lg"
-						>
-							<Icon name="plus" />
-							Quick Add Food
-						</Button>
+						<div className="flex flex-wrap items-center gap-3">
+							<Button 
+								variant="secondary" 
+								onClick={() => setShowGoalsPanel(true)}
+								className="bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-200"
+							>
+								<Icon name="target" className="w-4 h-4" />
+								Goals
+							</Button>
+							<Button 
+								variant="secondary" 
+								onClick={() => setShowProgressPanel(true)}
+								className="bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-200"
+							>
+								<Icon name="trending-up" className="w-4 h-4" />
+								Progress
+							</Button>
+							<Button 
+								variant="primary" 
+								onClick={() => {
+									setSelectedMealType('breakfast');
+									setShowQuickAddModal(true);
+								}}
+								className="bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+							>
+								<Icon name="plus" className="w-4 h-4" />
+								Quick Add Food
+							</Button>
+						</div>
 					</div>
 
 					{/* Date Picker */}
-					<div className="card p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl">
+					<div className="card p-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
 						<DatePicker 
 							selectedDate={selectedDate}
 							onDateChange={setSelectedDate}
@@ -157,7 +180,7 @@ export default function NutritionPage() {
 					</div>
 
 					{/* Macro Rings */}
-					<div className="card p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl">
+					<div className="card p-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
 						<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
 							Daily Summary
 						</h2>
@@ -230,6 +253,27 @@ export default function NutritionPage() {
 					}}
 				/>
 			)}
+
+			{/* Goals Panel */}
+			{showGoalsPanel && (
+				<GoalsPanel
+					onClose={() => setShowGoalsPanel(false)}
+					onGoalsUpdated={() => {
+						fetchNutritionDay();
+					}}
+				/>
+			)}
+
+			{/* Progress Panel */}
+			{showProgressPanel && (
+				<ProgressPanel
+					date={selectedDate}
+					onClose={() => setShowProgressPanel(false)}
+				/>
+			)}
+
+			{/* Protein Advisory */}
+			<ProteinAdvisory date={selectedDate} />
 		</div>
 	);
 }

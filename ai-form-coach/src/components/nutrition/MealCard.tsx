@@ -54,15 +54,15 @@ export default function MealCard({ meal, mealType, onAddFood }: MealCardProps) {
   }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
 
   return (
-    <div className={`card p-6 border-2 ${config.borderColor} ${config.bgColor} hover:shadow-lg transition-all duration-300 animate-bounce-in hover:scale-[1.02]`}>
+    <div className={`card p-6 border-2 ${config.borderColor} ${config.bgColor} hover:shadow-xl transition-all duration-300 animate-bounce-in hover:scale-[1.02] group`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-3">
-          <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${config.color} flex items-center justify-center text-2xl`}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-4">
+          <div className={`w-14 h-14 rounded-full bg-gradient-to-r ${config.color} flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
             {config.emoji}
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
               {config.name}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -74,38 +74,38 @@ export default function MealCard({ meal, mealType, onAddFood }: MealCardProps) {
         <Button 
           variant="ghost" 
           onClick={onAddFood}
-          className="hover:bg-white/50 dark:hover:bg-gray-800/50"
+          className="hover:bg-white/60 dark:hover:bg-gray-800/60 rounded-full p-3 transition-all duration-200 hover:scale-110"
         >
-          <Icon name="plus" />
+          <Icon name="plus" className="w-5 h-5" />
         </Button>
       </div>
 
       {/* Nutrition Summary */}
       {items.length > 0 && (
-        <div className="grid grid-cols-4 gap-3 mb-4">
-          <div className="text-center p-2 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+        <div className="grid grid-cols-4 gap-3 mb-6">
+          <div className="text-center p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
             <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
               {Math.round(totals.calories)}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">cal</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">cal</div>
           </div>
-          <div className="text-center p-2 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+          <div className="text-center p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
             <div className="text-lg font-bold text-red-600 dark:text-red-400">
               {Math.round(totals.protein)}g
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">protein</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">protein</div>
           </div>
-          <div className="text-center p-2 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+          <div className="text-center p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
             <div className="text-lg font-bold text-green-600 dark:text-green-400">
               {Math.round(totals.carbs)}g
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">carbs</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">carbs</div>
           </div>
-          <div className="text-center p-2 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+          <div className="text-center p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
             <div className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
               {Math.round(totals.fat)}g
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">fat</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">fat</div>
           </div>
         </div>
       )}

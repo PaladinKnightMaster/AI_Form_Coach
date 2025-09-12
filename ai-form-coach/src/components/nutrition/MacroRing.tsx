@@ -43,8 +43,8 @@ export default function MacroRing({
   };
 
   return (
-    <div className="flex flex-col items-center space-y-3 animate-slide-up">
-      <div className={`relative ${sizeClasses[size]} hover:scale-105 transition-transform duration-300`}>
+    <div className="flex flex-col items-center space-y-4 animate-slide-up group">
+      <div className={`relative ${sizeClasses[size]} hover:scale-110 transition-all duration-300 group-hover:drop-shadow-lg`}>
         {/* Background ring */}
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
           <circle
@@ -66,17 +66,17 @@ export default function MacroRing({
             fill="none"
             strokeDasharray={strokeDasharray}
             strokeDashoffset={strokeDashoffset}
-            className={`${color} transition-all duration-500 ease-out`}
+            className={`${color} transition-all duration-700 ease-out drop-shadow-sm`}
             strokeLinecap="round"
           />
         </svg>
         
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className={`font-bold ${valueSizeClasses[size]} text-gray-900 dark:text-white`}>
+          <div className={`font-bold ${valueSizeClasses[size]} text-gray-900 dark:text-white transition-colors duration-300`}>
             {Math.round(value)}
           </div>
-          <div className={`${textSizeClasses[size]} text-gray-500 dark:text-gray-400`}>
+          <div className={`${textSizeClasses[size]} text-gray-500 dark:text-gray-400 transition-colors duration-300`}>
             {unit}
           </div>
         </div>
@@ -84,10 +84,10 @@ export default function MacroRing({
       
       {/* Label and goal */}
       <div className="text-center">
-        <div className={`font-medium ${textSizeClasses[size]} text-gray-900 dark:text-white`}>
+        <div className={`font-semibold ${textSizeClasses[size]} text-gray-900 dark:text-white transition-colors duration-300`}>
           {label}
         </div>
-        <div className={`${textSizeClasses[size]} text-gray-500 dark:text-gray-400`}>
+        <div className={`${textSizeClasses[size]} text-gray-500 dark:text-gray-400 transition-colors duration-300`}>
           {Math.round(percentage)}% of {goal}{unit}
         </div>
       </div>
