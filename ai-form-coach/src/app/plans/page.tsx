@@ -1,69 +1,110 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import type { PlanTemplate, UserPlan } from '@/types/plans';
 
 export default function PlansPage() {
   const [activeView, setActiveView] = useState<'featured' | 'my-plans'>('featured');
+  const [featuredPlans, setFeaturedPlans] = useState<PlanTemplate[]>([]);
+  const [userPlans, setUserPlans] = useState<UserPlan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  // Mock data for featured plans
-  const featuredPlans: PlanTemplate[] = [
-    {
-      id: '1',
-      name: 'Beginner Bodyweight',
-      description: 'Perfect for complete beginners. Build strength and confidence with no equipment needed.',
-      category: 'beginner',
-      goal_type: 'general_fitness',
-      equipment_required: [],
-      duration_weeks: 4,
-      difficulty_level: 2,
-      sessions_per_week: 3,
-      avg_session_duration: 30,
-      is_featured: true,
-      tags: ['bodyweight', 'beginner', 'no-equipment']
-    },
-    {
-      id: '2',
-      name: 'Strength Builder',
-      description: 'Build real strength with this progressive program. Uses basic equipment to develop functional strength.',
-      category: 'intermediate',
-      goal_type: 'strength',
-      equipment_required: ['dumbbells', 'pull-up-bar'],
-      duration_weeks: 6,
-      difficulty_level: 5,
-      sessions_per_week: 4,
-      avg_session_duration: 45,
-      is_featured: true,
-      tags: ['strength', 'dumbbells', 'intermediate']
-    },
-    {
-      id: '3',
-      name: 'Fat Loss HIIT',
-      description: 'High-intensity workouts designed to maximize calorie burn and improve cardiovascular fitness.',
-      category: 'beginner',
-      goal_type: 'fat_loss',
-      equipment_required: [],
-      duration_weeks: 4,
-      difficulty_level: 6,
-      sessions_per_week: 4,
-      avg_session_duration: 25,
-      is_featured: true,
-      tags: ['hiit', 'fat-loss', 'cardio', 'bodyweight']
+  // Fetch featured plans
+  const fetchFeaturedPlans = async () => {
+    try {
+      const response = await fetch('/api/plans/templates?featured=true');
+      if (!response.ok) {
+        throw new Error('Failed to fetch featured plans');
+      }
+      const data = await response.json();
+      setFeaturedPlans(data.templates || []);
+    } catch (err) {
+      console.error('Error fetching featured plans:', err);
+      setError('Failed to load featured plans');
     }
-  ];
+  };
 
-  // Mock data for user plans
-  const userPlans: UserPlan[] = [
-    {
-      id: 'user-1',
-      name: 'My Current Plan',
-      current_week: 2,
-      current_day: 3,
-      is_active: true,
-      created_at: new Date().toISOString()
+  // Fetch user plans
+  const fetchUserPlans = async () => {
+    try {
+      const response = await fetch('/api/plans/user');
+      if (!response.ok) {
+        if (response.status === 401) {
+          // User not authenticated, this is fine
+          setUserPlans([]);
+          return;
+        }
+        throw new Error('Failed to fetch user plans');
+      }
+      const data = await response.json();
+      setUserPlans(data.userPlans || []);
+    } catch (err) {
+      console.error('Error fetching user plans:', err);
+      setError('Failed to load user plans');
     }
-  ];
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      await Promise.all([
+        fetchFeaturedPlans(),
+        fetchUserPlans()
+      ]);
+      
+      setLoading(false);
+    };
+
+    loadData();
+  }, []);
+
+  // Handle plan selection
+  const handleSelectPlan = async (templateId: string, planName: string) => {
+    try {
+      setError(null); // Clear any previous errors
+      
+      const response = await fetch('/api/plans/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          template_id: templateId,
+          name: planName
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setError('Please sign in to select a plan');
+          return;
+        }
+        throw new Error('Failed to select plan');
+      }
+
+      // Refresh user plans
+      await fetchUserPlans();
+      
+      // Show success message
+      setSuccess(`Successfully started "${planName}" plan!`);
+      
+      // Switch to my plans view
+      setActiveView('my-plans');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+      
+    } catch (err) {
+      console.error('Error selecting plan:', err);
+      setError('Failed to select plan. Please try again.');
+    }
+  };
 
   const getDifficultyStars = (level: number) => {
     return '★'.repeat(Math.min(level, 5)) + '☆'.repeat(Math.max(0, 5 - level));
@@ -91,6 +132,34 @@ export default function PlansPage() {
               Choose from our expertly crafted plans or create a personalized program
             </p>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <div className="flex items-center gap-2">
+                <Icon name="alert-circle" className="w-5 h-5 text-red-500" />
+                <p className="text-red-700 dark:text-red-300">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {success && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <div className="flex items-center gap-2">
+                <Icon name="check-circle" className="w-5 h-5 text-green-500" />
+                <p className="text-green-700 dark:text-green-300">{success}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-gray-600 dark:text-gray-400">Loading plans...</p>
+            </div>
+          )}
 
           {/* Navigation Tabs */}
           <div className="flex justify-center">
@@ -123,13 +192,24 @@ export default function PlansPage() {
           </div>
 
           {/* Content */}
-          {activeView === 'featured' && (
+          {!loading && activeView === 'featured' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
                 Featured Plans
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {featuredPlans.map((plan) => (
+              {featuredPlans.length === 0 ? (
+                <div className="text-center py-12">
+                  <Icon name="calendar" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    No featured plans available
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Check back later for new workout plans.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {featuredPlans.map((plan) => (
                   <div
                     key={plan.id}
                     className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
@@ -196,17 +276,21 @@ export default function PlansPage() {
                         ))}
                       </div>
 
-                      <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white">
+                      <Button 
+                        className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                        onClick={() => handleSelectPlan(plan.id, plan.name)}
+                      >
                         Select Plan
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-          {activeView === 'my-plans' && (
+          {!loading && activeView === 'my-plans' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
                 My Plans
