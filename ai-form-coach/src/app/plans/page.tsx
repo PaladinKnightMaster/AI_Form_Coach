@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import type { PlanTemplate, UserPlan } from '@/types/plans';
+import type { UserPreferences, GeneratedPlan } from '@/lib/ai/planGenerator';
+import PlanWizard from '@/components/plans/PlanWizard';
+import AIGeneratedPlan from '@/components/plans/AIGeneratedPlan';
+import { getSupabaseClient } from '@/lib/supabase/client';
 
 export default function PlansPage() {
   const [activeView, setActiveView] = useState<'featured' | 'my-plans'>('featured');
@@ -11,11 +15,19 @@ export default function PlansPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  
+  // AI Plan Generation states
+  const [showWizard, setShowWizard] = useState(false);
+  const [showGeneratedPlan, setShowGeneratedPlan] = useState(false);
+  const [generatedPlan, setGeneratedPlan] = useState<GeneratedPlan | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch featured plans
   const fetchFeaturedPlans = async () => {
     try {
-      const response = await fetch('/api/plans/templates?featured=true');
+      const response = await fetch('/api/plans/templates?featured=true', {
+        credentials: 'include'
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch featured plans');
       }
@@ -30,7 +42,9 @@ export default function PlansPage() {
   // Fetch user plans
   const fetchUserPlans = async () => {
     try {
-      const response = await fetch('/api/plans/user');
+      const response = await fetch('/api/plans/user', {
+        credentials: 'include'
+      });
       if (!response.ok) {
         if (response.status === 401) {
           // User not authenticated, this is fine
@@ -74,6 +88,7 @@ export default function PlansPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           template_id: templateId,
           name: planName
@@ -104,6 +119,104 @@ export default function PlansPage() {
       console.error('Error selecting plan:', err);
       setError('Failed to select plan. Please try again.');
     }
+  };
+
+  // Handle AI plan generation
+  const handleGenerateAIPlan = async (preferences: UserPreferences) => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+      setShowWizard(false);
+
+      // Check if user is authenticated
+      const supabase = getSupabaseClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        setError('Please sign in to generate AI plans');
+        return;
+      }
+
+      const response = await fetch('/api/plans/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ preferences }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setError('Please sign in to generate AI plans');
+          return;
+        }
+        throw new Error('Failed to generate AI plan');
+      }
+
+      const data = await response.json();
+      setGeneratedPlan(data.plan);
+      setShowGeneratedPlan(true);
+      
+    } catch (err) {
+      console.error('Error generating AI plan:', err);
+      setError('Failed to generate AI plan. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleAcceptAIPlan = async (planId: string) => {
+    try {
+      setError(null);
+      
+      // Check if user is authenticated
+      const supabase = getSupabaseClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        setError('Please sign in to save your plan');
+        return;
+      }
+
+      // Save the AI-generated plan directly
+      const response = await fetch('/api/plans/save-ai-plan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          plan: generatedPlan,
+          name: generatedPlan?.name || 'AI Generated Plan'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save plan');
+      }
+
+      // Refresh user plans
+      await fetchUserPlans();
+      
+      // Close modals and show success
+      setShowGeneratedPlan(false);
+      setGeneratedPlan(null);
+      setSuccess(`Successfully started "${generatedPlan?.name}" plan!`);
+      setActiveView('my-plans');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+      
+    } catch (err) {
+      console.error('Error accepting AI plan:', err);
+      setError('Failed to save plan. Please try again.');
+    }
+  };
+
+  const handleRegenerateAIPlan = () => {
+    setShowGeneratedPlan(false);
+    setShowWizard(true);
   };
 
   const getDifficultyStars = (level: number) => {
@@ -162,7 +275,7 @@ export default function PlansPage() {
           )}
 
           {/* Navigation Tabs */}
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-4">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-1 shadow-lg">
               <div className="flex space-x-1">
                 <button
@@ -189,6 +302,25 @@ export default function PlansPage() {
                 </button>
               </div>
             </div>
+            
+            {/* AI Plan Generation Button */}
+            <Button
+              onClick={() => setShowWizard(true)}
+              disabled={isGenerating}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg shadow-lg"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Icon name="sparkles" className="w-4 h-4 mr-2" />
+                  Create AI Plan
+                </>
+              )}
+            </Button>
           </div>
 
           {/* Content */}
@@ -355,6 +487,28 @@ export default function PlansPage() {
           )}
         </div>
       </Container>
+
+      {/* AI Plan Generation Wizard */}
+      {showWizard && (
+        <PlanWizard
+          onComplete={handleGenerateAIPlan}
+          onCancel={() => setShowWizard(false)}
+        />
+      )}
+
+      {/* AI Generated Plan Modal */}
+      {showGeneratedPlan && generatedPlan && (
+        <AIGeneratedPlan
+          plan={generatedPlan}
+          onAccept={handleAcceptAIPlan}
+          onRegenerate={handleRegenerateAIPlan}
+          onCancel={() => {
+            setShowGeneratedPlan(false);
+            setGeneratedPlan(null);
+          }}
+          isGenerating={isGenerating}
+        />
+      )}
     </div>
   );
 }
