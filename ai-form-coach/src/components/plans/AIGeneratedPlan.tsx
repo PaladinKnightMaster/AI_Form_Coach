@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from 'react';
-import { Container, Button, Icon, Badge } from '@/ui/DS';
+import { Button, Icon, Badge } from '@/ui/DS';
 import type { GeneratedPlan } from '@/lib/ai/planGenerator';
 
 interface AIGeneratedPlanProps {
   plan: GeneratedPlan;
-  onAccept: (planId: string) => void;
+  onAccept: () => void;
   onRegenerate: () => void;
   onCancel: () => void;
   isGenerating?: boolean;
+  isAccepting?: boolean;
 }
 
 export default function AIGeneratedPlan({ 
@@ -17,7 +18,8 @@ export default function AIGeneratedPlan({
   onAccept, 
   onRegenerate, 
   onCancel,
-  isGenerating = false 
+  isGenerating = false,
+  isAccepting = false
 }: AIGeneratedPlanProps) {
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [expandedSession, setExpandedSession] = useState<number | null>(null);
@@ -30,8 +32,8 @@ export default function AIGeneratedPlan({
     switch (category) {
       case 'beginner': return 'success';
       case 'intermediate': return 'warning';
-      case 'advanced': return 'error';
-      default: return 'info';
+      case 'advanced': return 'warning'; // Use warning for advanced since error is not supported
+      default: return 'success';
     }
   };
 
@@ -192,9 +194,9 @@ export default function AIGeneratedPlan({
                             className="bg-white dark:bg-gray-800 rounded-lg p-3"
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <h7 className="font-medium text-gray-900 dark:text-white">
+                              <h6 className="font-medium text-gray-900 dark:text-white">
                                 {exercise.name}
-                              </h7>
+                              </h6>
                               <div className="text-sm text-gray-600 dark:text-gray-400">
                                 {exercise.sets} sets
                                 {exercise.reps && ` × ${exercise.reps}`}
@@ -249,10 +251,18 @@ export default function AIGeneratedPlan({
               </Button>
               
               <Button
-                onClick={() => onAccept(plan.id)}
-                className="bg-green-500 hover:bg-green-600 text-white"
+                onClick={() => onAccept()}
+                disabled={isAccepting}
+                className="bg-green-500 hover:bg-green-600 text-white disabled:opacity-50"
               >
-                Accept Plan
+                {isAccepting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Accepting...
+                  </div>
+                ) : (
+                  'Accept Plan'
+                )}
               </Button>
             </div>
           </div>

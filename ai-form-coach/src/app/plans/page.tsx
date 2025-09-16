@@ -6,7 +6,9 @@ import type { PlanTemplate, UserPlan } from '@/types/plans';
 import type { UserPreferences, GeneratedPlan } from '@/lib/ai/planGenerator';
 import PlanWizard from '@/components/plans/PlanWizard';
 import AIGeneratedPlan from '@/components/plans/AIGeneratedPlan';
-import { getSupabaseClient } from '@/lib/supabase/client';
+import PlanManagementModal from '@/components/plans/PlanManagementModal';
+import LoadingOverlay from '@/components/LoadingOverlay';
+import { getSupabaseClient, getCurrentUserId } from '@/lib/supabase/client';
 
 export default function PlansPage() {
   const [activeView, setActiveView] = useState<'featured' | 'my-plans'>('featured');
@@ -15,6 +17,13 @@ export default function PlansPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [selectingPlan, setSelectingPlan] = useState<string | null>(null); // Track which plan is being selected
+  const [acceptingPlan, setAcceptingPlan] = useState(false); // Track if accepting AI plan
+  
+  // Plan Management states
+  const [selectedPlan, setSelectedPlan] = useState<UserPlan | null>(null);
+  const [showPlanManagement, setShowPlanManagement] = useState(false);
+  const [removingPlan, setRemovingPlan] = useState<string | null>(null);
   
   // AI Plan Generation states
   const [showWizard, setShowWizard] = useState(false);
@@ -39,25 +48,41 @@ export default function PlansPage() {
     }
   };
 
+  // Check if user is authenticated
+  const checkAuthStatus = async () => {
+    try {
+      const userId = await getCurrentUserId();
+      return !!userId;
+    } catch {
+      return false;
+    }
+  };
+
   // Fetch user plans
   const fetchUserPlans = async () => {
     try {
       const response = await fetch('/api/plans/user', {
         credentials: 'include'
       });
-      if (!response.ok) {
-        if (response.status === 401) {
-          // User not authenticated, this is fine
-          setUserPlans([]);
-          return;
-        }
-        throw new Error('Failed to fetch user plans');
+      
+      if (response.status === 401) {
+        // User not authenticated, this is expected and fine
+        setUserPlans([]);
+        return;
       }
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch user plans: ${response.status}`);
+      }
+      
       const data = await response.json();
       setUserPlans(data.userPlans || []);
     } catch (err) {
-      console.error('Error fetching user plans:', err);
-      setError('Failed to load user plans');
+      // Only log errors that aren't authentication-related
+      if (err instanceof Error && !err.message.includes('401')) {
+        console.error('Error fetching user plans:', err);
+        setError('Failed to load user plans');
+      }
     }
   };
 
@@ -78,10 +103,26 @@ export default function PlansPage() {
     loadData();
   }, []);
 
+  // Fetch user plans when switching to my-plans view
+  useEffect(() => {
+    if (activeView === 'my-plans') {
+      fetchUserPlans();
+    }
+  }, [activeView]);
+
   // Handle plan selection
   const handleSelectPlan = async (templateId: string, planName: string) => {
     try {
       setError(null); // Clear any previous errors
+      setSelectingPlan(templateId); // Start loading state
+      
+      // Check authentication first
+      const isAuthenticated = await checkAuthStatus();
+      if (!isAuthenticated) {
+        setError('Please sign in to save plans');
+        setSelectingPlan(null);
+        return;
+      }
       
       const response = await fetch('/api/plans/user', {
         method: 'POST',
@@ -98,18 +139,30 @@ export default function PlansPage() {
       if (!response.ok) {
         if (response.status === 401) {
           setError('Please sign in to select a plan');
+          setSelectingPlan(null);
           return;
         }
-        throw new Error('Failed to select plan');
+        
+        // Get error details from response
+        let errorMessage = 'Failed to select plan';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // If we can't parse the error response, use the status text
+          errorMessage = `Failed to select plan: ${response.status} ${response.statusText}`;
+        }
+        
+        console.error('Plan selection error:', response.status, errorMessage);
+        setError(errorMessage);
+        setSelectingPlan(null);
+        return;
       }
 
-      // Refresh user plans
-      await fetchUserPlans();
-      
       // Show success message
       setSuccess(`Successfully started "${planName}" plan!`);
       
-      // Switch to my plans view
+      // Switch to my plans view (will automatically fetch plans when view changes)
       setActiveView('my-plans');
       
       // Clear success message after 3 seconds
@@ -118,6 +171,8 @@ export default function PlansPage() {
     } catch (err) {
       console.error('Error selecting plan:', err);
       setError('Failed to select plan. Please try again.');
+    } finally {
+      setSelectingPlan(null); // Always clear loading state
     }
   };
 
@@ -166,9 +221,10 @@ export default function PlansPage() {
     }
   };
 
-  const handleAcceptAIPlan = async (planId: string) => {
+  const handleAcceptAIPlan = async () => {
     try {
       setError(null);
+      setAcceptingPlan(true);
       
       // Check if user is authenticated
       const supabase = getSupabaseClient();
@@ -176,6 +232,7 @@ export default function PlansPage() {
       
       if (authError || !user) {
         setError('Please sign in to save your plan');
+        setAcceptingPlan(false);
         return;
       }
 
@@ -196,9 +253,6 @@ export default function PlansPage() {
         throw new Error('Failed to save plan');
       }
 
-      // Refresh user plans
-      await fetchUserPlans();
-      
       // Close modals and show success
       setShowGeneratedPlan(false);
       setGeneratedPlan(null);
@@ -211,12 +265,85 @@ export default function PlansPage() {
     } catch (err) {
       console.error('Error accepting AI plan:', err);
       setError('Failed to save plan. Please try again.');
+    } finally {
+      setAcceptingPlan(false);
     }
   };
 
   const handleRegenerateAIPlan = () => {
     setShowGeneratedPlan(false);
     setShowWizard(true);
+  };
+
+  // Plan Management Functions
+  const handleManagePlan = (plan: UserPlan) => {
+    setSelectedPlan(plan);
+    setShowPlanManagement(true);
+  };
+
+  const handleContinuePlan = (planId: string) => {
+    // TODO: Navigate to coach session with this plan
+    setShowPlanManagement(false);
+    setSuccess('Starting workout session...');
+    setTimeout(() => setSuccess(null), 3000);
+  };
+
+  const handleToggleActive = async (planId: string, isActive: boolean) => {
+    try {
+      const response = await fetch('/api/plans/user', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          plan_id: planId,
+          is_active: isActive
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update plan');
+      }
+
+      // Refresh user plans
+      await fetchUserPlans();
+      setSuccess(`Plan ${isActive ? 'activated' : 'paused'} successfully!`);
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      console.error('Error updating plan:', err);
+      setError('Failed to update plan. Please try again.');
+    }
+  };
+
+  const handleRemovePlan = async (planId: string) => {
+    try {
+      setRemovingPlan(planId);
+      
+      const response = await fetch('/api/plans/user', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ plan_id: planId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove plan');
+      }
+
+      // Refresh user plans
+      await fetchUserPlans();
+      setShowPlanManagement(false);
+      setSuccess('Plan removed successfully!');
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      console.error('Error removing plan:', err);
+      setError('Failed to remove plan. Please try again.');
+    } finally {
+      setRemovingPlan(null);
+    }
   };
 
   const getDifficultyStars = (level: number) => {
@@ -227,8 +354,8 @@ export default function PlansPage() {
     switch (category) {
       case 'beginner': return 'success';
       case 'intermediate': return 'warning';
-      case 'advanced': return 'error';
-      default: return 'info';
+      case 'advanced': return 'warning'; // Use warning for advanced since error is not supported
+      default: return 'success';
     }
   };
 
@@ -260,7 +387,7 @@ export default function PlansPage() {
           {success && (
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
               <div className="flex items-center gap-2">
-                <Icon name="check-circle" className="w-5 h-5 text-green-500" />
+                <Icon name="check" className="w-5 h-5 text-green-500" />
                 <p className="text-green-700 dark:text-green-300">{success}</p>
               </div>
             </div>
@@ -316,7 +443,7 @@ export default function PlansPage() {
                 </>
               ) : (
                 <>
-                  <Icon name="sparkles" className="w-4 h-4 mr-2" />
+                  <Icon name="zap" className="w-4 h-4 mr-2" />
                   Create AI Plan
                 </>
               )}
@@ -409,10 +536,18 @@ export default function PlansPage() {
                       </div>
 
                       <Button 
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                        className="w-full bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => handleSelectPlan(plan.id, plan.name)}
+                        disabled={selectingPlan === plan.id}
                       >
-                        Select Plan
+                        {selectingPlan === plan.id ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            Selecting...
+                          </div>
+                        ) : (
+                          'Select Plan'
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -475,9 +610,23 @@ export default function PlansPage() {
                           </div>
                         </div>
 
-                        <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
-                          Continue Plan
-                        </Button>
+                        <div className="space-y-2">
+                          <Button 
+                            className="w-full bg-green-500 hover:bg-green-600 text-white"
+                            onClick={() => handleContinuePlan(plan.id)}
+                          >
+                            <Icon name="play" className="w-4 h-4 mr-2" />
+                            Continue Plan
+                          </Button>
+                          
+                          <Button 
+                            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                            onClick={() => handleManagePlan(plan)}
+                          >
+                            <Icon name="settings" className="w-4 h-4 mr-2" />
+                            Manage Plan
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -493,6 +642,7 @@ export default function PlansPage() {
         <PlanWizard
           onComplete={handleGenerateAIPlan}
           onCancel={() => setShowWizard(false)}
+          isGenerating={isGenerating}
         />
       )}
 
@@ -507,6 +657,30 @@ export default function PlansPage() {
             setGeneratedPlan(null);
           }}
           isGenerating={isGenerating}
+          isAccepting={acceptingPlan}
+        />
+      )}
+
+      {/* Loading Overlay for Plan Selection */}
+      <LoadingOverlay
+        isVisible={!!selectingPlan}
+        message="Adding Plan to Your Collection"
+        subMessage="This may take a few seconds..."
+      />
+
+      {/* Plan Management Modal */}
+      {selectedPlan && (
+        <PlanManagementModal
+          plan={selectedPlan}
+          isOpen={showPlanManagement}
+          onClose={() => {
+            setShowPlanManagement(false);
+            setSelectedPlan(null);
+          }}
+          onRemove={handleRemovePlan}
+          onContinue={handleContinuePlan}
+          onToggleActive={handleToggleActive}
+          isRemoving={removingPlan === selectedPlan.id}
         />
       )}
     </div>

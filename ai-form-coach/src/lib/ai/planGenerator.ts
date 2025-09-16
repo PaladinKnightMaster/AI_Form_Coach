@@ -48,22 +48,79 @@ export interface Exercise {
   notes?: string;
 }
 
+interface RawPlanData {
+  name?: string;
+  description?: string;
+  category?: string;
+  goal_type?: string;
+  equipment_required?: string[];
+  duration_weeks?: number;
+  difficulty_level?: number;
+  sessions_per_week?: number;
+  avg_session_duration?: number;
+  tags?: string[];
+  sessions?: RawSessionData[];
+}
+
+interface RawSessionData {
+  week_number?: number;
+  day_number?: number;
+  session_name?: string;
+  session_description?: string;
+  exercises?: RawExerciseData[];
+  estimated_duration?: number;
+  difficulty_notes?: string;
+}
+
+interface RawExerciseData {
+  name?: string;
+  sets?: number;
+  reps?: string;
+  duration?: string;
+  rest?: string;
+  notes?: string;
+}
+
 export class AIPlanGenerator {
   async generatePlan(preferences: UserPreferences): Promise<GeneratedPlan> {
+    let text = '';
+    let jsonText = '';
+    
     try {
       const prompt = this.buildPrompt(preferences);
       
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      const text = response.text();
+      text = response.text();
+      
+      // Extract JSON from markdown code blocks if present
+      jsonText = text;
+      if (text.includes('```json')) {
+        const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          jsonText = jsonMatch[1];
+        }
+      } else if (text.includes('```')) {
+        const jsonMatch = text.match(/```\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          jsonText = jsonMatch[1];
+        }
+      }
       
       // Parse the JSON response
-      const planData = JSON.parse(text);
+      const planData = JSON.parse(jsonText);
       
       // Validate and structure the response
       return this.validateAndStructurePlan(planData, preferences);
     } catch (error) {
       console.error('Error generating AI plan:', error);
+      console.error('Raw response text:', text);
+      console.error('Extracted JSON text:', jsonText);
+      
+      if (error instanceof SyntaxError) {
+        throw new Error('AI returned invalid JSON format. Please try again.');
+      }
+      
       throw new Error('Failed to generate AI plan. Please try again.');
     }
   }
@@ -90,7 +147,7 @@ Create a detailed workout plan that includes:
 4. Exercises suitable for the user's equipment and fitness level
 5. Proper rest periods and progression
 
-Return the response as a valid JSON object with this exact structure:
+IMPORTANT: Return ONLY a valid JSON object. Do not wrap it in markdown code blocks or add any other text. The response must be parseable JSON with this exact structure:
 
 {
   "name": "Plan Name",
@@ -137,19 +194,26 @@ Generate a complete ${preferences.workout_duration_weeks}-week plan with ${prefe
 `;
   }
 
-  private validateAndStructurePlan(planData: any, preferences: UserPreferences): GeneratedPlan {
+  private validateAndStructurePlan(planData: RawPlanData, preferences: UserPreferences): GeneratedPlan {
     // Validate required fields
     if (!planData.name || !planData.description || !planData.sessions) {
       throw new Error('Invalid plan data received from AI');
     }
 
     // Ensure sessions are properly structured
-    const validatedSessions: GeneratedSession[] = planData.sessions.map((session: any) => ({
+    const validatedSessions: GeneratedSession[] = planData.sessions.map((session: RawSessionData) => ({
       week_number: session.week_number || 1,
       day_number: session.day_number || 1,
       session_name: session.session_name || 'Workout Session',
       session_description: session.session_description || '',
-      exercises: session.exercises || [],
+      exercises: (session.exercises || []).map((exercise: RawExerciseData) => ({
+        name: exercise.name || 'Exercise',
+        sets: exercise.sets || 3,
+        reps: exercise.reps,
+        duration: exercise.duration,
+        rest: exercise.rest || '60s',
+        notes: exercise.notes
+      })),
       estimated_duration: session.estimated_duration || preferences.time_per_session,
       difficulty_notes: session.difficulty_notes
     }));
@@ -157,7 +221,7 @@ Generate a complete ${preferences.workout_duration_weeks}-week plan with ${prefe
     return {
       name: planData.name,
       description: planData.description,
-      category: planData.category || preferences.fitness_level,
+      category: (planData.category as 'beginner' | 'intermediate' | 'advanced') || preferences.fitness_level,
       goal_type: planData.goal_type || preferences.goal_type,
       equipment_required: planData.equipment_required || preferences.available_equipment,
       duration_weeks: planData.duration_weeks || preferences.workout_duration_weeks,

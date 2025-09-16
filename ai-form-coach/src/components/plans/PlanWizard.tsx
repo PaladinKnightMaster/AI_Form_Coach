@@ -7,9 +7,10 @@ import type { UserPreferences } from '@/lib/ai/planGenerator';
 interface PlanWizardProps {
   onComplete: (preferences: UserPreferences) => void;
   onCancel: () => void;
+  isGenerating?: boolean;
 }
 
-export default function PlanWizard({ onComplete, onCancel }: PlanWizardProps) {
+export default function PlanWizard({ onComplete, onCancel, isGenerating = false }: PlanWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [preferences, setPreferences] = useState<Partial<UserPreferences>>({
     fitness_level: 'beginner',
@@ -241,10 +242,21 @@ export default function PlanWizard({ onComplete, onCancel }: PlanWizardProps) {
             
             <Button
               onClick={handleNext}
-              disabled={!isStepComplete()}
+              disabled={!isStepComplete() || isGenerating}
               className="bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50"
             >
-              {currentStep === steps.length - 1 ? 'Generate Plan' : 'Next'}
+              {currentStep === steps.length - 1 ? (
+                isGenerating ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Generating...
+                  </div>
+                ) : (
+                  'Generate Plan'
+                )
+              ) : (
+                'Next'
+              )}
             </Button>
           </div>
         </div>

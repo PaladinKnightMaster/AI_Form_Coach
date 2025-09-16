@@ -12,7 +12,7 @@ import SmoothScrollButton from '@/components/SmoothScrollButton';
 
 export default function Home() {
 	return (
-		<div>
+		<div suppressHydrationWarning>
 			<section className="relative overflow-hidden">
 				<div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
 					<div className="absolute -top-20 -left-20 h-80 w-80 rounded-full blur-3xl blob-a animate-pulse" style={{ background: 'radial-gradient(closest-side, #22c55e55, transparent)' }} />

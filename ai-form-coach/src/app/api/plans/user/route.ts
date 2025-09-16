@@ -8,9 +8,10 @@ export async function GET(request: NextRequest) {
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
+    
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized', details: authError?.message || 'No user found' },
         { status: 401 }
       );
     }
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { template_id, name } = body;
     
+    
     if (!template_id || !name) {
       return NextResponse.json(
         { error: 'Template ID and name are required' },
@@ -78,7 +80,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Create new user plan
+    // Create new user plan (simplified insert for better performance)
     const { data: newPlan, error } = await supabase
       .from('user_plans')
       .insert({
@@ -87,29 +89,16 @@ export async function POST(request: NextRequest) {
         name,
         current_week: 1,
         current_day: 1,
-        is_active: true
+        is_active: true,
+        plan_data: {}
       })
-      .select(`
-        *,
-        plan_templates (
-          name,
-          description,
-          category,
-          goal_type,
-          equipment_required,
-          duration_weeks,
-          difficulty_level,
-          sessions_per_week,
-          avg_session_duration,
-          tags
-        )
-      `)
+      .select('id, name, template_id, current_week, current_day, is_active, created_at')
       .single();
     
     if (error) {
       console.error('Error creating user plan:', error);
       return NextResponse.json(
-        { error: 'Failed to create user plan' },
+        { error: 'Failed to create user plan', details: error.message },
         { status: 500 }
       );
     }
@@ -119,6 +108,113 @@ export async function POST(request: NextRequest) {
     console.error('Unexpected error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH - Update user plan (toggle active status, update progress)
+export async function PATCH(request: NextRequest) {
+  try {
+    const supabase = await getSupabaseServerClient();
+    
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized', details: authError?.message || 'No user found' },
+        { status: 401 }
+      );
+    }
+    
+    const body = await request.json();
+    const { plan_id, is_active, current_week, current_day } = body;
+    
+    if (!plan_id) {
+      return NextResponse.json(
+        { error: 'Plan ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Update user plan
+    const updateData: any = {};
+    if (typeof is_active === 'boolean') updateData.is_active = is_active;
+    if (current_week) updateData.current_week = current_week;
+    if (current_day) updateData.current_day = current_day;
+    
+    const { data: updatedPlan, error } = await supabase
+      .from('user_plans')
+      .update(updateData)
+      .eq('id', plan_id)
+      .eq('user_id', user.id)
+      .select('*')
+      .single();
+    
+    if (error) {
+      console.error('Error updating user plan:', error);
+      return NextResponse.json(
+        { error: 'Failed to update plan', details: error.message },
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json(updatedPlan);
+  } catch (error) {
+    console.error('Error in PATCH /api/plans/user:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE - Remove user plan
+export async function DELETE(request: NextRequest) {
+  try {
+    const supabase = await getSupabaseServerClient();
+    
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized', details: authError?.message || 'No user found' },
+        { status: 401 }
+      );
+    }
+    
+    const body = await request.json();
+    const { plan_id } = body;
+    
+    if (!plan_id) {
+      return NextResponse.json(
+        { error: 'Plan ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Delete user plan
+    const { error } = await supabase
+      .from('user_plans')
+      .delete()
+      .eq('id', plan_id)
+      .eq('user_id', user.id);
+    
+    if (error) {
+      console.error('Error deleting user plan:', error);
+      return NextResponse.json(
+        { error: 'Failed to delete plan', details: error.message },
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error in DELETE /api/plans/user:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     );
   }

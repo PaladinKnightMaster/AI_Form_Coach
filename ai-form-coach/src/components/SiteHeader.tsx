@@ -26,7 +26,7 @@ export default function SiteHeader() {
 		return () => document.removeEventListener('keydown', handleEscape);
 	}, [open]);
 	return (
-		<header className="border-b sticky top-0 z-40 backdrop-blur bg-white/70 dark:bg-black/30" role="banner">
+		<header className="border-b sticky top-0 z-40 backdrop-blur bg-white/70 dark:bg-black/30" role="banner" suppressHydrationWarning>
 			<a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-black text-white px-3 py-1 rounded z-50">Skip to content</a>
 			<div className="container flex items-center justify-between h-14">
 				<Link href="/" className="font-extrabold tracking-tight text-lg">AI Form Coach</Link>
