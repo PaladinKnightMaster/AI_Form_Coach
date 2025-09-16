@@ -16,6 +16,8 @@ import SafetyChecklist from '@/components/SafetyChecklist';
 import Link from 'next/link';
 import WelcomeToast from '@/components/WelcomeToast';
 import FirstRunTutorial from '@/components/FirstRunTutorial';
+import ProgressionIntegration from '@/components/progression/ProgressionIntegration';
+import type { WorkoutTarget, ReadinessAssessment } from '@/lib/progression/engine';
 
 export default function Coach() {
 	const searchParams = useSearchParams();
@@ -24,6 +26,8 @@ export default function Coach() {
 	const [landmarks, setLandmarks] = useState<SmoothedLandmark[] | null>(null);
 	const [exercise, setExercise] = useState<Exercise>('squat');
 	const [currentPlan, setCurrentPlan] = useState<{ id: string; name: string } | null>(null);
+	const [progressionTarget, setProgressionTarget] = useState<WorkoutTarget | null>(null);
+	const [readinessAssessment, setReadinessAssessment] = useState<ReadinessAssessment | null>(null);
 	const [running, setRunning] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [repCount, setRepCount] = useState(0);
@@ -119,8 +123,25 @@ export default function Coach() {
 		} catch {} 
 		
 		// Original tutorial logic
-		try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {} 
+		try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {		}
 	}, [searchParams]);
+
+	// Progression handlers
+	const handleProgressionTargetUpdate = (target: WorkoutTarget) => {
+		setProgressionTarget(target);
+		// Auto-set goals based on progression target
+		if (target.targetReps) {
+			setGoalType('reps');
+			setGoalValue(target.targetReps);
+		} else if (target.targetTimeSeconds) {
+			setGoalType('time');
+			setGoalValue(target.targetTimeSeconds);
+		}
+	};
+
+	const handleReadinessUpdate = (readiness: ReadinessAssessment | null) => {
+		setReadinessAssessment(readiness);
+	};
 	// Keyboard help opener
 	const onHelpKey = useCallback((e: KeyboardEvent) => { if (e.key === '?') setShowHelp(true); }, []);
 	useEffect(() => { window.addEventListener('keydown', onHelpKey); return () => window.removeEventListener('keydown', onHelpKey); }, [onHelpKey]);
@@ -349,6 +370,15 @@ export default function Coach() {
 					{showSafety && <SafetyChecklist open={showSafety} onAgree={() => { safetyBypassRef.current = true; setShowSafety(false); handleStartPause(); }} onClose={() => setShowSafety(false)} />}
 				</div>
 				<div className="space-y-4">
+					{/* Progressive Overload Integration */}
+					<ProgressionIntegration
+						exercise={exercise}
+						onTargetUpdate={handleProgressionTargetUpdate}
+						onReadinessUpdate={handleReadinessUpdate}
+						currentGoalType={goalType}
+						currentGoalValue={goalValue}
+					/>
+					
 					<div className="rounded-lg border p-3 space-y-2">
 						<div className="font-medium">Goal</div>
 						<div className="flex flex-wrap items-center gap-2">
