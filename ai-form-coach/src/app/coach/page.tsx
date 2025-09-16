@@ -18,7 +18,9 @@ import WelcomeToast from '@/components/WelcomeToast';
 import FirstRunTutorial from '@/components/FirstRunTutorial';
 import ProgressionIntegration from '@/components/progression/ProgressionIntegration';
 import HealthStatusWidget from '@/components/health/HealthStatusWidget';
+import PlanAdjustmentBanner from '@/components/plans/PlanAdjustmentBanner';
 import type { WorkoutTarget, ReadinessAssessment } from '@/lib/progression/engine';
+import type { UserPlan } from '@/types/plans';
 
 export default function Coach() {
 	const searchParams = useSearchParams();
@@ -28,6 +30,7 @@ export default function Coach() {
 	const [landmarks, setLandmarks] = useState<SmoothedLandmark[] | null>(null);
 	const [exercise, setExercise] = useState<Exercise>('squat');
 	const [currentPlan, setCurrentPlan] = useState<{ id: string; name: string } | null>(null);
+	const [activePlan, setActivePlan] = useState<UserPlan | null>(null);
 	const [progressionTarget, setProgressionTarget] = useState<WorkoutTarget | null>(null);
 	const [readinessAssessment, setReadinessAssessment] = useState<ReadinessAssessment | null>(null);
 	const [running, setRunning] = useState(false);
@@ -109,6 +112,7 @@ export default function Coach() {
 		const planName = searchParams.get('planName');
 		if (planId && planName) {
 			setCurrentPlan({ id: planId, name: decodeURIComponent(planName) });
+			loadPlanData(planId);
 			// Remove the query params from URL without reload
 			const url = new URL(window.location.href);
 			url.searchParams.delete('planId');
@@ -144,6 +148,22 @@ export default function Coach() {
 	const handleReadinessUpdate = (readiness: ReadinessAssessment | null) => {
 		setReadinessAssessment(readiness);
 	};
+
+	const handlePlanUpdate = useCallback((updatedPlan: UserPlan) => {
+		setActivePlan(updatedPlan);
+	}, []);
+
+	const loadPlanData = useCallback(async (planId: string) => {
+		try {
+			const response = await fetch(`/api/plans/user?id=${planId}`);
+			if (response.ok) {
+				const plan = await response.json();
+				setActivePlan(plan);
+			}
+		} catch (error) {
+			console.error('Error loading plan data:', error);
+		}
+	}, []);
 	// Keyboard help opener
 	const onHelpKey = useCallback((e: KeyboardEvent) => { if (e.key === '?') setShowHelp(true); }, []);
 	useEffect(() => { window.addEventListener('keydown', onHelpKey); return () => window.removeEventListener('keydown', onHelpKey); }, [onHelpKey]);
@@ -372,6 +392,16 @@ export default function Coach() {
 					{showSafety && <SafetyChecklist open={showSafety} onAgree={() => { safetyBypassRef.current = true; setShowSafety(false); handleStartPause(); }} onClose={() => setShowSafety(false)} />}
 				</div>
 				<div className="space-y-4">
+					{/* Plan Adjustment Banner */}
+					{activePlan && readinessAssessment && (
+						<PlanAdjustmentBanner
+							plan={activePlan}
+							readiness={readinessAssessment}
+							currentDay={activePlan.current_day || 1}
+							onPlanUpdate={handlePlanUpdate}
+						/>
+					)}
+
 					{/* Health Status Widget */}
 					<HealthStatusWidget
 						onOpenHealthDashboard={() => router.push('/health')}

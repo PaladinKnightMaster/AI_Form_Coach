@@ -16,8 +16,11 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Get user's plans with template information
-    const { data: userPlans, error } = await supabase
+    // Check if requesting a specific plan by ID
+    const { searchParams } = new URL(request.url);
+    const planId = searchParams.get('id');
+    
+    let query = supabase
       .from('user_plans')
       .select(`
         *,
@@ -34,8 +37,14 @@ export async function GET(request: NextRequest) {
           tags
         )
       `)
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+      .eq('user_id', user.id);
+    
+    // If specific plan ID requested, filter by that ID
+    if (planId) {
+      query = query.eq('id', planId);
+    }
+    
+    const { data: userPlans, error } = await query.order('created_at', { ascending: false });
     
     if (error) {
       console.error('Error fetching user plans:', error);
@@ -45,6 +54,19 @@ export async function GET(request: NextRequest) {
       );
     }
     
+    // If requesting specific plan, return single plan object
+    if (planId) {
+      const plan = userPlans?.[0];
+      if (!plan) {
+        return NextResponse.json(
+          { error: 'Plan not found' },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json(plan);
+    }
+    
+    // Otherwise return array of plans
     return NextResponse.json({ userPlans });
   } catch (error) {
     console.error('Unexpected error:', error);

@@ -16,10 +16,13 @@ export interface PlanTemplate {
 
 export interface UserPlan {
   id: string;
+  user_id: string;
   name: string;
   current_week: number;
   current_day: number;
   is_active: boolean;
-  template_id?: string;
+  template_id?: string | null;
+  plan_data?: any; // JSONB field containing plan details
   created_at: string;
+  updated_at: string;
 }
