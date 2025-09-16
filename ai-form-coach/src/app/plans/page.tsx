@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import type { PlanTemplate, UserPlan } from '@/types/plans';
 import type { UserPreferences, GeneratedPlan } from '@/lib/ai/planGenerator';
@@ -13,6 +14,7 @@ import { useToastContext } from '@/components/ToastProvider';
 import { getSupabaseClient, getCurrentUserId } from '@/lib/supabase/client';
 
 export default function PlansPage() {
+  const router = useRouter();
   const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
   const [activeView, setActiveView] = useState<'featured' | 'my-plans'>('featured');
   const [featuredPlans, setFeaturedPlans] = useState<PlanTemplate[]>([]);
@@ -278,10 +280,13 @@ export default function PlansPage() {
     setShowPlanManagement(true);
   };
 
-  const handleContinuePlan = () => {
-    // TODO: Navigate to coach session with this plan
+  const handleContinuePlan = (plan: UserPlan) => {
     setShowPlanManagement(false);
     showInfo('Starting Workout', 'Redirecting to your workout session...');
+    
+    // Navigate to coach page with plan information
+    // We'll pass the plan ID as a query parameter so the coach page can load the plan
+    router.push(`/coach?planId=${plan.id}&planName=${encodeURIComponent(plan.name)}`);
   };
 
   const handleToggleActive = async (planId: string, isActive: boolean) => {
@@ -579,7 +584,7 @@ export default function PlansPage() {
                         <div className="space-y-2">
                           <LoadingButton 
                             className="w-full bg-green-500 hover:bg-green-600 text-white"
-                            onClick={handleContinuePlan}
+                            onClick={() => handleContinuePlan(plan)}
                           >
                             <Icon name="play" className="w-4 h-4 mr-2" />
                             Continue Plan

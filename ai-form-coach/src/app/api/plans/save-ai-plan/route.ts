@@ -26,69 +26,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Save the generated plan as a template
-    const { data: template, error: templateError } = await supabase
-      .from('plan_templates')
-      .insert({
-        name: plan.name,
-        description: plan.description,
-        category: plan.category,
-        goal_type: plan.goal_type,
-        equipment_required: plan.equipment_required,
-        duration_weeks: plan.duration_weeks,
-        difficulty_level: plan.difficulty_level,
-        sessions_per_week: plan.sessions_per_week,
-        avg_session_duration: plan.avg_session_duration,
-        is_featured: false, // AI-generated plans are not featured
-        tags: plan.tags
-      })
-      .select()
-      .single();
-
-    if (templateError) {
-      console.error('Error saving AI-generated template:', templateError);
-      return NextResponse.json(
-        { error: 'Failed to save generated plan' },
-        { status: 500 }
-      );
-    }
-
-    // Save the sessions
-    const sessionsToInsert = plan.sessions.map(session => ({
-      template_id: template.id,
-      week_number: session.week_number,
-      day_number: session.day_number,
-      session_name: session.session_name,
-      session_description: session.session_description,
-      exercises: session.exercises,
-      estimated_duration: session.estimated_duration,
-      difficulty_notes: session.difficulty_notes
-    }));
-
-    const { error: sessionsError } = await supabase
-      .from('plan_sessions')
-      .insert(sessionsToInsert);
-
-    if (sessionsError) {
-      console.error('Error saving AI-generated sessions:', sessionsError);
-      // Clean up the template if sessions failed
-      await supabase.from('plan_templates').delete().eq('id', template.id);
-      return NextResponse.json(
-        { error: 'Failed to save plan sessions' },
-        { status: 500 }
-      );
-    }
-
-    // Create user plan
+    // Save AI-generated plan directly as a user plan (no template needed)
     const { data: userPlan, error: userPlanError } = await supabase
       .from('user_plans')
       .insert({
         user_id: user.id,
-        template_id: template.id,
+        template_id: null, // AI-generated plans don't have templates
         name: name,
         current_week: 1,
         current_day: 1,
-        is_active: true
+        is_active: true,
+        plan_data: {
+          // Store the entire AI-generated plan data
+          name: plan.name,
+          description: plan.description,
+          category: plan.category,
+          goal_type: plan.goal_type,
+          equipment_required: plan.equipment_required,
+          duration_weeks: plan.duration_weeks,
+          difficulty_level: plan.difficulty_level,
+          sessions_per_week: plan.sessions_per_week,
+          avg_session_duration: plan.avg_session_duration,
+          tags: plan.tags,
+          sessions: plan.sessions
+        }
       })
       .select()
       .single();
@@ -96,7 +57,7 @@ export async function POST(request: NextRequest) {
     if (userPlanError) {
       console.error('Error creating user plan:', userPlanError);
       return NextResponse.json(
-        { error: 'Failed to create user plan' },
+        { error: 'Failed to save AI-generated plan', details: userPlanError.message },
         { status: 500 }
       );
     }

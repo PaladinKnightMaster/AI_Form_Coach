@@ -23,6 +23,7 @@ export default function Coach() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [landmarks, setLandmarks] = useState<SmoothedLandmark[] | null>(null);
 	const [exercise, setExercise] = useState<Exercise>('squat');
+	const [currentPlan, setCurrentPlan] = useState<{ id: string; name: string } | null>(null);
 	const [running, setRunning] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [repCount, setRepCount] = useState(0);
@@ -95,6 +96,18 @@ export default function Coach() {
 			setShowWelcome(true);
 			// Remove the query param from URL without reload
 			window.history.replaceState({}, '', '/coach');
+		}
+
+		// Handle plan parameters
+		const planId = searchParams.get('planId');
+		const planName = searchParams.get('planName');
+		if (planId && planName) {
+			setCurrentPlan({ id: planId, name: decodeURIComponent(planName) });
+			// Remove the query params from URL without reload
+			const url = new URL(window.location.href);
+			url.searchParams.delete('planId');
+			url.searchParams.delete('planName');
+			window.history.replaceState({}, '', url.toString());
 		}
 		
 		// Show first-run tutorial if not seen before
@@ -273,6 +286,11 @@ export default function Coach() {
 			<header className="p-4 flex items-center justify-between border-b">
 				<div className="flex items-center gap-2">
 					<select value={exercise} onChange={(e) => setExercise(e.target.value as Exercise)} className="border rounded-md px-2 py-1"><option value="squat">Squat</option><option value="pushup">Pushup</option><option value="plank">Plank</option></select>
+					{currentPlan && (
+						<div className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-medium">
+							📋 {currentPlan.name}
+						</div>
+					)}
 					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={muted} onChange={(e) => updateMuted(e.target.checked)} /> Mute</label>
 					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} /> Large HUD</label>
 					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={highContrast} onChange={(e) => setHighContrast(e.target.checked)} /> High contrast</label>

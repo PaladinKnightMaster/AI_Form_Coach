@@ -9,7 +9,7 @@ interface PlanManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   onRemove: (planId: string) => void;
-  onContinue: () => void;
+  onContinue: (plan: UserPlan) => void;
   onToggleActive: (planId: string, isActive: boolean) => void;
   isRemoving?: boolean;
   isUpdating?: boolean;
@@ -147,7 +147,7 @@ export default function PlanManagementModal({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Button
-                onClick={onContinue}
+                onClick={() => onContinue(plan)}
                 className="bg-green-500 hover:bg-green-600 text-white"
               >
                 <Icon name="play" className="w-4 h-4 mr-2" />
