@@ -35,6 +35,7 @@ export default function SiteHeader() {
 					<Link href="/coach">Coach</Link>
 					<Link href="/nutrition">Nutrition</Link>
 					<Link href="/plans">Plans</Link>
+					<Link href="/health">Health</Link>
 					<Link href="/history">History</Link>
 					<Link href="/privacy">Privacy</Link>
 					{isAuthed ? <Link href="/account">Account</Link> : null}
@@ -78,6 +79,7 @@ export default function SiteHeader() {
 							<Link href="/coach" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Coach</Link>
 							<Link href="/nutrition" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Nutrition</Link>
 							<Link href="/plans" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Plans</Link>
+							<Link href="/health" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Health</Link>
 							<Link href="/history" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">History</Link>
 							<Link href="/privacy" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Privacy</Link>
 							{isAuthed ? <Link href="/account" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Account</Link> : null}

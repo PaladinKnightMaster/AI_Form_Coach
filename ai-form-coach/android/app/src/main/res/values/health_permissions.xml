@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Health Connect Access Declarations
+Required for published Android apps using Health Connect
+
+This file declares the health data types and permissions required by the AI Form Coach app.
+It must be included in the Android app's resources for Health Connect integration.
+-->
+<resources>
+    <!-- Health Connect Data Types -->
+    <string-array name="health_connect_data_types">
+        <!-- Sleep Data -->
+        <item>SleepSession</item>
+        
+        <!-- Heart Rate Data -->
+        <item>HeartRate</item>
+        <item>HeartRateVariability</item>
+        
+        <!-- Activity Data -->
+        <item>Steps</item>
+        <item>ActiveMinutes</item>
+        <item>Distance</item>
+        
+        <!-- Workout Data -->
+        <item>WorkoutSession</item>
+        
+        <!-- Body Measurements -->
+        <item>BodyMass</item>
+        <item>BodyFatPercentage</item>
+    </string-array>
+
+    <!-- Health Connect Permissions -->
+    <string-array name="health_connect_permissions">
+        <!-- Sleep permissions -->
+        <item>android.permission.health.READ_SLEEP</item>
+        
+        <!-- Heart rate permissions -->
+        <item>android.permission.health.READ_HEART_RATE</item>
+        <item>android.permission.health.READ_HEART_RATE_VARIABILITY</item>
+        
+        <!-- Activity permissions -->
+        <item>android.permission.health.READ_STEPS</item>
+        <item>android.permission.health.READ_ACTIVE_MINUTES</item>
+        <item>android.permission.health.READ_DISTANCE</item>
+        
+        <!-- Workout permissions -->
+        <item>android.permission.health.READ_WORKOUT_SESSION</item>
+        
+        <!-- Body measurement permissions -->
+        <item>android.permission.health.READ_BODY_MASS</item>
+        <item>android.permission.health.READ_BODY_FAT_PERCENTAGE</item>
+    </string-array>
+
+    <!-- Health Connect Access Justifications -->
+    <string name="health_connect_purpose">
+        AI-powered fitness coaching with personalized readiness assessment based on health metrics
+    </string>
+    
+    <string name="sleep_access_justification">
+        Calculate sleep quality and duration for readiness assessment and workout intensity recommendations
+    </string>
+    
+    <string name="heart_rate_access_justification">
+        Monitor resting heart rate and heart rate variability for recovery assessment and training load optimization
+    </string>
+    
+    <string name="activity_access_justification">
+        Track daily activity levels and steps for comprehensive readiness calculation and fitness progress monitoring
+    </string>
+    
+    <string name="workout_access_justification">
+        Calculate training load and recovery needs based on exercise sessions for personalized workout recommendations
+    </string>
+    
+    <string name="body_measurements_access_justification">
+        Track body composition changes for fitness progress monitoring and goal setting
+    </string>
+
+    <!-- Data Retention Period (in days) -->
+    <integer name="health_data_retention_days">90</integer>
+</resources>

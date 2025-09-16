@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Icon, Badge } from '@/ui/DS';
 import { ProgressionEngine, type SessionMetrics, type ReadinessAssessment, type WorkoutTarget } from '@/lib/progression/engine';
-import ReadinessAssessment from './ReadinessAssessment';
+import EnhancedReadinessAssessment from './EnhancedReadinessAssessment';
 import { useToastContext } from '@/components/ToastProvider';
 
 interface ProgressionIntegrationProps {
@@ -297,8 +297,8 @@ export default function ProgressionIntegration({
         </div>
       )}
 
-      {/* Readiness Assessment Modal */}
-      <ReadinessAssessment
+      {/* Enhanced Readiness Assessment Modal */}
+      <EnhancedReadinessAssessment
         isOpen={showReadinessModal}
         onClose={() => setShowReadinessModal(false)}
         onSubmit={handleReadinessSubmit}
