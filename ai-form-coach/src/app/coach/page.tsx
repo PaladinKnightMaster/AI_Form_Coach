@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { initPose, PoseEngine, type SmoothedLandmark } from '@/lib/pose';
 import { createValidator } from '@/lib/validators';
 import type { Exercise } from '@/lib/validators/types';
@@ -17,10 +17,12 @@ import Link from 'next/link';
 import WelcomeToast from '@/components/WelcomeToast';
 import FirstRunTutorial from '@/components/FirstRunTutorial';
 import ProgressionIntegration from '@/components/progression/ProgressionIntegration';
+import HealthStatusWidget from '@/components/health/HealthStatusWidget';
 import type { WorkoutTarget, ReadinessAssessment } from '@/lib/progression/engine';
 
 export default function Coach() {
 	const searchParams = useSearchParams();
+	const router = useRouter();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [landmarks, setLandmarks] = useState<SmoothedLandmark[] | null>(null);
@@ -370,6 +372,11 @@ export default function Coach() {
 					{showSafety && <SafetyChecklist open={showSafety} onAgree={() => { safetyBypassRef.current = true; setShowSafety(false); handleStartPause(); }} onClose={() => setShowSafety(false)} />}
 				</div>
 				<div className="space-y-4">
+					{/* Health Status Widget */}
+					<HealthStatusWidget
+						onOpenHealthDashboard={() => router.push('/health')}
+					/>
+					
 					{/* Progressive Overload Integration */}
 					<ProgressionIntegration
 						exercise={exercise}
@@ -391,7 +398,14 @@ export default function Coach() {
 					<div className="grid grid-cols-3 gap-2"><button onClick={() => startRest(30)} className="py-2 rounded bg-gray-200">Rest 30s</button><button onClick={() => startRest(60)} className="py-2 rounded bg-gray-200">Rest 60s</button><button onClick={() => startRest(90)} className="py-2 rounded bg-gray-200">Rest 90s</button></div>
 					<button onClick={undoLastRep} className="w-full py-3 rounded-lg bg-gray-200">Undo last rep</button>
 					<button onClick={endSession} className="w-full py-3 rounded-lg bg-gray-200">End & Save</button>
-					<Link href="/history" className="block text-center text-blue-600">History</Link>
+					<div className="flex gap-2">
+						<Link href="/health" className="flex-1 text-center py-2 rounded-lg bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-colors">
+							Health Dashboard
+						</Link>
+						<Link href="/history" className="flex-1 text-center py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors">
+							History
+						</Link>
+					</div>
 				</div>
 			</main>
 		</div>
