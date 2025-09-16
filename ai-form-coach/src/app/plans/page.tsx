@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import type { PlanTemplate, UserPlan } from '@/types/plans';
 import type { UserPreferences, GeneratedPlan } from '@/lib/ai/planGenerator';
@@ -8,15 +8,16 @@ import PlanWizard from '@/components/plans/PlanWizard';
 import AIGeneratedPlan from '@/components/plans/AIGeneratedPlan';
 import PlanManagementModal from '@/components/plans/PlanManagementModal';
 import LoadingOverlay from '@/components/LoadingOverlay';
+import LoadingButton from '@/components/LoadingButton';
+import { useToastContext } from '@/components/ToastProvider';
 import { getSupabaseClient, getCurrentUserId } from '@/lib/supabase/client';
 
 export default function PlansPage() {
+  const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
   const [activeView, setActiveView] = useState<'featured' | 'my-plans'>('featured');
   const [featuredPlans, setFeaturedPlans] = useState<PlanTemplate[]>([]);
   const [userPlans, setUserPlans] = useState<UserPlan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [selectingPlan, setSelectingPlan] = useState<string | null>(null); // Track which plan is being selected
   const [acceptingPlan, setAcceptingPlan] = useState(false); // Track if accepting AI plan
   
@@ -24,6 +25,7 @@ export default function PlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<UserPlan | null>(null);
   const [showPlanManagement, setShowPlanManagement] = useState(false);
   const [removingPlan, setRemovingPlan] = useState<string | null>(null);
+  const [updatingPlan, setUpdatingPlan] = useState<string | null>(null);
   
   // AI Plan Generation states
   const [showWizard, setShowWizard] = useState(false);
@@ -32,7 +34,7 @@ export default function PlansPage() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch featured plans
-  const fetchFeaturedPlans = async () => {
+  const fetchFeaturedPlans = useCallback(async () => {
     try {
       const response = await fetch('/api/plans/templates?featured=true', {
         credentials: 'include'
@@ -44,9 +46,9 @@ export default function PlansPage() {
       setFeaturedPlans(data.templates || []);
     } catch (err) {
       console.error('Error fetching featured plans:', err);
-      setError('Failed to load featured plans');
+      showError('Failed to load featured plans', 'Unable to load featured plans. Please try again.');
     }
-  };
+  }, [showError]);
 
   // Check if user is authenticated
   const checkAuthStatus = async () => {
@@ -59,7 +61,7 @@ export default function PlansPage() {
   };
 
   // Fetch user plans
-  const fetchUserPlans = async () => {
+  const fetchUserPlans = useCallback(async () => {
     try {
       const response = await fetch('/api/plans/user', {
         credentials: 'include'
@@ -81,16 +83,16 @@ export default function PlansPage() {
       // Only log errors that aren't authentication-related
       if (err instanceof Error && !err.message.includes('401')) {
         console.error('Error fetching user plans:', err);
-        setError('Failed to load user plans');
+        showError('Failed to load user plans', 'Unable to load your plans. Please try again.');
       }
     }
-  };
+  }, [showError]);
 
   // Load data on component mount
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      setError(null);
+      // Clear any previous errors
       
       await Promise.all([
         fetchFeaturedPlans(),
@@ -101,25 +103,25 @@ export default function PlansPage() {
     };
 
     loadData();
-  }, []);
+  }, [fetchFeaturedPlans, fetchUserPlans]);
 
   // Fetch user plans when switching to my-plans view
   useEffect(() => {
     if (activeView === 'my-plans') {
       fetchUserPlans();
     }
-  }, [activeView]);
+  }, [activeView, fetchUserPlans]);
 
   // Handle plan selection
   const handleSelectPlan = async (templateId: string, planName: string) => {
     try {
-      setError(null); // Clear any previous errors
+      // Clear any previous errors // Clear any previous errors
       setSelectingPlan(templateId); // Start loading state
       
       // Check authentication first
       const isAuthenticated = await checkAuthStatus();
       if (!isAuthenticated) {
-        setError('Please sign in to save plans');
+        showError('Authentication Required', 'Please sign in to save plans');
         setSelectingPlan(null);
         return;
       }
@@ -138,7 +140,7 @@ export default function PlansPage() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          setError('Please sign in to select a plan');
+          showError('Authentication Required', 'Please sign in to select a plan');
           setSelectingPlan(null);
           return;
         }
@@ -154,23 +156,20 @@ export default function PlansPage() {
         }
         
         console.error('Plan selection error:', response.status, errorMessage);
-        setError(errorMessage);
+        showError('Plan Selection Failed', errorMessage);
         setSelectingPlan(null);
         return;
       }
 
       // Show success message
-      setSuccess(`Successfully started "${planName}" plan!`);
+      showSuccess('Plan Added Successfully!', `"${planName}" has been added to your collection`);
       
       // Switch to my plans view (will automatically fetch plans when view changes)
       setActiveView('my-plans');
       
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(null), 3000);
-      
     } catch (err) {
       console.error('Error selecting plan:', err);
-      setError('Failed to select plan. Please try again.');
+      showError('Plan Selection Failed', 'Failed to select plan. Please try again.');
     } finally {
       setSelectingPlan(null); // Always clear loading state
     }
@@ -180,7 +179,7 @@ export default function PlansPage() {
   const handleGenerateAIPlan = async (preferences: UserPreferences) => {
     try {
       setIsGenerating(true);
-      setError(null);
+      // Clear any previous errors
       setShowWizard(false);
 
       // Check if user is authenticated
@@ -188,7 +187,8 @@ export default function PlansPage() {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
-        setError('Please sign in to generate AI plans');
+        showError('Authentication Required', 'Please sign in to generate AI plans');
+        setIsGenerating(false);
         return;
       }
 
@@ -203,7 +203,7 @@ export default function PlansPage() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          setError('Please sign in to generate AI plans');
+          showError('Authentication Required', 'Please sign in to generate AI plans');
           return;
         }
         throw new Error('Failed to generate AI plan');
@@ -215,7 +215,7 @@ export default function PlansPage() {
       
     } catch (err) {
       console.error('Error generating AI plan:', err);
-      setError('Failed to generate AI plan. Please try again.');
+      showError('AI Generation Failed', 'Failed to generate AI plan. Please try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -223,7 +223,7 @@ export default function PlansPage() {
 
   const handleAcceptAIPlan = async () => {
     try {
-      setError(null);
+      // Clear any previous errors
       setAcceptingPlan(true);
       
       // Check if user is authenticated
@@ -231,7 +231,7 @@ export default function PlansPage() {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
-        setError('Please sign in to save your plan');
+        showError('Authentication Required', 'Please sign in to save your plan');
         setAcceptingPlan(false);
         return;
       }
@@ -256,15 +256,12 @@ export default function PlansPage() {
       // Close modals and show success
       setShowGeneratedPlan(false);
       setGeneratedPlan(null);
-      setSuccess(`Successfully started "${generatedPlan?.name}" plan!`);
+      showSuccess('AI Plan Saved!', `"${generatedPlan?.name}" has been added to your collection`);
       setActiveView('my-plans');
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(null), 3000);
       
     } catch (err) {
       console.error('Error accepting AI plan:', err);
-      setError('Failed to save plan. Please try again.');
+      showError('Save Failed', 'Failed to save plan. Please try again.');
     } finally {
       setAcceptingPlan(false);
     }
@@ -281,15 +278,16 @@ export default function PlansPage() {
     setShowPlanManagement(true);
   };
 
-  const handleContinuePlan = (planId: string) => {
+  const handleContinuePlan = () => {
     // TODO: Navigate to coach session with this plan
     setShowPlanManagement(false);
-    setSuccess('Starting workout session...');
-    setTimeout(() => setSuccess(null), 3000);
+    showInfo('Starting Workout', 'Redirecting to your workout session...');
   };
 
   const handleToggleActive = async (planId: string, isActive: boolean) => {
     try {
+      setUpdatingPlan(planId);
+      
       const response = await fetch('/api/plans/user', {
         method: 'PATCH',
         headers: {
@@ -308,11 +306,12 @@ export default function PlansPage() {
 
       // Refresh user plans
       await fetchUserPlans();
-      setSuccess(`Plan ${isActive ? 'activated' : 'paused'} successfully!`);
-      setTimeout(() => setSuccess(null), 3000);
+      showSuccess('Plan Updated', `Plan ${isActive ? 'activated' : 'paused'} successfully!`);
     } catch (err) {
       console.error('Error updating plan:', err);
-      setError('Failed to update plan. Please try again.');
+      showError('Update Failed', 'Failed to update plan. Please try again.');
+    } finally {
+      setUpdatingPlan(null);
     }
   };
 
@@ -336,11 +335,10 @@ export default function PlansPage() {
       // Refresh user plans
       await fetchUserPlans();
       setShowPlanManagement(false);
-      setSuccess('Plan removed successfully!');
-      setTimeout(() => setSuccess(null), 3000);
+      showSuccess('Plan Removed', 'Plan has been successfully removed from your collection');
     } catch (err) {
       console.error('Error removing plan:', err);
-      setError('Failed to remove plan. Please try again.');
+      showError('Removal Failed', 'Failed to remove plan. Please try again.');
     } finally {
       setRemovingPlan(null);
     }
@@ -360,7 +358,7 @@ export default function PlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" suppressHydrationWarning>
       <Container>
         <div className="py-8 space-y-8">
           {/* Header */}
@@ -373,25 +371,7 @@ export default function PlansPage() {
             </p>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-              <div className="flex items-center gap-2">
-                <Icon name="alert-circle" className="w-5 h-5 text-red-500" />
-                <p className="text-red-700 dark:text-red-300">{error}</p>
-              </div>
-            </div>
-          )}
 
-          {/* Success Message */}
-          {success && (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <div className="flex items-center gap-2">
-                <Icon name="check" className="w-5 h-5 text-green-500" />
-                <p className="text-green-700 dark:text-green-300">{success}</p>
-              </div>
-            </div>
-          )}
 
           {/* Loading State */}
           {loading && (
@@ -431,23 +411,15 @@ export default function PlansPage() {
             </div>
             
             {/* AI Plan Generation Button */}
-            <Button
+            <LoadingButton
               onClick={() => setShowWizard(true)}
-              disabled={isGenerating}
+              loading={isGenerating}
+              loadingText="Opening Wizard..."
               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg shadow-lg"
             >
-              {isGenerating ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Icon name="zap" className="w-4 h-4 mr-2" />
-                  Create AI Plan
-                </>
-              )}
-            </Button>
+              <Icon name="zap" className="w-4 h-4 mr-2" />
+              Create AI Plan
+            </LoadingButton>
           </div>
 
           {/* Content */}
@@ -535,20 +507,14 @@ export default function PlansPage() {
                         ))}
                       </div>
 
-                      <Button 
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      <LoadingButton
+                        className="w-full bg-blue-500 hover:bg-blue-600 text-white"
                         onClick={() => handleSelectPlan(plan.id, plan.name)}
-                        disabled={selectingPlan === plan.id}
+                        loading={selectingPlan === plan.id}
+                        loadingText="Adding to Collection..."
                       >
-                        {selectingPlan === plan.id ? (
-                          <div className="flex items-center justify-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            Selecting...
-                          </div>
-                        ) : (
-                          'Select Plan'
-                        )}
-                      </Button>
+                        Select Plan
+                      </LoadingButton>
                     </div>
                   </div>
                   ))}
@@ -611,13 +577,13 @@ export default function PlansPage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Button 
+                          <LoadingButton 
                             className="w-full bg-green-500 hover:bg-green-600 text-white"
-                            onClick={() => handleContinuePlan(plan.id)}
+                            onClick={handleContinuePlan}
                           >
                             <Icon name="play" className="w-4 h-4 mr-2" />
                             Continue Plan
-                          </Button>
+                          </LoadingButton>
                           
                           <Button 
                             className="w-full bg-blue-500 hover:bg-blue-600 text-white"
@@ -668,6 +634,20 @@ export default function PlansPage() {
         subMessage="This may take a few seconds..."
       />
 
+      {/* Loading Overlay for Plan Removal */}
+      <LoadingOverlay
+        isVisible={!!removingPlan}
+        message="Removing Plan"
+        subMessage="Please wait while we remove your plan..."
+      />
+
+      {/* Loading Overlay for Plan Updates */}
+      <LoadingOverlay
+        isVisible={!!updatingPlan}
+        message="Updating Plan"
+        subMessage="Please wait while we update your plan..."
+      />
+
       {/* Plan Management Modal */}
       {selectedPlan && (
         <PlanManagementModal
@@ -681,6 +661,7 @@ export default function PlansPage() {
           onContinue={handleContinuePlan}
           onToggleActive={handleToggleActive}
           isRemoving={removingPlan === selectedPlan.id}
+          isUpdating={updatingPlan === selectedPlan.id}
         />
       )}
     </div>

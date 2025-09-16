@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '@/ui/DS';
 import { getSupabaseClient } from '@/lib/supabase/client';
+import { useToastContext } from '@/components/ToastProvider';
+import LoadingButton from '@/components/LoadingButton';
 import type { UserGoals, CreateUserGoalsRequest, GoalType, ActivityLevel } from '@/types/nutrition';
 
 interface GoalsPanelProps {
@@ -11,10 +13,10 @@ interface GoalsPanelProps {
 }
 
 export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps) {
+  const { success: showSuccess, error: showError } = useToastContext();
   const [goals, setGoals] = useState<UserGoals | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState<CreateUserGoalsRequest>({
@@ -41,7 +43,7 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
       
       if (!session) {
         console.log('No session found, skipping goals fetch');
-        setError('Authentication required');
+        showError('Authentication Required', 'Please sign in to view goals');
         setLoading(false);
         return;
       }
@@ -55,7 +57,7 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
       
       if (!response.ok) {
         if (response.status === 401) {
-          setError('Authentication required');
+          showError('Authentication Required', 'Please sign in to view goals');
           return;
         }
         throw new Error('Failed to fetch goals');
@@ -78,7 +80,7 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
       }
     } catch (error) {
       console.error('Error fetching goals:', error);
-      setError('Failed to load goals');
+      showError('Load Failed', 'Failed to load goals');
     } finally {
       setLoading(false);
     }
@@ -87,13 +89,12 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
   const handleSave = async () => {
     try {
       setSaving(true);
-      setError(null);
 
       const supabase = getSupabaseClient();
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        setError('Authentication required');
+        showError('Authentication Required', 'Please sign in to save goals');
         setSaving(false);
         return;
       }
@@ -114,10 +115,11 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
       const data = await response.json();
       setGoals(data.goals);
       onGoalsUpdated?.();
+      showSuccess('Goals Updated!', 'Your nutrition goals have been saved successfully');
       onClose();
     } catch (error) {
       console.error('Error saving goals:', error);
-      setError('Failed to save goals');
+      showError('Save Failed', 'Failed to save goals');
     } finally {
       setSaving(false);
     }
@@ -175,14 +177,6 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center gap-2">
-                <Icon name="alert-circle" className="w-5 h-5 text-red-600" />
-                <p className="text-red-800">{error}</p>
-              </div>
-            </div>
-          )}
 
           {/* Goal Type */}
           <div>
@@ -359,14 +353,14 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
           >
             Cancel
           </button>
-          <button
+          <LoadingButton
             onClick={handleSave}
-            disabled={saving}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            loading={saving}
+            loadingText="Saving Goals..."
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {saving && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
-            {saving ? 'Saving...' : 'Save Goals'}
-          </button>
+            Save Goals
+          </LoadingButton>
         </div>
       </div>
     </div>

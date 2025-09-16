@@ -3,9 +3,11 @@ import { useState, useEffect } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import AuthCard from '@/components/AuthCard';
-import Toast from '@/components/Toast';
+import { useToastContext } from '@/components/ToastProvider';
+import LoadingButton from '@/components/LoadingButton';
 
 export default function SignIn() {
+	const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
 	const [mode, setMode] = useState<'signin'|'signup'|'reset-request'|'magic-link'>('signin');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -13,7 +15,6 @@ export default function SignIn() {
 	const [loading, setLoading] = useState(false);
 	const [success, setSuccess] = useState(false);
 	const [resendCountdown, setResendCountdown] = useState(0);
-	const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -24,7 +25,6 @@ export default function SignIn() {
 	}, [resendCountdown]);
 
 	useEffect(() => { 
-		setToast(null); 
 		if (mode !== 'signup') { setConfirm(''); } 
 		if (mode !== 'magic-link') { setSuccess(false); setResendCountdown(0); }
 	}, [mode]);
@@ -43,7 +43,7 @@ export default function SignIn() {
 
 	async function sendMagicLink() {
 		if (!email) {
-			setToast({ message: 'Please enter your email address', type: 'error' });
+			showError('Email Required', 'Please enter your email address');
 			return;
 		}
 
@@ -58,7 +58,7 @@ export default function SignIn() {
 			});
 
 			if (error) {
-				setToast({ message: error.message, type: 'error' });
+				showError('Magic Link Failed', error.message);
 				return;
 			}
 
@@ -76,8 +76,7 @@ export default function SignIn() {
 
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault(); 
-		setLoading(true); 
-		setToast(null);
+		setLoading(true);
 		
 		const supabase = getSupabaseClient();
 		try {
@@ -87,31 +86,31 @@ export default function SignIn() {
 			}
 			
 			if (mode === 'signup') {
-				if (!email || !password) { setToast({ message: 'Enter email and password', type: 'error' }); return; }
-				if (password.length < 6) { setToast({ message: 'Password must be at least 6 characters', type: 'error' }); return; }
-				if (password !== confirm) { setToast({ message: 'Passwords do not match', type: 'error' }); return; }
+				if (!email || !password) { showError('Validation Error', 'Enter email and password'); return; }
+				if (password.length < 6) { showError('Password Too Short', 'Password must be at least 6 characters'); return; }
+				if (password !== confirm) { showError('Password Mismatch', 'Passwords do not match'); return; }
 				const { data, error } = await supabase.auth.signUp({ email, password });
 				if (error) {
 					const msg = error.message.toLowerCase();
 					if (error.status === 422 || msg.includes('registered') || msg.includes('already')) {
-						setToast({ message: 'An account with this email already exists. Please sign in.', type: 'error' });
+						showError('Account Exists', 'An account with this email already exists. Please sign in.');
 						setMode('signin');
 					} else {
-						setToast({ message: error.message, type: 'error' });
+						showError('Signup Failed', error.message);
 					}
 					return;
 				}
 				if (data.user) await ensureProfile(data.user.id);
-				setToast({ message: 'Check your email to confirm your account', type: 'success' });
+				showSuccess('Account Created!', 'Check your email to confirm your account');
 				return;
 			}
 			
 			if (mode === 'reset-request') {
-				if (!email) { setToast({ message: 'Enter your email', type: 'error' }); return; }
+				if (!email) { showError('Email Required', 'Enter your email'); return; }
 				const redirectTo = typeof window !== 'undefined' ? `${location.origin}/reset-password` : undefined;
 				const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
-				if (error) { setToast({ message: error.message, type: 'error' }); return; }
-				setToast({ message: 'Check your email for a reset link', type: 'success' });
+				if (error) { showError('Reset Failed', error.message); return; }
+				showSuccess('Reset Link Sent', 'Check your email for a reset link');
 				return;
 			}
 			
@@ -120,9 +119,9 @@ export default function SignIn() {
 			if (error) {
 				const msg = error.message.toLowerCase();
 				if (msg.includes('invalid') || msg.includes('wrong')) {
-					setToast({ message: 'Invalid email or password', type: 'error' });
+					showError('Invalid Credentials', 'Invalid email or password');
 				} else {
-					setToast({ message: error.message, type: 'error' });
+					showError('Sign In Failed', error.message);
 				}
 				return;
 			}
@@ -254,13 +253,14 @@ export default function SignIn() {
 						</div>
 					)}
 					
-					<button
+					<LoadingButton
 						type="submit"
-						disabled={loading}
-						className="w-full btn btn-primary py-3 disabled:opacity-50"
+						loading={loading}
+						loadingText={getButtonText()}
+						className="w-full btn btn-primary py-3"
 					>
 						{getButtonText()}
-					</button>
+					</LoadingButton>
 				</form>
 				
 				{mode === 'signin' && (
@@ -293,13 +293,6 @@ export default function SignIn() {
 				)}
 			</AuthCard>
 
-			{toast && (
-				<Toast
-					message={toast.message}
-					type={toast.type}
-					onClose={() => setToast(null)}
-				/>
-			)}
 		</>
 	);
 } 

@@ -9,9 +9,10 @@ interface PlanManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   onRemove: (planId: string) => void;
-  onContinue: (planId: string) => void;
+  onContinue: () => void;
   onToggleActive: (planId: string, isActive: boolean) => void;
   isRemoving?: boolean;
+  isUpdating?: boolean;
 }
 
 export default function PlanManagementModal({
@@ -21,7 +22,8 @@ export default function PlanManagementModal({
   onRemove,
   onContinue,
   onToggleActive,
-  isRemoving = false
+  isRemoving = false,
+  isUpdating = false
 }: PlanManagementModalProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -145,7 +147,7 @@ export default function PlanManagementModal({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Button
-                onClick={() => onContinue(plan.id)}
+                onClick={onContinue}
                 className="bg-green-500 hover:bg-green-600 text-white"
               >
                 <Icon name="play" className="w-4 h-4 mr-2" />
@@ -154,13 +156,23 @@ export default function PlanManagementModal({
               
               <Button
                 onClick={() => onToggleActive(plan.id, !plan.is_active)}
+                disabled={isUpdating}
                 className={`${plan.is_active 
                   ? 'bg-yellow-500 hover:bg-yellow-600' 
                   : 'bg-blue-500 hover:bg-blue-600'
-                } text-white`}
+                } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                <Icon name={plan.is_active ? "pause" : "play"} className="w-4 h-4 mr-2" />
-                {plan.is_active ? 'Pause Plan' : 'Resume Plan'}
+                {isUpdating ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Updating...
+                  </div>
+                ) : (
+                  <>
+                    <Icon name={plan.is_active ? "pause" : "play"} className="w-4 h-4 mr-2" />
+                    {plan.is_active ? 'Pause Plan' : 'Resume Plan'}
+                  </>
+                )}
               </Button>
             </div>
 
