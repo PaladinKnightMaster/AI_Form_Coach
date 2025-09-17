@@ -1,543 +1,301 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Container, Section, Button, Badge, Icon } from '@/ui/DS';
-import Reveal from '@/ui/Reveal';
-import { logos, testimonials } from './marketing/data';
-import SocialProofBand from '@/components/SocialProofBand';
-import PricingTeaser from '@/components/PricingTeaser';
-import FAQ from '@/components/FAQ';
-import FinalCTA from '@/components/FinalCTA';
-import LazyImage from '@/components/LazyImage';
-import SmoothScrollButton from '@/components/SmoothScrollButton';
+import { HeroGradientBackground, NutritionGradientBackground, PlansGradientBackground } from '@/components/AnimatedGradientBackground';
+import { ProfessionalImage } from '@/components/ProfessionalImage';
+import { FeatureCarousel } from '@/components/FeatureCarousel';
 
 export default function Home() {
 	return (
-		<div suppressHydrationWarning>
-			<section className="relative overflow-hidden">
-				<div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-					<div className="absolute -top-20 -left-20 h-80 w-80 rounded-full blur-3xl blob-a animate-pulse" style={{ background: 'radial-gradient(closest-side, #22c55e55, transparent)' }} />
-					<div className="absolute -bottom-20 -right-10 h-96 w-96 rounded-full blur-3xl blob-b animate-pulse" style={{ background: 'radial-gradient(closest-side, #0ea5e955, transparent)' }} />
-					<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full blur-3xl animate-bounce" style={{ background: 'radial-gradient(closest-side, #8b5cf655, transparent)' }} />
+		<div className="relative">
+			{/* Hero Section with Diagonal Slash Layout */}
+			<HeroGradientBackground className="min-h-screen relative overflow-hidden">
+				{/* Diagonal slash divider */}
+				<div className="absolute inset-0 z-0">
+					<div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-white/10 transform rotate-12 scale-150 origin-bottom-left"></div>
+					<div className="absolute top-1/3 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent transform -rotate-12"></div>
 				</div>
-				<Container>
-					<div className="grid lg:grid-cols-2 gap-10 items-center section">
-						<Reveal>
-							<div className="space-y-6">
-								{/* 
-								HEADLINE VARIANTS FOR A/B TESTING:
-								1. "Perfect Your Form Instantly" (4 words)
-								2. "AI Coaching Made Simple" (4 words) 
-								3. "Train Smarter, Form Better" (4 words)
-								
-								SUBHEAD VARIANTS FOR A/B TESTING:
-								1. "Get instant form tips and rep counts. No video uploads—everything stays private on your device." (97 chars)
-								2. "Real-time coaching that counts reps and fixes your form. Private, fast, works offline." (92 chars)
-								3. "Smart coaching for better workouts. Counts reps, improves form, keeps data private." (87 chars)
-								*/}
-								<Badge className="animate-pulse">🏋️‍♀️ Complete Fitness Solution</Badge>
-								<h1 className="font-extrabold leading-tight animate-fade-in" style={{ fontSize: 'var(--step-4)' }}>
-									Perfect Your Form & Track Nutrition
-									<span className="block text-4xl mt-2">💪🥗</span>
+
+				<div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="min-h-screen grid lg:grid-cols-12 gap-4 items-start py-8">
+						{/* Top-Left: Hero Content */}
+						<div className="lg:col-span-7 lg:row-start-1 flex flex-col justify-start pt-4 lg:pt-12">
+							<div className="text-center lg:text-left">
+								<Badge tone="success" className="animate-bounce mb-6 bg-green-500/20 text-green-300 border-green-400/30">
+									🚀 AI-Powered Fitness
+								</Badge>
+								<h1 className="text-4xl font-extrabold tracking-tight mb-6 sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight">
+									Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">Personal AI</span> Fitness Coach
 								</h1>
-								<p className="opacity-80 max-w-xl text-lg leading-relaxed">
-									🤖 AI-powered form coaching with real-time feedback, plus comprehensive nutrition tracking. 
-									All private, all on your device. ✨
+								<p className="text-lg lg:text-xl text-gray-200 mb-8 leading-relaxed max-w-xl">
+									Transform your workouts with real-time form correction, AI-driven plans, and smart nutrition tracking.
 								</p>
-								<div className="flex flex-wrap items-center gap-3">
-									<Link href="/signin"><Button variant="primary">Start training</Button></Link>
-									<SmoothScrollButton targetId="demo">See demo</SmoothScrollButton>
+								<div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mb-8">
+									<Link href="/coach">
+										<Button variant="primary" className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+											Start Free Workout <Icon name="chevron-right" className="ml-2" />
+										</Button>
+									</Link>
+									<Link href="/signin">
+										<Button variant="secondary" className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/20 px-8 py-4 text-lg font-semibold backdrop-blur-sm">
+											Sign In <Icon name="user" className="ml-2" />
+										</Button>
+									</Link>
 								</div>
-								<div className="flex flex-wrap items-center gap-4 pt-4 text-sm opacity-80">
-									<div className="flex items-center gap-2 animate-bounce">
-										<span className="text-green-500">🔒</span>
-										<span>No video leaves your device</span>
+								<div className="flex items-center justify-center lg:justify-start gap-8 text-sm text-gray-300">
+									<div className="flex items-center gap-2">
+										<div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+										<span>50K+ Active Users</span>
 									</div>
-									<div className="flex items-center gap-2 animate-bounce" style={{ animationDelay: '0.2s' }}>
-										<span className="text-blue-500">📱</span>
-										<span>Works offline</span>
+									<div className="flex items-center gap-2">
+										<div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+										<span>95% Satisfaction</span>
 									</div>
-									<div className="flex items-center gap-2 animate-bounce" style={{ animationDelay: '0.4s' }}>
-										<span className="text-orange-500">🥗</span>
-										<span>Nutrition tracking included</span>
-									</div>
-								</div>
-							</div>
-						</Reveal>
-						<div className="relative">
-							<div className="card p-3 shadow-2xl hero-float animate-float" id="demo">
-								<div className="relative">
-									<Image 
-										src="/hero.svg" 
-										alt="AI Form Coach in action showing pose detection and real-time feedback" 
-										width={800}
-										height={480}
-										className="w-full h-auto rounded-lg"
-									/>
-									<div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full animate-ping"></div>
-									<div className="absolute -bottom-2 -left-2 w-4 h-4 bg-blue-500 rounded-full animate-pulse"></div>
 								</div>
 							</div>
-							<div className="absolute -z-10 top-4 left-4 w-full h-full bg-gradient-to-br from-blue-500/20 to-green-500/20 rounded-lg blur-xl animate-pulse"></div>
-						</div>
-					</div>
-				</Container>
-			</section>
 
-			{/* Core values and feature grid */}
-			<Section>
-				<Container>
-					<div className="grid md:grid-cols-3 gap-6 mb-12">
-						<div className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
-							<div className="flex items-start gap-4">
-								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl animate-bounce group-hover:animate-spin">
-									⚡
-								</div>
-								<div>
-									<h3 className="font-semibold text-lg mb-2">⚡ Instant feedback</h3>
-									<p className="opacity-80 text-sm leading-relaxed">Hear cues as you move—improve form in real time. 🎯</p>
-								</div>
-							</div>
-						</div>
-						<div className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
-							<div className="flex items-start gap-4">
-								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-2xl animate-pulse group-hover:animate-bounce">
-									🔒
-								</div>
-								<div>
-									<h3 className="font-semibold text-lg mb-2">🔒 Completely private</h3>
-									<p className="opacity-80 text-sm leading-relaxed">Your video never leaves your device—guaranteed. 🛡️</p>
-								</div>
-							</div>
-						</div>
-						<div className="card p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
-							<div className="flex items-start gap-4">
-								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-2xl animate-ping group-hover:animate-pulse">
-									🚀
-								</div>
-								<div>
-									<h3 className="font-semibold text-lg mb-2">🚀 Free to start</h3>
-									<p className="opacity-80 text-sm leading-relaxed">Begin training immediately—no payment required. 💰</p>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-						<a href="#rep-counter" className="card p-6 block hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-							<div className="flex items-start gap-4">
-								<div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center text-xl animate-bounce group-hover:animate-spin">
-									🔢
-								</div>
-								<div>
-									<h3 className="font-semibold text-lg mb-1">🔢 Counts reps</h3>
-									<p className="opacity-80 text-sm">Never lose track of your sets again. 📊</p>
-								</div>
-							</div>
-						</a>
-						<a href="#form-cues" className="card p-6 block hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-							<div className="flex items-start gap-4">
-								<div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-xl animate-pulse group-hover:animate-bounce">
-									🎯
-								</div>
-								<div>
-									<h3 className="font-semibold text-lg mb-1">🎯 Coaches your form</h3>
-									<p className="opacity-80 text-sm">Get helpful tips as you exercise. 💡</p>
-								</div>
-							</div>
-						</a>
-						<a href="#pose-quality" className="card p-6 block hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-							<div className="flex items-start gap-4">
-								<div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-xl animate-ping group-hover:animate-pulse">
-									👁️
-								</div>
-								<div>
-									<h3 className="font-semibold text-lg mb-1">👁️ Shows when visible</h3>
-									<p className="opacity-80 text-sm">Green light means you&apos;re in frame. ✅</p>
-								</div>
-							</div>
-						</a>
-						<a href="#auto-pause" className="card p-6 block hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-							<div className="flex items-start gap-4">
-								<div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-xl animate-bounce group-hover:animate-spin">
-									⏸️
-								</div>
-								<div>
-									<h3 className="font-semibold text-lg mb-1">⏸️ Pauses automatically</h3>
-									<p className="opacity-80 text-sm">Stops when you step out of view. 🚶‍♂️</p>
-								</div>
-							</div>
-						</a>
-						<a href="#history-charts" className="card p-6 block hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-							<div className="flex items-start gap-4">
-								<div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-xl animate-pulse group-hover:animate-bounce">
-									📈
-								</div>
-								<div>
-									<h3 className="font-semibold text-lg mb-1">📈 Tracks progress</h3>
-									<p className="opacity-80 text-sm">See your improvement over time. 📊</p>
-								</div>
-							</div>
-						</a>
-						<a href="#export" className="card p-6 block hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-							<div className="flex items-start gap-4">
-								<div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center text-xl animate-ping group-hover:animate-pulse">
-									💾
-								</div>
-								<div>
-									<h3 className="font-semibold text-lg mb-1">💾 Export data</h3>
-									<p className="opacity-80 text-sm">Download your workout history as CSV. 📁</p>
-								</div>
-							</div>
-						</a>
-					</div>
-				</Container>
-			</Section>
-
-			{/* Nutrition Tracking Section */}
-			<section className="bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-green-900/20 dark:via-blue-900/20 dark:to-purple-900/20 relative overflow-hidden">
-				<div className="absolute inset-0 bg-gradient-to-r from-green-400/10 via-blue-400/10 to-purple-400/10 animate-pulse"></div>
-				<Container>
-					<div className="section relative">
-						<div className="text-center mb-12">
-							<Badge tone="success" className="animate-bounce">🥗 Complete Fitness Solution</Badge>
-							<h2 className="text-4xl font-bold mt-6 mb-6 animate-fade-in">
-								Track Your Nutrition Too
-								<span className="block text-3xl mt-2">🍎🥑🍗</span>
-							</h2>
-							<p className="text-xl opacity-80 max-w-3xl mx-auto leading-relaxed">
-								Beyond form coaching, manage your complete fitness journey with our integrated nutrition tracker. 
-								Log meals, track macros, and see your progress in one place. 🎯✨
-							</p>
-						</div>
-						
-						<div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
-							<div>
-								<h3 className="text-2xl font-semibold mb-6">Smart Nutrition Tracking</h3>
-								<div className="space-y-6">
-									<div className="flex items-start gap-4 group">
-										<div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-2xl animate-bounce group-hover:animate-spin flex-shrink-0">
-											🔍
-										</div>
-										<div>
-											<h4 className="font-semibold text-lg mb-2">🔍 Food Database</h4>
-											<p className="text-sm opacity-80 leading-relaxed">Search thousands of foods with verified nutritional data 📊</p>
-										</div>
-									</div>
-									<div className="flex items-start gap-4 group">
-										<div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-2xl animate-pulse group-hover:animate-bounce flex-shrink-0">
-											📊
-										</div>
-										<div>
-											<h4 className="font-semibold text-lg mb-2">📊 Macro Tracking</h4>
-											<p className="text-sm opacity-80 leading-relaxed">Visual progress rings for calories, protein, carbs, and fat 🎯</p>
-										</div>
-									</div>
-									<div className="flex items-start gap-4 group">
-										<div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-2xl animate-ping group-hover:animate-pulse flex-shrink-0">
-											⚡
-										</div>
-										<div>
-											<h4 className="font-semibold text-lg mb-2">⚡ Quick Logging</h4>
-											<p className="text-sm opacity-80 leading-relaxed">Add foods to meals in seconds with smart search 🚀</p>
-										</div>
-									</div>
-									<div className="flex items-start gap-4 group">
-										<div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-2xl animate-bounce group-hover:animate-spin flex-shrink-0">
-											📱
-										</div>
-										<div>
-											<h4 className="font-semibold text-lg mb-2">📱 Daily Overview</h4>
-											<p className="text-sm opacity-80 leading-relaxed">See your complete nutrition picture at a glance 👀</p>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div className="relative">
-								<div className="card p-4 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 animate-float">
-									<div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full animate-ping"></div>
-									<div className="absolute -bottom-2 -left-2 w-4 h-4 bg-blue-500 rounded-full animate-pulse"></div>
-									<Image 
-										src="/nutrition-dashboard.svg" 
-										alt="Nutrition tracking dashboard showing macro rings and meal breakdown" 
-										width={400}
+							{/* Professional Image positioned in top-left area */}
+							<div className="relative mt-8 lg:mt-12">
+								<div className="relative transform hover:scale-105 transition-transform duration-500 max-w-md mx-auto lg:mx-0">
+									<ProfessionalImage
+										src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+										alt="Professional fitness trainer with AI technology"
+										width={500}
 										height={300}
-										className="w-full h-auto rounded-lg"
+										className="rounded-2xl shadow-2xl"
+										priority={true}
 									/>
+									{/* Floating elements */}
+									<div className="absolute -top-4 -right-4 w-8 h-8 bg-green-500 rounded-full animate-ping opacity-75"></div>
+									<div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-500 rounded-full animate-pulse opacity-75"></div>
 								</div>
-								<div className="absolute -z-10 top-4 left-4 w-full h-full bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-lg blur-xl animate-pulse"></div>
+								{/* Background glow */}
+								<div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-2xl blur-xl -z-10 animate-pulse"></div>
+							</div>
+						</div>
+
+						{/* Top-Right: Rainbow Diagonal Text Effect */}
+						<div className="lg:col-span-5 lg:row-start-1 flex items-start justify-center lg:justify-end pt-16">
+							<div className="text-center lg:text-right transform -rotate-12 select-none">
+								<div className="text-6xl lg:text-8xl xl:text-9xl font-black leading-none animate-rainbow opacity-30">
+									AI
+								</div>
+								<div className="text-4xl lg:text-6xl xl:text-7xl font-bold leading-none -mt-4 animate-rainbow opacity-25" style={{ animationDelay: '1s' }}>
+									FITNESS
+								</div>
+							</div>
+						</div>
+
+						{/* Bottom-Right: Feature Carousel - More Right Position */}
+						<div className="lg:col-span-8 lg:col-start-5 lg:row-start-2 flex flex-col justify-end pb-4 lg:-mr-8">
+							<div className="text-center lg:text-right mb-4 lg:mr-0">
+								<Badge tone="success" className="mb-2 bg-white/20 text-white border-white/30">
+									✨ Discover Features
+								</Badge>
+								<h2 className="text-xl lg:text-2xl font-bold text-white mb-2">
+									<span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400">AI-Powered</span> Tools
+								</h2>
+								<p className="text-gray-200 text-sm lg:mr-0">
+									Explore cutting-edge features designed for your success.
+								</p>
+							</div>
+							
+							{/* 1.5x Taller, 3x Wider Feature Carousel - Tight Right */}
+							<div className="transform lg:rotate-1 hover:rotate-0 transition-transform duration-700 lg:mr-0">
+								<FeatureCarousel />
 							</div>
 						</div>
 					</div>
-				</Container>
-			</section>
+				</div>
+				
+				{/* Enhanced curved bottom section */}
+				<div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-50 to-transparent"></div>
+				<div className="absolute bottom-0 left-0 right-0">
+					<svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-20">
+						<path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#f9fafb"/>
+					</svg>
+				</div>
+			</HeroGradientBackground>
 
-			{/* Food Search Feature Showcase */}
-			<section className="bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 dark:from-yellow-900/20 dark:via-orange-900/20 dark:to-red-900/20 relative overflow-hidden">
-				<div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-orange-400/10 to-red-400/10 animate-pulse"></div>
-				<Container>
-					<div className="section relative">
-						<div className="text-center mb-12">
-							<Badge tone="warning" className="animate-bounce">🍽️ Smart Food Search</Badge>
-							<h2 className="text-4xl font-bold mt-6 mb-6 animate-fade-in">
-								Find & Log Foods Instantly
-								<span className="block text-3xl mt-2">🔍🍗🥑</span>
-							</h2>
-							<p className="text-xl opacity-80 max-w-3xl mx-auto leading-relaxed">
-								Search thousands of foods with our smart database. Get verified nutritional data and log meals in seconds. 
-								Perfect for tracking your daily nutrition goals! 🎯✨
-							</p>
-						</div>
-						
-						<div className="grid lg:grid-cols-2 gap-12 items-center">
-							<div className="relative">
-								<div className="card p-4 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 animate-float">
-									<div className="absolute -top-2 -right-2 w-6 h-6 bg-orange-500 rounded-full animate-ping"></div>
-									<div className="absolute -bottom-2 -left-2 w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>
-									<Image 
-										src="/food-search.svg" 
-										alt="Food search interface showing search results and quick add functionality" 
-										width={400}
-										height={300}
-										className="w-full h-auto rounded-lg"
-									/>
-								</div>
-								<div className="absolute -z-10 top-4 left-4 w-full h-full bg-gradient-to-br from-orange-500/20 to-yellow-500/20 rounded-lg blur-xl animate-pulse"></div>
-							</div>
-							<div>
-								<h3 className="text-2xl font-semibold mb-6">⚡ Lightning-Fast Food Search</h3>
-								<div className="space-y-6">
-									<div className="flex items-start gap-4 group">
-										<div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-2xl animate-bounce group-hover:animate-spin flex-shrink-0">
-											🔍
-										</div>
-										<div>
-											<h4 className="font-semibold text-lg mb-2">🔍 Smart Search</h4>
-											<p className="text-sm opacity-80 leading-relaxed">Type any food name and get instant results with verified nutritional data 📊</p>
-										</div>
-									</div>
-									<div className="flex items-start gap-4 group">
-										<div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-2xl animate-pulse group-hover:animate-bounce flex-shrink-0">
-											✅
-										</div>
-										<div>
-											<h4 className="font-semibold text-lg mb-2">✅ Verified Data</h4>
-											<p className="text-sm opacity-80 leading-relaxed">All nutritional information is verified and up-to-date for accurate tracking 🎯</p>
-										</div>
-									</div>
-									<div className="flex items-start gap-4 group">
-										<div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-2xl animate-ping group-hover:animate-pulse flex-shrink-0">
-											⚡
-										</div>
-										<div>
-											<h4 className="font-semibold text-lg mb-2">⚡ Quick Add</h4>
-											<p className="text-sm opacity-80 leading-relaxed">One-click to add foods to any meal with automatic macro calculations 🚀</p>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</Container>
-			</section>
-
-			{/* Use Cases & Workflows */}
-			<Section>
+			{/* Compact Stats Section */}
+			<Section className="relative -mt-10 z-10 bg-gray-50 py-16">
 				<Container>
 					<div className="text-center mb-12">
-						<h2 className="text-3xl font-bold mb-4">How It Works</h2>
-						<p className="text-lg opacity-80 max-w-2xl mx-auto">
-							From workout coaching to nutrition tracking, see how AI Form Coach fits into your daily routine
-						</p>
+						<Badge tone="success" className="mb-4 bg-blue-100 text-blue-800 border-blue-200">
+							📊 Trusted Worldwide
+						</Badge>
+						<h2 className="text-3xl font-bold mb-4 text-gray-900">
+							Join <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">50,000+</span> Users
+						</h2>
 					</div>
 					
-					<div className="grid md:grid-cols-2 gap-8 mb-12">
-						<div className="card p-6">
-							<div className="flex items-center gap-3 mb-4">
-								<div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-									<Icon name="activity" className="text-blue-600 dark:text-blue-400" />
-								</div>
-								<h3 className="text-xl font-semibold">Workout Session</h3>
-							</div>
-							<div className="space-y-3 text-sm">
-								<div className="flex items-start gap-3">
-									<span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">1</span>
-									<span>Open Coach page and select your exercise</span>
-								</div>
-								<div className="flex items-start gap-3">
-									<span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">2</span>
-									<span>Position yourself in camera view</span>
-								</div>
-								<div className="flex items-start gap-3">
-									<span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">3</span>
-									<span>Get real-time form cues and rep counting</span>
-								</div>
-								<div className="flex items-start gap-3">
-									<span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">4</span>
-									<span>View session summary and progress charts</span>
-								</div>
-							</div>
+					{/* Compact stats grid */}
+					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+						<div className="text-center p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 hover:shadow-lg transition-all duration-300">
+							<div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-1">50K+</div>
+							<div className="text-sm font-semibold text-gray-800">Active Users</div>
 						</div>
-						
-						<div className="card p-6">
-							<div className="flex items-center gap-3 mb-4">
-								<div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-									<Icon name="chart" className="text-green-600 dark:text-green-400" />
-								</div>
-								<h3 className="text-xl font-semibold">Nutrition Tracking</h3>
-							</div>
-							<div className="space-y-3 text-sm">
-								<div className="flex items-start gap-3">
-									<span className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">1</span>
-									<span>Go to Nutrition page to see daily overview</span>
-								</div>
-								<div className="flex items-start gap-3">
-									<span className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">2</span>
-									<span>Click &quot;Add Food&quot; to search and log meals</span>
-								</div>
-								<div className="flex items-start gap-3">
-									<span className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">3</span>
-									<span>Watch macro rings update in real-time</span>
-								</div>
-								<div className="flex items-start gap-3">
-									<span className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">4</span>
-									<span>Track progress across days and weeks</span>
-								</div>
-							</div>
+						<div className="text-center p-4 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 border border-green-100 hover:shadow-lg transition-all duration-300">
+							<div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-teal-600 mb-1">1M+</div>
+							<div className="text-sm font-semibold text-gray-800">Workouts</div>
+						</div>
+						<div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 hover:shadow-lg transition-all duration-300">
+							<div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-1">95%</div>
+							<div className="text-sm font-semibold text-gray-800">Satisfaction</div>
+						</div>
+						<div className="text-center p-4 rounded-xl bg-gradient-to-br from-orange-50 to-red-50 border border-orange-100 hover:shadow-lg transition-all duration-300">
+							<div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-1">24/7</div>
+							<div className="text-sm font-semibold text-gray-800">AI Support</div>
 						</div>
 					</div>
 				</Container>
 			</Section>
 
-			<Section>
+			{/* Compact How It Works Section */}
+			<NutritionGradientBackground className="relative">
+				{/* Top curved section */}
+				<div className="absolute top-0 left-0 right-0">
+					<svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-20">
+						<path d="M0 0L60 10C120 20 240 40 360 50C480 60 600 60 720 55C840 50 960 40 1080 35C1200 30 1320 30 1380 30L1440 30V0H1380C1320 0 1200 0 1080 0C960 0 840 0 720 0C600 0 480 0 360 0C240 0 120 0 60 0H0Z" fill="#f9fafb"/>
+					</svg>
+				</div>
+				
 				<Container>
-					<div className="grid sm:grid-cols-2 gap-3 text-sm" id="demo">
-					<div className="rounded-md border p-3 flex items-center gap-2"><span className="badge badge-success">Completely private</span><span className="opacity-80">Everything runs on your device</span></div>
-					<div className="rounded-md border p-3 flex items-center gap-2"><span className="badge badge-success">No uploads</span><span className="opacity-80">Your video stays with you</span></div>
+					<div className="py-20 pt-28">
+						<div className="text-center mb-12">
+							<Badge tone="success" className="mb-4 bg-white/20 text-white border-white/30">
+								🎯 How It Works
+							</Badge>
+							<h2 className="text-3xl font-bold mb-4 text-white">Get Started in 3 Steps</h2>
+						</div>
+
+						{/* Compact 3-step process */}
+						<div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+							<div className="text-center group">
+								<div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold border border-white/20 group-hover:scale-110 transition-transform duration-300">
+									1
+								</div>
+								<h3 className="text-xl font-bold mb-3 text-white">Choose Exercise</h3>
+								<p className="text-gray-200 text-sm leading-relaxed">Select from supported exercises to begin your workout.</p>
+							</div>
+							
+							<div className="text-center group">
+								<div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold border border-white/20 group-hover:scale-110 transition-transform duration-300">
+									2
+								</div>
+								<h3 className="text-xl font-bold mb-3 text-white">Start Session</h3>
+								<p className="text-gray-200 text-sm leading-relaxed">Position yourself and let AI analyze your form.</p>
+							</div>
+							
+							<div className="text-center group">
+								<div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold border border-white/20 group-hover:scale-110 transition-transform duration-300">
+									3
+								</div>
+								<h3 className="text-xl font-bold mb-3 text-white">Get Feedback</h3>
+								<p className="text-gray-200 text-sm leading-relaxed">Receive instant corrections and rep counting.</p>
+							</div>
+						</div>
 					</div>
 				</Container>
-			</Section>
 
-			{/* Social proof and outcomes */}
-			<section className="bg-gray-50 dark:bg-white/5">
-				<Container>
-					<SocialProofBand />
-				</Container>
-			</section>
+				{/* Bottom curved section */}
+				<div className="absolute bottom-0 left-0 right-0">
+					<svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-20">
+						<path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+					</svg>
+				</div>
+			</NutritionGradientBackground>
 
-			<Section>
-				<Container>
-					<div className="text-xs uppercase tracking-wide opacity-70 mb-3">Trusted by builders</div>
-					<div className="grid grid-cols-2 sm:grid-cols-4 gap-6 items-center">
-						{logos.map((l, i) => (
-							<LazyImage key={i} src={l.src} alt={l.alt} className="h-6 opacity-70 logo" height={24} />
-						))}
-					</div>
-				</Container>
-			</Section>
-
-			{/* Complete Feature Overview */}
-			<Section>
+			{/* Compact Testimonials Section */}
+			<Section className="relative -mt-10 z-10 bg-white py-16">
 				<Container>
 					<div className="text-center mb-12">
-						<h2 className="text-3xl font-bold mb-4">Everything You Need for Fitness Success</h2>
-						<p className="text-lg opacity-80 max-w-2xl mx-auto">
-							From AI-powered form coaching to comprehensive nutrition tracking, 
-							AI Form Coach provides all the tools you need for your fitness journey.
-						</p>
+						<Badge tone="success" className="mb-4 bg-yellow-100 text-yellow-800 border-yellow-200">
+							⭐ User Stories
+						</Badge>
+						<h2 className="text-3xl font-bold mb-4 text-gray-900">
+							<span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600">Real Results</span>
+						</h2>
 					</div>
 					
-					<div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-						<div>
-							<h3 className="text-2xl font-semibold mb-6">AI Form Coaching</h3>
-							<div className="space-y-4">
-								<div className="flex items-start gap-3">
-									<div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 mt-1">
-										<Icon name="activity" className="text-blue-600 dark:text-blue-400" />
-									</div>
-									<div>
-										<h4 className="font-semibold">Real-time Form Analysis</h4>
-										<p className="text-sm opacity-80">Get instant feedback on squats, push-ups, and planks</p>
-									</div>
+					{/* Compact testimonials grid */}
+					<div className="grid md:grid-cols-3 gap-6 mb-12 max-w-5xl mx-auto">
+						<div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-100">
+							<div className="flex items-center mb-4">
+								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mr-3 shadow-lg">
+									<span className="text-white font-bold">S</span>
 								</div>
-								<div className="flex items-start gap-3">
-									<div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0 mt-1">
-										<Icon name="message" className="text-green-600 dark:text-green-400" />
-									</div>
-									<div>
-										<h4 className="font-semibold">Voice Coaching</h4>
-										<p className="text-sm opacity-80">Hear helpful cues as you exercise</p>
-									</div>
-								</div>
-								<div className="flex items-start gap-3">
-									<div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 mt-1">
-										<Icon name="chart" className="text-purple-600 dark:text-purple-400" />
-									</div>
-									<div>
-										<h4 className="font-semibold">Progress Tracking</h4>
-										<p className="text-sm opacity-80">See your improvement over time with detailed charts</p>
-									</div>
-								</div>
-								<div className="flex items-start gap-3">
-									<div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0 mt-1">
-										<Icon name="sun" className="text-orange-600 dark:text-orange-400" />
-									</div>
-									<div>
-										<h4 className="font-semibold">Privacy First</h4>
-										<p className="text-sm opacity-80">Everything runs on your device—no video uploads</p>
-									</div>
+								<div>
+									<h4 className="font-bold text-gray-900">Sarah J.</h4>
+									<div className="flex text-yellow-400 text-sm">{'★'.repeat(5)}</div>
 								</div>
 							</div>
+							<p className="text-gray-700 text-sm leading-relaxed italic">&ldquo;Completely transformed my workouts. Amazing results!&rdquo;</p>
 						</div>
-						<div className="relative">
-							<div className="card p-4 shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 animate-float">
-								<div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full animate-ping"></div>
-								<div className="absolute -bottom-2 -left-2 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-								<Image 
-									src="/fitness-app.svg" 
-									alt="AI Form Coach app showing live pose detection and workout tracking" 
-									width={400}
-									height={300}
-									className="w-full h-auto rounded-lg"
-								/>
+						
+						<div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-green-100">
+							<div className="flex items-center mb-4">
+								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center mr-3 shadow-lg">
+									<span className="text-white font-bold">M</span>
+								</div>
+								<div>
+									<h4 className="font-bold text-gray-900">Mike C.</h4>
+									<div className="flex text-yellow-400 text-sm">{'★'.repeat(5)}</div>
+								</div>
 							</div>
-							<div className="absolute -z-10 top-4 left-4 w-full h-full bg-gradient-to-br from-blue-500/20 to-green-500/20 rounded-lg blur-xl animate-pulse"></div>
+							<p className="text-gray-700 text-sm leading-relaxed italic">&ldquo;AI feedback is incredibly accurate. Like having a 24/7 coach!&rdquo;</p>
+						</div>
+						
+						<div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-orange-100">
+							<div className="flex items-center mb-4">
+								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mr-3 shadow-lg">
+									<span className="text-white font-bold">E</span>
+								</div>
+								<div>
+									<h4 className="font-bold text-gray-900">Emma R.</h4>
+									<div className="flex text-yellow-400 text-sm">{'★'.repeat(5)}</div>
+								</div>
+							</div>
+							<p className="text-gray-700 text-sm leading-relaxed italic">&ldquo;Nutrition tracking is so intuitive. Saves tons of time!&rdquo;</p>
 						</div>
 					</div>
 				</Container>
 			</Section>
 
-			<Section>
+			{/* Compact CTA Section */}
+			<PlansGradientBackground className="relative">
+				{/* Top curved section */}
+				<div className="absolute top-0 left-0 right-0">
+					<svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-20">
+						<path d="M0 0L60 10C120 20 240 40 360 50C480 60 600 60 720 55C840 50 960 40 1080 35C1200 30 1320 30 1380 30L1440 30V0H1380C1320 0 1200 0 1080 0C960 0 840 0 720 0C600 0 480 0 360 0C240 0 120 0 60 0H0Z" fill="white"/>
+					</svg>
+				</div>
+				
 				<Container>
-					<div className="grid md:grid-cols-3 gap-4">
-						{testimonials.map((t, i) => (
-							<Reveal key={i} delay={i * 80}><Testimonial quote={t.quote} name={t.name} role={t.role} /></Reveal>
-						))}
-					</div>
-					<div className="text-center mt-8">
-						<Link href="/signin"><Button variant="primary">Begin training</Button></Link>
+					<div className="py-20 pt-28 text-center">
+						<Badge tone="warning" className="mb-6 bg-white/20 text-white border-white/30">
+							💰 Simple Pricing
+						</Badge>
+						<h2 className="text-4xl font-bold mb-6 text-white leading-tight">
+							Start Free, <span className="text-yellow-300">Upgrade When Ready</span>
+						</h2>
+						<p className="text-lg text-gray-200 mb-8 max-w-2xl mx-auto">
+							Begin your fitness journey completely free. Upgrade for advanced features.
+						</p>
+						<div className="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
+							<Link href="/coach">
+								<Button variant="primary" className="w-full sm:w-auto bg-white text-purple-600 hover:bg-gray-100 px-8 py-4 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+									Start Free Now <Icon name="chevron-right" className="ml-2" />
+								</Button>
+							</Link>
+							<Link href="/pricing">
+								<Button variant="secondary" className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/20 px-8 py-4 text-lg font-semibold backdrop-blur-sm">
+									View Pricing <Icon name="chevron-right" className="ml-2" />
+								</Button>
+							</Link>
+						</div>
 					</div>
 				</Container>
-			</Section>
-
-			<PricingTeaser />
-
-			<FAQ />
-
-			<FinalCTA />
+			</PlansGradientBackground>
 		</div>
 	);
 }
-
-// Unused Feature component removed - functionality moved inline above
-
-function Testimonial({ quote, name, role }: { quote: string; name: string; role: string }) {
-	return (
-		<figure className="card p-4">
-			<blockquote className="italic">&ldquo;{quote}&rdquo;</blockquote>
-			<figcaption className="mt-3 flex items-center gap-2 text-sm opacity-80">
-				<span className="inline-grid place-items-center h-8 w-8 rounded-full bg-black text-white text-xs">{name.charAt(0)}</span>
-				<span>{name} · {role}</span>
-			</figcaption>
-		</figure>
-	);
-}
-

@@ -1,6 +1,6 @@
 # AI Form Coach 💪
 
-A comprehensive fitness application that combines AI-powered form coaching with nutrition tracking. Perfect your workout form in real-time and track your nutrition goals all in one place.
+A revolutionary fitness application that combines AI-powered form coaching with comprehensive nutrition tracking and personalized workout planning. Transform your fitness journey with real-time feedback, smart planning, and professional-grade health monitoring.
 
 ![AI Form Coach](https://img.shields.io/badge/AI-Form%20Coach-blue?style=for-the-badge&logo=react)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
@@ -9,30 +9,61 @@ A comprehensive fitness application that combines AI-powered form coaching with 
 
 ## ✨ Features
 
-### 🤖 AI Form Coaching
+### 🎯 AI Form Coaching
 - **Real-time pose detection** using MediaPipe for squats, push-ups, and planks
 - **Instant form feedback** with voice coaching cues
-- **Automatic rep counting** with accuracy tracking
+- **Automatic rep counting** with precision accuracy tracking
 - **Form quality scoring** and progress visualization
 - **Auto-pause functionality** when you step out of view
+- **Injury prevention alerts** based on form analysis
 - **Privacy-first design** - all processing happens on your device
 
-### 🥗 Nutrition Tracking
+### 🥗 Smart Nutrition Tracking
+- **AI food recognition** with camera-based food scanning
 - **Smart food database** with thousands of verified nutritional entries
 - **Macro tracking** with visual progress rings (calories, protein, carbs, fat)
-- **Quick meal logging** with one-click food addition
-- **Daily nutrition overview** with meal breakdown
+- **Goals and streaks** with personalized calorie and macro targets
+- **Quick meal logging** with barcode scanning and search
+- **Daily nutrition overview** with meal breakdown and insights
 - **Date navigation** to track progress over time
-- **Real-time macro calculations** as you add foods
+- **Protein advisory** with gentle reminders for optimal intake
+
+### 🗓️ AI-Powered Workout Plans
+- **AI-generated workout plans** using Google Gemini with quiz-style wizard
+- **Featured workout programs** for different fitness levels and goals
+- **Progressive overload engine** with automatic progression rules
+- **Smart plan adjustments** based on readiness and performance metrics
+- **Plan management** with pause, resume, and customization options
+- **Weekly calendar view** with regeneration capabilities
+- **Readiness-based modifications** (volume reduction, mobility days, finisher sets)
+
+### 📊 Health Monitoring & Readiness
+- **Daily readiness assessment** based on sleep, stress, soreness, and motivation
+- **Health data integration** with Apple HealthKit, Google Fit, and Health Connect
+- **Smart workout recommendations** based on health metrics and readiness scores
+- **Readiness scoring algorithm** with weighted calculations
+- **Health baseline tracking** for personalized insights
+- **Manual input options** when device data is unavailable
+- **Training load monitoring** to prevent overtraining
+
+### 🎨 Professional UI/UX
+- **World-class design** with diagonal slash layout and rainbow animations
+- **Auto-swiping feature carousel** showcasing key capabilities
+- **Professional imagery** from Unsplash with optimized loading
+- **Glass morphism effects** with backdrop blur and gradient overlays
+- **Smooth animations** and hover effects throughout
+- **Responsive design** optimized for all screen sizes
+- **Modern navigation** with FAQ and Pricing in header
 
 ### 🎯 Additional Features
 - **Progress tracking** with detailed charts and analytics
-- **Workout history** with session summaries
+- **Workout history** with session summaries and demo mode
 - **Export functionality** for data portability
-- **Offline support** with data synchronization
-- **Responsive design** for mobile and desktop
-- **Dark/light theme** support
-- **Accessibility features** with keyboard navigation
+- **Offline support** with data synchronization queue
+- **Dark/light theme** support with system preference detection
+- **Accessibility features** with keyboard navigation and ARIA labels
+- **Toast notifications** with professional styling and animations
+- **Loading states** with blur effects and progress indicators
 
 ## 🚀 Quick Start
 
@@ -61,23 +92,71 @@ A comprehensive fitness application that combines AI-powered form coaching with 
 3. **Set up environment variables**
    Create a `.env.local` file in the root directory:
    ```env
+   # Database (Required)
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   
+   # AI Features (Required)
+   GEMINI_API_KEY=your_gemini_api_key
+   
+   # Payment Processing (Required for Pro features)
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+   STRIPE_SECRET_KEY=your_stripe_secret_key
+   STRIPE_PRICE_MONTHLY_ID=your_stripe_monthly_price_id
+   STRIPE_PRICE_YEARLY_ID=your_stripe_yearly_price_id
+   STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+   
+   # Hero Images (Optional - fallback to local images)
+   NEXT_PUBLIC_UNSPLASH_ACCESS_KEY=your_unsplash_access_key
+   NEXT_PUBLIC_PIXABAY_API_KEY=your_pixabay_api_key
+   
+   # Monitoring & Analytics (Optional)
+   NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
+   NEXT_PUBLIC_UMAMI_WEBSITE_ID=your_umami_website_id
+   NEXT_PUBLIC_UMAMI_SRC=your_umami_src_url
+   
+   # SEO & Site Configuration (Optional)
+   NEXT_PUBLIC_BASE_URL=https://your-domain.com
+   GOOGLE_SITE_VERIFICATION=your_google_verification_code
+   
+   # MediaPipe Configuration (Optional - uses CDN by default)
+   NEXT_PUBLIC_MEDIAPIPE_WASM_URL=your_mediapipe_wasm_url
+   
+   # Vercel Deployment (Auto-set by Vercel)
+   NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA=auto_set_by_vercel
    ```
 
-4. **Set up the database**
+4. **Environment Variables Reference**
+
+   **Required Variables:**
+   - `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Database connection
+   - `SUPABASE_SERVICE_ROLE_KEY` - Server-side database operations
+   - `GEMINI_API_KEY` - AI features (workout plans, food analysis)
+
+   **Payment Processing (Required for Pro features):**
+   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` & `STRIPE_SECRET_KEY` - Stripe payment processing
+   - `STRIPE_PRICE_MONTHLY_ID` & `STRIPE_PRICE_YEARLY_ID` - Subscription pricing
+   - `STRIPE_WEBHOOK_SECRET` - Stripe webhook verification
+
+   **Optional Enhancements:**
+   - **Hero Images**: `NEXT_PUBLIC_UNSPLASH_ACCESS_KEY` & `NEXT_PUBLIC_PIXABAY_API_KEY`
+   - **Monitoring**: `NEXT_PUBLIC_SENTRY_DSN` for error tracking
+   - **Analytics**: `NEXT_PUBLIC_UMAMI_WEBSITE_ID` for privacy-focused analytics
+   - **SEO**: `NEXT_PUBLIC_BASE_URL` & `GOOGLE_SITE_VERIFICATION`
+
+5. **Set up the database**
    ```bash
    # Run the nutrition schema setup
    npm run seed:nutrition
    ```
 
-5. **Start the development server**
+6. **Start the development server**
    ```bash
    npm run dev
    ```
 
-6. **Open your browser**
+7. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🏗️ Project Structure
@@ -118,6 +197,8 @@ ai-form-coach/
 - **PostgreSQL** with custom functions and triggers
 - **Row Level Security (RLS)** for data protection
 - **Edge Functions** for serverless operations
+- **Google Gemini AI** for workout plan generation
+- **Unsplash & Pixabay APIs** for dynamic hero images
 
 ### Development Tools
 - **ESLint** for code linting
@@ -127,33 +208,66 @@ ai-form-coach/
 
 ## 📱 Usage
 
-### AI Form Coaching
-1. Navigate to the **Coach** page
-2. Select your exercise (squats, push-ups, or planks)
-3. Position yourself in the camera view
-4. Start your workout and receive real-time feedback
-5. View your session summary and progress
+### 🏠 Home Page Experience
+1. **Discover Features**: Auto-swiping carousel showcases AI capabilities
+2. **See Social Proof**: View user testimonials and success stats
+3. **Quick Start**: Click "Start Free Workout" for immediate access
+4. **Learn Process**: 3-step guide shows how the AI coaching works
 
-### Nutrition Tracking
-1. Go to the **Nutrition** page
-2. Click **"Add Food"** to search and log meals
-3. Use the date navigator to track different days
-4. Monitor your macro progress with visual rings
-5. View detailed meal breakdowns
+### 🎯 AI Form Coaching
+1. Navigate to the **Coach** page from header or hero CTA
+2. Select your exercise (squats, push-ups, or planks)
+3. Position yourself in the camera view for optimal detection
+4. Start your workout and receive real-time form feedback
+5. View your session summary with detailed progress analytics
+
+### 🥗 Smart Nutrition Tracking
+1. Go to the **Nutrition** page from the main navigation
+2. Use **AI Camera** to scan food or **Add Food** to search manually
+3. Set your daily goals in the **Goals Panel** with macro targets
+4. Use the date navigator to track progress over time
+5. Monitor macro progress with visual rings and protein advisory
+
+### 🗓️ AI Workout Plans
+1. Navigate to the **Plans** page from header navigation
+2. Browse **Featured Plans** or click **Generate AI Plan**
+3. Complete the quiz-style wizard for personalized recommendations
+4. Select and activate plans to add to **My Plans**
+5. Follow daily workouts with readiness-based adjustments
+
+### 📊 Health Monitoring & Readiness
+1. Access **Health** page from navigation or Coach sidebar
+2. Connect health data (Apple Health, Google Fit, Health Connect)
+3. Complete daily readiness assessments for optimal training
+4. View readiness dashboard with health insights and trends
+5. Get smart workout recommendations based on your metrics
+
+### 💰 Pricing & Support
+1. Check **Pricing** page for subscription options and features
+2. Visit **FAQ** page for common questions and detailed answers
+3. Access **Account** page when signed in for profile management
+4. View **History** page for complete workout and nutrition tracking
 
 ## 🗄️ Database Schema
 
 ### Core Tables
-- **`profiles`** - User profile information
-- **`sessions`** - Workout session data
-- **`foods`** - Nutritional database
-- **`meals`** - Daily meal records
-- **`meal_items`** - Individual food items in meals
+- **`profiles`** - User profile information and preferences
+- **`sessions`** - Workout session data with pose tracking
+- **`foods`** - Comprehensive nutritional database with AI recognition
+- **`meals`** - Daily meal records with macro calculations
+- **`meal_items`** - Individual food items in meals with quantities
+- **`user_plans`** - Personal workout plans with AI-generated content
+- **`plan_templates`** - Featured workout programs and templates
+- **`nutrition_goals`** - Daily calorie and macro targets with streaks
+- **`progression`** - Workout progression tracking with readiness scores
+- **`health_baselines`** - Personal health metrics and baseline values
 
-### Views & Functions
-- **`daily_totals`** - Materialized view for nutrition summaries
-- **Macro calculation triggers** - Automatic nutrition calculations
-- **Progress tracking functions** - Analytics and reporting
+### Advanced Features
+- **`workout_targets`** - Recommended workout parameters based on progression
+- **Row Level Security (RLS)** - Secure data access policies
+- **Materialized views** - Optimized nutrition and progress summaries
+- **Database triggers** - Automatic calculations and data consistency
+- **JSONB storage** - Flexible plan data and health metrics storage
 
 ## 🧪 Testing
 
@@ -188,14 +302,40 @@ npm run screenshots  # Generate mobile screenshots
 npm run demo         # View component demo
 ```
 
-## 🎨 Design System
+## 🎨 Design System & UI/UX
 
-The application uses a custom design system with:
-- **Consistent color palette** with dark/light theme support
-- **Fluid typography** that scales across devices
-- **Accessible components** with proper ARIA labels
-- **Smooth animations** that respect reduced motion preferences
-- **Responsive breakpoints** for all screen sizes
+The application features a world-class design system with:
+
+### ✨ Modern Design Patterns
+- **Diagonal slash layout** with unique asymmetric positioning
+- **Rainbow text animations** for dynamic visual effects
+- **Glass morphism effects** with backdrop blur and transparency
+- **Gradient overlays** and smooth color transitions
+- **Auto-swiping carousel** with interactive navigation
+- **Curved section separators** using SVG for smooth transitions
+
+### 🎯 Professional Visual Elements
+- **Consistent color palette** with green-blue-purple gradient themes
+- **Fluid typography** with gradient text effects and proper hierarchy
+- **Professional imagery** from Unsplash with optimized loading states
+- **Hover animations** with scale effects and shadow enhancements
+- **Floating elements** with ping, pulse, and bounce animations
+- **Responsive breakpoints** optimized for all screen sizes
+
+### 🚀 Performance & Accessibility
+- **Hardware-accelerated animations** using CSS transforms
+- **Accessible components** with proper ARIA labels and keyboard navigation
+- **Smooth transitions** that respect reduced motion preferences
+- **Optimized loading states** with shimmer effects and progress indicators
+- **Error handling** with graceful fallbacks for all external resources
+- **SEO optimized** with proper meta tags and semantic HTML
+
+### 🖼️ Professional Image System
+- **High-quality fitness imagery** from Unsplash API
+- **Optimized loading** with Next.js Image component
+- **Error handling** with local fallbacks
+- **Responsive sizing** for all device types
+- **Professional presentation** with rounded corners and shadows
 
 ## 🔒 Privacy & Security
 

@@ -2,11 +2,11 @@
 import { ForwardedRef, forwardRef } from 'react';
 
 export function Container({ children, className }: { children: React.ReactNode; className?: string }) {
-	return <div className={`container ${className ?? ''}`}>{children}</div>;
+	return <div className={className ? `container ${className}` : 'container'}>{children}</div>;
 }
 
 export function Section({ children, className }: { children: React.ReactNode; className?: string }) {
-	return <section className={`section ${className ?? ''}`}>{children}</section>;
+	return <section className={className ? `section ${className}` : 'section'}>{children}</section>;
 }
 
 export const Button = forwardRef(function Button(
@@ -17,12 +17,12 @@ export const Button = forwardRef(function Button(
 	const styles = variant === 'primary' ? 'btn-primary focus-visible:ring-[var(--color-primary)]'
 		: variant === 'secondary' ? 'btn-secondary focus-visible:ring-[var(--color-border)]'
 		: 'focus-visible:ring-[var(--color-border)]';
-	return <button ref={ref} className={`${base} ${styles} ${className ?? ''}`} {...props}>{children}</button>;
+	return <button ref={ref} className={className ? `${base} ${styles} ${className}` : `${base} ${styles}`} {...props}>{children}</button>;
 });
 
 export function Badge({ children, tone = 'success', className }: { children: React.ReactNode; tone?: 'success'|'warning'; className?: string }) {
 	const styles = tone === 'success' ? 'badge badge-success' : 'badge badge-warning';
-	return <span className={`${styles} ${className ?? ''}`}>{children}</span>;
+	return <span className={className ? `${styles} ${className}` : styles}>{children}</span>;
 }
 
 export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'|'camera'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'|'chevron-left'|'chevron-right'|'plus'|'search'|'x'|'target'|'trending-up'|'alert-triangle'|'calendar'|'clock'|'flame'|'zap'|'heart'|'star'|'trophy'|'bell'|'settings'|'user'|'home'|'menu'|'filter'|'edit'|'trash'|'save'|'refresh'|'play'|'stop'|'volume'|'volume-off'; className?: string }) {
