@@ -1,18 +1,18 @@
 export const theme = {
 	color: {
 		bg: {
-			base: 'var(--bg)',
-			muted: 'var(--bg-muted)'
+			base: 'var(--color-surface)',
+			muted: 'color-mix(in oklab, var(--color-surface) 85%, transparent)'
 		},
 		fg: {
-			base: 'var(--fg)',
-			muted: 'var(--fg-muted)'
+			base: 'var(--color-text)',
+			muted: 'color-mix(in oklab, var(--color-text) 60%, transparent)'
 		},
-		brand: 'var(--brand)',
-		accent: 'var(--accent)',
-		border: 'var(--border)',
-		positive: '#16a34a',
-		warning: '#f59e0b',
+		brand: 'var(--color-primary)',
+		accent: '#3b82f6',
+		border: 'var(--color-border)',
+		positive: 'var(--color-success)',
+		warning: 'var(--color-warning)',
 		critical: '#ef4444'
 	},
 	type: {

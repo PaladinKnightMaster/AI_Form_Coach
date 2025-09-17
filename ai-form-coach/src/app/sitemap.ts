@@ -17,16 +17,46 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			priority: 0.9,
 		},
 		{
+			url: `${baseUrl}/nutrition`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.8,
+		},
+		{
+			url: `${baseUrl}/plans`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.8,
+		},
+		{
+			url: `${baseUrl}/health`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.8,
+		},
+		{
 			url: `${baseUrl}/history`,
 			lastModified: new Date(),
 			changeFrequency: 'monthly',
 			priority: 0.7,
 		},
 		{
+			url: `${baseUrl}/demo`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.6,
+		},
+		{
 			url: `${baseUrl}/signin`,
 			lastModified: new Date(),
 			changeFrequency: 'monthly',
 			priority: 0.6,
+		},
+		{
+			url: `${baseUrl}/account`,
+			lastModified: new Date(),
+			changeFrequency: 'monthly',
+			priority: 0.5,
 		},
 		{
 			url: `${baseUrl}/privacy`,

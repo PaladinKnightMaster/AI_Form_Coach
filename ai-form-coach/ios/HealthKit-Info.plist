@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- HealthKit Usage Description -->
+    <key>NSHealthShareUsageDescription</key>
+    <string>AI-powered fitness coaching with personalized readiness assessment based on your health metrics. We use your sleep, heart rate, activity, and workout data to provide intelligent workout recommendations and track your fitness progress.</string>
+    
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>Save your workout sessions and fitness progress to HealthKit for comprehensive health tracking across all your health and fitness apps.</string>
+    
+    <!-- HealthKit Data Types -->
+    <key>HKRequiredPermissions</key>
+    <array>
+        <!-- Sleep Data -->
+        <string>HKCategoryTypeIdentifierSleepAnalysis</string>
+        
+        <!-- Heart Rate Data -->
+        <string>HKQuantityTypeIdentifierHeartRate</string>
+        <string>HKQuantityTypeIdentifierHeartRateVariabilitySDNN</string>
+        
+        <!-- Activity Data -->
+        <string>HKQuantityTypeIdentifierStepCount</string>
+        <string>HKQuantityTypeIdentifierAppleExerciseTime</string>
+        <string>HKQuantityTypeIdentifierDistanceWalkingRunning</string>
+        
+        <!-- Workout Data -->
+        <string>HKWorkoutTypeIdentifier</string>
+        
+        <!-- Body Measurements -->
+        <string>HKQuantityTypeIdentifierBodyMass</string>
+        <string>HKQuantityTypeIdentifierBodyFatPercentage</string>
+    </array>
+    
+    <!-- HealthKit Optional Permissions -->
+    <key>HKOptionalPermissions</key>
+    <array>
+        <!-- Additional metrics for enhanced insights -->
+        <string>HKQuantityTypeIdentifierActiveEnergyBurned</string>
+        <string>HKQuantityTypeIdentifierBasalEnergyBurned</string>
+        <string>HKQuantityTypeIdentifierVO2Max</string>
+        <string>HKQuantityTypeIdentifierRestingHeartRate</string>
+        <string>HKQuantityTypeIdentifierWalkingHeartRateAverage</string>
+    </array>
+    
+    <!-- HealthKit Background Delivery -->
+    <key>HKBackgroundDeliveryEnabled</key>
+    <true/>
+    
+    <!-- HealthKit Background Delivery Types -->
+    <key>HKBackgroundDeliveryTypes</key>
+    <array>
+        <string>HKCategoryTypeIdentifierSleepAnalysis</string>
+        <string>HKQuantityTypeIdentifierHeartRate</string>
+        <string>HKQuantityTypeIdentifierStepCount</string>
+        <string>HKWorkoutTypeIdentifier</string>
+    </array>
+    
+    <!-- HealthKit Data Access Justifications -->
+    <key>HKDataAccessJustifications</key>
+    <dict>
+        <key>HKCategoryTypeIdentifierSleepAnalysis</key>
+        <string>Calculate sleep quality and duration for readiness assessment and workout intensity recommendations</string>
+        
+        <key>HKQuantityTypeIdentifierHeartRate</key>
+        <string>Monitor heart rate patterns for recovery assessment and training load optimization</string>
+        
+        <key>HKQuantityTypeIdentifierHeartRateVariabilitySDNN</key>
+        <string>Assess autonomic nervous system recovery and stress levels for personalized training recommendations</string>
+        
+        <key>HKQuantityTypeIdentifierStepCount</key>
+        <string>Track daily activity levels for comprehensive readiness calculation and fitness progress monitoring</string>
+        
+        <key>HKQuantityTypeIdentifierAppleExerciseTime</key>
+        <string>Monitor active minutes for activity level assessment and workout intensity recommendations</string>
+        
+        <key>HKQuantityTypeIdentifierDistanceWalkingRunning</key>
+        <string>Track movement distance for comprehensive activity monitoring and fitness progress tracking</string>
+        
+        <key>HKWorkoutTypeIdentifier</key>
+        <string>Calculate training load and recovery needs based on exercise sessions for personalized workout recommendations</string>
+        
+        <key>HKQuantityTypeIdentifierBodyMass</key>
+        <string>Track body weight changes for fitness progress monitoring and goal setting</string>
+        
+        <key>HKQuantityTypeIdentifierBodyFatPercentage</key>
+        <string>Monitor body composition changes for comprehensive fitness progress tracking</string>
+    </dict>
+    
+    <!-- HealthKit Data Retention -->
+    <key>HKDataRetentionPeriod</key>
+    <integer>90</integer>
+    
+    <!-- HealthKit Privacy Settings -->
+    <key>HKPrivacySettings</key>
+    <dict>
+        <key>HKDataSharingEnabled</key>
+        <false/>
+        <key>HKDataExportEnabled</key>
+        <true/>
+        <key>HKDataDeletionEnabled</key>
+        <true/>
+    </dict>
+</dict>
+</plist>

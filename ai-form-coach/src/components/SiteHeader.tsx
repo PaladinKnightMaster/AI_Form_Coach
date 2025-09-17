@@ -26,13 +26,19 @@ export default function SiteHeader() {
 		return () => document.removeEventListener('keydown', handleEscape);
 	}, [open]);
 	return (
-		<header className="border-b sticky top-0 z-40 backdrop-blur bg-white/70 dark:bg-black/30" role="banner">
+		<header className="border-b sticky top-0 z-40 backdrop-blur bg-white/70 dark:bg-black/30" role="banner" suppressHydrationWarning>
 			<a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-black text-white px-3 py-1 rounded z-50">Skip to content</a>
 			<div className="container flex items-center justify-between h-14">
 				<Link href="/" className="font-extrabold tracking-tight text-lg">AI Form Coach</Link>
 				<nav className="hidden md:flex items-center gap-5 text-sm" role="navigation" aria-label="Main navigation">
+					<Link href="/">Home</Link>
 					<Link href="/coach">Coach</Link>
+					<Link href="/nutrition">Nutrition</Link>
+					<Link href="/plans">Plans</Link>
+					<Link href="/health">Health</Link>
 					<Link href="/history">History</Link>
+					<Link href="/pricing">Pricing</Link>
+					<Link href="/faq">FAQ</Link>
 					<Link href="/privacy">Privacy</Link>
 					{isAuthed ? <Link href="/account">Account</Link> : null}
 					<ThemeToggle />
@@ -71,8 +77,14 @@ export default function SiteHeader() {
 							</button>
 						</div>
 						<nav className="space-y-1">
+							<Link href="/" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Home</Link>
 							<Link href="/coach" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Coach</Link>
+							<Link href="/nutrition" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Nutrition</Link>
+							<Link href="/plans" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Plans</Link>
+							<Link href="/health" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Health</Link>
 							<Link href="/history" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">History</Link>
+							<Link href="/pricing" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Pricing</Link>
+							<Link href="/faq" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">FAQ</Link>
 							<Link href="/privacy" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Privacy</Link>
 							{isAuthed ? <Link href="/account" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Account</Link> : null}
 						</nav>

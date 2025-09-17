@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LogSilencer from '@/components/LogSilencer';
+import { ToastProvider } from '@/components/ToastProvider';
 import "./globals.css";
 import Script from 'next/script';
 import SiteHeader from '@/components/SiteHeader';
@@ -68,12 +69,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 				<meta name="color-scheme" content="light dark" />
 			</head>
 			<body className="antialiased" suppressHydrationWarning>
-				<SiteHeader />
-				<main id="main-content">
-					{children}
-				</main>
-				<LogSilencer />
-				<SiteFooter />
+				<ToastProvider>
+					<SiteHeader />
+					<main id="main-content">
+						{children}
+					</main>
+					<LogSilencer />
+					<SiteFooter />
+				</ToastProvider>
 				{umamiWebsiteId ? (
 					<Script async defer src={umamiSrc} data-website-id={umamiWebsiteId} />
 				) : null}

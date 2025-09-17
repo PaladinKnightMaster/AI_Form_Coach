@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 
 export const getSupabaseClient = () => {
 	const url = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
@@ -6,7 +6,7 @@ export const getSupabaseClient = () => {
 	if (!url || !anon) {
 		console.warn('Supabase env not set; running in offline mode.');
 	}
-	return createClient(url ?? 'http://localhost', anon ?? 'anon');
+	return createBrowserClient(url ?? 'http://localhost', anon ?? 'anon');
 };
 
 export const getCurrentUserId = async (): Promise<string | null> => {

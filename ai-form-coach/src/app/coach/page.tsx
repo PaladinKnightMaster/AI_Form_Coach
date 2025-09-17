@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { initPose, PoseEngine, type SmoothedLandmark } from '@/lib/pose';
 import { createValidator } from '@/lib/validators';
 import type { Exercise } from '@/lib/validators/types';
@@ -16,13 +16,23 @@ import SafetyChecklist from '@/components/SafetyChecklist';
 import Link from 'next/link';
 import WelcomeToast from '@/components/WelcomeToast';
 import FirstRunTutorial from '@/components/FirstRunTutorial';
+import ProgressionIntegration from '@/components/progression/ProgressionIntegration';
+import HealthStatusWidget from '@/components/health/HealthStatusWidget';
+import PlanAdjustmentBanner from '@/components/plans/PlanAdjustmentBanner';
+import type { WorkoutTarget, ReadinessAssessment } from '@/lib/progression/engine';
+import type { UserPlan } from '@/types/plans';
 
 export default function Coach() {
 	const searchParams = useSearchParams();
+	const router = useRouter();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [landmarks, setLandmarks] = useState<SmoothedLandmark[] | null>(null);
 	const [exercise, setExercise] = useState<Exercise>('squat');
+	const [currentPlan, setCurrentPlan] = useState<{ id: string; name: string } | null>(null);
+	const [activePlan, setActivePlan] = useState<UserPlan | null>(null);
+	const [progressionTarget, setProgressionTarget] = useState<WorkoutTarget | null>(null);
+	const [readinessAssessment, setReadinessAssessment] = useState<ReadinessAssessment | null>(null);
 	const [running, setRunning] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [repCount, setRepCount] = useState(0);
@@ -96,6 +106,19 @@ export default function Coach() {
 			// Remove the query param from URL without reload
 			window.history.replaceState({}, '', '/coach');
 		}
+
+		// Handle plan parameters
+		const planId = searchParams.get('planId');
+		const planName = searchParams.get('planName');
+		if (planId && planName) {
+			setCurrentPlan({ id: planId, name: decodeURIComponent(planName) });
+			loadPlanData(planId);
+			// Remove the query params from URL without reload
+			const url = new URL(window.location.href);
+			url.searchParams.delete('planId');
+			url.searchParams.delete('planName');
+			window.history.replaceState({}, '', url.toString());
+		}
 		
 		// Show first-run tutorial if not seen before
 		try { 
@@ -106,8 +129,41 @@ export default function Coach() {
 		} catch {} 
 		
 		// Original tutorial logic
-		try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {} 
+		try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {		}
 	}, [searchParams]);
+
+	// Progression handlers
+	const handleProgressionTargetUpdate = (target: WorkoutTarget) => {
+		setProgressionTarget(target);
+		// Auto-set goals based on progression target
+		if (target.targetReps) {
+			setGoalType('reps');
+			setGoalValue(target.targetReps);
+		} else if (target.targetTimeSeconds) {
+			setGoalType('time');
+			setGoalValue(target.targetTimeSeconds);
+		}
+	};
+
+	const handleReadinessUpdate = (readiness: ReadinessAssessment | null) => {
+		setReadinessAssessment(readiness);
+	};
+
+	const handlePlanUpdate = useCallback((updatedPlan: UserPlan) => {
+		setActivePlan(updatedPlan);
+	}, []);
+
+	const loadPlanData = useCallback(async (planId: string) => {
+		try {
+			const response = await fetch(`/api/plans/user?id=${planId}`);
+			if (response.ok) {
+				const plan = await response.json();
+				setActivePlan(plan);
+			}
+		} catch (error) {
+			console.error('Error loading plan data:', error);
+		}
+	}, []);
 	// Keyboard help opener
 	const onHelpKey = useCallback((e: KeyboardEvent) => { if (e.key === '?') setShowHelp(true); }, []);
 	useEffect(() => { window.addEventListener('keydown', onHelpKey); return () => window.removeEventListener('keydown', onHelpKey); }, [onHelpKey]);
@@ -273,6 +329,11 @@ export default function Coach() {
 			<header className="p-4 flex items-center justify-between border-b">
 				<div className="flex items-center gap-2">
 					<select value={exercise} onChange={(e) => setExercise(e.target.value as Exercise)} className="border rounded-md px-2 py-1"><option value="squat">Squat</option><option value="pushup">Pushup</option><option value="plank">Plank</option></select>
+					{currentPlan && (
+						<div className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-medium">
+							📋 {currentPlan.name}
+						</div>
+					)}
 					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={muted} onChange={(e) => updateMuted(e.target.checked)} /> Mute</label>
 					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} /> Large HUD</label>
 					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={highContrast} onChange={(e) => setHighContrast(e.target.checked)} /> High contrast</label>
@@ -331,6 +392,30 @@ export default function Coach() {
 					{showSafety && <SafetyChecklist open={showSafety} onAgree={() => { safetyBypassRef.current = true; setShowSafety(false); handleStartPause(); }} onClose={() => setShowSafety(false)} />}
 				</div>
 				<div className="space-y-4">
+					{/* Plan Adjustment Banner */}
+					{activePlan && readinessAssessment && (
+						<PlanAdjustmentBanner
+							plan={activePlan}
+							readiness={readinessAssessment}
+							currentDay={activePlan.current_day || 1}
+							onPlanUpdate={handlePlanUpdate}
+						/>
+					)}
+
+					{/* Health Status Widget */}
+					<HealthStatusWidget
+						onOpenHealthDashboard={() => router.push('/health')}
+					/>
+					
+					{/* Progressive Overload Integration */}
+					<ProgressionIntegration
+						exercise={exercise}
+						onTargetUpdate={handleProgressionTargetUpdate}
+						onReadinessUpdate={handleReadinessUpdate}
+						currentGoalType={goalType}
+						currentGoalValue={goalValue}
+					/>
+					
 					<div className="rounded-lg border p-3 space-y-2">
 						<div className="font-medium">Goal</div>
 						<div className="flex flex-wrap items-center gap-2">
@@ -343,7 +428,14 @@ export default function Coach() {
 					<div className="grid grid-cols-3 gap-2"><button onClick={() => startRest(30)} className="py-2 rounded bg-gray-200">Rest 30s</button><button onClick={() => startRest(60)} className="py-2 rounded bg-gray-200">Rest 60s</button><button onClick={() => startRest(90)} className="py-2 rounded bg-gray-200">Rest 90s</button></div>
 					<button onClick={undoLastRep} className="w-full py-3 rounded-lg bg-gray-200">Undo last rep</button>
 					<button onClick={endSession} className="w-full py-3 rounded-lg bg-gray-200">End & Save</button>
-					<Link href="/history" className="block text-center text-blue-600">History</Link>
+					<div className="flex gap-2">
+						<Link href="/health" className="flex-1 text-center py-2 rounded-lg bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-colors">
+							Health Dashboard
+						</Link>
+						<Link href="/history" className="flex-1 text-center py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors">
+							History
+						</Link>
+					</div>
 				</div>
 			</main>
 		</div>
