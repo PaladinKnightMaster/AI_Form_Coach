@@ -10,6 +10,8 @@ export type RepMetric = {
 	peakDepth?: number;
 	speed?: number;
 	romFlags?: string[];
+	formIQ?: number;
+	sideBalance?: number;
 };
 
 export type ValidatorState = {

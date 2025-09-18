@@ -25,7 +25,7 @@ export function Badge({ children, tone = 'success', className }: { children: Rea
 	return <span className={className ? `${styles} ${className}` : styles}>{children}</span>;
 }
 
-export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'|'camera'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'|'chevron-left'|'chevron-right'|'plus'|'search'|'x'|'target'|'trending-up'|'alert-triangle'|'calendar'|'clock'|'flame'|'zap'|'heart'|'star'|'trophy'|'bell'|'settings'|'user'|'home'|'menu'|'filter'|'edit'|'trash'|'save'|'refresh'|'play'|'stop'|'volume'|'volume-off'; className?: string }) {
+export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'|'camera'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'|'chevron-left'|'chevron-right'|'plus'|'search'|'x'|'target'|'trending-up'|'alert-triangle'|'calendar'|'clock'|'flame'|'zap'|'heart'|'star'|'trophy'|'bell'|'settings'|'user'|'home'|'menu'|'filter'|'edit'|'trash'|'save'|'refresh'|'play'|'stop'|'volume'|'volume-off'|'link'|'bar-chart-2'|'cpu'|'lock'|'lightbulb'|'award'|'arrow-right'|'check-circle'|'external-link'; className?: string }) {
 	const paths: Record<string, string> = {
 		check: 'M5 13l4 4L19 7',
 		alert: 'M12 9v4m0 4h.01M10.29 3.86l-7.98 13.8A2 2 0 004 20h16a2 2 0 001.69-3.14l-7.98-13.8a2 2 0 00-3.42 0z',
@@ -68,7 +68,16 @@ export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'
 		play: 'M8 5v14l11-7z',
 		stop: 'M6 6h12v12H6z',
 		volume: 'M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07',
-		'volume-off': 'M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6'
+		'volume-off': 'M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6',
+		link: 'M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71',
+		'bar-chart-2': 'M18 20V10M12 20V4M6 20v-6',
+		cpu: 'M9 3v2M15 3v2M9 19v2M15 19v2M20 9h2M20 14h2M4 9H2M4 14H2M18 8h2a1 1 0 011 1v6a1 1 0 01-1 1h-2M6 8H4a1 1 0 00-1 1v6a1 1 0 001 1h2M9 7h6v10H9V7z',
+		lock: 'M12 15v2M6 21h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zM7 10V7a5 5 0 1110 0v3',
+		lightbulb: 'M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zM12 2C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z',
+		award: 'M12 15l-3-3h6l-3 3zM12 2l3 3h-6l3-3zM2 12l3-3v6l-3-3zM22 12l-3-3v6l3-3zM12 22l-3-3h6l-3 3z',
+		'arrow-right': 'M5 12h14M12 5l7 7-7 7',
+		'check-circle': 'M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3',
+		'external-link': 'M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3'
 	};
 	return (
 		<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className={className} suppressHydrationWarning>

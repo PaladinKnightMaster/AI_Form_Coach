@@ -14,12 +14,14 @@ import CalibrationModal from '@/components/CalibrationModal';
 import { loadExerciseThresholds } from '@/lib/calibration';
 import SafetyChecklist from '@/components/SafetyChecklist';
 import Link from 'next/link';
+import { Button, Icon } from '@/ui/DS';
 import WelcomeToast from '@/components/WelcomeToast';
 import FirstRunTutorial from '@/components/FirstRunTutorial';
 import ProgressionIntegration from '@/components/progression/ProgressionIntegration';
 import HealthStatusWidget from '@/components/health/HealthStatusWidget';
 import PlanAdjustmentBanner from '@/components/plans/PlanAdjustmentBanner';
 import type { WorkoutTarget, ReadinessAssessment } from '@/lib/progression/engine';
+import { calculateFormIQ, calculateSideBalance, type FormIQMetrics } from '@/lib/validators/formIQ';
 import type { UserPlan } from '@/types/plans';
 
 export default function Coach() {
@@ -75,6 +77,7 @@ export default function Coach() {
 	const [pending, setPending] = useState(0);
 	// const [cameraError, setCameraError] = useState<string | null>(null);
 	const [showSafety, setShowSafety] = useState(false);
+	const [formIQMetrics, setFormIQMetrics] = useState<FormIQMetrics | null>(null);
 	// Track average pose visibility for quality
 	const visSumRef = useRef(0);
 	const visCountRef = useRef(0);
@@ -289,6 +292,14 @@ export default function Coach() {
 		setRepCount(s.repCount);
 		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) {
 			const m = s.metrics[s.metrics.length - 1]; repMetricsRef.current.push({ idx: s.metrics.length, start_ms: Math.round(m.startTs), end_ms: Math.round(m.endTs), peak_depth: (m as unknown as { peakDepth?: number }).peakDepth, cues: (s.cues ?? []).slice(0, 4), valid: true });
+			
+			// Calculate Form IQ and side balance for real-time feedback
+			if (s.metrics.length > 0) {
+				const sideBalanceData = calculateSideBalance(lms, exercise);
+				const formIQ = calculateFormIQ(s.metrics, exercise, sideBalanceData || undefined);
+				setFormIQMetrics(formIQ);
+			}
+			
 			// shallow rep tip for squats if peak_depth < threshold
 			if (exercise === 'squat') {
 				const d = (m as unknown as { peakDepth?: number }).peakDepth ?? 0;
@@ -350,7 +361,7 @@ export default function Coach() {
 					<video ref={videoRef} className="w-full h-full object-contain" playsInline muted />
 					<canvas ref={canvasRef} className="absolute inset-0" />
 					{videoRef.current && (<PoseOverlay landmarks={landmarks} video={videoRef.current} mirror />)}
-					<HUD repCount={repCount} cue={pausedByQuality ? 'Step back into frame' : cue} spark={spark} subtext={`${goalSubtext() ?? ''}${goalSubtext() ? ' • ' : ''}${fps ? fps + ' FPS' : ''}`} large={largeText} pills={pillCues} />
+					<HUD repCount={repCount} cue={pausedByQuality ? 'Step back into frame' : cue} spark={spark} subtext={`${goalSubtext() ?? ''}${goalSubtext() ? ' • ' : ''}${fps ? fps + ' FPS' : ''}`} large={largeText} pills={pillCues} formIQMetrics={formIQMetrics || undefined} />
 					{countdown !== null && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="text-6xl font-bold">{countdown || 'Go!'}</div></div>)}
 					{saving && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent" /><p className="mt-3">Saving your session…</p></div>)}
 					{restLeft !== null && (<div className="absolute bottom-4 left-4 bg-white/80 rounded px-3 py-2 text-sm">Rest: {restLeft}s</div>)}
@@ -416,25 +427,152 @@ export default function Coach() {
 						currentGoalValue={goalValue}
 					/>
 					
-					<div className="rounded-lg border p-3 space-y-2">
-						<div className="font-medium">Goal</div>
-						<div className="flex flex-wrap items-center gap-2">
-							<select value={goalType} onChange={(e) => onGoalTypeChange(e.target.value)} className="border rounded px-2 py-1 min-w-[140px]"><option value="none">None</option><option value="reps">Target reps</option><option value="time">Target time (s)</option></select>
-							<input aria-label="Goal value" type="number" min={1} value={goalValue} onChange={(e) => setGoalValue(parseInt(e.target.value || '0', 10))} className="border rounded px-2 py-1 w-24 disabled:opacity-50" placeholder={goalType==='time' ? 'sec' : 'count'} disabled={goalType==='none'} />
-							<button aria-label="Open calibration" onClick={() => setShowCalib(true)} className="px-2 py-1 rounded bg-emerald-600 text-white">Calibrate</button>
+					<div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-4 space-y-4">
+						<div className="flex items-center gap-2">
+							<div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
+								<Icon name="target" className="w-4 h-4 text-white" />
+							</div>
+							<h3 className="font-semibold text-gray-900 dark:text-white">Workout Goal</h3>
+						</div>
+						
+						<div className="space-y-3">
+							<div className="flex items-center gap-3">
+								<label className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[80px]">Type:</label>
+								<select 
+									value={goalType} 
+									onChange={(e) => onGoalTypeChange(e.target.value)} 
+									className="flex-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+								>
+									<option value="none">🎯 Free Form</option>
+									<option value="reps">🔢 Target Reps</option>
+									<option value="time">⏱️ Target Time</option>
+								</select>
+							</div>
+							
+							{goalType !== 'none' && (
+								<div className="flex items-center gap-3">
+									<label className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[80px]">
+										{goalType === 'reps' ? 'Reps:' : 'Seconds:'}
+									</label>
+									<input 
+										aria-label="Goal value" 
+										type="number" 
+										min={1} 
+										value={goalValue} 
+										onChange={(e) => setGoalValue(parseInt(e.target.value || '0', 10))} 
+										className="flex-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+										placeholder={goalType==='time' ? '60' : '20'} 
+									/>
+								</div>
+							)}
+							
+							<div className="flex items-center gap-3">
+								<label className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[80px]">Calibration:</label>
+								<Button 
+									onClick={() => setShowCalib(true)} 
+									className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-4 py-2 rounded-lg font-medium transition-all transform hover:scale-105 shadow-md"
+								>
+									<Icon name="settings" className="w-4 h-4" />
+									<span>Calibrate Form</span>
+								</Button>
+							</div>
+						</div>
+						
+						{goalType !== 'none' && (
+							<div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3 border border-blue-200/50 dark:border-blue-800/50">
+								<div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+									<Icon name="lightbulb" className="w-4 h-4" />
+									<span className="font-medium">Smart Tip:</span>
+								</div>
+								<p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+									{goalType === 'reps' 
+										? `Aim for ${goalValue} quality reps with perfect form. Quality over quantity!`
+										: `Complete ${goalValue} seconds of focused exercise. Maintain steady pace!`
+									}
+								</p>
+							</div>
+						)}
+					</div>
+					{/* Main Action Button */}
+					<Button 
+						onClick={handleStartPause} 
+						className={`w-full py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 shadow-lg ${
+							running 
+								? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600' 
+								: 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+						} text-white`}
+					>
+						<Icon name={running ? 'stop' : 'play'} className="w-6 h-6" />
+						{running ? '⏸️ Pause Session' : '▶️ Start Session'}
+					</Button>
+					
+					{/* Rest Timer Buttons */}
+					<div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+						<div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+							<Icon name="clock" className="w-4 h-4" />
+							Quick Rest
+						</div>
+						<div className="grid grid-cols-3 gap-2">
+							<Button 
+								onClick={() => startRest(30)} 
+								className="py-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-lg font-medium transition-all"
+							>
+								⏱️ 30s
+							</Button>
+							<Button 
+								onClick={() => startRest(60)} 
+								className="py-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-lg font-medium transition-all"
+							>
+								⏱️ 60s
+							</Button>
+							<Button 
+								onClick={() => startRest(90)} 
+								className="py-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-lg font-medium transition-all"
+							>
+								⏱️ 90s
+							</Button>
 						</div>
 					</div>
-					<button onClick={handleStartPause} className="w-full py-3 rounded-lg bg-black text-white">{running ? 'Pause' : 'Start'} Session</button>
-					<div className="grid grid-cols-3 gap-2"><button onClick={() => startRest(30)} className="py-2 rounded bg-gray-200">Rest 30s</button><button onClick={() => startRest(60)} className="py-2 rounded bg-gray-200">Rest 60s</button><button onClick={() => startRest(90)} className="py-2 rounded bg-gray-200">Rest 90s</button></div>
-					<button onClick={undoLastRep} className="w-full py-3 rounded-lg bg-gray-200">Undo last rep</button>
-					<button onClick={endSession} className="w-full py-3 rounded-lg bg-gray-200">End & Save</button>
-					<div className="flex gap-2">
-						<Link href="/health" className="flex-1 text-center py-2 rounded-lg bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-colors">
-							Health Dashboard
-						</Link>
-						<Link href="/history" className="flex-1 text-center py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors">
-							History
-						</Link>
+					
+					{/* Secondary Actions */}
+					<div className="grid grid-cols-2 gap-3">
+						<Button 
+							onClick={undoLastRep} 
+							className="py-3 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:hover:bg-orange-800 text-orange-700 dark:text-orange-300 rounded-lg font-medium transition-all"
+						>
+							<Icon name="refresh" className="w-4 h-4" />
+							Undo Rep
+						</Button>
+						<Button 
+							onClick={endSession} 
+							className="py-3 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-800 text-purple-700 dark:text-purple-300 rounded-lg font-medium transition-all"
+						>
+							<Icon name="save" className="w-4 h-4" />
+							Save & End
+						</Button>
+					</div>
+					{/* Navigation Links */}
+					<div className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-xl p-3">
+						<div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+							<Icon name="home" className="w-4 h-4" />
+							Quick Navigation
+						</div>
+						<div className="grid grid-cols-2 gap-2">
+							<Link 
+								href="/health" 
+								className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-all transform hover:scale-105"
+							>
+								<Icon name="activity" className="w-4 h-4" />
+								<span className="text-sm font-medium">Health</span>
+							</Link>
+							<Link 
+								href="/history" 
+								className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-all transform hover:scale-105"
+							>
+								<Icon name="bar-chart-2" className="w-4 h-4" />
+								<span className="text-sm font-medium">History</span>
+							</Link>
+						</div>
 					</div>
 				</div>
 			</main>

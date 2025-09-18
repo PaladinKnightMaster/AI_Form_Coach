@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useMemo, useState } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
+import { FormIQTrending } from '@/components/FormIQTrending';
 
 export default function History() {
-	type S = { id: string; exercise: string; started_at: string; total_reps: number | null; total_time_seconds: number | null; is_demo?: boolean };
+	type S = { id: string; exercise: string; started_at: string; total_reps: number | null; total_time_seconds: number | null; formIQ?: number; sideBalance?: number; is_demo?: boolean };
 	type R = { session_id: string; rom_score: number | null; start_ms: number; end_ms: number };
 	const [sessions, setSessions] = useState<S[]>([]);
 	const [reps, setReps] = useState<R[]>([]);
@@ -34,12 +35,21 @@ export default function History() {
 			const totalTimeSeconds = durationMinutes * 60;
 			
 			const sessionId = `demo_${i}`;
+			
+			// Generate demo Form IQ and side balance
+			const formIQ = Math.random() * 0.4 + 0.6; // 0.6 to 1.0 range
+			const sideBalance = exercise !== 'plank' 
+				? Math.random() * 0.3 + 0.35 // 0.35 to 0.65 range (some imbalance)
+				: undefined;
+			
 			demoSession.push({
 				id: sessionId,
 				exercise,
 				started_at: startedAt.toISOString(),
 				total_reps: totalReps,
 				total_time_seconds: totalTimeSeconds,
+				formIQ,
+				sideBalance,
 				is_demo: true
 			});
 			
@@ -169,11 +179,20 @@ export default function History() {
 				<InsightCard title="Consistency streak" value={`${insights.streak} days`} />
 			</div>
 			{/* Badges */}
-			<div className="flex items-center gap-2 flex-wrap">
+			<div className="flex items-center gap-2 flex-wrap mb-6">
 				{insights.badges.streak7 && <Badge label="7-day streak" />}
 				{insights.badges.reps100 && <Badge label="100+ total reps" />}
 				{insights.badges.rom90 && <Badge label="Best ROM ≥ 0.90" />}
 			</div>
+
+			{/* Form IQ Trending - New Feature */}
+			{(sessions.length > 0 || showDemo) && (
+				<FormIQTrending 
+					sessions={sessions} 
+					isPro={false} // TODO: Replace with actual subscription status
+					className="mb-6"
+				/>
+			)}
 			{sessions.length === 0 ? (
 				<div className="rounded-lg border-2 border-dashed border-gray-200 p-8 text-center">
 					<div className="max-w-md mx-auto">

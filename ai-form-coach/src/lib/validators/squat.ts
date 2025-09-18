@@ -1,6 +1,7 @@
 import { angleBetween, clamp } from '../math/poseMath';
 import type { Validator, ValidatorState, ValidatorConfig } from './types';
 import type { SmoothedLandmark } from '../pose';
+import { calculateFormIQ, calculateSideBalance } from './formIQ';
 
 const L = { HIP: 23, KNEE: 25, ANKLE: 27 } as const;
 const R = { HIP: 24, KNEE: 26, ANKLE: 28 } as const;
@@ -58,8 +59,28 @@ export function createSquatValidator(): Validator {
 		}
 
 		if (state.phase === 'up' && depth < upDepth && currentRepStart !== null) {
+			// Calculate side balance for this rep
+			const sideBalanceData = calculateSideBalance(lm, 'squat');
+			
+			// Create rep metric with enhanced data
+			const repMetric = { 
+				startTs: currentRepStart, 
+				endTs: ts, 
+				peakDepth,
+				sideBalance: sideBalanceData?.balanceScore
+			};
+			
 			state.repCount += 1;
-			state.metrics.push({ startTs: currentRepStart, endTs: ts, peakDepth });
+			state.metrics.push(repMetric);
+			
+			// Calculate Form IQ for all reps so far
+			const formIQMetrics = calculateFormIQ(state.metrics, 'squat', sideBalanceData);
+			
+			// Update the latest rep with Form IQ
+			if (state.metrics.length > 0) {
+				state.metrics[state.metrics.length - 1].formIQ = formIQMetrics.formIQ;
+			}
+			
 			currentRepStart = null;
 			peakDepth = 0;
 			state.phase = 'idle';
