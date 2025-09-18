@@ -24,6 +24,7 @@ export default function NutritionPage() {
 	const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast');
 	const [showGoalsPanel, setShowGoalsPanel] = useState(false);
 	const [showProgressPanel, setShowProgressPanel] = useState(false);
+	const [activeTab, setActiveTab] = useState<'overview' | 'insights'>('overview');
 	const [goals] = useState<MacroGoals>({
 		calories: 2000,
 		protein: 150,
@@ -179,8 +180,43 @@ export default function NutritionPage() {
 						/>
 					</div>
 
-					{/* Macro Rings */}
-					<div className="card p-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
+					{/* Tab Navigation */}
+					<div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg">
+						<div className="flex border-b border-gray-200 dark:border-gray-700">
+							<button
+								onClick={() => setActiveTab('overview')}
+								className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+									activeTab === 'overview'
+										? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+										: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+								}`}
+							>
+								<div className="flex items-center justify-center gap-2">
+									<Icon name="chart" className="w-4 h-4" />
+									Overview
+								</div>
+							</button>
+							<button
+								onClick={() => setActiveTab('insights')}
+								className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+									activeTab === 'insights'
+										? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+										: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+								}`}
+							>
+								<div className="flex items-center justify-center gap-2">
+									<Icon name="lightbulb" className="w-4 h-4" />
+									Insights
+								</div>
+							</button>
+						</div>
+					</div>
+
+					{/* Tab Content */}
+					{activeTab === 'overview' && (
+						<>
+							{/* Macro Rings */}
+							<div className="card p-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
 						<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
 							Daily Summary
 						</h2>
@@ -220,23 +256,30 @@ export default function NutritionPage() {
 						</div>
 					</div>
 
-					{/* Nutrition Insights */}
-					<NutritionInsights totals={totals} goals={goals} />
 
-					{/* Meals */}
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-						{(['breakfast', 'lunch', 'dinner', 'snack'] as const).map(mealType => {
-							const meal = nutritionDay?.meals[mealType] || null;
-							return (
-								<MealCard
-									key={mealType}
-									meal={meal}
-									mealType={mealType}
-									onAddFood={() => handleAddFood(mealType)}
-								/>
-							);
-						})}
-					</div>
+							{/* Meals */}
+							<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+								{(['breakfast', 'lunch', 'dinner', 'snack'] as const).map(mealType => {
+									const meal = nutritionDay?.meals[mealType] || null;
+									return (
+										<MealCard
+											key={mealType}
+											meal={meal}
+											mealType={mealType}
+											onAddFood={() => handleAddFood(mealType)}
+										/>
+									);
+								})}
+							</div>
+						</>
+					)}
+
+					{/* Insights Tab */}
+					{activeTab === 'insights' && (
+						<div className="space-y-6">
+							<NutritionInsights />
+						</div>
+					)}
 				</div>
 			</Container>
 

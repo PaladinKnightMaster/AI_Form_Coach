@@ -33,7 +33,7 @@ export default function Coach() {
 	const [exercise, setExercise] = useState<Exercise>('squat');
 	const [currentPlan, setCurrentPlan] = useState<{ id: string; name: string } | null>(null);
 	const [activePlan, setActivePlan] = useState<UserPlan | null>(null);
-	const [progressionTarget, setProgressionTarget] = useState<WorkoutTarget | null>(null);
+	const [, setProgressionTarget] = useState<WorkoutTarget | null>(null);
 	const [readinessAssessment, setReadinessAssessment] = useState<ReadinessAssessment | null>(null);
 	const [running, setRunning] = useState(false);
 	const [saving, setSaving] = useState(false);
@@ -100,6 +100,20 @@ export default function Coach() {
 	// useEffect(() => { setTemplate(template); }, [template]);
 
 	useEffect(() => { setMuted(muted); }, [muted]);
+
+	// Load plan data function
+	const loadPlanData = useCallback(async (planId: string) => {
+		try {
+			const response = await fetch(`/api/plans/user?id=${planId}`);
+			if (response.ok) {
+				const plan = await response.json();
+				setActivePlan(plan);
+			}
+		} catch (error) {
+			console.error('Error loading plan data:', error);
+		}
+	}, []);
+
 	// Handle welcome message and first-run tutorial
 	useEffect(() => {
 		// Show welcome toast if coming from auth
@@ -133,7 +147,7 @@ export default function Coach() {
 		
 		// Original tutorial logic
 		try { if (!localStorage.getItem('afc_tutorial_seen')) setShowTutorial(true); } catch {		}
-	}, [searchParams]);
+	}, [searchParams, loadPlanData]);
 
 	// Progression handlers
 	const handleProgressionTargetUpdate = (target: WorkoutTarget) => {
@@ -156,17 +170,6 @@ export default function Coach() {
 		setActivePlan(updatedPlan);
 	}, []);
 
-	const loadPlanData = useCallback(async (planId: string) => {
-		try {
-			const response = await fetch(`/api/plans/user?id=${planId}`);
-			if (response.ok) {
-				const plan = await response.json();
-				setActivePlan(plan);
-			}
-		} catch (error) {
-			console.error('Error loading plan data:', error);
-		}
-	}, []);
 	// Keyboard help opener
 	const onHelpKey = useCallback((e: KeyboardEvent) => { if (e.key === '?') setShowHelp(true); }, []);
 	useEffect(() => { window.addEventListener('keydown', onHelpKey); return () => window.removeEventListener('keydown', onHelpKey); }, [onHelpKey]);
