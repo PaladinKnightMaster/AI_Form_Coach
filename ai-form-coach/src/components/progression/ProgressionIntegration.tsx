@@ -10,16 +10,12 @@ interface ProgressionIntegrationProps {
   exercise: 'squat' | 'pushup' | 'plank';
   onTargetUpdate: (target: WorkoutTarget) => void;
   onReadinessUpdate: (readiness: ReadinessAssessment | null) => void;
-  currentGoalType: 'none' | 'reps' | 'time';
-  currentGoalValue: number;
 }
 
 export default function ProgressionIntegration({
   exercise,
   onTargetUpdate,
-  onReadinessUpdate,
-  currentGoalType,
-  currentGoalValue
+  onReadinessUpdate
 }: ProgressionIntegrationProps) {
   const [engine] = useState(() => new ProgressionEngine());
   const [sessionHistory, setSessionHistory] = useState<SessionMetrics[]>([]);
@@ -29,7 +25,7 @@ export default function ProgressionIntegration({
   const [showReadinessModal, setShowReadinessModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
+  const { success: showSuccess, error: showError } = useToastContext();
 
   // Load progression data
   useEffect(() => {

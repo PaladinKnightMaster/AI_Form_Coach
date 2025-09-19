@@ -6,7 +6,7 @@ import { FeatureCarousel } from '@/components/FeatureCarousel';
 
 export default function Home() {
 	return (
-		<div className="relative">
+		<div className="relative bg-white dark:bg-gray-900">
 			{/* Hero Section with Diagonal Slash Layout */}
 			<HeroGradientBackground className="min-h-screen relative overflow-hidden">
 				{/* Diagonal slash divider */}
@@ -20,23 +20,39 @@ export default function Home() {
 						{/* Top-Left: Hero Content */}
 						<div className="lg:col-span-7 lg:row-start-1 flex flex-col justify-start pt-4 lg:pt-12">
 							<div className="text-center lg:text-left">
-								<Badge tone="success" className="animate-bounce mb-6 bg-green-500/20 text-green-300 border-green-400/30">
+								<Badge tone="success" size="lg" className="animate-bounce mb-6 bg-green-500/20 text-green-300 border-green-400/30">
 									🚀 AI-Powered Fitness
 								</Badge>
 								<h1 className="text-4xl font-extrabold tracking-tight mb-6 sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight">
-									Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">Personal AI</span> Fitness Coach
+									Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400 animate-pulse">Personal AI</span> Fitness Coach
 								</h1>
 								<p className="text-lg lg:text-xl text-gray-200 mb-8 leading-relaxed max-w-xl">
 									Transform your workouts with real-time form correction, AI-driven plans, and smart nutrition tracking.
 								</p>
+								
+								{/* Trust Indicators */}
+								<div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 mb-8 text-sm text-gray-300">
+									<div className="flex items-center gap-2">
+										<div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+										<span>50K+ Active Users</span>
+									</div>
+									<div className="flex items-center gap-2">
+										<div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+										<span>4.9★ Rating</span>
+									</div>
+									<div className="flex items-center gap-2">
+										<div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+										<span>99.9% Uptime</span>
+									</div>
+								</div>
 								<div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mb-8">
 									<Link href="/coach">
-										<Button variant="primary" className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+										<Button variant="primary" size="xl" className="w-full sm:w-auto transform hover:scale-105 transition-all duration-300">
 											Start Free Workout <Icon name="chevron-right" className="ml-2" />
 										</Button>
 									</Link>
 									<Link href="/signin">
-										<Button variant="secondary" className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/20 px-8 py-4 text-lg font-semibold backdrop-blur-sm">
+										<Button variant="secondary" size="xl" className="w-full sm:w-auto">
 											Sign In <Icon name="user" className="ml-2" />
 										</Button>
 									</Link>
@@ -70,8 +86,8 @@ export default function Home() {
 								</div>
 								{/* Background glow */}
 								<div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-2xl blur-xl -z-10 animate-pulse"></div>
-							</div>
 						</div>
+					</div>
 
 						{/* Top-Right: Rainbow Diagonal Text Effect */}
 						<div className="lg:col-span-5 lg:row-start-1 flex items-start justify-center lg:justify-end pt-16">
@@ -81,9 +97,9 @@ export default function Home() {
 								</div>
 								<div className="text-4xl lg:text-6xl xl:text-7xl font-bold leading-none -mt-4 animate-rainbow opacity-25" style={{ animationDelay: '1s' }}>
 									FITNESS
-								</div>
 							</div>
 						</div>
+					</div>
 
 						{/* Bottom-Right: Feature Carousel - More Right Position */}
 						<div className="lg:col-span-8 lg:col-start-5 lg:row-start-2 flex flex-col justify-end pb-4 lg:-mr-8">
@@ -93,19 +109,19 @@ export default function Home() {
 								</Badge>
 								<h2 className="text-xl lg:text-2xl font-bold text-white mb-2">
 									<span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400">AI-Powered</span> Tools
-								</h2>
+							</h2>
 								<p className="text-gray-200 text-sm lg:mr-0">
 									Explore cutting-edge features designed for your success.
-								</p>
-							</div>
-							
+							</p>
+						</div>
+						
 							{/* 1.5x Taller, 3x Wider Feature Carousel - Tight Right */}
 							<div className="transform lg:rotate-1 hover:rotate-0 transition-transform duration-700 lg:mr-0">
 								<FeatureCarousel />
+										</div>
+									</div>
+								</div>
 							</div>
-						</div>
-					</div>
-				</div>
 				
 				{/* Enhanced curved bottom section */}
 				<div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-50 to-transparent"></div>
@@ -113,35 +129,35 @@ export default function Home() {
 					<svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-20">
 						<path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#f9fafb"/>
 					</svg>
-				</div>
+								</div>
 			</HeroGradientBackground>
 
 			{/* Compact Stats Section */}
 			<Section className="relative -mt-10 z-10 bg-gray-50 py-16">
 				<Container>
-					<div className="text-center mb-12">
+						<div className="text-center mb-12">
 						<Badge tone="success" className="mb-4 bg-blue-100 text-blue-800 border-blue-200">
 							📊 Trusted Worldwide
 						</Badge>
 						<h2 className="text-3xl font-bold mb-4 text-gray-900">
 							Join <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">50,000+</span> Users
-						</h2>
-					</div>
-					
+							</h2>
+						</div>
+						
 					{/* Compact stats grid */}
 					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
 						<div className="text-center p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 hover:shadow-lg transition-all duration-300">
 							<div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-1">50K+</div>
 							<div className="text-sm font-semibold text-gray-800">Active Users</div>
-						</div>
+								</div>
 						<div className="text-center p-4 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 border border-green-100 hover:shadow-lg transition-all duration-300">
 							<div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-teal-600 mb-1">1M+</div>
 							<div className="text-sm font-semibold text-gray-800">Workouts</div>
-						</div>
+							</div>
 						<div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 hover:shadow-lg transition-all duration-300">
 							<div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-1">95%</div>
 							<div className="text-sm font-semibold text-gray-800">Satisfaction</div>
-						</div>
+										</div>
 						<div className="text-center p-4 rounded-xl bg-gradient-to-br from-orange-50 to-red-50 border border-orange-100 hover:shadow-lg transition-all duration-300">
 							<div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-1">24/7</div>
 							<div className="text-sm font-semibold text-gray-800">AI Support</div>
@@ -161,13 +177,13 @@ export default function Home() {
 				
 				<Container>
 					<div className="py-20 pt-28">
-						<div className="text-center mb-12">
+					<div className="text-center mb-12">
 							<Badge tone="success" className="mb-4 bg-white/20 text-white border-white/30">
 								🎯 How It Works
 							</Badge>
 							<h2 className="text-3xl font-bold mb-4 text-white">Get Started in 3 Steps</h2>
-						</div>
-
+					</div>
+					
 						{/* Compact 3-step process */}
 						<div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
 							<div className="text-center group">
@@ -184,8 +200,8 @@ export default function Home() {
 								</div>
 								<h3 className="text-xl font-bold mb-3 text-white">Start Session</h3>
 								<p className="text-gray-200 text-sm leading-relaxed">Position yourself and let AI analyze your form.</p>
-							</div>
-							
+						</div>
+						
 							<div className="text-center group">
 								<div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold border border-white/20 group-hover:scale-110 transition-transform duration-300">
 									3
@@ -202,7 +218,7 @@ export default function Home() {
 					<svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-20">
 						<path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
 					</svg>
-				</div>
+					</div>
 			</NutritionGradientBackground>
 
 			{/* Compact Testimonials Section */}
@@ -223,12 +239,12 @@ export default function Home() {
 							<div className="flex items-center mb-4">
 								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mr-3 shadow-lg">
 									<span className="text-white font-bold">S</span>
-								</div>
-								<div>
+									</div>
+									<div>
 									<h4 className="font-bold text-gray-900">Sarah J.</h4>
 									<div className="flex text-yellow-400 text-sm">{'★'.repeat(5)}</div>
+									</div>
 								</div>
-							</div>
 							<p className="text-gray-700 text-sm leading-relaxed italic">&ldquo;Completely transformed my workouts. Amazing results!&rdquo;</p>
 						</div>
 						
@@ -236,25 +252,25 @@ export default function Home() {
 							<div className="flex items-center mb-4">
 								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center mr-3 shadow-lg">
 									<span className="text-white font-bold">M</span>
-								</div>
-								<div>
+									</div>
+									<div>
 									<h4 className="font-bold text-gray-900">Mike C.</h4>
 									<div className="flex text-yellow-400 text-sm">{'★'.repeat(5)}</div>
+									</div>
 								</div>
-							</div>
 							<p className="text-gray-700 text-sm leading-relaxed italic">&ldquo;AI feedback is incredibly accurate. Like having a 24/7 coach!&rdquo;</p>
-						</div>
+									</div>
 						
 						<div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-orange-100">
 							<div className="flex items-center mb-4">
 								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mr-3 shadow-lg">
 									<span className="text-white font-bold">E</span>
-								</div>
-								<div>
+									</div>
+									<div>
 									<h4 className="font-bold text-gray-900">Emma R.</h4>
 									<div className="flex text-yellow-400 text-sm">{'★'.repeat(5)}</div>
+									</div>
 								</div>
-							</div>
 							<p className="text-gray-700 text-sm leading-relaxed italic">&ldquo;Nutrition tracking is so intuitive. Saves tons of time!&rdquo;</p>
 						</div>
 					</div>
@@ -288,11 +304,11 @@ export default function Home() {
 								</Button>
 							</Link>
 							<Link href="/pricing">
-								<Button variant="secondary" className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/20 px-8 py-4 text-lg font-semibold backdrop-blur-sm">
+								<Button variant="secondary" className="w-full sm:w-auto bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 px-8 py-4 text-lg font-semibold backdrop-blur-sm">
 									View Pricing <Icon name="chevron-right" className="ml-2" />
 								</Button>
 							</Link>
-						</div>
+					</div>
 					</div>
 				</Container>
 			</PlansGradientBackground>

@@ -143,7 +143,7 @@ function calculateStabilityScore(metrics: RepMetric[]): number {
   if (metrics.length === 0) return 0;
 
   let totalFlags = 0;
-  let totalReps = metrics.length;
+	const totalReps = metrics.length;
 
   for (const metric of metrics) {
     totalFlags += metric.romFlags?.length ?? 0;

@@ -126,7 +126,7 @@ export default function HealthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-cyan-900/30 dark:to-indigo-900/30 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
           <span className="text-gray-600 dark:text-gray-400">Loading health data...</span>
@@ -136,16 +136,21 @@ export default function HealthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-cyan-900/30 dark:to-indigo-900/30">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Health Dashboard
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            AI-powered readiness assessment using your health data
-          </p>
+        <div className="text-center space-y-6 mb-12">
+          <div className="space-y-4">
+            <Badge tone="info" size="lg" className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800">
+              🏥 Health Intelligence
+            </Badge>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Health Dashboard
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              AI-powered readiness assessment using your health data for optimal workout planning
+            </p>
+          </div>
         </div>
 
         {/* Health Data Connection Explanation */}

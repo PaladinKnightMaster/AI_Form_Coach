@@ -161,7 +161,7 @@ export async function PATCH(request: NextRequest) {
     }
     
     // Update user plan
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (typeof is_active === 'boolean') updateData.is_active = is_active;
     if (current_week) updateData.current_week = current_week;
     if (current_day) updateData.current_day = current_day;

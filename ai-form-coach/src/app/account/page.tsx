@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
+import { Badge } from '@/ui/DS';
 
 export default function Account() {
 	const [email, setEmail] = useState<string>('');
@@ -24,8 +25,19 @@ export default function Account() {
 	}
 
 	return (
-		<div className="p-6 max-w-2xl mx-auto space-y-4">
-			<h1 className="text-2xl font-semibold">Account</h1>
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 dark:from-slate-900 dark:via-gray-900/30 dark:to-zinc-900/30">
+			<div className="p-6 max-w-4xl mx-auto space-y-8">
+				<div className="text-center space-y-4">
+					<Badge tone="neutral" size="lg" className="bg-gradient-to-r from-slate-500/20 to-gray-500/20 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800">
+						👤 Account Management
+					</Badge>
+					<h1 className="text-5xl font-bold bg-gradient-to-r from-slate-600 via-gray-600 to-zinc-600 bg-clip-text text-transparent">
+						Account Settings
+					</h1>
+					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+						Manage your account, subscription, and preferences
+					</p>
+				</div>
 			<div className="rounded-lg border p-4">
 				<div className="mb-2">Signed in as <span className="font-medium">{email}</span></div>
 				<div className="flex items-center gap-2">

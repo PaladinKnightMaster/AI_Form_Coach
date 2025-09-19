@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { FormIQTrending } from '@/components/FormIQTrending';
+import { Badge } from '@/ui/DS';
 
 export default function History() {
 	type S = { id: string; exercise: string; started_at: string; total_reps: number | null; total_time_seconds: number | null; formIQ?: number; sideBalance?: number; is_demo?: boolean };
@@ -145,26 +146,38 @@ export default function History() {
 	}, [sessions, reps]);
 
 	return (
-		<div className="p-6 max-w-5xl mx-auto space-y-4">
-			<div className="flex items-center justify-between">
-				<h1 className="text-2xl font-semibold">History</h1>
+		<div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-indigo-900/30 dark:to-purple-900/30">
+			<div className="p-6 max-w-5xl mx-auto space-y-6">
+				<div className="text-center space-y-4">
+					<Badge tone="info" size="lg" className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800">
+						📊 Progress Tracking
+					</Badge>
+					<h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+						Workout History
+					</h1>
+					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+						Track your fitness journey and see your improvements over time
+					</p>
+				</div>
 				{showDemo && (
-					<button
-						onClick={handleHideDemo}
-						className="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200 transition-colors"
-					>
-						Exit Demo
-					</button>
+					<div className="flex justify-center">
+						<button
+							onClick={handleHideDemo}
+							className="px-3 py-1 text-sm bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-full hover:bg-orange-200 dark:hover:bg-orange-900/30 transition-colors"
+						>
+							Exit Demo
+						</button>
+					</div>
 				)}
 			</div>
 
 			{showDemo && (
-				<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+				<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
 					<div className="flex items-center gap-2">
 						<div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-						<span className="text-blue-800 font-medium">Demo Mode</span>
+						<span className="text-blue-800 dark:text-blue-300 font-medium">Demo Mode</span>
 					</div>
-					<p className="text-blue-700 text-sm mt-1">
+					<p className="text-blue-700 dark:text-blue-300 text-sm mt-1">
 						This is sample data showing how your workout history will look. Start your first workout on the Coach page to see real data here.
 					</p>
 				</div>
@@ -180,9 +193,9 @@ export default function History() {
 			</div>
 			{/* Badges */}
 			<div className="flex items-center gap-2 flex-wrap mb-6">
-				{insights.badges.streak7 && <Badge label="7-day streak" />}
-				{insights.badges.reps100 && <Badge label="100+ total reps" />}
-				{insights.badges.rom90 && <Badge label="Best ROM ≥ 0.90" />}
+				{insights.badges.streak7 && <Badge tone="success">7-day streak</Badge>}
+				{insights.badges.reps100 && <Badge tone="info">100+ total reps</Badge>}
+				{insights.badges.rom90 && <Badge tone="warning">Best ROM ≥ 0.90</Badge>}
 			</div>
 
 			{/* Form IQ Trending - New Feature */}
@@ -194,11 +207,11 @@ export default function History() {
 				/>
 			)}
 			{sessions.length === 0 ? (
-				<div className="rounded-lg border-2 border-dashed border-gray-200 p-8 text-center">
+				<div className="rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 p-8 text-center">
 					<div className="max-w-md mx-auto">
 						<div className="text-6xl mb-4">🏋️</div>
-						<h3 className="text-lg font-semibold text-gray-900 mb-2">No workout sessions yet</h3>
-						<p className="text-gray-600 mb-6">
+						<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No workout sessions yet</h3>
+						<p className="text-gray-600 dark:text-gray-300 mb-6">
 							Start your fitness journey by completing your first workout session. Track your progress and see your improvements over time.
 						</p>
 						<div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -210,7 +223,7 @@ export default function History() {
 							</a>
 							<button
 								onClick={handleShowDemo}
-								className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+								className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
 							>
 								See Demo
 							</button>
@@ -220,18 +233,18 @@ export default function History() {
 			) : (
 				<ul className="space-y-3">
 					{sessions.map((s) => (
-						<li key={s.id} className="rounded-lg border p-4 flex items-center justify-between">
+						<li key={s.id} className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-4 flex items-center justify-between">
 							<div>
-								<div className="font-medium capitalize flex items-center gap-2">
+								<div className="font-medium capitalize flex items-center gap-2 text-gray-900 dark:text-white">
 									{s.exercise}
-									{s.is_demo && <span className="px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded-full">Demo</span>}
+									{s.is_demo && <span className="px-2 py-1 text-xs bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-full">Demo</span>}
 								</div>
-								<div className="text-sm opacity-70">{new Date(s.started_at).toLocaleString()}</div>
+								<div className="text-sm text-gray-600 dark:text-gray-400">{new Date(s.started_at).toLocaleString()}</div>
 							</div>
 							{s.is_demo ? (
-								<span className="text-gray-400 text-sm">Demo Session</span>
+								<span className="text-gray-400 dark:text-gray-500 text-sm">Demo Session</span>
 							) : (
-								<a className="text-blue-600 hover:text-blue-800" href={`/session/${s.id}`}>Open</a>
+								<a className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" href={`/session/${s.id}`}>Open</a>
 							)}
 						</li>
 					))}
@@ -243,11 +256,9 @@ export default function History() {
 
 function InsightCard({ title, value }: { title: string; value: string }) {
 	return (
-		<div className="rounded-lg border p-4">
-			<div className="text-sm opacity-70">{title}</div>
-			<div className="text-xl font-semibold">{value}</div>
+		<div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-4">
+			<div className="text-sm text-gray-600 dark:text-gray-400">{title}</div>
+			<div className="text-xl font-semibold text-gray-900 dark:text-white">{value}</div>
 		</div>
 	);
 }
-
-function Badge({ label }: { label: string }) { return <span className="px-2 py-1 rounded-full bg-emerald-600/15 text-emerald-700 text-xs">{label}</span>; } 

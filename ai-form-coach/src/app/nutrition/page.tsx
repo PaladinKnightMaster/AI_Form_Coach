@@ -1,10 +1,9 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Container, Button, Icon } from '@/ui/DS';
-import Link from 'next/link';
+import { Container, Button, Icon, Badge } from '@/ui/DS';
 import { getSupabaseClient } from '@/lib/supabase/client';
-import type { NutritionDay, MacroGoals, Food } from '@/types/nutrition';
+import type { NutritionDay, MacroGoals } from '@/types/nutrition';
 import MacroRing from '@/components/nutrition/MacroRing';
 import MealCard from '@/components/nutrition/MealCard';
 import NutritionInsights from '@/components/nutrition/NutritionInsights';
@@ -96,16 +95,6 @@ export default function NutritionPage() {
 		setShowQuickAddModal(true);
 	};
 
-	const handleFoodSelect = (food: Food) => {
-		// Navigate to add food page with pre-selected food
-		const params = new URLSearchParams({
-			meal_type: selectedMealType,
-			date: selectedDate,
-			food_id: food.id
-		});
-		router.push(`/nutrition/add?${params.toString()}`);
-		setShowQuickAddModal(false);
-	};
 
 	const totals = nutritionDay?.totals || {
 		total_calories: 0,
@@ -128,24 +117,28 @@ export default function NutritionPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+		<div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-slate-900 dark:via-emerald-900/30 dark:to-teal-900/30">
 			<Container>
 				<div className="py-8 space-y-8">
 					{/* Header */}
 					<div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
 						<div className="flex-1">
-							<h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-2">
-								Nutrition Tracker
-							</h1>
-							<p className="text-gray-600 dark:text-gray-400 text-lg">
-								Track your daily nutrition and achieve your health goals
-							</p>
+							<div className="space-y-4">
+								<Badge tone="success" size="lg" className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800">
+									🥗 Smart Nutrition
+								</Badge>
+								<h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
+									Nutrition Tracker
+								</h1>
+								<p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+									Track your daily nutrition and achieve your health goals with AI-powered insights
+								</p>
+							</div>
 						</div>
 						<div className="flex flex-wrap items-center gap-3">
 							<Button 
 								variant="secondary" 
 								onClick={() => setShowGoalsPanel(true)}
-								className="bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-200"
 							>
 								<Icon name="target" className="w-4 h-4" />
 								Goals
@@ -153,7 +146,6 @@ export default function NutritionPage() {
 							<Button 
 								variant="secondary" 
 								onClick={() => setShowProgressPanel(true)}
-								className="bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-200"
 							>
 								<Icon name="trending-up" className="w-4 h-4" />
 								Progress
@@ -164,7 +156,7 @@ export default function NutritionPage() {
 									setSelectedMealType('breakfast');
 									setShowQuickAddModal(true);
 								}}
-								className="bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+								className="transform hover:scale-105"
 							>
 								<Icon name="plus" className="w-4 h-4" />
 								Quick Add Food
@@ -173,7 +165,7 @@ export default function NutritionPage() {
 					</div>
 
 					{/* Date Picker */}
-					<div className="card p-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
+					<div className="card p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
 						<DatePicker 
 							selectedDate={selectedDate}
 							onDateChange={setSelectedDate}
@@ -181,13 +173,13 @@ export default function NutritionPage() {
 					</div>
 
 					{/* Tab Navigation */}
-					<div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg">
+					<div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg">
 						<div className="flex border-b border-gray-200 dark:border-gray-700">
 							<button
 								onClick={() => setActiveTab('overview')}
 								className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
 									activeTab === 'overview'
-										? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+										? 'text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 dark:border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20'
 										: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50'
 								}`}
 							>
@@ -200,7 +192,7 @@ export default function NutritionPage() {
 								onClick={() => setActiveTab('insights')}
 								className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
 									activeTab === 'insights'
-										? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+										? 'text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 dark:border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20'
 										: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50'
 								}`}
 							>
@@ -216,46 +208,45 @@ export default function NutritionPage() {
 					{activeTab === 'overview' && (
 						<>
 							{/* Macro Rings */}
-							<div className="card p-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
-						<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-							Daily Summary
-						</h2>
-						<div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-							<MacroRing
-								label="Calories"
-								value={totals.total_calories}
-								goal={goals.calories}
-								unit="cal"
-								color="text-blue-500"
-								size="lg"
-							/>
-							<MacroRing
-								label="Protein"
-								value={totals.total_protein}
-								goal={goals.protein}
-								unit="g"
-								color="text-red-500"
-								size="lg"
-							/>
-							<MacroRing
-								label="Carbs"
-								value={totals.total_carbs}
-								goal={goals.carbs}
-								unit="g"
-								color="text-green-500"
-								size="lg"
-							/>
-							<MacroRing
-								label="Fat"
-								value={totals.total_fat}
-								goal={goals.fat}
-								unit="g"
-								color="text-yellow-500"
-								size="lg"
-							/>
-						</div>
-					</div>
-
+							<div className="card p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
+								<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+									Daily Summary
+								</h2>
+								<div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+									<MacroRing
+										label="Calories"
+										value={totals.total_calories}
+										goal={goals.calories}
+										unit="cal"
+										color="text-blue-500"
+										size="lg"
+									/>
+									<MacroRing
+										label="Protein"
+										value={totals.total_protein}
+										goal={goals.protein}
+										unit="g"
+										color="text-red-500"
+										size="lg"
+									/>
+									<MacroRing
+										label="Carbs"
+										value={totals.total_carbs}
+										goal={goals.carbs}
+										unit="g"
+										color="text-green-500"
+										size="lg"
+									/>
+									<MacroRing
+										label="Fat"
+										value={totals.total_fat}
+										goal={goals.fat}
+										unit="g"
+										color="text-yellow-500"
+										size="lg"
+									/>
+								</div>
+							</div>
 
 							{/* Meals */}
 							<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient, getSupabaseServiceClient } from '@/lib/supabase/server';
+import { getSupabaseServiceClient } from '@/lib/supabase/server';
 import type { AddFoodRequest, NutritionDay } from '@/types/nutrition';
 
 export async function GET(req: NextRequest) {

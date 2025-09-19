@@ -4,6 +4,7 @@ import ThemeToggle from '@/ui/ThemeToggle';
 import AuthStatus from '@/components/AuthStatus';
 import { useEffect, useState } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
+import { Button, Icon } from '@/ui/DS';
 
 export default function SiteHeader() {
 	const [open, setOpen] = useState(false);
@@ -26,23 +27,49 @@ export default function SiteHeader() {
 		return () => document.removeEventListener('keydown', handleEscape);
 	}, [open]);
 	return (
-		<header className="border-b sticky top-0 z-40 backdrop-blur bg-white/70 dark:bg-black/30" role="banner" suppressHydrationWarning>
+		<header className="border-b sticky top-0 z-40 backdrop-blur bg-white/80 dark:bg-black/50 shadow-sm" role="banner" suppressHydrationWarning>
 			<a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-black text-white px-3 py-1 rounded z-50">Skip to content</a>
-			<div className="container flex items-center justify-between h-14">
-				<Link href="/" className="font-extrabold tracking-tight text-lg">AI Form Coach</Link>
-				<nav className="hidden md:flex items-center gap-5 text-sm" role="navigation" aria-label="Main navigation">
-					<Link href="/">Home</Link>
-					<Link href="/coach">Coach</Link>
-					<Link href="/nutrition">Nutrition</Link>
-					<Link href="/plans">Plans</Link>
-					<Link href="/health">Health</Link>
-					<Link href="/history">History</Link>
-					<Link href="/pricing">Pricing</Link>
-					<Link href="/faq">FAQ</Link>
-					<Link href="/privacy">Privacy</Link>
-					{isAuthed ? <Link href="/account">Account</Link> : null}
+			<div className="container flex items-center justify-between h-16">
+				<Link href="/" className="font-extrabold tracking-tight text-xl bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+					AI Form Coach
+				</Link>
+				<nav className="hidden md:flex items-center gap-6 text-sm" role="navigation" aria-label="Main navigation">
+					<Link href="/" className="hover:text-green-600 dark:hover:text-green-400 transition-colors">Home</Link>
+					<Link href="/coach" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+						<Icon name="activity" className="w-4 h-4" />
+						Coach
+					</Link>
+					<Link href="/nutrition" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+						<Icon name="heart" className="w-4 h-4" />
+						Nutrition
+					</Link>
+					<Link href="/plans" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+						<Icon name="calendar" className="w-4 h-4" />
+						Plans
+					</Link>
+					<Link href="/health" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+						<Icon name="trending-up" className="w-4 h-4" />
+						Health
+					</Link>
+					<Link href="/history" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+						<Icon name="bar-chart-2" className="w-4 h-4" />
+						History
+					</Link>
+					<Link href="/pricing" className="hover:text-green-600 dark:hover:text-green-400 transition-colors">Pricing</Link>
+					<Link href="/faq" className="hover:text-green-600 dark:hover:text-green-400 transition-colors">FAQ</Link>
+					{isAuthed ? <Link href="/account" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+						<Icon name="user" className="w-4 h-4" />
+						Account
+					</Link> : null}
 					<ThemeToggle />
-					{isAuthed ? <Link href="/coach" className="btn btn-primary">Start session</Link> : null}
+					{isAuthed ? (
+						<Link href="/coach">
+							<Button variant="primary" size="sm" className="flex items-center gap-2">
+								<Icon name="play" className="w-4 h-4" />
+								Start Session
+							</Button>
+						</Link>
+					) : null}
 					<AuthStatus />
 				</nav>
 				<button 

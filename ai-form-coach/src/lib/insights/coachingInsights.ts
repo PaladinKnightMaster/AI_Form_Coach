@@ -474,7 +474,7 @@ export function calculateHabitMetrics(sessions: Array<{ started_at: string; exer
   today.setHours(0, 0, 0, 0);
 
   let currentStreak = 0;
-  let checkDate = new Date(today);
+  const checkDate = new Date(today);
 
   // Calculate current streak
   while (true) {

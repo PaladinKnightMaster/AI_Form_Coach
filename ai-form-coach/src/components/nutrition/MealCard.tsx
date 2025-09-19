@@ -54,7 +54,7 @@ export default function MealCard({ meal, mealType, onAddFood }: MealCardProps) {
   }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
 
   return (
-    <div className={`card p-6 border-2 ${config.borderColor} ${config.bgColor} hover:shadow-xl transition-all duration-300 animate-bounce-in hover:scale-[1.02] group`}>
+    <div className={`card p-6 border-2 ${config.borderColor} ${config.bgColor} hover:shadow-xl transition-all duration-300 animate-bounce-in hover:scale-[1.02] group backdrop-blur-sm`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">

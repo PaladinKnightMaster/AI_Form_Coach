@@ -363,17 +363,22 @@ export default function PlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" suppressHydrationWarning>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-purple-900/30 dark:to-indigo-900/30" suppressHydrationWarning>
       <Container>
         <div className="py-8 space-y-8">
           {/* Header */}
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-              Workout Plans
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Choose from our expertly crafted plans or create a personalized program
-            </p>
+          <div className="text-center space-y-6">
+            <div className="space-y-4">
+              <Badge tone="info" size="lg" className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
+                🚀 AI-Powered Planning
+              </Badge>
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Workout Plans
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Choose from our expertly crafted plans or create a personalized program with AI
+              </p>
+            </div>
           </div>
 
 

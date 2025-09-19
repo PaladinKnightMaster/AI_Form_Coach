@@ -14,7 +14,7 @@ import CalibrationModal from '@/components/CalibrationModal';
 import { loadExerciseThresholds } from '@/lib/calibration';
 import SafetyChecklist from '@/components/SafetyChecklist';
 import Link from 'next/link';
-import { Button, Icon } from '@/ui/DS';
+import { Button, Icon, Card } from '@/ui/DS';
 import WelcomeToast from '@/components/WelcomeToast';
 import FirstRunTutorial from '@/components/FirstRunTutorial';
 import ProgressionIntegration from '@/components/progression/ProgressionIntegration';
@@ -339,37 +339,37 @@ export default function Coach() {
 	}
 
 	return (
-		<div className={`min-h-screen grid grid-rows-[auto_1fr_auto] ${highContrast ? 'contrast-150' : ''}`}>
-			<header className="p-4 flex items-center justify-between border-b">
+		<div className={`min-h-screen grid grid-rows-[auto_1fr_auto] bg-white dark:bg-gray-900 ${highContrast ? 'contrast-150' : ''}`}>
+			<header className="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
 				<div className="flex items-center gap-2">
-					<select value={exercise} onChange={(e) => setExercise(e.target.value as Exercise)} className="border rounded-md px-2 py-1"><option value="squat">Squat</option><option value="pushup">Pushup</option><option value="plank">Plank</option></select>
+					<select value={exercise} onChange={(e) => setExercise(e.target.value as Exercise)} className="border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"><option value="squat">Squat</option><option value="pushup">Pushup</option><option value="plank">Plank</option></select>
 					{currentPlan && (
 						<div className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-medium">
 							📋 {currentPlan.name}
 						</div>
 					)}
-					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={muted} onChange={(e) => updateMuted(e.target.checked)} /> Mute</label>
-					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} /> Large HUD</label>
-					<label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={highContrast} onChange={(e) => setHighContrast(e.target.checked)} /> High contrast</label>
-					<select onChange={(e) => { localStorage.setItem('afc_model', e.target.value); }} className="border rounded-md px-2 py-1"><option value="lite">Lite</option><option value="full">Full</option></select>
+					<label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={muted} onChange={(e) => updateMuted(e.target.checked)} className="rounded border-gray-300 dark:border-gray-600" /> Mute</label>
+					<label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} className="rounded border-gray-300 dark:border-gray-600" /> Large HUD</label>
+					<label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={highContrast} onChange={(e) => setHighContrast(e.target.checked)} className="rounded border-gray-300 dark:border-gray-600" /> High contrast</label>
+					<select onChange={(e) => { localStorage.setItem('afc_model', e.target.value); }} className="border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"><option value="lite">Lite</option><option value="full">Full</option></select>
 				</div>
-				<div className="flex items-center gap-3 text-sm">
-					<span className={`${quality==='good'?'bg-sky-500/30 text-sky-800':quality==='warn'?'bg-amber-500/30 text-amber-800':'bg-rose-500/30 text-rose-800'} px-2 py-0.5 rounded`}>{quality}</span>
+				<div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
+					<span className={`${quality==='good'?'bg-sky-500/30 text-sky-800 dark:bg-sky-500/20 dark:text-sky-300':quality==='warn'?'bg-amber-500/30 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300':'bg-rose-500/30 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300'} px-2 py-0.5 rounded`}>{quality}</span>
 					<div className="opacity-70">Shortcuts: Space, U undo, R rest 60s, 1/2/3, ? help</div>
 				</div>
 			</header>
 
-			<main className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 p-4 items-start">
-				<div className="relative rounded-xl overflow-hidden border bg-black">
+			<main className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 p-4 items-start bg-gray-50 dark:bg-gray-800">
+				<div className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-black">
 					<video ref={videoRef} className="w-full h-full object-contain" playsInline muted />
 					<canvas ref={canvasRef} className="absolute inset-0" />
 					{videoRef.current && (<PoseOverlay landmarks={landmarks} video={videoRef.current} mirror />)}
 					<HUD repCount={repCount} cue={pausedByQuality ? 'Step back into frame' : cue} spark={spark} subtext={`${goalSubtext() ?? ''}${goalSubtext() ? ' • ' : ''}${fps ? fps + ' FPS' : ''}`} large={largeText} pills={pillCues} formIQMetrics={formIQMetrics || undefined} />
 					{countdown !== null && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="text-6xl font-bold">{countdown || 'Go!'}</div></div>)}
 					{saving && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent" /><p className="mt-3">Saving your session…</p></div>)}
-					{restLeft !== null && (<div className="absolute bottom-4 left-4 bg-white/80 rounded px-3 py-2 text-sm">Rest: {restLeft}s</div>)}
-					{offline && (<div className="absolute bottom-2 left-2 text-xs bg-amber-500/20 text-amber-800 rounded px-2 py-1">Offline • {pending} pending <button className="underline ml-1" onClick={() => flushWrites().then(()=>getPendingCount().then(setPending))}>Retry now</button></div>)}
-					<div className="absolute bottom-2 right-2 text-xs opacity-80 bg-white/70 rounded px-2 py-1">Camera stays on your device. We save only rep summaries.</div>
+					{restLeft !== null && (<div className="absolute bottom-4 left-4 bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-gray-100 rounded px-3 py-2 text-sm border border-gray-200 dark:border-gray-700">Rest: {restLeft}s</div>)}
+					{offline && (<div className="absolute bottom-2 left-2 text-xs bg-amber-500/20 dark:bg-amber-500/30 text-amber-800 dark:text-amber-200 rounded px-2 py-1 border border-amber-200 dark:border-amber-800">Offline • {pending} pending <button className="underline ml-1" onClick={() => flushWrites().then(()=>getPendingCount().then(setPending))}>Retry now</button></div>)}
+					<div className="absolute bottom-2 right-2 text-xs opacity-80 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 rounded px-2 py-1 border border-gray-200 dark:border-gray-700">Camera stays on your device. We save only rep summaries.</div>
 					{showCalib && <CalibrationModal exercise={exercise} landmarks={landmarks} onClose={() => setShowCalib(false)} onSaved={() => { reloadThresholds(); alert('Calibration saved'); }} />}
 					{showTutorial && <TutorialOverlay onClose={() => setShowTutorial(false)} />}
 		{showWelcome && (
@@ -391,7 +391,7 @@ export default function Coach() {
 		)}
 					{showHelp && (
 						<div role="dialog" aria-modal="true" className="fixed inset-0 z-50 grid place-items-center bg-black/60">
-							<div className="bg-white text-black rounded-xl p-4 max-w-md w-full">
+							<div className="bg-white dark:bg-gray-800 text-black dark:text-white rounded-xl p-4 max-w-md w-full border border-gray-200 dark:border-gray-700">
 								<div className="flex items-center justify-between mb-2"><h2 className="text-lg font-semibold">Keyboard shortcuts</h2><button aria-label="Close help" onClick={() => setShowHelp(false)}>×</button></div>
 								<ul className="text-sm space-y-1">
 									<li><kbd>Space</kbd> start/pause</li>
@@ -405,7 +405,7 @@ export default function Coach() {
 					)}
 					{showSafety && <SafetyChecklist open={showSafety} onAgree={() => { safetyBypassRef.current = true; setShowSafety(false); handleStartPause(); }} onClose={() => setShowSafety(false)} />}
 				</div>
-				<div className="space-y-4">
+				<div className="space-y-4 bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
 					{/* Plan Adjustment Banner */}
 					{activePlan && readinessAssessment && (
 						<PlanAdjustmentBanner
@@ -426,16 +426,17 @@ export default function Coach() {
 						exercise={exercise}
 						onTargetUpdate={handleProgressionTargetUpdate}
 						onReadinessUpdate={handleReadinessUpdate}
-						currentGoalType={goalType}
-						currentGoalValue={goalValue}
 					/>
 					
-					<div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-4 space-y-4">
-						<div className="flex items-center gap-2">
-							<div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
-								<Icon name="target" className="w-4 h-4 text-white" />
+					<Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800" padding="default">
+						<div className="flex items-center gap-3 mb-6">
+							<div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
+								<Icon name="target" className="w-5 h-5 text-white" />
 							</div>
-							<h3 className="font-semibold text-gray-900 dark:text-white">Workout Goal</h3>
+							<div>
+								<h3 className="font-bold text-gray-900 dark:text-white text-lg">Workout Goal</h3>
+								<p className="text-sm text-gray-600 dark:text-gray-400">Set your target for this session</p>
+							</div>
 						</div>
 						
 						<div className="space-y-3">
@@ -482,12 +483,12 @@ export default function Coach() {
 						</div>
 						
 						{goalType !== 'none' && (
-							<div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3 border border-blue-200/50 dark:border-blue-800/50">
-								<div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+							<div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-4 border border-blue-200/50 dark:border-blue-800/50">
+								<div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300 mb-2">
 									<Icon name="lightbulb" className="w-4 h-4" />
-									<span className="font-medium">Smart Tip:</span>
+									<span className="font-semibold">Smart Tip:</span>
 								</div>
-								<p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+								<p className="text-sm text-blue-600 dark:text-blue-400">
 									{goalType === 'reps' 
 										? `Aim for ${goalValue} quality reps with perfect form. Quality over quantity!`
 										: `Complete ${goalValue} seconds of focused exercise. Maintain steady pace!`
@@ -495,18 +496,16 @@ export default function Coach() {
 								</p>
 							</div>
 						)}
-					</div>
+					</Card>
 					{/* Main Action Button */}
 					<Button 
 						onClick={handleStartPause} 
-						className={`w-full py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 shadow-lg ${
-							running 
-								? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600' 
-								: 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
-						} text-white`}
+						variant={running ? 'destructive' : 'primary'}
+						size="xl"
+						className="w-full transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
 					>
 						<Icon name={running ? 'stop' : 'play'} className="w-6 h-6" />
-						{running ? '⏸️ Pause Session' : '▶️ Start Session'}
+						{running ? 'Pause Session' : 'Start Session'}
 					</Button>
 					
 					{/* Rest Timer Buttons */}

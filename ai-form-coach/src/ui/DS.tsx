@@ -1,28 +1,111 @@
 "use client";
-import { ForwardedRef, forwardRef } from 'react';
+import { ForwardedRef, forwardRef, useState } from 'react';
 
-export function Container({ children, className }: { children: React.ReactNode; className?: string }) {
-	return <div className={className ? `container ${className}` : 'container'}>{children}</div>;
+export function Container({ children, className, maxWidth = '7xl' }: { 
+	children: React.ReactNode; 
+	className?: string;
+	maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl';
+}) {
+	const maxWidthClass = `max-w-${maxWidth}`;
+	return (
+		<div className={`mx-auto px-4 sm:px-6 lg:px-8 ${maxWidthClass} ${className || ''}`}>
+			{children}
+		</div>
+	);
 }
 
-export function Section({ children, className }: { children: React.ReactNode; className?: string }) {
-	return <section className={className ? `section ${className}` : 'section'}>{children}</section>;
+export function Section({ children, className, padding = 'default' }: { 
+	children: React.ReactNode; 
+	className?: string;
+	padding?: 'none' | 'sm' | 'default' | 'lg' | 'xl';
+}) {
+	const paddingClass = {
+		none: '',
+		sm: 'py-8 sm:py-12',
+		default: 'py-12 sm:py-16 lg:py-20',
+		lg: 'py-16 sm:py-20 lg:py-24',
+		xl: 'py-20 sm:py-24 lg:py-32'
+	}[padding];
+	
+	return (
+		<section className={`${paddingClass} ${className || ''}`}>
+			{children}
+		</section>
+	);
 }
 
 export const Button = forwardRef(function Button(
-	{ children, variant = 'primary', className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost' },
+	{ children, variant = 'primary', size = 'md', className, loading = false, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { 
+		variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'destructive';
+		size?: 'sm' | 'md' | 'lg' | 'xl';
+		loading?: boolean;
+	},
 	ref: ForwardedRef<HTMLButtonElement>
 ) {
-	const base = 'btn inline-flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
-	const styles = variant === 'primary' ? 'btn-primary focus-visible:ring-[var(--color-primary)]'
-		: variant === 'secondary' ? 'btn-secondary focus-visible:ring-[var(--color-border)]'
-		: 'focus-visible:ring-[var(--color-border)]';
-	return <button ref={ref} className={className ? `${base} ${styles} ${className}` : `${base} ${styles}`} {...props}>{children}</button>;
+	const base = 'inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
+	
+	const variants = {
+		primary: 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg hover:shadow-xl focus-visible:ring-emerald-500',
+		secondary: 'bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 backdrop-blur-sm focus-visible:ring-gray-500',
+		ghost: 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 focus-visible:ring-gray-500',
+		outline: 'border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 focus-visible:ring-gray-500',
+		destructive: 'bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl focus-visible:ring-red-500'
+	};
+	
+	const sizes = {
+		sm: 'px-3 py-1.5 text-sm rounded-md',
+		md: 'px-4 py-2 text-sm rounded-lg',
+		lg: 'px-6 py-3 text-base rounded-lg',
+		xl: 'px-8 py-4 text-lg rounded-xl'
+	};
+	
+	return (
+		<button 
+			ref={ref} 
+			className={`${base} ${variants[variant]} ${sizes[size]} ${className || ''}`}
+			disabled={loading || props.disabled}
+			aria-disabled={loading || props.disabled}
+			aria-label={props['aria-label'] || (typeof children === 'string' ? children : undefined)}
+			{...props}
+		>
+			{loading && (
+				<svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+					<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+					<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+				</svg>
+			)}
+			{children}
+		</button>
+	);
 });
 
-export function Badge({ children, tone = 'success', className }: { children: React.ReactNode; tone?: 'success'|'warning'; className?: string }) {
-	const styles = tone === 'success' ? 'badge badge-success' : 'badge badge-warning';
-	return <span className={className ? `${styles} ${className}` : styles}>{children}</span>;
+export function Badge({ children, tone = 'success', size = 'md', className }: { 
+	children: React.ReactNode; 
+	tone?: 'success' | 'warning' | 'error' | 'info' | 'neutral';
+	size?: 'sm' | 'md' | 'lg';
+	className?: string;
+}) {
+	const base = 'inline-flex items-center font-medium rounded-full';
+	
+	const tones = {
+		success: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 border border-green-200 dark:border-green-800',
+		warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800',
+		error: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300 border border-red-200 dark:border-red-800',
+		info: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-200 dark:border-blue-800',
+		neutral: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300 border border-gray-200 dark:border-gray-800'
+	};
+	
+	const sizes = {
+		sm: 'px-2 py-0.5 text-xs',
+		md: 'px-2.5 py-1 text-sm',
+		lg: 'px-3 py-1.5 text-base'
+	};
+	
+	return (
+		<span className={`${base} ${tones[tone]} ${sizes[size]} ${className || ''}`}>
+			{children}
+		</span>
+	);
 }
 
 export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'|'camera'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'|'chevron-left'|'chevron-right'|'plus'|'search'|'x'|'target'|'trending-up'|'alert-triangle'|'calendar'|'clock'|'flame'|'zap'|'heart'|'star'|'trophy'|'bell'|'settings'|'user'|'home'|'menu'|'filter'|'edit'|'trash'|'save'|'refresh'|'play'|'stop'|'volume'|'volume-off'|'link'|'bar-chart-2'|'cpu'|'lock'|'lightbulb'|'award'|'arrow-right'|'check-circle'|'external-link'; className?: string }) {
@@ -83,5 +166,110 @@ export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'
 		<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className={className} suppressHydrationWarning>
 			<path d={paths[name]} strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
+	);
+}
+
+// Advanced UI Components
+export function Card({ children, className, hover = false, padding = 'default' }: {
+	children: React.ReactNode;
+	className?: string;
+	hover?: boolean;
+	padding?: 'none' | 'sm' | 'default' | 'lg';
+}) {
+	const paddingClass = {
+		none: '',
+		sm: 'p-4',
+		default: 'p-6',
+		lg: 'p-8'
+	}[padding];
+	
+	return (
+		<div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 ${paddingClass} ${hover ? 'hover:shadow-xl transition-shadow duration-200' : ''} ${className || ''}`}>
+			{children}
+		</div>
+	);
+}
+
+export function LoadingSpinner({ size = 'md', className }: { size?: 'sm' | 'md' | 'lg'; className?: string }) {
+	const sizeClass = {
+		sm: 'h-4 w-4',
+		md: 'h-6 w-6',
+		lg: 'h-8 w-8'
+	}[size];
+	
+	return (
+		<svg className={`animate-spin ${sizeClass} ${className || ''}`} fill="none" viewBox="0 0 24 24">
+			<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+			<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+		</svg>
+	);
+}
+
+export function ProgressBar({ value, max = 100, size = 'md', className, showLabel = false }: {
+	value: number;
+	max?: number;
+	size?: 'sm' | 'md' | 'lg';
+	className?: string;
+	showLabel?: boolean;
+}) {
+	const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+	
+	const sizeClass = {
+		sm: 'h-1',
+		md: 'h-2',
+		lg: 'h-3'
+	}[size];
+	
+	return (
+		<div className={`w-full ${className || ''}`}>
+			{showLabel && (
+				<div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
+					<span>Progress</span>
+					<span>{Math.round(percentage)}%</span>
+				</div>
+			)}
+			<div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden ${sizeClass}`} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max}>
+				<div 
+					className="h-full bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-500 ease-out"
+					style={{ width: `${percentage}%` }}
+				/>
+			</div>
+		</div>
+	);
+}
+
+export function Tooltip({ children, content, position = 'top' }: {
+	children: React.ReactNode;
+	content: string;
+	position?: 'top' | 'bottom' | 'left' | 'right';
+}) {
+	const [isVisible, setIsVisible] = useState(false);
+	
+	const positionClasses = {
+		top: 'bottom-full left-1/2 transform -translate-x-1/2 mb-2',
+		bottom: 'top-full left-1/2 transform -translate-x-1/2 mt-2',
+		left: 'right-full top-1/2 transform -translate-y-1/2 mr-2',
+		right: 'left-full top-1/2 transform -translate-y-1/2 ml-2'
+	};
+	
+	return (
+		<div 
+			className="relative inline-block"
+			onMouseEnter={() => setIsVisible(true)}
+			onMouseLeave={() => setIsVisible(false)}
+		>
+			{children}
+			{isVisible && (
+				<div className={`absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg whitespace-nowrap ${positionClasses[position]}`}>
+					{content}
+					<div className={`absolute w-2 h-2 bg-gray-900 transform rotate-45 ${
+						position === 'top' ? 'top-full left-1/2 -translate-x-1/2 -mt-1' :
+						position === 'bottom' ? 'bottom-full left-1/2 -translate-x-1/2 -mb-1' :
+						position === 'left' ? 'left-full top-1/2 -translate-y-1/2 -ml-1' :
+						'right-full top-1/2 -translate-y-1/2 -mr-1'
+					}`} />
+				</div>
+			)}
+		</div>
 	);
 } 

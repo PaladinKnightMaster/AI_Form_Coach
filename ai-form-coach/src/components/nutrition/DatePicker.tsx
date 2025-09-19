@@ -162,7 +162,7 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+        className="flex items-center justify-between w-full px-4 py-3 bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm backdrop-blur-sm"
       >
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center">
@@ -190,7 +190,7 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
       {/* Calendar Dropdown - Rendered via Portal */}
       {isOpen && mounted && buttonRect && createPortal(
         <div 
-          className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-[99999] animate-slide-up backdrop-blur-sm"
+          className="fixed bg-white/95 dark:bg-gray-800/95 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-[99999] animate-slide-up backdrop-blur-sm"
           style={{
             top: Math.min(buttonRect.bottom + 8, window.innerHeight - 400),
             left: Math.max(8, Math.min(buttonRect.left, window.innerWidth - 320)),

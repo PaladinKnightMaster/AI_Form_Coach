@@ -14,7 +14,6 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
   const [healthManager] = useState(() => new HealthDataManager());
   const [healthData, setHealthData] = useState<HealthData | null>(null);
   const [baseline, setBaseline] = useState<HealthBaseline | null>(null);
-  const [loading, setLoading] = useState(false);
   const { info: showInfo } = useToastContext();
 
   useEffect(() => {
@@ -67,15 +66,6 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
     return 'poor';
   };
 
-  const getReadinessColor = (category: string) => {
-    switch (category) {
-      case 'excellent': return 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400';
-      case 'good': return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400';
-      case 'fair': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'poor': return 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400';
-    }
-  };
 
   const hasHealthData = healthManager.hasHealthData();
 
