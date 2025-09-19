@@ -9,6 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:workflows": "tsx scripts/run-tests.ts",
+    "test:coverage": "vitest run --coverage",
     "seed": "tsx scripts/seed.ts",
     "seed:nutrition": "tsx scripts/seed-nutrition.ts",
     "screenshots": "node scripts/screenshot-mobile.js",

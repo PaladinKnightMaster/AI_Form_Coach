@@ -9,4 +9,9 @@ export default defineConfig({
 			reporter: ['text', 'html'],
 		},
 	},
+	css: {
+		modules: {
+			classNameStrategy: 'non-scoped',
+		},
+	},
 }); 
