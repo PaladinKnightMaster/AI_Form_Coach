@@ -49,8 +49,9 @@ export default function FAQ() {
                 Got Questions? We've Got Answers
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Find answers to the most common questions about AI Form Coach and how it can help transform your fitness journey.
-            </p>
+                Find answers to the most common questions about AI Form Coach and how it can help transform your fitness journey.
+              </p>
+            </div>
           </div>
 
           <div className="max-w-4xl mx-auto">

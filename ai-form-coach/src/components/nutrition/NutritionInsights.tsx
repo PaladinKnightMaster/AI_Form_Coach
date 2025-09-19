@@ -55,7 +55,9 @@ export default function NutritionInsights() {
   const fetchInsights = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/nutrition/insights?date=${selectedDate}`);
+      const response = await fetch(`/api/nutrition/insights?date=${selectedDate}`, {
+        credentials: 'include',
+      });
       if (!response.ok) throw new Error('Failed to fetch insights');
       const insightsData = await response.json();
       setData(insightsData);

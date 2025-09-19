@@ -50,9 +50,9 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
 
       const response = await fetch('/api/nutrition/goals', {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
       
       if (!response.ok) {
@@ -102,9 +102,9 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
       const response = await fetch('/api/nutrition/goals', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 

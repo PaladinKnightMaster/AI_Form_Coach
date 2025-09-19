@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Button, Icon } from '@/ui/DS';
+import PrivacyBadge from '@/components/PrivacyBadge';
 import type { Food, FoodSearchResult } from '@/types/nutrition';
 
 interface FoodSearchProps {
@@ -109,7 +110,7 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
 
         {/* Search Bar */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="relative">
+          <div className="relative mb-3">
             <Icon name="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -118,6 +119,12 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
+          </div>
+          <div className="flex items-center justify-between">
+            <PrivacyBadge type="anonymous" size="sm" showLink={true} />
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Powered by Open Food Facts
+            </span>
           </div>
         </div>
 

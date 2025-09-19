@@ -47,6 +47,14 @@ export default function SiteHeader() {
 						<Icon name="calendar" className="w-4 h-4" />
 						Plans
 					</Link>
+					<Link href="/coach-packs" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+						<Icon name="package" className="w-4 h-4" />
+						Coach Packs
+					</Link>
+					<Link href="/challenges" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+						<Icon name="trophy" className="w-4 h-4" />
+						Challenges
+					</Link>
 					<Link href="/health" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
 						<Icon name="trending-up" className="w-4 h-4" />
 						Health

@@ -44,6 +44,21 @@ export default function Home() {
 										<div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
 										<span>99.9% Uptime</span>
 									</div>
+									<div className="flex items-center gap-2">
+										<div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+										<span>🔒 100% Private</span>
+									</div>
+								</div>
+								
+								{/* Privacy Highlights */}
+								<div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 mb-8 border border-white/20">
+									<div className="flex items-center gap-3 mb-2">
+										<Icon name="check" className="w-5 h-5 text-green-400" />
+										<span className="font-medium text-white">Privacy First</span>
+									</div>
+									<p className="text-sm text-gray-200">
+										Your video is processed locally using MediaPipe. No uploads, no cloud processing, complete privacy.
+									</p>
 								</div>
 								<div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mb-8">
 									<Link href="/coach">
@@ -278,6 +293,88 @@ export default function Home() {
 			</Section>
 
 			{/* Compact CTA Section */}
+			{/* Privacy & Trust Section */}
+			<Section className="bg-gray-50 dark:bg-gray-800 py-20">
+				<Container>
+					<div className="text-center mb-16">
+						<Badge tone="success" className="mb-4 bg-green-100 text-green-800 border-green-200">
+							🔒 Privacy & Trust
+						</Badge>
+						<h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
+							Your Data Stays <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600">Private</span>
+						</h2>
+						<p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+							We believe your fitness data should remain completely private. Here's how we protect it.
+						</p>
+					</div>
+
+					<div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+						{/* On-Device Processing */}
+						<div className="bg-white dark:bg-gray-700 rounded-xl p-8 shadow-lg border border-gray-200 dark:border-gray-600">
+							<div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+								<Icon name="check" className="w-8 h-8 text-green-600 dark:text-green-400" />
+							</div>
+							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white text-center">
+								On-Device Processing
+							</h3>
+							<p className="text-gray-600 dark:text-gray-400 text-center mb-4">
+								Your video is processed locally using Google's MediaPipe Pose Landmarker. No uploads, no cloud processing.
+							</p>
+							<div className="bg-green-50 dark:bg-green-900/10 rounded-lg p-3">
+								<p className="text-sm text-green-800 dark:text-green-300 text-center font-medium">
+									✅ Video never leaves your device
+								</p>
+							</div>
+						</div>
+
+						{/* Anonymous Nutrition Data */}
+						<div className="bg-white dark:bg-gray-700 rounded-xl p-8 shadow-lg border border-gray-200 dark:border-gray-600">
+							<div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+								<Icon name="heart" className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+							</div>
+							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white text-center">
+								Anonymous Nutrition Data
+							</h3>
+							<p className="text-gray-600 dark:text-gray-400 text-center mb-4">
+								Food lookups use Open Food Facts - an open-source database. Your searches are anonymous and cached locally.
+							</p>
+							<div className="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-3">
+								<p className="text-sm text-blue-800 dark:text-blue-300 text-center font-medium">
+									✅ No personal tracking
+								</p>
+							</div>
+						</div>
+
+						{/* Health Data Control */}
+						<div className="bg-white dark:bg-gray-700 rounded-xl p-8 shadow-lg border border-gray-200 dark:border-gray-600">
+							<div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+								<Icon name="settings" className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+							</div>
+							<h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white text-center">
+								Health Data Control
+							</h3>
+							<p className="text-gray-600 dark:text-gray-400 text-center mb-4">
+								Health data integration is opt-in only. Choose exactly which data types to share with per-type toggles.
+							</p>
+							<div className="bg-purple-50 dark:bg-purple-900/10 rounded-lg p-3">
+								<p className="text-sm text-purple-800 dark:text-purple-300 text-center font-medium">
+									✅ Full control over your data
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div className="text-center mt-12">
+						<Link href="/privacy">
+							<Button variant="secondary" className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300">
+								<Icon name="check" className="w-4 h-4 mr-2" />
+								Read Full Privacy Policy
+							</Button>
+						</Link>
+					</div>
+				</Container>
+			</Section>
+
 			<PlansGradientBackground className="relative">
 				{/* Top curved section */}
 				<div className="absolute top-0 left-0 right-0">

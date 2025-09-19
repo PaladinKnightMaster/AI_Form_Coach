@@ -126,28 +126,61 @@ export default function EnhancedReadinessAssessment({
     }));
   };
 
-  const handleSubmit = () => {
-    let finalAssessment: ReadinessAssessment;
-    
-    if (autoReadinessScore !== null && healthData) {
-      // Use health data-based assessment
-      finalAssessment = {
-        sorenessLevel: Math.round((1 - autoReadinessScore) * 10), // Convert score to soreness (inverted)
-        fatigueLevel: Math.round((1 - autoReadinessScore) * 10), // Convert score to fatigue (inverted)
-        sleepQuality: Math.round(healthData.sleepDuration * 2), // Convert hours to 0-10 scale
-        stressLevel: Math.round((1 - autoReadinessScore) * 10), // Convert score to stress (inverted)
-        motivationLevel: Math.round(autoReadinessScore * 10), // Convert score to motivation
-        assessmentDate: new Date()
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      
+      // Prepare the assessment data for the API
+      const assessmentData = {
+        date: new Date().toISOString().split('T')[0],
+        soreness_level: manualAssessment.sorenessLevel,
+        fatigue_level: manualAssessment.fatigueLevel,
+        sleep_quality: manualAssessment.sleepQuality,
+        stress_level: manualAssessment.stressLevel,
+        motivation_level: manualAssessment.motivationLevel,
+        // Include health data if available
+        ...(healthData && {
+          sleep_duration: healthData.sleepDuration,
+          resting_heart_rate: healthData.restingHeartRate,
+          hrv_average: healthData.hrvAverage,
+          step_count: healthData.stepCount,
+          training_load: healthData.trainingLoad
+        })
       };
-    } else {
-      // Use manual assessment
-      finalAssessment = {
+
+      // Call the readiness API
+      const response = await fetch('/api/readiness', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(assessmentData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save readiness assessment');
+      }
+
+      const data = await response.json();
+      
+      // Create the final assessment with computed values
+      const finalAssessment: ReadinessAssessment = {
         ...manualAssessment,
-        assessmentDate: new Date()
+        assessmentDate: new Date(),
+        computedReadiness: data.readiness?.computed_readiness,
+        readinessCategory: data.readiness?.readiness_category
       };
+      
+      onSubmit(finalAssessment);
+      showSuccess('Assessment Saved!', `Your readiness score: ${Math.round((data.readiness?.computed_readiness || 0) * 100)}%`);
+      onClose();
+    } catch (error) {
+      console.error('Error submitting readiness assessment:', error);
+      showError('Submission Failed', 'Failed to submit readiness assessment');
+    } finally {
+      setLoading(false);
     }
-    
-    onSubmit(finalAssessment);
   };
 
   const getSliderColor = (color: string, value: number) => {

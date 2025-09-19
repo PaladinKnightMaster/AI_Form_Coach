@@ -33,11 +33,46 @@ export default function ReadinessAssessment({
     }));
   };
 
-  const handleSubmit = () => {
-    onSubmit({
-      ...assessment,
-      assessmentDate: new Date()
-    });
+  const handleSubmit = async () => {
+    try {
+      // Call the readiness API
+      const response = await fetch('/api/readiness', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          date: assessment.assessmentDate.toISOString().split('T')[0],
+          soreness_level: assessment.sorenessLevel,
+          fatigue_level: assessment.fatigueLevel,
+          sleep_quality: assessment.sleepQuality,
+          stress_level: assessment.stressLevel,
+          motivation_level: assessment.motivationLevel
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save readiness assessment');
+      }
+
+      const data = await response.json();
+      
+      // Call the original onSubmit with the API response
+      onSubmit({
+        ...assessment,
+        assessmentDate: new Date(),
+        computedReadiness: data.readiness?.computed_readiness,
+        readinessCategory: data.readiness?.readiness_category
+      });
+    } catch (error) {
+      console.error('Error saving readiness assessment:', error);
+      // Still call onSubmit for local handling
+      onSubmit({
+        ...assessment,
+        assessmentDate: new Date()
+      });
+    }
   };
 
   if (!isOpen) return null;

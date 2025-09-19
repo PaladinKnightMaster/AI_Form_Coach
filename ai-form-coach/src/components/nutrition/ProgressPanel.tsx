@@ -43,9 +43,9 @@ export default function ProgressPanel({ date, onClose }: ProgressPanelProps) {
 
       const response = await fetch(`/api/nutrition/progress?date=${date}`, {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
       
       if (!response.ok) {
@@ -76,9 +76,9 @@ export default function ProgressPanel({ date, onClose }: ProgressPanelProps) {
 
       const response = await fetch('/api/nutrition/streak', {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
       
       if (!response.ok) {

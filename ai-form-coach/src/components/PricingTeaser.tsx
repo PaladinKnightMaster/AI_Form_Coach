@@ -8,14 +8,26 @@ export default function PricingTeaser() {
 	const [cycle, setCycle] = useState<'monthly'|'yearly'>('monthly');
 	const [loading, setLoading] = useState(false);
 	const proPrice = cycle === 'monthly' ? '$8/mo' : '$79/yr';
-	async function startCheckout() {
+	async function startCheckout(tier?: 'founder') {
 		setLoading(true);
 		try {
 			const supabase = getSupabaseClient();
 			const { data } = await supabase.auth.getUser();
 			const userId = data.user?.id;
 			if (!userId) { window.location.href = '/signin'; return; }
-			const res = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cycle, userId }) });
+			
+			const body: { userId: string; tier?: string; cycle?: string } = { userId };
+			if (tier === 'founder') {
+				body.tier = 'founder';
+			} else {
+				body.cycle = cycle;
+			}
+			
+			const res = await fetch('/api/checkout', { 
+				method: 'POST', 
+				headers: { 'Content-Type': 'application/json' }, 
+				body: JSON.stringify(body) 
+			});
 			const out = await res.json();
 			if (out.url) window.location.href = out.url;
 		} finally {
@@ -48,14 +60,35 @@ export default function PricingTeaser() {
 						<div className="text-2xl font-extrabold mb-1">{proPrice}</div>
 						<p className="text-xs opacity-70 mb-3">No charge yet — sign up to get notified.</p>
 						<ul className="text-sm space-y-1 mb-4">
-							<li className="flex items-center gap-2"><Icon name="check" /> Form IQ score</li>
-							<li className="flex items-center gap-2"><Icon name="check" /> Trends & insights</li>
-							<li className="flex items-center gap-2"><Icon name="check" /> Goal programs</li>
-							<li className="flex items-center gap-2"><Icon name="check" /> Export without watermark</li>
-							<li className="flex items-center gap-2"><Icon name="check" /> Health sync</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> AI Plan Generation</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Detailed Trends & Analytics</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Health Data Sync</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Coach Packs Access</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Monthly Challenges</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Premium Analytics</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Export Data</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Priority Support</li>
 						</ul>
 						<Button variant="primary" className="w-full" onClick={startCheckout} disabled={loading}>{loading ? 'Redirecting…' : 'Upgrade to Pro'}</Button>
-						<p className="text-xs opacity-70 mt-2">Limited lifetime tier coming soon.</p>
+					</div>
+					
+					<div className="card p-4 border-purple-500/50 relative">
+						<div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+							<span className="bg-purple-500 text-white text-xs px-3 py-1 rounded-full font-medium">Limited Time</span>
+						</div>
+						<h3 className="font-semibold mb-1">Founder</h3>
+						<div className="text-2xl font-extrabold mb-1">$199</div>
+						<p className="text-xs opacity-70 mb-3">One-time payment • Lifetime access</p>
+						<ul className="text-sm space-y-1 mb-4">
+							<li className="flex items-center gap-2"><Icon name="check" /> Everything in Pro</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Lifetime access</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Early access to features</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Founder badge</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Direct feedback channel</li>
+							<li className="flex items-center gap-2"><Icon name="check" /> Exclusive content</li>
+						</ul>
+						<Button variant="primary" className="w-full bg-purple-500 hover:bg-purple-600" onClick={() => startCheckout('founder')} disabled={loading}>{loading ? 'Redirecting…' : 'Become a Founder'}</Button>
+						<p className="text-xs opacity-70 mt-2">Only 100 spots available</p>
 					</div>
 				</div>
 			</div>
