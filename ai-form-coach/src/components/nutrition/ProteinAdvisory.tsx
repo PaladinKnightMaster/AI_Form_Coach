@@ -121,7 +121,7 @@ export default function ProteinAdvisory({ date, onDismiss }: ProteinAdvisoryProp
               <h4 className="font-semibold">Protein Reminder</h4>
             </div>
             <p className="text-orange-100 text-sm mb-2">
-              You're at {Math.round(proteinProgress.percentage)}% of your protein goal for today.
+              You&apos;re at {Math.round(proteinProgress.percentage)}% of your protein goal for today.
             </p>
             <p className="text-orange-100 text-sm">
               Consider adding {Math.round(remainingProtein)}g more protein to reach your target.

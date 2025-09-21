@@ -3,6 +3,7 @@ import { Container, Section, Button, Badge, Icon } from '@/ui/DS';
 import { HeroGradientBackground, NutritionGradientBackground, PlansGradientBackground } from '@/components/AnimatedGradientBackground';
 import { ProfessionalImage } from '@/components/ProfessionalImage';
 import { FeatureCarousel } from '@/components/FeatureCarousel';
+import EnhancedNavigation from '@/components/navigation/EnhancedNavigation';
 
 export default function Home() {
 	return (
@@ -304,7 +305,7 @@ export default function Home() {
 							Your Data Stays <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600">Private</span>
 						</h2>
 						<p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-							We believe your fitness data should remain completely private. Here's how we protect it.
+							We believe your fitness data should remain completely private. Here&apos;s how we protect it.
 						</p>
 					</div>
 
@@ -318,7 +319,7 @@ export default function Home() {
 								On-Device Processing
 							</h3>
 							<p className="text-gray-600 dark:text-gray-400 text-center mb-4">
-								Your video is processed locally using Google's MediaPipe Pose Landmarker. No uploads, no cloud processing.
+								Your video is processed locally using Google&apos;s MediaPipe Pose Landmarker. No uploads, no cloud processing.
 							</p>
 							<div className="bg-green-50 dark:bg-green-900/10 rounded-lg p-3">
 								<p className="text-sm text-green-800 dark:text-green-300 text-center font-medium">
@@ -372,6 +373,24 @@ export default function Home() {
 							</Button>
 						</Link>
 					</div>
+				</Container>
+			</Section>
+
+			{/* Community Hub Section */}
+			<Section className="py-20 bg-gray-50 dark:bg-gray-800">
+				<Container>
+					<div className="text-center mb-12">
+						<Badge tone="success" size="lg" className="mb-6 bg-gradient-to-r from-green-500/20 to-blue-500/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+							🌟 Community & Motivation
+						</Badge>
+						<h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+							Stay Motivated with Real-time Feedback
+						</h2>
+						<p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
+							Get instant coaching, compete fairly with similar fitness levels, and stay connected with your fitness community.
+						</p>
+					</div>
+					<EnhancedNavigation className="max-w-6xl mx-auto" />
 				</Container>
 			</Section>
 

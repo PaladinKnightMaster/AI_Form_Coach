@@ -74,7 +74,7 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
     return () => clearTimeout(timeoutId);
   }, [searchFoods]);
 
-  const handleQuickAdd = (item: any) => {
+  const handleQuickAdd = (item: { id: string; name: string; calories_per_100g: number; protein_per_100g: number; carbs_per_100g: number; fat_per_100g: number }) => {
     const food: Food = {
       id: `quick_${Date.now()}`,
       name: item.name,

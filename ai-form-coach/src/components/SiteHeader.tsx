@@ -39,30 +39,39 @@ export default function SiteHeader() {
 						<Icon name="activity" className="w-4 h-4" />
 						Coach
 					</Link>
-					<Link href="/nutrition" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
-						<Icon name="heart" className="w-4 h-4" />
-						Nutrition
-					</Link>
-					<Link href="/plans" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
-						<Icon name="calendar" className="w-4 h-4" />
-						Plans
-					</Link>
-					<Link href="/coach-packs" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
-						<Icon name="package" className="w-4 h-4" />
-						Coach Packs
-					</Link>
-					<Link href="/challenges" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
-						<Icon name="trophy" className="w-4 h-4" />
-						Challenges
-					</Link>
-					<Link href="/health" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
-						<Icon name="trending-up" className="w-4 h-4" />
-						Health
-					</Link>
-					<Link href="/history" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
-						<Icon name="bar-chart-2" className="w-4 h-4" />
-						History
-					</Link>
+					{isAuthed ? (
+						<>
+							<Link href="/nutrition" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+								<Icon name="heart" className="w-4 h-4" />
+								Nutrition
+							</Link>
+							<Link href="/plans" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+								<Icon name="calendar" className="w-4 h-4" />
+								Plans
+							</Link>
+							<Link href="/coach-packs" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1 whitespace-nowrap">
+								<Icon name="package" className="w-4 h-4" />
+								Coach Packs
+							</Link>
+							<Link href="/challenges" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+								<Icon name="trophy" className="w-4 h-4" />
+								Challenges
+							</Link>
+							<Link href="/health" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+								<Icon name="trending-up" className="w-4 h-4" />
+								Health
+							</Link>
+							<Link href="/history" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+								<Icon name="bar-chart-2" className="w-4 h-4" />
+								History
+							</Link>
+						</>
+					) : (
+						<Link href="/signin" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
+							<Icon name="lock" className="w-4 h-4" />
+							Pro Features
+						</Link>
+					)}
 					<Link href="/pricing" className="hover:text-green-600 dark:hover:text-green-400 transition-colors">Pricing</Link>
 					<Link href="/faq" className="hover:text-green-600 dark:hover:text-green-400 transition-colors">FAQ</Link>
 					{isAuthed ? <Link href="/account" className="hover:text-green-600 dark:hover:text-green-400 transition-colors flex items-center gap-1">
@@ -85,7 +94,7 @@ export default function SiteHeader() {
 					className="md:hidden rounded-md border px-3 py-2 min-h-[44px] flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" 
 					onClick={() => setOpen(true)}
 				>
-					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" suppressHydrationWarning>
 						<line x1="3" y1="6" x2="21" y2="6"/>
 						<line x1="3" y1="12" x2="21" y2="12"/>
 						<line x1="3" y1="18" x2="21" y2="18"/>
@@ -105,7 +114,7 @@ export default function SiteHeader() {
 								onClick={() => setOpen(false)} 
 								className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center"
 							>
-								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" suppressHydrationWarning>
 									<line x1="18" y1="6" x2="6" y2="18"/>
 									<line x1="6" y1="6" x2="18" y2="18"/>
 								</svg>
@@ -114,10 +123,21 @@ export default function SiteHeader() {
 						<nav className="space-y-1">
 							<Link href="/" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Home</Link>
 							<Link href="/coach" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Coach</Link>
-							<Link href="/nutrition" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Nutrition</Link>
-							<Link href="/plans" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Plans</Link>
-							<Link href="/health" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Health</Link>
-							<Link href="/history" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">History</Link>
+							{isAuthed ? (
+								<>
+									<Link href="/nutrition" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Nutrition</Link>
+									<Link href="/plans" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Plans</Link>
+									<Link href="/coach-packs" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors whitespace-nowrap">Coach Packs</Link>
+									<Link href="/challenges" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Challenges</Link>
+									<Link href="/health" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Health</Link>
+									<Link href="/history" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">History</Link>
+								</>
+							) : (
+								<Link href="/signin" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+									<Icon name="lock" className="w-4 h-4" />
+									Pro Features
+								</Link>
+							)}
 							<Link href="/pricing" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Pricing</Link>
 							<Link href="/faq" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">FAQ</Link>
 							<Link href="/privacy" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Privacy</Link>

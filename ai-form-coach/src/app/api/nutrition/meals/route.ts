@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
 		const date = body.date || new Date().toISOString().split('T')[0];
 
 		// Get or create meal for this date and meal type
-		let { data: meal, error: mealError } = await supabase
+		const { data: meal, error: mealError } = await supabase
 			.from('meals')
 			.select('*')
 			.eq('user_id', userId)

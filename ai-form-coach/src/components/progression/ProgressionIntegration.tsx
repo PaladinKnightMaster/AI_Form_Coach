@@ -225,7 +225,7 @@ export default function ProgressionIntegration({
           </div>
         ) : (
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            No readiness assessment yet. Click "Assess" to get personalized recommendations.
+            No readiness assessment yet. Click &ldquo;Assess&rdquo; to get personalized recommendations.
           </div>
         )}
       </div>

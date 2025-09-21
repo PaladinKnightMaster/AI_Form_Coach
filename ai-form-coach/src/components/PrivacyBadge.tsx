@@ -62,7 +62,7 @@ export default function PrivacyBadge({
 
   return (
     <div className={`inline-flex items-center gap-2 ${sizeClasses[size]} ${config.color} rounded-full font-medium ${className}`}>
-      <Icon name={config.icon as any} className={`${iconSizes[size]} ${config.iconColor}`} />
+      <Icon name={config.icon as 'shield' | 'lock' | 'eye' | 'check-circle'} className={`${iconSizes[size]} ${config.iconColor}`} />
       <span>{config.text}</span>
       {showLink && (
         <Link 

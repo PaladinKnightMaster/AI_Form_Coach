@@ -57,7 +57,8 @@ export class SubscriptionService {
    */
   async hasFeatureAccess(userId: string, feature: keyof SubscriptionFeatures): Promise<boolean> {
     const features = await this.getUserFeatures(userId);
-    return features[feature];
+    const result = features[feature];
+    return result;
   }
 
   /**
@@ -75,6 +76,8 @@ export class SubscriptionService {
       health_data_sync: false,
       readiness_assessment: false,
       health_insights: false,
+      basic_nutrition_tracking: false,
+      advanced_nutrition_features: false,
       coach_packs_access: false,
       premium_programs: false,
       monthly_challenges: false,
@@ -90,6 +93,7 @@ export class SubscriptionService {
         return {
           ...baseFeatures,
           readiness_assessment: true,
+          basic_nutrition_tracking: true, // Basic nutrition tracking for free users
           unlimited_sessions: true, // Limited to 10 recent sessions
         };
 
@@ -107,6 +111,8 @@ export class SubscriptionService {
           health_data_sync: true,
           readiness_assessment: true,
           health_insights: true,
+          basic_nutrition_tracking: true,
+          advanced_nutrition_features: true, // Advanced nutrition features for Pro users
           coach_packs_access: true,
           premium_programs: true,
           monthly_challenges: true,
@@ -317,15 +323,19 @@ export class SubscriptionService {
       // If no user ID, assume free tier
       if (!userId) {
         const freeFeatures = this.getFeatureAccess('free');
-        return freeFeatures[feature];
+        const result = freeFeatures[feature];
+        return result;
       }
 
-      return await this.hasFeatureAccess(userId, feature);
+      const result = await this.hasFeatureAccess(userId, feature);
+      return result;
     } catch (error) {
       console.error('Error checking feature access:', error);
       // Fallback to free tier on error
       const freeFeatures = this.getFeatureAccess('free');
-      return freeFeatures[feature];
+      const result = freeFeatures[feature];
+      console.log('SubscriptionService: Error fallback, returning free access:', result);
+      return result;
     }
   }
 

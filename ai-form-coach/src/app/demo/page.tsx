@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { Container, Section, Button, Badge, Icon } from '@/ui/DS';
+import Link from 'next/link';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import AuthCard from '@/components/AuthCard';
@@ -148,7 +149,7 @@ function HeaderStatesDemo() {
 						<li>Open browser dev tools (F12)</li>
 						<li>Toggle device toolbar (Ctrl+Shift+M)</li>
 						<li>Select mobile device (iPhone, Android, etc.)</li>
-						<li>Click "Menu" button in header</li>
+						<li>Click &ldquo;Menu&rdquo; button in header</li>
 						<li>Verify drawer slides in from right</li>
 						<li>Test all navigation links work</li>
 						<li>Verify close button and backdrop work</li>
@@ -263,7 +264,7 @@ function AuthCardsDemo() {
 					</div>
 				</div>
 				<p className="text-sm opacity-70 text-center">
-					Note: Form inputs are disabled for demo purposes. Visit <a href="/signin" className="text-blue-600 hover:underline">/signin</a> for functional forms.
+					Note: Form inputs are disabled for demo purposes. Visit <Link href="/signin" className="text-blue-600 hover:underline">/signin</Link> for functional forms.
 				</p>
 			</div>
 		</div>
@@ -290,23 +291,23 @@ function LandingSectionsDemo() {
 						<div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
 							<h3 className="font-medium mb-2">Pricing Section</h3>
 							<p className="text-xs opacity-70 mb-3">Monthly/yearly toggle, upgrade buttons</p>
-							<a href="/#pricing" className="text-blue-600 hover:underline text-sm">
+							<Link href="/#pricing" className="text-blue-600 hover:underline text-sm">
 								View on landing →
-							</a>
+							</Link>
 						</div>
 						<div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
 							<h3 className="font-medium mb-2">FAQ Section</h3>
 							<p className="text-xs opacity-70 mb-3">Expandable questions and answers</p>
-							<a href="/#faq" className="text-blue-600 hover:underline text-sm">
+							<Link href="/#faq" className="text-blue-600 hover:underline text-sm">
 								View on landing →
-							</a>
+							</Link>
 						</div>
 						<div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
 							<h3 className="font-medium mb-2">Final CTA</h3>
 							<p className="text-xs opacity-70 mb-3">Gradient background, action buttons</p>
-							<a href="/#cta" className="text-blue-600 hover:underline text-sm">
+							<Link href="/#cta" className="text-blue-600 hover:underline text-sm">
 								View on landing →
-							</a>
+							</Link>
 						</div>
 					</div>
 				</div>
@@ -369,23 +370,23 @@ function MobileBreakpointsDemo() {
 					<div className="border rounded-lg p-4">
 						<h3 className="font-medium mb-2">Landing Page</h3>
 						<p className="text-sm opacity-70 mb-3">Hero section, features, pricing</p>
-						<a href="/" className="text-blue-600 hover:underline text-sm">
+						<Link href="/" className="text-blue-600 hover:underline text-sm">
 							Open page →
-						</a>
+						</Link>
 					</div>
 					<div className="border rounded-lg p-4">
 						<h3 className="font-medium mb-2">Auth Pages</h3>
 						<p className="text-sm opacity-70 mb-3">Sign in, sign up forms</p>
-						<a href="/signin" className="text-blue-600 hover:underline text-sm">
+						<Link href="/signin" className="text-blue-600 hover:underline text-sm">
 							Open signin →
-						</a>
+						</Link>
 					</div>
 					<div className="border rounded-lg p-4">
 						<h3 className="font-medium mb-2">Coach Page</h3>
 						<p className="text-sm opacity-70 mb-3">Main app interface</p>
-						<a href="/coach" className="text-blue-600 hover:underline text-sm">
+						<Link href="/coach" className="text-blue-600 hover:underline text-sm">
 							Open coach →
-						</a>
+						</Link>
 					</div>
 				</div>
 			</div>

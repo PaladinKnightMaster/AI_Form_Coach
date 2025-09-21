@@ -7,7 +7,7 @@ const faqs = [
   },
   {
     question: "What exercises are supported?",
-    answer: "Currently, we support squats, push-ups, planks, and several other bodyweight exercises. We're constantly adding new exercises based on user feedback and demand."
+    answer: "Currently, we support squats, push-ups, planks, and several other bodyweight exercises. We&apos;re constantly adding new exercises based on user feedback and demand."
   },
   {
     question: "Do I need special equipment?",
@@ -19,15 +19,15 @@ const faqs = [
   },
   {
     question: "Can I use this offline?",
-    answer: "The AI form coaching requires an internet connection for real-time analysis. However, you can view your workout history and some features offline once they're cached on your device."
+    answer: "The AI form coaching requires an internet connection for real-time analysis. However, you can view your workout history and some features offline once they&apos;re cached on your device."
   },
   {
-    question: "What's included in the free plan?",
+    question: "What&apos;s included in the free plan?",
     answer: "The free plan includes basic AI form coaching for supported exercises, workout tracking, and access to your workout history. Premium features include advanced analytics, custom workout plans, and nutrition tracking."
   },
   {
     question: "How accurate is the AI feedback?",
-    answer: "Our AI has been trained on thousands of hours of exercise data and achieves over 95% accuracy in form analysis. However, it's designed to complement, not replace, professional fitness guidance."
+    answer: "Our AI has been trained on thousands of hours of exercise data and achieves over 95% accuracy in form analysis. However, it&apos;s designed to complement, not replace, professional fitness guidance."
   },
   {
     question: "Can I cancel my subscription anytime?",
@@ -46,7 +46,7 @@ export default function FAQ() {
                 ❓ Frequently Asked Questions
               </Badge>
               <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
-                Got Questions? We've Got Answers
+                Got Questions? We&apos;ve Got Answers
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
                 Find answers to the most common questions about AI Form Coach and how it can help transform your fitness journey.
@@ -74,7 +74,7 @@ export default function FAQ() {
                   Still have questions?
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Can't find what you're looking for? We're here to help!
+                  Can&apos;t find what you&apos;re looking for? We&apos;re here to help!
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                   <a href="mailto:support@aiformcoach.com" className="btn btn-primary">

@@ -309,7 +309,7 @@ export default function ReadinessDashboard({ exercise }: ReadinessDashboardProps
         </h4>
         <div className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
           {averageReadiness >= 0.8 && (
-            <div>• Excellent readiness! You're in great shape for intense training.</div>
+            <div>• Excellent readiness! You&apos;re in great shape for intense training.</div>
           )}
           {averageReadiness >= 0.6 && averageReadiness < 0.8 && (
             <div>• Good readiness. Consider moderate intensity training.</div>

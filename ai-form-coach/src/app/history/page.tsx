@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { FormIQTrending } from '@/components/FormIQTrending';
 import { Badge } from '@/ui/DS';
+import { subscriptionService } from '@/lib/subscription/subscriptionService';
 
 export default function History() {
 	type S = { id: string; exercise: string; started_at: string; total_reps: number | null; total_time_seconds: number | null; formIQ?: number; sideBalance?: number; is_demo?: boolean };
@@ -10,6 +11,7 @@ export default function History() {
 	const [sessions, setSessions] = useState<S[]>([]);
 	const [reps, setReps] = useState<R[]>([]);
 	const [showDemo, setShowDemo] = useState(false);
+	const [subscription, setSubscription] = useState<{ tier: string } | null>(null);
 
 	// Generate demo data
 	const generateDemoData = () => {
@@ -31,7 +33,7 @@ export default function History() {
 				Math.floor(Math.random() * 3) + 1 : 
 				Math.floor(Math.random() * 20) + 10;
 			
-			const endedAt = new Date(startedAt.getTime() + durationMinutes * 60 * 1000);
+			const _endedAt = new Date(startedAt.getTime() + durationMinutes * 60 * 1000);
 			const totalReps = exercise === 'plank' ? null : Math.floor(Math.random() * 40) + 15;
 			const totalTimeSeconds = durationMinutes * 60;
 			
@@ -76,16 +78,26 @@ export default function History() {
 		(async () => {
 			try {
 				const supabase = getSupabaseClient();
-				const { data: s } = await supabase.from('sessions').select('*').order('started_at', { ascending: false });
-				const sess = (s ?? []) as S[];
-				setSessions(sess);
-				const last30 = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
-				const recentIds = sess.filter(x => x.started_at >= last30).map(x => x.id);
-				if (recentIds.length) {
-					const { data: r } = await supabase.from('reps').select('session_id,rom_score,start_ms,end_ms').in('session_id', recentIds);
-					setReps((r ?? []) as R[]);
+				const { data: { user } } = await supabase.auth.getUser();
+				
+				if (user) {
+					// Load subscription status
+					const sub = await subscriptionService.getUserSubscription(user.id);
+					setSubscription(sub);
+					
+					const { data: s } = await supabase.from('sessions').select('*').order('started_at', { ascending: false });
+					const sess = (s ?? []) as S[];
+					setSessions(sess);
+					const last30 = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+					const recentIds = sess.filter(x => x.started_at >= last30).map(x => x.id);
+					if (recentIds.length) {
+						const { data: r } = await supabase.from('reps').select('session_id,rom_score,start_ms,end_ms').in('session_id', recentIds);
+						setReps((r ?? []) as R[]);
+					} else {
+						setReps([]);
+					}
 				} else {
-					setReps([]);
+					setShowDemo(true);
 				}
 			} catch { setSessions([]); setReps([]); }
 		})();
@@ -202,7 +214,7 @@ export default function History() {
 			{(sessions.length > 0 || showDemo) && (
 				<FormIQTrending 
 					sessions={sessions} 
-					isPro={false} // TODO: Replace with actual subscription status
+					isPro={subscription?.tier === 'pro' || subscription?.tier === 'founder'}
 					className="mb-6"
 				/>
 			)}

@@ -16,7 +16,7 @@ export default function PricingPage() {
 								Choose Your Plan
 							</h1>
 							<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-								Start free and upgrade when you're ready for advanced features. 
+								Start free and upgrade when you&apos;re ready for advanced features. 
 								All plans include our core AI coaching and nutrition tracking.
 							</p>
 						</div>
@@ -26,7 +26,7 @@ export default function PricingPage() {
 					
 					<div className="text-center mt-12">
 						<div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 max-w-2xl mx-auto">
-							<h3 className="text-lg font-semibold mb-3">🎯 What's Included in All Plans</h3>
+							<h3 className="text-lg font-semibold mb-3">🎯 What&apos;s Included in All Plans</h3>
 							<div className="grid md:grid-cols-2 gap-4 text-sm text-left">
 								<div className="flex items-center gap-2">
 									<span className="text-green-500">✅</span>

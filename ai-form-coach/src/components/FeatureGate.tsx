@@ -45,7 +45,8 @@ export default function FeatureGate({
         setUserId(null);
         // For non-authenticated users, check free tier access
         const freeFeatures = subscriptionService.getFeatureAccess('free');
-        setHasAccess(freeFeatures[feature]);
+        const freeAccess = freeFeatures[feature];
+        setHasAccess(freeAccess);
       }
     } catch (error) {
       console.error('Error checking feature access:', error);
@@ -130,6 +131,8 @@ function getFeatureDescription(feature: keyof SubscriptionFeatures): string {
     health_data_sync: 'Sync with Apple Health, Google Fit, and other health platforms for comprehensive tracking.',
     readiness_assessment: 'Get daily readiness assessments to optimize your training schedule.',
     health_insights: 'Receive personalized health insights based on your data and goals.',
+    basic_nutrition_tracking: 'Track your daily nutrition with basic macro counting and meal logging.',
+    advanced_nutrition_features: 'Access advanced nutrition features including quick food search, barcode scanning, and detailed nutrition insights.',
     coach_packs_access: 'Access premium coach packs with specialized workout programs.',
     premium_programs: 'Unlock premium workout programs designed by fitness experts.',
     monthly_challenges: 'Participate in monthly fitness challenges with the community.',

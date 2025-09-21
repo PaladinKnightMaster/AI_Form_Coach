@@ -54,10 +54,10 @@ export default function Privacy() {
 							</p>
 							<p>
 								<strong>On-device processing:</strong> All pose detection, form analysis, and rep counting happens 
-								directly in your browser using Google's MediaPipe technology. This means faster responses and complete privacy.
+								directly in your browser using Google&apos;s MediaPipe technology. This means faster responses and complete privacy.
 							</p>
 							<p>
-								<strong>MediaPipe Pose Landmarker:</strong> We use Google's MediaPipe Pose Landmarker, which is specifically designed 
+								<strong>MediaPipe Pose Landmarker:</strong> We use Google&apos;s MediaPipe Pose Landmarker, which is specifically designed 
 								for on-device pose detection. Your video never leaves your device.
 							</p>
 							<p>
@@ -72,18 +72,18 @@ export default function Privacy() {
 						<div className="space-y-3 opacity-80">
 							<p>
 								<strong>Anonymous product lookups:</strong> When you scan barcodes or search for foods, we use Open Food Facts, 
-								an open-source database that's free to use. Your searches are anonymous and cached locally for faster access.
+								an open-source database that&apos;s free to use. Your searches are anonymous and cached locally for faster access.
 							</p>
 							<p>
 								<strong>Open Food Facts:</strong> We use the Open Food Facts API for product information. This is open data 
-								that's freely available and doesn't require personal information.
+								that&apos;s freely available and doesn&apos;t require personal information.
 							</p>
 							<p>
 								<strong>Local caching:</strong> Food data is cached in your browser to reduce API calls and improve performance. 
 								This cache is stored locally and never shared.
 							</p>
 							<p>
-								<strong>No tracking:</strong> We don't track what foods you search for or consume. Your nutrition data 
+								<strong>No tracking:</strong> We don&apos;t track what foods you search for or consume. Your nutrition data 
 								is only stored if you choose to log meals.
 							</p>
 						</div>

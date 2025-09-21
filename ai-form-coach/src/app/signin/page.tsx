@@ -7,7 +7,7 @@ import { useToastContext } from '@/components/ToastProvider';
 import LoadingButton from '@/components/LoadingButton';
 
 export default function SignIn() {
-	const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
+	const { success: showSuccess, error: showError } = useToastContext();
 	const [mode, setMode] = useState<'signin'|'signup'|'reset-request'|'magic-link'>('signin');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');

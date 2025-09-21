@@ -294,7 +294,7 @@ export default function EnhancedReadinessAssessment({
         {healthData && (
           <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-              Today's Health Metrics
+              Today&apos;s Health Metrics
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center">

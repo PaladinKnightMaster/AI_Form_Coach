@@ -134,7 +134,7 @@ export default function MealCard({ meal, mealType, onAddFood }: MealCardProps) {
   );
 }
 
-function FoodItemCard({ item }: { item: any }) {
+function FoodItemCard({ item }: { item: { id: string; quantity: number; food: { name: string; calories_per_100g: number; protein_per_100g: number; carbs_per_100g: number; fat_per_100g: number } } }) {
   const food = item.food;
   
   return (

@@ -275,7 +275,7 @@ export default function HealthPermissionsModal({
                 className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
               >
                 <div className="flex items-start space-x-3 flex-1">
-                  <Icon name={category.icon as any} className="w-5 h-5 text-gray-600 dark:text-gray-400 mt-0.5" />
+                  <Icon name={category.icon as 'heart' | 'activity' | 'moon' | 'trending-up'} className="w-5 h-5 text-gray-600 dark:text-gray-400 mt-0.5" />
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
                       <h4 className="font-medium text-gray-900 dark:text-white">

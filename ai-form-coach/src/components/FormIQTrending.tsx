@@ -153,7 +153,7 @@ export function FormIQTrending({ sessions, isPro, className = '' }: FormIQTrendi
                 <p>⚖️ Work on balancing both sides equally for optimal development.</p>
               )}
               {last7Days.length >= 5 && (
-                <p>🔥 Great consistency! You've been active {last7Days.length} times this week.</p>
+                <p>🔥 Great consistency! You&apos;ve been active {last7Days.length} times this week.</p>
               )}
             </div>
           </div>

@@ -26,7 +26,20 @@ export async function POST(req: NextRequest) {
 					const customer = typeof session.customer === 'string' ? await stripe.customers.retrieve(session.customer) : session.customer;
 					const userId = (customer as Stripe.Customer).metadata?.user_id;
 					if (userId) {
-						await sb.from('profiles').update({ plan: 'pro' }).eq('id', userId);
+						// Determine tier from session metadata
+						const tier = session.metadata?.tier || 'pro';
+						
+						// Insert or update user subscription
+						await sb.from('user_subscriptions').upsert({
+							user_id: userId,
+							tier: tier,
+							status: 'active',
+							stripe_customer_id: typeof session.customer === 'string' ? session.customer : session.customer?.id,
+							current_period_start: new Date().toISOString(),
+							current_period_end: tier === 'founder' ? null : new Date(Date.now() + (tier === 'pro' ? 30 * 24 * 60 * 60 * 1000 : 365 * 24 * 60 * 60 * 1000)).toISOString()
+						}, {
+							onConflict: 'user_id'
+						});
 					}
 				}
 				break;
@@ -39,8 +52,19 @@ export async function POST(req: NextRequest) {
 					const customer = await stripe.customers.retrieve(customerId);
 					const userId = (customer as Stripe.Customer).metadata?.user_id;
 					if (userId) {
-						const renew = sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null;
-						await sb.from('profiles').update({ plan: 'pro', plan_renews_at: renew, stripe_customer_id: customerId }).eq('id', userId);
+						// Update user subscription
+						await sb.from('user_subscriptions').upsert({
+							user_id: userId,
+							tier: 'pro',
+							status: sub.status,
+							stripe_subscription_id: sub.id,
+							stripe_customer_id: customerId,
+							current_period_start: sub.current_period_start ? new Date(sub.current_period_start * 1000).toISOString() : null,
+							current_period_end: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
+							cancel_at_period_end: sub.cancel_at_period_end
+						}, {
+							onConflict: 'user_id'
+						});
 					}
 				}
 				break;
@@ -52,7 +76,11 @@ export async function POST(req: NextRequest) {
 					const customer = await stripe.customers.retrieve(customerId);
 					const userId = (customer as Stripe.Customer).metadata?.user_id;
 					if (userId) {
-						await sb.from('profiles').update({ plan: 'free', plan_renews_at: null }).eq('id', userId);
+						// Update subscription status to canceled
+						await sb.from('user_subscriptions').update({
+							status: 'canceled',
+							current_period_end: new Date().toISOString()
+						}).eq('user_id', userId);
 					}
 				}
 				break;
@@ -70,4 +98,5 @@ export async function POST(req: NextRequest) {
 	}
 }
 
-export const config = { api: { bodyParser: false } } as unknown as Record<string, unknown>; 
+// Config for webhook body parsing
+export const runtime = 'nodejs'; 

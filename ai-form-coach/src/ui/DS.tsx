@@ -1,5 +1,5 @@
 "use client";
-import { ForwardedRef, forwardRef, useState } from 'react';
+import React, { ForwardedRef, forwardRef, useState } from 'react';
 
 export function Container({ children, className, maxWidth = '7xl' }: { 
 	children: React.ReactNode; 
@@ -35,10 +35,11 @@ export function Section({ children, className, padding = 'default' }: {
 }
 
 export const Button = forwardRef(function Button(
-	{ children, variant = 'primary', size = 'md', className, loading = false, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { 
+	{ children, variant = 'primary', size = 'md', className, loading = false, asChild = false, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { 
 		variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'destructive';
 		size?: 'sm' | 'md' | 'lg' | 'xl';
 		loading?: boolean;
+		asChild?: boolean;
 	},
 	ref: ForwardedRef<HTMLButtonElement>
 ) {
@@ -59,10 +60,20 @@ export const Button = forwardRef(function Button(
 		xl: 'px-8 py-4 text-lg rounded-xl'
 	};
 	
+	const buttonClasses = `${base} ${variants[variant]} ${sizes[size]} ${className || ''}`;
+	
+	if (asChild && React.isValidElement(children)) {
+		return React.cloneElement(children, {
+			className: `${buttonClasses} ${children.props.className || ''}`,
+			ref,
+			...props
+		});
+	}
+	
 	return (
 		<button 
 			ref={ref} 
-			className={`${base} ${variants[variant]} ${sizes[size]} ${className || ''}`}
+			className={buttonClasses}
 			disabled={loading || props.disabled}
 			aria-disabled={loading || props.disabled}
 			aria-label={props['aria-label'] || (typeof children === 'string' ? children : undefined)}
@@ -108,7 +119,7 @@ export function Badge({ children, tone = 'success', size = 'md', className }: {
 	);
 }
 
-export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'|'camera'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'|'chevron-left'|'chevron-right'|'plus'|'search'|'x'|'target'|'trending-up'|'alert-triangle'|'calendar'|'clock'|'flame'|'zap'|'heart'|'star'|'trophy'|'bell'|'settings'|'user'|'home'|'menu'|'filter'|'edit'|'trash'|'save'|'refresh'|'play'|'stop'|'volume'|'volume-off'|'link'|'bar-chart-2'|'cpu'|'lock'|'lightbulb'|'award'|'arrow-right'|'check-circle'|'external-link'; className?: string }) {
+export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'|'camera'|'moon'|'sun'|'activity'|'message'|'pause'|'chart'|'download'|'chevron-down'|'chevron-up'|'chevron-left'|'chevron-right'|'plus'|'search'|'x'|'target'|'trending-up'|'alert-triangle'|'calendar'|'clock'|'flame'|'zap'|'heart'|'star'|'trophy'|'bell'|'settings'|'user'|'home'|'menu'|'filter'|'edit'|'trash'|'save'|'refresh'|'play'|'stop'|'volume'|'volume-off'|'link'|'bar-chart-2'|'cpu'|'lock'|'lightbulb'|'award'|'arrow-right'|'check-circle'|'external-link'|'dumbbell'|'package'; className?: string }) {
 	const paths: Record<string, string> = {
 		check: 'M5 13l4 4L19 7',
 		alert: 'M12 9v4m0 4h.01M10.29 3.86l-7.98 13.8A2 2 0 004 20h16a2 2 0 001.69-3.14l-7.98-13.8a2 2 0 00-3.42 0z',
@@ -160,7 +171,9 @@ export function Icon({ name, className }: { name: 'check'|'alert'|'alert-circle'
 		award: 'M12 15l-3-3h6l-3 3zM12 2l3 3h-6l3-3zM2 12l3-3v6l-3-3zM22 12l-3-3v6l3-3zM12 22l-3-3h6l-3 3z',
 		'arrow-right': 'M5 12h14M12 5l7 7-7 7',
 		'check-circle': 'M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3',
-		'external-link': 'M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3'
+		'external-link': 'M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3',
+		dumbbell: 'M6.5 6.5h11v11h-11zM4 10.5h2v3H4zM18 10.5h2v3h-2zM8.5 4v2M15.5 4v2M8.5 18v2M15.5 18v2',
+		package: 'M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16zM3.27 6.96L12 12.01l8.73-5.05M12 22.08V12'
 	};
 	return (
 		<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className={className} suppressHydrationWarning>

@@ -35,6 +35,10 @@ export interface SubscriptionFeatures {
   readiness_assessment: boolean;
   health_insights: boolean;
   
+  // Nutrition (Basic vs Advanced)
+  basic_nutrition_tracking: boolean;
+  advanced_nutrition_features: boolean;
+  
   // Coach Packs
   coach_packs_access: boolean;
   premium_programs: boolean;
@@ -142,6 +146,8 @@ export const getFeatureAccess = (tier: SubscriptionTier): SubscriptionFeatures =
     health_data_sync: false,
     readiness_assessment: false,
     health_insights: false,
+    basic_nutrition_tracking: false,
+    advanced_nutrition_features: false,
     coach_packs_access: false,
     premium_programs: false,
     monthly_challenges: false,
@@ -158,6 +164,7 @@ export const getFeatureAccess = (tier: SubscriptionTier): SubscriptionFeatures =
         ...baseFeatures,
         // Free users get basic features
         readiness_assessment: true,
+        basic_nutrition_tracking: true, // Basic nutrition tracking for free users
         unlimited_sessions: true, // Limited to 10 recent sessions
       };
 
@@ -175,6 +182,8 @@ export const getFeatureAccess = (tier: SubscriptionTier): SubscriptionFeatures =
         health_data_sync: true,
         readiness_assessment: true,
         health_insights: true,
+        basic_nutrition_tracking: true,
+        advanced_nutrition_features: true, // Advanced nutrition features for Pro users
         coach_packs_access: true,
         premium_programs: true,
         monthly_challenges: true,
@@ -199,6 +208,8 @@ export const getFeatureAccess = (tier: SubscriptionTier): SubscriptionFeatures =
         health_data_sync: true,
         readiness_assessment: true,
         health_insights: true,
+        basic_nutrition_tracking: true,
+        advanced_nutrition_features: true,
         coach_packs_access: true,
         premium_programs: true,
         monthly_challenges: true,

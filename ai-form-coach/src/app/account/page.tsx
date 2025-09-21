@@ -61,6 +61,7 @@ export default function Account() {
 					</button>
 				</div>
 			</div>
+			</div>
 		</div>
 	);
 }

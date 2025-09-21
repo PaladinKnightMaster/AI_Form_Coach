@@ -87,7 +87,7 @@ export default function HealthDashboard() {
     }
   };
 
-  const handleAssessmentSubmit = (assessment: any) => {
+  const handleAssessmentSubmit = (assessment: { energy: number; mood: number; sleep: number; soreness: number; stress: number; notes?: string }) => {
     setTodayReadiness({
       id: 'new',
       user_id: 'current',
@@ -146,7 +146,7 @@ export default function HealthDashboard() {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Today's Readiness
+              Today&apos;s Readiness
             </h2>
             <Button
               onClick={() => setShowAssessment(true)}

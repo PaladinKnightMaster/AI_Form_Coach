@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServiceClient } from '@/lib/supabase/server';
 import { subscriptionService } from '@/lib/subscription/subscriptionService';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const supabase = getSupabaseServiceClient();
     

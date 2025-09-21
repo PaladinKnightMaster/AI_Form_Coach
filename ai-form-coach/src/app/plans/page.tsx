@@ -10,6 +10,7 @@ import AIGeneratedPlan from '@/components/plans/AIGeneratedPlan';
 import PlanManagementModal from '@/components/plans/PlanManagementModal';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import LoadingButton from '@/components/LoadingButton';
+import FeatureGate from '@/components/FeatureGate';
 import { useToastContext } from '@/components/ToastProvider';
 import { getSupabaseClient, getCurrentUserId } from '@/lib/supabase/client';
 
@@ -20,6 +21,7 @@ export default function PlansPage() {
   const [featuredPlans, setFeaturedPlans] = useState<PlanTemplate[]>([]);
   const [userPlans, setUserPlans] = useState<UserPlan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [selectingPlan, setSelectingPlan] = useState<string | null>(null); // Track which plan is being selected
   const [acceptingPlan, setAcceptingPlan] = useState(false); // Track if accepting AI plan
   
@@ -90,22 +92,48 @@ export default function PlansPage() {
     }
   }, [showError]);
 
-  // Load data on component mount
+  // Check authentication on component mount
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      // Clear any previous errors
-      
-      await Promise.all([
-        fetchFeaturedPlans(),
-        fetchUserPlans()
-      ]);
-      
-      setLoading(false);
-    };
+    checkAuthentication();
+  }, []);
 
-    loadData();
-  }, [fetchFeaturedPlans, fetchUserPlans]);
+  // Load data after authentication
+  useEffect(() => {
+    if (isAuthenticated) {
+      const loadData = async () => {
+        setLoading(true);
+        // Clear any previous errors
+        
+        await Promise.all([
+          fetchFeaturedPlans(),
+          fetchUserPlans()
+        ]);
+        
+        setLoading(false);
+      };
+
+      loadData();
+    }
+  }, [isAuthenticated, fetchFeaturedPlans, fetchUserPlans]);
+
+  const checkAuthentication = async () => {
+    try {
+      const supabase = getSupabaseClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setIsAuthenticated(false);
+        router.push('/signin?redirect=/plans');
+        return;
+      }
+      
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Error checking authentication:', error);
+      setIsAuthenticated(false);
+      router.push('/signin?redirect=/plans');
+    }
+  };
 
   // Fetch user plans when switching to my-plans view
   useEffect(() => {
@@ -421,15 +449,17 @@ export default function PlansPage() {
             </div>
             
             {/* AI Plan Generation Button */}
-            <LoadingButton
-              onClick={() => setShowWizard(true)}
-              loading={isGenerating}
-              loadingText="Opening Wizard..."
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg shadow-lg"
-            >
-              <Icon name="zap" className="w-4 h-4 mr-2" />
-              Create AI Plan
-            </LoadingButton>
+            <FeatureGate feature="ai_plan_generation">
+              <LoadingButton
+                onClick={() => setShowWizard(true)}
+                loading={isGenerating}
+                loadingText="Opening Wizard..."
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg shadow-lg"
+              >
+                <Icon name="zap" className="w-4 h-4 mr-2" />
+                Create AI Plan
+              </LoadingButton>
+            </FeatureGate>
           </div>
 
           {/* Content */}

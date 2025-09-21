@@ -156,7 +156,7 @@ export default function MonthlyChallenges() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Icon name={getChallengeIcon(challenge.challenge_type) as any} className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    <Icon name={getChallengeIcon(challenge.challenge_type) as 'trophy' | 'target' | 'flame' | 'zap'} className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
                       {challenge.challenge_type}
                     </Badge>

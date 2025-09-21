@@ -97,9 +97,14 @@ export default function CoachPacksStore() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Coach Packs
-          </h1>
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg mr-4">
+              <Icon name="package" className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              Coach Packs
+            </h1>
+          </div>
           <p className="text-lg text-gray-600 dark:text-gray-400">
             Premium workout programs designed by fitness experts
           </p>
@@ -124,35 +129,35 @@ export default function CoachPacksStore() {
           }
         >
           {/* Coach Packs Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto">
             {coachPacks.map((pack) => (
               <div
                 key={pack.id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
-                <div className="p-6">
+                <div className="p-6 h-full flex flex-col">
                   <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex-1 pr-2">
                       {pack.name}
                     </h3>
-                    <Badge className={getDifficultyColor(pack.difficulty_level)}>
+                    <Badge className={`${getDifficultyColor(pack.difficulty_level)} flex-shrink-0`}>
                       {pack.difficulty_level}
                     </Badge>
                   </div>
 
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 flex-1">
                     {pack.description}
                   </p>
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <Icon name="calendar" className="w-4 h-4 mr-2" />
-                      {pack.duration_weeks} weeks
+                      <Icon name="calendar" className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">{pack.duration_weeks} weeks</span>
                     </div>
                     
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <Icon name="dumbbell" className="w-4 h-4 mr-2" />
-                      {pack.equipment_required.join(', ') || 'Bodyweight'}
+                      <Icon name="dumbbell" className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">{pack.equipment_required.join(', ') || 'Bodyweight'}</span>
                     </div>
                   </div>
 
@@ -164,7 +169,7 @@ export default function CoachPacksStore() {
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="text-2xl font-bold text-gray-900 dark:text-white">
                       {formatPrice(pack.price, pack.currency)}
                     </div>
@@ -172,7 +177,7 @@ export default function CoachPacksStore() {
                     <Button
                       onClick={() => handlePurchase(pack.id)}
                       disabled={purchasing === pack.id}
-                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                      className="bg-blue-500 hover:bg-blue-600 text-white flex-shrink-0"
                     >
                       {purchasing === pack.id ? (
                         <div className="flex items-center gap-2">

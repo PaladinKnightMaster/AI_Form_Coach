@@ -12,6 +12,8 @@ import QuickAddFoodModal from '@/components/nutrition/QuickAddFoodModal';
 import GoalsPanel from '@/components/nutrition/GoalsPanel';
 import ProgressPanel from '@/components/nutrition/ProgressPanel';
 import ProteinAdvisory from '@/components/nutrition/ProteinAdvisory';
+import FeatureGate from '@/components/FeatureGate';
+import { subscriptionService } from '@/lib/subscription/subscriptionService';
 
 export default function NutritionPage() {
 	const router = useRouter();
@@ -19,6 +21,7 @@ export default function NutritionPage() {
 	const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 	const [loading, setLoading] = useState(true);
 	const [authChecked, setAuthChecked] = useState(false);
+	const [, setUserTier] = useState<string>('free');
 	const [showQuickAddModal, setShowQuickAddModal] = useState(false);
 	const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast');
 	const [showGoalsPanel, setShowGoalsPanel] = useState(false);
@@ -31,9 +34,9 @@ export default function NutritionPage() {
 		fat: 67
 	});
 
-	// Check authentication
+	// Check authentication and subscription
 	useEffect(() => {
-		const checkAuth = async () => {
+		const checkAuthAndSubscription = async () => {
 			const supabase = getSupabaseClient();
 			const { data: { user }, error } = await supabase.auth.getUser();
 			
@@ -45,10 +48,28 @@ export default function NutritionPage() {
 				return;
 			}
 			
+			// Check subscription tier
+			try {
+				const tier = await subscriptionService.getUserTier(user.id);
+				setUserTier(tier);
+				
+				// Check if user has access to basic nutrition features
+				const hasAccess = await subscriptionService.hasFeatureAccess(user.id, 'basic_nutrition_tracking');
+				if (!hasAccess) {
+					console.log('User does not have access to nutrition features, redirecting to pricing');
+					router.push('/pricing?feature=nutrition');
+					return;
+				}
+			} catch (error) {
+				console.error('Error checking subscription:', error);
+				// Default to free tier if check fails
+				setUserTier('free');
+			}
+			
 			setAuthChecked(true);
 		};
 		
-		checkAuth();
+		checkAuthAndSubscription();
 	}, [router]);
 
 	const fetchNutritionDay = useCallback(async () => {
@@ -150,17 +171,19 @@ export default function NutritionPage() {
 								<Icon name="trending-up" className="w-4 h-4" />
 								Progress
 							</Button>
-							<Button 
-								variant="primary" 
-								onClick={() => {
-									setSelectedMealType('breakfast');
-									setShowQuickAddModal(true);
-								}}
-								className="transform hover:scale-105"
-							>
-								<Icon name="plus" className="w-4 h-4" />
-								Quick Add Food
-							</Button>
+            <FeatureGate feature="advanced_nutrition_features">
+								<Button 
+									variant="primary" 
+									onClick={() => {
+										setSelectedMealType('breakfast');
+										setShowQuickAddModal(true);
+									}}
+									className="transform hover:scale-105"
+								>
+									<Icon name="plus" className="w-4 h-4" />
+									Quick Add Food
+								</Button>
+							</FeatureGate>
 						</div>
 					</div>
 

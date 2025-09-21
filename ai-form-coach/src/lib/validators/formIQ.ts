@@ -1,5 +1,6 @@
 import type { RepMetric, Exercise } from './types';
 import type { SmoothedLandmark } from '../pose';
+import { angleBetween } from '../math/poseMath';
 
 export interface FormIQMetrics {
   formIQ: number; // 0-1 score representing overall form quality

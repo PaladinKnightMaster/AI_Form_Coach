@@ -97,7 +97,7 @@ export default function PlanWizard({ onComplete, onCancel, isGenerating = false 
     }
   ];
 
-  const handleOptionSelect = (value: any) => {
+  const handleOptionSelect = (value: string | number) => {
     const step = steps[currentStep];
     
     if (step.type === "single") {

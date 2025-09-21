@@ -249,7 +249,7 @@ export default function ReadinessAssessment({
             </span>
           </div>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-            Based on your responses, we'll adjust your workout intensity accordingly.
+            Based on your responses, we&apos;ll adjust your workout intensity accordingly.
           </p>
         </div>
 

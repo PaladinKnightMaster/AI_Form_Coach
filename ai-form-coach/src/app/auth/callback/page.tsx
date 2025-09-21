@@ -30,6 +30,22 @@ export default function AuthCallback() {
 						console.error('Profile creation error:', profileError);
 					}
 					
+					// Ensure user subscription exists (default free plan)
+					try {
+						await supabase.from('user_subscriptions').upsert(
+							{
+								user_id: data.session.user.id,
+								tier: 'free',
+								status: 'active',
+								created_at: new Date().toISOString(),
+								updated_at: new Date().toISOString()
+							},
+							{ onConflict: 'user_id' }
+						);
+					} catch (subscriptionError) {
+						console.error('Subscription creation error:', subscriptionError);
+					}
+					
 					// Redirect to coach with welcome flag
 					router.push('/coach?welcome=true');
 				} else {
