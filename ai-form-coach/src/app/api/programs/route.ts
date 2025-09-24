@@ -11,10 +11,9 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const isTemplate = searchParams.get('is_template') === 'true';
+    const type = searchParams.get('type') || 'all'; // 'all', 'templates', 'user'
 
-    // Get programs (templates or user-created)
-    const { data: programs, error } = await supabase
+    let query = supabase
       .from('programs')
       .select(`
         *,
@@ -25,18 +24,22 @@ export async function GET(request: NextRequest) {
             day_blocks (*)
           )
         )
-      `)
-      .eq('is_template', isTemplate)
-      .order('created_at', { ascending: false });
+      `);
+
+    if (type === 'templates') {
+      query = query.eq('is_template', true);
+    } else if (type === 'user') {
+      query = query.eq('created_by', user.id);
+    }
+
+    const { data: programs, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching programs:', error);
       return NextResponse.json({ error: 'Failed to fetch programs' }, { status: 500 });
     }
 
-    return NextResponse.json({
-      programs: programs || []
-    });
+    return NextResponse.json({ programs: programs || [] });
 
   } catch (error) {
     console.error('Programs API error:', error);
@@ -61,9 +64,13 @@ export async function POST(request: NextRequest) {
       difficulty_level,
       equipment_required,
       target_goals,
-      is_template = false,
-      weeks
+      program_structure
     } = body;
+
+    // Validate required fields
+    if (!name || !duration_weeks || !difficulty_level) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
 
     // Create program
     const { data: program, error: programError } = await supabase
@@ -73,12 +80,12 @@ export async function POST(request: NextRequest) {
         description,
         duration_weeks,
         difficulty_level,
-        equipment_required,
-        target_goals,
-        is_template,
-        created_by: user.id
+        equipment_required: equipment_required || [],
+        target_goals: target_goals || [],
+        created_by: user.id,
+        is_template: false
       })
-      .select()
+      .select('id')
       .single();
 
     if (programError) {
@@ -86,18 +93,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create program' }, { status: 500 });
     }
 
-    // Create program weeks and days if provided
-    if (weeks && weeks.length > 0) {
-      for (const week of weeks) {
+    // Create program structure if provided
+    if (program_structure && program_structure.weeks) {
+      for (const [weekIndex, week] of program_structure.weeks.entries()) {
         const { data: programWeek, error: weekError } = await supabase
           .from('program_weeks')
           .insert({
             program_id: program.id,
-            week_number: week.week_number,
+            week_number: weekIndex + 1,
             focus: week.focus,
             notes: week.notes
           })
-          .select()
+          .select('id')
           .single();
 
         if (weekError) {
@@ -105,18 +112,18 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        // Create program days
-        if (week.days && week.days.length > 0) {
-          for (const day of week.days) {
+        // Create days for this week
+        if (week.days) {
+          for (const [dayIndex, day] of week.days.entries()) {
             const { data: programDay, error: dayError } = await supabase
               .from('program_days')
               .insert({
                 program_week_id: programWeek.id,
-                day_number: day.day_number,
+                day_number: dayIndex + 1,
                 day_name: day.day_name,
                 is_rest_day: day.is_rest_day || false
               })
-              .select()
+              .select('id')
               .single();
 
             if (dayError) {
@@ -124,14 +131,14 @@ export async function POST(request: NextRequest) {
               continue;
             }
 
-            // Create day blocks
-            if (day.blocks && day.blocks.length > 0) {
-              for (const block of day.blocks) {
-                const { error: blockError } = await supabase
+            // Create blocks for this day
+            if (day.blocks) {
+              for (const [blockIndex, block] of day.blocks.entries()) {
+                await supabase
                   .from('day_blocks')
                   .insert({
                     program_day_id: programDay.id,
-                    block_order: block.block_order,
+                    block_order: blockIndex + 1,
                     block_type: block.block_type,
                     exercise_type: block.exercise_type,
                     template_id: block.template_id,
@@ -142,10 +149,6 @@ export async function POST(request: NextRequest) {
                     intensity: block.intensity,
                     notes: block.notes
                   });
-
-                if (blockError) {
-                  console.error('Error creating day block:', blockError);
-                }
               }
             }
           }
@@ -155,7 +158,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      program
+      program: { id: program.id }
     });
 
   } catch (error) {

@@ -13,7 +13,7 @@ export interface HKCategorySample {
   startDate: Date;
   endDate: Date;
   sourceName: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface HKQuantitySample {
@@ -22,7 +22,7 @@ export interface HKQuantitySample {
   startDate: Date;
   endDate: Date;
   sourceName: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface HKWorkout {
@@ -33,7 +33,7 @@ export interface HKWorkout {
   startDate: Date;
   endDate: Date;
   sourceName: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Official Health Connect Data Types
@@ -343,12 +343,12 @@ export class HealthDataManager {
   private async requestIOSPermissions(): Promise<HealthPermissions> {
     try {
       // Check if HealthKit is available
-      if (typeof (window as any).HealthKit === 'undefined') {
+      if (typeof (window as { HealthKit?: unknown }).HealthKit === 'undefined') {
         console.warn('HealthKit not available');
         return this.permissions;
       }
 
-      const healthKit = (window as any).HealthKit;
+      const healthKit = (window as { [key: string]: unknown }).HealthKit;
       
       // Request permissions for official HealthKit data types
       const sleepAnalysisPermission = await healthKit.requestAuthorization(['HKCategoryTypeIdentifierSleepAnalysis']);
@@ -392,12 +392,12 @@ export class HealthDataManager {
   private async requestAndroidPermissions(): Promise<HealthPermissions> {
     try {
       // Check if Health Connect is available
-      if (typeof (window as any).HealthConnect === 'undefined') {
+      if (typeof (window as { [key: string]: unknown }).HealthConnect === 'undefined') {
         console.warn('Health Connect not available');
         return this.permissions;
       }
 
-      const healthConnect = (window as any).HealthConnect;
+      const healthConnect = (window as { [key: string]: unknown }).HealthConnect;
       
       // Request permissions for official Health Connect data types
       const sleepSessionPermission = await healthConnect.requestPermission('SleepSession');
@@ -495,7 +495,7 @@ export class HealthDataManager {
    */
   private async fetchIOSHealthData(date: Date): Promise<HealthData | null> {
     try {
-      const healthKit = (window as any).HealthKit;
+      const healthKit = (window as { [key: string]: unknown }).HealthKit;
       if (!healthKit) return null;
 
       const startDate = new Date(date);
@@ -545,7 +545,7 @@ export class HealthDataManager {
    */
   private async fetchAndroidHealthData(date: Date): Promise<HealthData | null> {
     try {
-      const healthConnect = (window as any).HealthConnect;
+      const healthConnect = (window as { [key: string]: unknown }).HealthConnect;
       if (!healthConnect) return null;
 
       const startDate = new Date(date);
@@ -807,7 +807,7 @@ export class HealthDataManager {
   }
 
   // Conversion helper methods for HealthKit data
-  private convertHealthKitSleepSamples(samples: any[]): SleepSession[] {
+  private convertHealthKitSleepSamples(samples: unknown[]): SleepSession[] {
     if (!samples) return [];
     
     return samples.map(sample => ({
@@ -832,7 +832,7 @@ export class HealthDataManager {
     }
   }
 
-  private convertHealthKitHeartRateSamples(samples: any[]): { samples: HeartRate[], restingHR: number } {
+  private convertHealthKitHeartRateSamples(samples: unknown[]): { samples: HeartRate[], restingHR: number } {
     if (!samples) return { samples: [], restingHR: 0 };
     
     const heartRateSamples: HeartRate[] = samples.map(sample => ({
@@ -849,7 +849,7 @@ export class HealthDataManager {
     return { samples: heartRateSamples, restingHR: Math.round(restingHR) };
   }
 
-  private convertHealthKitHRVSamples(samples: any[]): { samples: HeartRateVariability[], averageHRV: number | null } {
+  private convertHealthKitHRVSamples(samples: unknown[]): { samples: HeartRateVariability[], averageHRV: number | null } {
     if (!samples) return { samples: [], averageHRV: null };
     
     const hrvSamples: HeartRateVariability[] = samples.map(sample => ({
@@ -864,7 +864,7 @@ export class HealthDataManager {
     return { samples: hrvSamples, averageHRV: averageHRV ? Math.round(averageHRV) : null };
   }
 
-  private convertHealthKitStepSamples(samples: any[]): { samples: Steps[], totalSteps: number } {
+  private convertHealthKitStepSamples(samples: unknown[]): { samples: Steps[], totalSteps: number } {
     if (!samples) return { samples: [], totalSteps: 0 };
     
     const stepSamples: Steps[] = samples.map(sample => ({
@@ -879,7 +879,7 @@ export class HealthDataManager {
     return { samples: stepSamples, totalSteps };
   }
 
-  private convertHealthKitWorkoutSamples(samples: any[]): { sessions: WorkoutSession[] } {
+  private convertHealthKitWorkoutSamples(samples: unknown[]): { sessions: WorkoutSession[] } {
     if (!samples) return { sessions: [] };
     
     const workoutSessions: WorkoutSession[] = samples.map(sample => ({
@@ -910,7 +910,7 @@ export class HealthDataManager {
   }
 
   // Conversion helper methods for Health Connect data
-  private convertHealthConnectHeartRateSamples(samples: any[]): { samples: HeartRate[], restingHR: number } {
+  private convertHealthConnectHeartRateSamples(samples: unknown[]): { samples: HeartRate[], restingHR: number } {
     if (!samples) return { samples: [], restingHR: 0 };
     
     const heartRateSamples: HeartRate[] = samples.map(sample => ({
@@ -927,7 +927,7 @@ export class HealthDataManager {
     return { samples: heartRateSamples, restingHR: Math.round(restingHR) };
   }
 
-  private convertHealthConnectHRVSamples(samples: any[]): { samples: HeartRateVariability[], averageHRV: number | null } {
+  private convertHealthConnectHRVSamples(samples: unknown[]): { samples: HeartRateVariability[], averageHRV: number | null } {
     if (!samples) return { samples: [], averageHRV: null };
     
     const hrvSamples: HeartRateVariability[] = samples.map(sample => ({
@@ -942,7 +942,7 @@ export class HealthDataManager {
     return { samples: hrvSamples, averageHRV: averageHRV ? Math.round(averageHRV) : null };
   }
 
-  private convertHealthConnectStepSamples(samples: any[]): { samples: Steps[], totalSteps: number } {
+  private convertHealthConnectStepSamples(samples: unknown[]): { samples: Steps[], totalSteps: number } {
     if (!samples) return { samples: [], totalSteps: 0 };
     
     const stepSamples: Steps[] = samples.map(sample => ({

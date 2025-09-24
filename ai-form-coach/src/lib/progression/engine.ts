@@ -71,7 +71,7 @@ export class ProgressionEngine {
           session.qualityScore >= qualityThreshold
         );
       },
-      action: (currentTarget) => {
+      action: (currentTarget, metrics, readiness) => {
         const increasePercent = 0.075; // 7.5% average increase
         
         if (currentTarget.targetReps) {
@@ -106,7 +106,7 @@ export class ProgressionEngine {
         const readinessScore = this.calculateReadinessScore(readiness);
         return readinessScore < 0.4; // Low readiness threshold
       },
-      action: (currentTarget) => {
+      action: (currentTarget, metrics, readiness) => {
         const reductionPercent = 0.25; // 25% reduction
         
         if (currentTarget.targetReps) {
@@ -141,7 +141,7 @@ export class ProgressionEngine {
         if (!readiness) return false;
         return readiness.sorenessLevel >= 6;
       },
-      action: (currentTarget) => {
+      action: (currentTarget, metrics, readiness) => {
         if (readiness && readiness.sorenessLevel >= 9) {
           // Extreme soreness - reduce by 40%
           const reductionPercent = 0.4;
@@ -180,7 +180,7 @@ export class ProgressionEngine {
       id: 'intensity_increase_quality',
       name: 'Intensity Increase - Quality Met',
       description: 'Increase intensity when last 3 sessions showed excellent quality',
-      priority: 2,
+      priority: 3.5, // Higher than volume increase (3) but lower than soreness rules (5)
       condition: (metrics, readiness) => {
         if (metrics.length < 3) return false;
         if (readiness && readiness.sorenessLevel > 5) return false;
@@ -193,7 +193,7 @@ export class ProgressionEngine {
           session.qualityScore >= excellentThreshold
         );
       },
-      action: (currentTarget) => {
+      action: (currentTarget, metrics, readiness) => {
         return {
           ...currentTarget,
           intensity: currentTarget.intensity === 'low' ? 'moderate' : 
@@ -208,14 +208,14 @@ export class ProgressionEngine {
       id: 'deload_week',
       name: 'Deload Week',
       description: 'Reduce volume by 50% every 4-6 weeks for recovery',
-      priority: 1,
+      priority: 6, // Highest priority - deload should override other rules
       condition: (metrics, readiness) => {
         if (metrics.length < 8) return false; // Need at least 8 sessions (4 weeks)
         
         const weeksSinceLastDeload = this.getWeeksSinceLastDeload(metrics);
         return weeksSinceLastDeload >= 4;
       },
-      action: (currentTarget) => {
+      action: (currentTarget, metrics, readiness) => {
         const deloadPercent = 0.5; // 50% reduction
         
         if (currentTarget.targetReps) {
@@ -306,7 +306,7 @@ export class ProgressionEngine {
     // Find the first rule that applies
     for (const rule of sortedRules) {
       if (rule.condition(sessionHistory, readiness)) {
-        return rule.action(currentTarget);
+        return rule.action(currentTarget, sessionHistory, readiness);
       }
     }
     

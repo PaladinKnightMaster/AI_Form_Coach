@@ -4,8 +4,8 @@ import type { ReadinessAssessment } from '@/lib/progression/engine';
 export interface PlanAdjustment {
   type: 'volume_reduction' | 'mobility_day' | 'finisher_sets' | 'none';
   reason: string;
-  originalPlan: any;
-  adjustedPlan: any;
+  originalPlan: UserPlan;
+  adjustedPlan: UserPlan;
   adjustments: string[];
 }
 
@@ -188,7 +188,7 @@ export class PlanAdjustmentService {
       }
 
       // Find session for current day
-      const session = planData.sessions.find((s: any) => s.day === currentDay || s.day_number === currentDay);
+      const session = planData.sessions.find((s: { day?: number; day_number?: number }) => s.day === currentDay || s.day_number === currentDay);
       if (!session) {
         return null;
       }
@@ -218,7 +218,7 @@ export class PlanAdjustmentService {
     // Only adjust AI-generated plans (those with plan_data)
     if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions) {
       const sessionIndex = adjustedPlan.plan_data.sessions.findIndex(
-        (s: any) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
+        (s: { id?: string; day?: string }) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
       );
       
       if (sessionIndex !== -1) {
@@ -267,7 +267,7 @@ export class PlanAdjustmentService {
     // Only adjust AI-generated plans (those with plan_data)
     if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions) {
       const sessionIndex = adjustedPlan.plan_data.sessions.findIndex(
-        (s: any) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
+        (s: { id?: string; day?: string }) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
       );
       
       if (sessionIndex !== -1) {
@@ -275,7 +275,7 @@ export class PlanAdjustmentService {
         
         // Reduce sets by 20% (minimum 1 set)
         if (session.exercises) {
-          session.exercises = session.exercises.map((exercise: any) => ({
+          session.exercises = session.exercises.map((exercise: { sets?: number; [key: string]: unknown }) => ({
             ...exercise,
             sets: Math.max(1, Math.round(exercise.sets * 0.8))
           }));
@@ -324,7 +324,7 @@ export class PlanAdjustmentService {
     // Only adjust AI-generated plans (those with plan_data)
     if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions) {
       const sessionIndex = adjustedPlan.plan_data.sessions.findIndex(
-        (s: any) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
+        (s: { id?: string; day?: string }) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
       );
       
       if (sessionIndex !== -1) {

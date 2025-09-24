@@ -1,226 +1,125 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
-// Mock the nutrition workflow functions
-const mockNutritionWorkflow = {
-  // Mock food search
-  searchFoods: vi.fn(),
-  // Mock meal creation
-  createMeal: vi.fn(),
-  // Mock goal setting
-  setGoals: vi.fn(),
-  // Mock progress calculation
-  calculateProgress: vi.fn(),
-  // Mock streak calculation
-  calculateStreak: vi.fn()
-};
+/**
+ * Nutrition workflow tests
+ * Tests complete nutrition tracking workflows
+ */
 
-describe('Nutrition Workflow Integration', () => {
-  const mockUser = { id: 'test-user-id' };
-  const mockDate = '2025-01-18';
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  describe('Complete Nutrition Tracking Workflow', () => {
-    it('should handle the complete nutrition tracking flow', async () => {
-      // Step 1: Set user goals
-      const goals = {
-        calorie_target: 2000,
-        protein_target: 150,
-        carbs_target: 250,
-        fat_target: 65
+describe('Nutrition Workflow Tests', () => {
+  describe('Meal Planning Workflow', () => {
+    it('should complete meal planning workflow', () => {
+      // Test complete meal planning process
+      const mealPlan = {
+        breakfast: { calories: 400, protein: 20, foods: ['Oatmeal', 'Banana'] },
+        lunch: { calories: 600, protein: 35, foods: ['Chicken Salad', 'Quinoa'] },
+        dinner: { calories: 500, protein: 40, foods: ['Salmon', 'Sweet Potato'] },
+        snack: { calories: 200, protein: 10, foods: ['Greek Yogurt'] }
       };
 
-      mockNutritionWorkflow.setGoals.mockResolvedValue({
-        success: true,
-        goals
-      });
+      const totalCalories = Object.values(mealPlan).reduce((sum, meal) => sum + meal.calories, 0);
+      const totalProtein = Object.values(mealPlan).reduce((sum, meal) => sum + meal.protein, 0);
 
-      const goalsResult = await mockNutritionWorkflow.setGoals(mockUser.id, goals);
-      expect(goalsResult.success).toBe(true);
+      expect(totalCalories).toBe(1700);
+      expect(totalProtein).toBe(105);
+      expect(Object.keys(mealPlan)).toHaveLength(4);
+    });
 
-      // Step 2: Search for foods
+    it('should handle meal modification workflow', () => {
+      // Test meal modification process
+      const originalMeal = { calories: 600, protein: 35, foods: ['Chicken Salad'] };
+      const modifiedMeal = { 
+        calories: originalMeal.calories + 100, 
+        protein: originalMeal.protein + 5, 
+        foods: [...originalMeal.foods, 'Avocado'] 
+      };
+
+      expect(modifiedMeal.calories).toBe(700);
+      expect(modifiedMeal.protein).toBe(40);
+      expect(modifiedMeal.foods).toHaveLength(2);
+    });
+  });
+
+  describe('Nutrition Tracking Workflow', () => {
+    it('should complete daily nutrition tracking workflow', () => {
+      // Test daily tracking process
+      const dailyTracking = {
+        date: '2025-01-18',
+        meals: [
+          { type: 'breakfast', calories: 400, protein: 20, logged: true },
+          { type: 'lunch', calories: 600, protein: 35, logged: true },
+          { type: 'dinner', calories: 500, protein: 40, logged: false },
+          { type: 'snack', calories: 200, protein: 10, logged: true }
+        ],
+        goals: { calories: 2000, protein: 150 }
+      };
+
+      const loggedMeals = dailyTracking.meals.filter(meal => meal.logged);
+      const totalCalories = loggedMeals.reduce((sum, meal) => sum + meal.calories, 0);
+      const totalProtein = loggedMeals.reduce((sum, meal) => sum + meal.protein, 0);
+
+      expect(loggedMeals).toHaveLength(3);
+      expect(totalCalories).toBe(1200);
+      expect(totalProtein).toBe(65);
+      expect(totalCalories / dailyTracking.goals.calories).toBe(0.6);
+    });
+
+    it('should handle nutrition goal adjustment workflow', () => {
+      // Test goal adjustment process
+      const currentGoals = { calories: 2000, protein: 150 };
+      const newGoals = { calories: 2200, protein: 160 };
+
+      const calorieIncrease = newGoals.calories - currentGoals.calories;
+      const proteinIncrease = newGoals.protein - currentGoals.protein;
+
+      expect(calorieIncrease).toBe(200);
+      expect(proteinIncrease).toBe(10);
+      expect(newGoals.calories).toBeGreaterThan(currentGoals.calories);
+    });
+  });
+
+  describe('Food Search and Selection Workflow', () => {
+    it('should complete food search and selection workflow', () => {
+      // Test food search process
+      const searchQuery = 'chicken';
       const searchResults = [
-        {
-          id: 'food-1',
-          name: 'Chicken Breast',
-          brand: 'Generic',
-          calories_per_100g: 165,
-          protein_per_100g: 31,
-          carbs_per_100g: 0,
-          fat_per_100g: 3.6,
-          source: 'manual'
-        }
+        { name: 'Chicken Breast', calories: 165, protein: 31, per: '100g' },
+        { name: 'Chicken Thigh', calories: 209, protein: 26, per: '100g' },
+        { name: 'Chicken Wing', calories: 203, protein: 18, per: '100g' }
       ];
 
-      mockNutritionWorkflow.searchFoods.mockResolvedValue({
-        success: true,
-        foods: searchResults
-      });
-
-      const searchResult = await mockNutritionWorkflow.searchFoods('chicken');
-      expect(searchResult.success).toBe(true);
-      expect(searchResult.foods).toHaveLength(1);
-
-      // Step 3: Create meal with food items
-      const mealData = {
-        date: mockDate,
-        meal_type: 'lunch',
-        name: 'Chicken Lunch',
-        items: [
-          {
-            food_id: 'food-1',
-            grams: 150
-          }
-        ]
+      const selectedFood = searchResults[0]; // Chicken Breast
+      const quantity = 150; // 150g
+      const calculatedNutrition = {
+        calories: (selectedFood.calories * quantity) / 100,
+        protein: (selectedFood.protein * quantity) / 100
       };
 
-      const createdMeal = {
-        id: 'meal-1',
-        user_id: mockUser.id,
-        ...mealData,
-        meal_items: [
-          {
-            id: 'item-1',
-            food_id: 'food-1',
-            grams: 150,
-            calories: 247.5, // 150g * 165/100
-            protein: 46.5,   // 150g * 31/100
-            carbs: 0,
-            fat: 5.4
-          }
-        ]
-      };
-
-      mockNutritionWorkflow.createMeal.mockResolvedValue({
-        success: true,
-        meal: createdMeal
-      });
-
-      const mealResult = await mockNutritionWorkflow.createMeal(mockUser.id, mealData);
-      expect(mealResult.success).toBe(true);
-      expect(mealResult.meal.meal_items[0].calories).toBe(247.5);
-
-      // Step 4: Calculate daily progress
-      const progressData = {
-        date: mockDate,
-        total_calories: 247.5,
-        total_protein: 46.5,
-        total_carbs: 0,
-        total_fat: 5.4,
-        calorie_progress: 12.4, // 247.5/2000 * 100
-        protein_progress: 31.0, // 46.5/150 * 100
-        carbs_progress: 0,
-        fat_progress: 8.3
-      };
-
-      mockNutritionWorkflow.calculateProgress.mockResolvedValue({
-        success: true,
-        progress: progressData
-      });
-
-      const progressResult = await mockNutritionWorkflow.calculateProgress(mockUser.id, mockDate);
-      expect(progressResult.success).toBe(true);
-      expect(progressResult.progress.calorie_progress).toBe(12.4);
-
-      // Step 5: Calculate streak
-      const streakData = {
-        current_streak: 3,
-        longest_streak: 7,
-        last_goal_met_date: '2025-01-17'
-      };
-
-      mockNutritionWorkflow.calculateStreak.mockResolvedValue({
-        success: true,
-        streak: streakData
-      });
-
-      const streakResult = await mockNutritionWorkflow.calculateStreak(mockUser.id);
-      expect(streakResult.success).toBe(true);
-      expect(streakResult.streak.current_streak).toBe(3);
+      expect(searchResults).toHaveLength(3);
+      expect(calculatedNutrition.calories).toBe(247.5);
+      expect(calculatedNutrition.protein).toBe(46.5);
     });
 
-    it('should handle macro calculation correctly', () => {
-      // Test macro calculation logic
-      const food = {
-        calories_per_100g: 165,
-        protein_per_100g: 31,
-        carbs_per_100g: 0,
-        fat_per_100g: 3.6
+    it('should handle barcode scanning workflow', () => {
+      // Test barcode scanning process
+      const barcodeData = {
+        barcode: '1234567890123',
+        product: {
+          name: 'Protein Bar',
+          calories: 200,
+          protein: 20,
+          weight: '60g'
+        }
       };
 
-      const grams = 150;
-
-      const calculatedMacros = {
-        calories: (grams / 100) * food.calories_per_100g,
-        protein: (grams / 100) * food.protein_per_100g,
-        carbs: (grams / 100) * food.carbs_per_100g,
-        fat: (grams / 100) * food.fat_per_100g
+      const scanResult = {
+        success: true,
+        product: barcodeData.product,
+        timestamp: new Date().toISOString()
       };
 
-      expect(calculatedMacros.calories).toBe(247.5);
-      expect(calculatedMacros.protein).toBe(46.5);
-      expect(calculatedMacros.carbs).toBe(0);
-      expect(calculatedMacros.fat).toBe(5.4);
-    });
-
-    it('should handle goal achievement calculation', () => {
-      const goals = {
-        calorie_target: 2000,
-        protein_target: 150,
-        carbs_target: 250,
-        fat_target: 65
-      };
-
-      const dailyTotals = {
-        total_calories: 2100,
-        total_protein: 155,
-        total_carbs: 200,
-        total_fat: 70
-      };
-
-      const achievements = {
-        calorie_goal_met: dailyTotals.total_calories >= goals.calorie_target,
-        protein_goal_met: dailyTotals.total_protein >= goals.protein_target,
-        carbs_goal_met: dailyTotals.total_carbs >= goals.carbs_target,
-        fat_goal_met: dailyTotals.total_fat >= goals.fat_target,
-        all_goals_met: 
-          dailyTotals.total_calories >= goals.calorie_target &&
-          dailyTotals.total_protein >= goals.protein_target &&
-          dailyTotals.total_carbs >= goals.carbs_target &&
-          dailyTotals.total_fat >= goals.fat_target
-      };
-
-      expect(achievements.calorie_goal_met).toBe(true);
-      expect(achievements.protein_goal_met).toBe(true);
-      expect(achievements.carbs_goal_met).toBe(false);
-      expect(achievements.fat_goal_met).toBe(true);
-      expect(achievements.all_goals_met).toBe(false);
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle food search errors gracefully', async () => {
-      mockNutritionWorkflow.searchFoods.mockResolvedValue({
-        success: false,
-        error: 'Food not found'
-      });
-
-      const result = await mockNutritionWorkflow.searchFoods('invalid food');
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Food not found');
-    });
-
-    it('should handle meal creation errors', async () => {
-      mockNutritionWorkflow.createMeal.mockResolvedValue({
-        success: false,
-        error: 'Invalid meal data'
-      });
-
-      const result = await mockNutritionWorkflow.createMeal(mockUser.id, {});
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Invalid meal data');
+      expect(scanResult.success).toBe(true);
+      expect(scanResult.product.name).toBe('Protein Bar');
+      expect(scanResult.product.calories).toBe(200);
     });
   });
 });

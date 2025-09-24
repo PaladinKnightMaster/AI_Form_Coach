@@ -178,7 +178,7 @@ export function generateCoachingInsights(
 
   // Exercise-Specific Insights
   if (exercise === 'squat') {
-    const avgDepth = metrics.reduce((sum, m) => sum + ((m as any).peakDepth ?? 0), 0) / metrics.length;
+    const avgDepth = metrics.reduce((sum, m) => sum + ((m as { peakDepth?: number }).peakDepth ?? 0), 0) / metrics.length;
     if (avgDepth > 80) {
       insights.push({
         id: 'squat-depth-excellent',

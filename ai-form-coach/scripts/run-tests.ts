@@ -58,10 +58,11 @@ function runTestFile(filePath: string): { status: 'passed' | 'failed'; error?: s
     console.log(`${colors.green}✅ PASSED: ${filePath}${colors.reset}\n`);
     return { status: 'passed' };
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log(`${colors.red}❌ FAILED: ${filePath}${colors.reset}`);
-    console.log(`${colors.red}Error: ${error.message}${colors.reset}\n`);
-    return { status: 'failed', error: error.message };
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log(`${colors.red}Error: ${errorMessage}${colors.reset}\n`);
+    return { status: 'failed', error: errorMessage };
   }
 }
 

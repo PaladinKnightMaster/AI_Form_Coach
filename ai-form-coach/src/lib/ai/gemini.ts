@@ -121,7 +121,20 @@ IMPORTANT: Respond with ONLY valid JSON. Do not include any markdown formatting,
   }
 }
 
-function validateAndCleanAnalysis(result: any): FoodAnalysisResult {
+function validateAndCleanAnalysis(result: {
+  name?: string;
+  brand?: string;
+  category?: string;
+  estimatedWeight?: number;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  fiber?: number;
+  sugar?: number;
+  sodium?: number;
+  confidence?: number;
+}): FoodAnalysisResult {
   return {
     name: result.name || 'Unknown Food',
     brand: result.brand || undefined,
