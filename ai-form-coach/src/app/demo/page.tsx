@@ -1,14 +1,10 @@
 "use client";
 import { useState } from 'react';
-import { Container, Section, Button, Badge, Icon } from '@/ui/DS';
+import { Container, Button, Badge, Icon } from '@/ui/DS';
 import Link from 'next/link';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
-import AuthCard from '@/components/AuthCard';
-import FAQ from '@/components/FAQ';
-import PricingTeaser from '@/components/PricingTeaser';
 import SocialProofBand from '@/components/SocialProofBand';
-import FinalCTA from '@/components/FinalCTA';
 
 export default function ComponentDemo() {
 	const [activeSection, setActiveSection] = useState<string>('buttons');

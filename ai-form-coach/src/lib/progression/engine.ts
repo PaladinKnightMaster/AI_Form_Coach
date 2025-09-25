@@ -71,7 +71,7 @@ export class ProgressionEngine {
           session.qualityScore >= qualityThreshold
         );
       },
-      action: (currentTarget, metrics, readiness) => {
+      action: (currentTarget, _metrics, _readiness) => {
         const increasePercent = 0.075; // 7.5% average increase
         
         if (currentTarget.targetReps) {
@@ -106,7 +106,7 @@ export class ProgressionEngine {
         const readinessScore = this.calculateReadinessScore(readiness);
         return readinessScore < 0.4; // Low readiness threshold
       },
-      action: (currentTarget, metrics, readiness) => {
+      action: (currentTarget, _metrics, _readiness) => {
         const reductionPercent = 0.25; // 25% reduction
         
         if (currentTarget.targetReps) {
@@ -141,8 +141,8 @@ export class ProgressionEngine {
         if (!readiness) return false;
         return readiness.sorenessLevel >= 6;
       },
-      action: (currentTarget, metrics, readiness) => {
-        if (readiness && readiness.sorenessLevel >= 9) {
+      action: (currentTarget, _metrics, _readiness) => {
+        if (_readiness && _readiness.sorenessLevel >= 9) {
           // Extreme soreness - reduce by 40%
           const reductionPercent = 0.4;
           
@@ -193,7 +193,7 @@ export class ProgressionEngine {
           session.qualityScore >= excellentThreshold
         );
       },
-      action: (currentTarget, metrics, readiness) => {
+      action: (currentTarget, _metrics, _readiness) => {
         return {
           ...currentTarget,
           intensity: currentTarget.intensity === 'low' ? 'moderate' : 
@@ -215,7 +215,7 @@ export class ProgressionEngine {
         const weeksSinceLastDeload = this.getWeeksSinceLastDeload(metrics);
         return weeksSinceLastDeload >= 4;
       },
-      action: (currentTarget, metrics, readiness) => {
+      action: (currentTarget, _metrics, _readiness) => {
         const deloadPercent = 0.5; // 50% reduction
         
         if (currentTarget.targetReps) {

@@ -5,6 +5,13 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = getSupabaseServiceClient();
     
+    // Get user from session
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     // Get active monthly challenge
     const now = new Date().toISOString();
     const { data: challenge, error } = await supabase

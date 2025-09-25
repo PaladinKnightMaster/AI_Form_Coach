@@ -23,7 +23,24 @@ export async function GET() {
       return NextResponse.json({ error: 'Failed to fetch goals' }, { status: 500 });
     }
 
-    return NextResponse.json({ goals: goals || null });
+    // Type validation
+    const validatedGoals: UserGoals | null = goals ? {
+      id: goals.id,
+      user_id: goals.user_id,
+      calorie_target: goals.calorie_target,
+      protein_target: goals.protein_target,
+      carbs_target: goals.carbs_target,
+      fat_target: goals.fat_target,
+      fiber_target: goals.fiber_target,
+      sugar_target: goals.sugar_target,
+      sodium_target: goals.sodium_target,
+      goal_type: goals.goal_type,
+      activity_level: goals.activity_level,
+      created_at: goals.created_at,
+      updated_at: goals.updated_at
+    } : null;
+
+    return NextResponse.json({ goals: validatedGoals });
   } catch (error) {
     console.error('Goals API error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
