@@ -270,10 +270,13 @@ BEGIN
     -- Clamp between 0 and 1
     RETURN LEAST(GREATEST(readiness_score, 0), 1);
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql
+SET search_path = public, pg_temp;
 
 -- Create a view for easy readiness score access
-CREATE OR REPLACE VIEW public.health_readiness_scores AS
+CREATE OR REPLACE VIEW public.health_readiness_scores
+WITH (security_invoker = true)
+AS
 SELECT 
     hd.user_id,
     hd.date,

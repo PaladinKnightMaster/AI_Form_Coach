@@ -85,8 +85,10 @@ CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_session_id ON user_sessions(session_id);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_started_at ON user_sessions(started_at);
 
--- Analytics Summary Views
-CREATE OR REPLACE VIEW analytics_summary AS
+-- Analytics Summary Views (with SECURITY INVOKER for safety)
+CREATE OR REPLACE VIEW analytics_summary
+WITH (security_invoker = true)
+AS
 SELECT 
     DATE_TRUNC('day', created_at) as date,
     event_type,
@@ -97,8 +99,10 @@ FROM analytics_events
 GROUP BY DATE_TRUNC('day', created_at), event_type
 ORDER BY date DESC, event_type;
 
--- Performance Summary View
-CREATE OR REPLACE VIEW performance_summary AS
+-- Performance Summary View (with SECURITY INVOKER for safety)
+CREATE OR REPLACE VIEW performance_summary
+WITH (security_invoker = true)
+AS
 SELECT 
     DATE_TRUNC('hour', timestamp) as hour,
     metric_name,
@@ -112,8 +116,10 @@ WHERE timestamp >= NOW() - INTERVAL '24 hours'
 GROUP BY DATE_TRUNC('hour', timestamp), metric_name, component
 ORDER BY hour DESC, metric_name, component;
 
--- Error Summary View
-CREATE OR REPLACE VIEW error_summary AS
+-- Error Summary View (with SECURITY INVOKER for safety)
+CREATE OR REPLACE VIEW error_summary
+WITH (security_invoker = true)
+AS
 SELECT 
     DATE_TRUNC('hour', timestamp) as hour,
     error_level,
@@ -166,7 +172,8 @@ BEGIN
     DELETE FROM error_events WHERE created_at < NOW() - INTERVAL '90 days';
     DELETE FROM user_sessions WHERE started_at < NOW() - INTERVAL '90 days';
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql
+SET search_path = public, pg_temp;
 
 -- Create a scheduled job to run cleanup (requires pg_cron extension)
 -- SELECT cron.schedule('cleanup-analytics', '0 2 * * *', 'SELECT cleanup_old_analytics_data();');
@@ -199,4 +206,5 @@ BEGIN
     WHERE s.user_id = p_user_id
     GROUP BY EXTRACT(HOUR FROM a.timestamp);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public, pg_temp;
