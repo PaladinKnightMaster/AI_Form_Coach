@@ -10,6 +10,7 @@ create table public.foods (
 	barcode text unique,
 	name text not null,
 	brand text,
+	category text, -- Food category (fruits, vegetables, protein, dairy, grains, snacks, beverages, mixed, etc.)
 	-- Macros per 100g
 	calories_per_100g real not null default 0,
 	protein_per_100g real not null default 0,
@@ -18,6 +19,9 @@ create table public.foods (
 	fiber_per_100g real not null default 0,
 	sugar_per_100g real not null default 0,
 	sodium_per_100g real not null default 0, -- mg
+	-- AI-enhanced ingredient breakdown
+	ingredients jsonb, -- Structured ingredient data: {"vegetables": ["lettuce"], "proteins": ["chicken"], ...}
+	detailed_description text, -- Comprehensive description including cooking method and appearance
 	-- Metadata
 	verified boolean default false,
 	created_by uuid references public.profiles(id) on delete set null,
@@ -74,6 +78,7 @@ group by m.user_id, m.date;
 -- Indexes for nutrition tables
 create index foods_barcode_idx on public.foods (barcode);
 create index foods_name_idx on public.foods using gin (to_tsvector('english', name || ' ' || coalesce(brand, '')));
+create index foods_ingredients_idx on public.foods using gin (ingredients); -- For JSONB ingredient queries
 create index meals_user_date_idx on public.meals (user_id, date desc);
 create index meals_user_date_type_idx on public.meals (user_id, date, meal_type);
 create unique index meals_user_date_type_unique_idx on public.meals (user_id, date, meal_type) where name is null;

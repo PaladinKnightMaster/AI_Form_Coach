@@ -134,14 +134,46 @@ export default function MealCard({ meal, mealType, onAddFood }: MealCardProps) {
   );
 }
 
-function FoodItemCard({ item }: { item: { id: string; quantity: number; food: { name: string; calories_per_100g: number; protein_per_100g: number; carbs_per_100g: number; fat_per_100g: number } } }) {
+function FoodItemCard({ item }: { item: any }) {
   const food = item.food;
+  
+  // Ingredient emoji mapping
+  const ingredientEmojis: Record<string, string> = {
+    vegetables: '🥬',
+    fruits: '🍎',
+    proteins: '🍗',
+    grains: '🌾',
+    dairy: '🧀',
+    other: '🧂'
+  };
+
+  // Get top 2 ingredient categories for display
+  const getTopIngredients = () => {
+    if (!food?.ingredients) return [];
+    return Object.entries(food.ingredients)
+      .filter(([_, items]) => items && (items as any[]).length > 0)
+      .slice(0, 2)
+      .map(([category]) => category);
+  };
+
+  const topIngredients = getTopIngredients();
   
   return (
     <div className="flex items-center justify-between p-3 bg-white/70 dark:bg-gray-800/70 rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors">
       <div className="flex-1">
-        <div className="font-medium text-gray-900 dark:text-white">
-          {food?.name || 'Unknown Food'}
+        <div className="flex items-center gap-2 mb-1">
+          <div className="font-medium text-gray-900 dark:text-white">
+            {food?.name || 'Unknown Food'}
+          </div>
+          {topIngredients.length > 0 && (
+            <div className="flex gap-1">
+              {topIngredients.map((category) => (
+                <span key={category} className="text-sm" title={category}>
+                  {ingredientEmojis[category]}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         {food?.brand && (
           <div className="text-sm text-gray-500 dark:text-gray-400">

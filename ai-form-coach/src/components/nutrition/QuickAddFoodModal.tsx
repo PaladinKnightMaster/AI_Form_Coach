@@ -732,29 +732,62 @@ export default function QuickAddFoodModal({
                     🔍 Search Results
                   </h3>
                   <div className="space-y-2">
-                    {searchResults.map((food) => (
-                      <button
-                        key={food.id}
-                        onClick={() => handleFoodSelect(food)}
-                        className="w-full p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-left"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-medium text-gray-900 dark:text-white">
-                              {food.name}
-                            </div>
-                            {food.brand && (
-                              <div className="text-sm text-gray-600 dark:text-gray-400">
-                                {food.brand}
+                    {searchResults.map((food) => {
+                      const ingredientEmojis: Record<string, string> = {
+                        vegetables: '🥬',
+                        fruits: '🍎',
+                        proteins: '🍗',
+                        grains: '🌾',
+                        dairy: '🧀',
+                        other: '🧂'
+                      };
+                      const topIngredients = food.ingredients 
+                        ? Object.entries(food.ingredients)
+                            .filter(([_, items]) => items && items.length > 0)
+                            .slice(0, 2)
+                            .map(([category]) => category)
+                        : [];
+                      
+                      return (
+                        <button
+                          key={food.id}
+                          onClick={() => handleFoodSelect(food)}
+                          className="w-full p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-left"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <div className="font-medium text-gray-900 dark:text-white">
+                                  {food.name}
+                                </div>
+                                {topIngredients.length > 0 && (
+                                  <div className="flex gap-1">
+                                    {topIngredients.map((category) => (
+                                      <span key={category} className="text-sm" title={category}>
+                                        {ingredientEmojis[category]}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
-                            )}
+                              {food.brand && (
+                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                  {food.brand}
+                                </div>
+                              )}
+                              {food.category && (
+                                <div className="text-xs text-gray-500 dark:text-gray-500 capitalize">
+                                  {food.category}
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400 ml-2">
+                              {Math.round(food.calories_per_100g)} cal/100g
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {Math.round(food.calories_per_100g)} cal/100g
-                          </div>
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

@@ -215,18 +215,52 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
 }
 
 function FoodSearchResult({ food, onSelect }: { food: Food; onSelect: () => void }) {
+  // Ingredient emoji mapping
+  const ingredientEmojis: Record<string, string> = {
+    vegetables: '🥬',
+    fruits: '🍎',
+    proteins: '🍗',
+    grains: '🌾',
+    dairy: '🧀',
+    other: '🧂'
+  };
+
+  // Get top 2 ingredient categories
+  const topIngredients = food.ingredients 
+    ? Object.entries(food.ingredients)
+        .filter(([_, items]) => items && items.length > 0)
+        .slice(0, 2)
+        .map(([category]) => category)
+    : [];
+
   return (
     <button
       onClick={onSelect}
       className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
     >
       <div className="flex-1">
-        <div className="font-medium text-gray-900 dark:text-white">
-          {food.name}
+        <div className="flex items-center gap-2 mb-1">
+          <div className="font-medium text-gray-900 dark:text-white">
+            {food.name}
+          </div>
+          {topIngredients.length > 0 && (
+            <div className="flex gap-1">
+              {topIngredients.map((category) => (
+                <span key={category} className="text-sm" title={category}>
+                  {ingredientEmojis[category]}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         {food.brand && (
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {food.brand}
+          </div>
+        )}
+        {food.category && (
+          <div className="text-xs text-gray-500 dark:text-gray-500 capitalize">
+            {food.category}
           </div>
         )}
         <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">

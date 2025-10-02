@@ -20,13 +20,16 @@ A revolutionary fitness application that combines AI-powered form coaching with 
 
 ### 🥗 Smart Nutrition Tracking
 - **AI food recognition** with camera-based food scanning
-- **Smart food database** with thousands of verified nutritional entries
+- **Ingredient breakdown analysis** - AI identifies vegetables, fruits, proteins, grains, dairy, and other components
+- **Detailed food descriptions** - Comprehensive breakdown including cooking methods and preparation
+- **Smart food database** with thousands of verified nutritional entries and JSONB ingredient queries
 - **Macro tracking** with visual progress rings (calories, protein, carbs, fat)
 - **Goals and streaks** with personalized calorie and macro targets
 - **Quick meal logging** with barcode scanning and search
 - **Daily nutrition overview** with meal breakdown and insights
 - **Date navigation** to track progress over time
 - **Protein advisory** with gentle reminders for optimal intake
+- **Dietary filtering** - Search by ingredient type for meal planning (vegan, dairy-free, etc.)
 
 ### 🗓️ AI-Powered Workout Plans
 - **AI-generated workout plans** using Google Gemini with quiz-style wizard
@@ -112,8 +115,8 @@ A revolutionary fitness application that combines AI-powered form coaching with 
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
    
-   # AI Features (Required)
-   GEMINI_API_KEY=your_gemini_api_key
+   # AI Features (Required) - Using Gemini 2.0 Flash
+   GEMINI_API_KEY=your_gemini_api_key  # Get free API key at https://makersuite.google.com/app/apikey
    
    # Payment Processing (Required for Pro features)
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
@@ -148,6 +151,9 @@ A revolutionary fitness application that combines AI-powered form coaching with 
    - `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Database connection
    - `SUPABASE_SERVICE_ROLE_KEY` - Server-side database operations
    - `GEMINI_API_KEY` - AI features (workout plans, food analysis)
+     - Get free API key: https://makersuite.google.com/app/apikey
+     - Free tier: 15 requests/minute, 1,500 requests/day
+     - Using Gemini 2.0 Flash (latest stable model)
 
    **Payment Processing (Required for Pro features):**
    - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` & `STRIPE_SECRET_KEY` - Stripe payment processing
@@ -162,12 +168,17 @@ A revolutionary fitness application that combines AI-powered form coaching with 
 
 5. **Set up the database**
    ```bash
-   # Run the nutrition schema setup
+   # Run the nutrition schema setup (includes ingredient breakdown columns)
    npm run seed:nutrition
    
    # Run the comprehensive database migration
    # Execute the SQL file in your Supabase dashboard:
    # supabase/migrations/add_missing_data_structures.sql
+   
+   # Note: nutrition-schema.sql now includes:
+   # - ingredients (JSONB) - Structured ingredient breakdown
+   # - detailed_description (TEXT) - Comprehensive food descriptions
+   # - GIN index for efficient ingredient queries
    ```
 
 6. **Start the development server**
@@ -211,12 +222,16 @@ ai-form-coach/
 - **MediaPipe** for on-device pose detection
 - **Web Speech API** for voice coaching
 
-### Backend
+### Backend & AI
 - **Supabase** for authentication and database
 - **PostgreSQL** with custom functions and triggers
 - **Row Level Security (RLS)** for data protection
 - **Edge Functions** for serverless operations
-- **Google Gemini AI** for workout plan generation
+- **Google Gemini 2.0 Flash** for AI features
+  - AI workout plan generation
+  - Food image recognition and analysis
+  - Nutritional data extraction
+  - Free tier: 15 req/min, 1,500 req/day
 - **Unsplash & Pixabay APIs** for dynamic hero images
 
 ### Development Tools
@@ -242,10 +257,15 @@ ai-form-coach/
 
 ### 🥗 Smart Nutrition Tracking
 1. Go to the **Nutrition** page from the main navigation
-2. Use **AI Camera** to scan food or **Add Food** to search manually
-3. Set your daily goals in the **Goals Panel** with macro targets
-4. Use the date navigator to track progress over time
-5. Monitor macro progress with visual rings and protein advisory
+2. Use **AI Camera** to scan food - AI identifies ingredients, cooking methods, and nutrition
+   - Analyzes vegetables, fruits, proteins, grains, dairy, and other components
+   - Provides detailed descriptions of the dish and preparation style
+   - Handles mixed dishes with comprehensive ingredient breakdowns
+3. Use **Add Food** to search manually with barcode scanning
+4. Set your daily goals in the **Goals Panel** with macro targets
+5. Use the date navigator to track progress over time
+6. Monitor macro progress with visual rings and protein advisory
+7. Filter foods by ingredient type for dietary preferences (vegan, dairy-free, etc.)
 
 ### 🗓️ AI Workout Plans
 1. Navigate to the **Plans** page from header navigation
@@ -468,6 +488,10 @@ For support, email support@aiformcoach.com or join our Discord community.
 - **Enhanced Navigation** - Real-time feedback and community hub integration
 
 ### 🚀 Recent Updates (Latest Maintenance)
+- **Enhanced Nutrition Analysis** - AI now identifies ingredient breakdowns (vegetables, fruits, proteins, grains, dairy) with detailed descriptions
+- **JSONB Ingredient Queries** - Advanced database queries for dietary filtering and meal planning
+- **Gemini 2.0 Migration** - Updated to Gemini 2.0 Flash (Gemini 1.5 deprecated Sept 2025)
+- **Database Security** - Fixed all 52 Supabase security warnings with RLS and function security
 - **Code Quality Audit** - Comprehensive review and cleanup completed
 - **Performance Optimization** - Removed redundant code and improved efficiency
 - **TypeScript Improvements** - Enhanced type safety throughout the codebase

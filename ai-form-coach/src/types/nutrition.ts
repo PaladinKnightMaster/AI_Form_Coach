@@ -1,5 +1,14 @@
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
+export interface FoodIngredients {
+	vegetables?: string[];
+	fruits?: string[];
+	proteins?: string[];
+	grains?: string[];
+	dairy?: string[];
+	other?: string[];
+}
+
 export interface Food {
 	id: string;
 	barcode?: string;
@@ -17,6 +26,8 @@ export interface Food {
 	created_by?: string;
 	created_at: string;
 	updated_at: string;
+	ingredients?: FoodIngredients;
+	detailed_description?: string;
 }
 
 export interface Meal {
@@ -106,6 +117,8 @@ export interface CreateFoodRequest {
 	sugar_per_100g?: number;
 	sodium_per_100g?: number;
 	verified?: boolean;
+	ingredients?: FoodIngredients;
+	detailed_description?: string;
 }
 
 // Goals and Targets Types
