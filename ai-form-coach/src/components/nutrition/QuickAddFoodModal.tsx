@@ -525,6 +525,8 @@ export default function QuickAddFoodModal({
         fiber_per_100g: analysisResult.nutritionalInfo.fiber,
         sugar_per_100g: analysisResult.nutritionalInfo.sugar,
         sodium_per_100g: analysisResult.nutritionalInfo.sodium,
+        ingredients: analysisResult.ingredients || undefined,
+        detailed_description: analysisResult.detailedDescription || undefined,
       };
 
       // Create food in database
@@ -554,7 +556,7 @@ export default function QuickAddFoodModal({
           food_id: createdFood.id,
           meal_type: mealType,
           date: date,
-          quantity: analysisResult.estimatedWeight, // Use AI estimated weight
+          grams: analysisResult.estimatedWeight, // Use AI estimated weight
         }),
       });
 
