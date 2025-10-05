@@ -1,9 +1,14 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { FormIQDisplay } from './FormIQDisplay';
 import { CoachingInsights } from './CoachingInsights';
+import VerificationBadge from './verification/VerificationBadge';
+import { CompactIntegrityScore } from './verification/IntegrityScoreDisplay';
+import { VerificationService } from '@/lib/verification/verificationService';
 import type { FormIQMetrics } from '@/lib/validators/formIQ';
 import type { SessionAnalysis } from '@/lib/insights/coachingInsights';
+import type { VerificationResponse } from '@/types/verification';
 
 interface SessionSummaryProps {
   exercise: string;
@@ -13,6 +18,7 @@ interface SessionSummaryProps {
   sessionAnalysis: SessionAnalysis;
   onClose: () => void;
   onNewSession: () => void;
+  sessionId?: string;
   className?: string;
 }
 
@@ -24,8 +30,23 @@ export function SessionSummary({
   sessionAnalysis,
   onClose,
   onNewSession,
+  sessionId,
   className = ''
 }: SessionSummaryProps) {
+  const [verification, setVerification] = useState<VerificationResponse | null>(null);
+  const [verificationLoading, setVerificationLoading] = useState(false);
+
+  // Fetch verification if sessionId provided
+  useEffect(() => {
+    if (sessionId) {
+      setVerificationLoading(true);
+      VerificationService.checkSession(sessionId, false)
+        .then(setVerification)
+        .catch(err => console.error('Verification check failed:', err))
+        .finally(() => setVerificationLoading(false));
+    }
+  }, [sessionId]);
+
   const formatDuration = (ms: number) => {
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
@@ -86,6 +107,61 @@ export function SessionSummary({
               className="bg-gradient-to-br from-gray-50 to-purple-50 border-purple-100"
             />
           </div>
+
+          {/* Verification Section */}
+          {sessionId && verification && (
+            <div className="mt-6 p-4 bg-gradient-to-br from-gray-50 to-purple-50 border border-purple-100 rounded-xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Session Verification</h3>
+                <VerificationBadge
+                  verified={verification.verified}
+                  integrity_score={verification.integrity_score}
+                  flagged={verification.flagged}
+                  size="md"
+                  showScore={false}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-gray-600 mb-1">Integrity Score</div>
+                  <CompactIntegrityScore score={verification.integrity_score} />
+                </div>
+                
+                {verification.verified && (
+                  <div className="text-sm text-gray-600">
+                    ✓ This session counts towards leaderboards and challenges
+                  </div>
+                )}
+                
+                {verification.flagged && verification.flag_reasons && verification.flag_reasons.length > 0 && (
+                  <div className="text-sm text-red-600">
+                    ⚠️ {verification.flag_reasons[0]}
+                  </div>
+                )}
+              </div>
+
+              {verification.recommendations && verification.recommendations.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-purple-200">
+                  <div className="text-xs font-medium text-gray-700 mb-2">💡 Tips to Improve:</div>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    {verification.recommendations.slice(0, 2).map((rec, idx) => (
+                      <li key={idx}>• {rec}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {sessionId && verificationLoading && (
+            <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                <span className="text-sm text-gray-600">Verifying session integrity...</span>
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-gray-100">

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
+import VerificationDetails from '@/components/verification/VerificationDetails';
 
 const SessionChart = dynamic(() => import('@/components/SessionChart'), { ssr: false });
 
@@ -140,11 +141,20 @@ export default function SessionDetail() {
 							))}
 						</ul>
 						<p className="text-xs opacity-70">Note: For privacy, video is not recorded; this timeline summarizes motion-only metrics.</p>
-					</div>
-				)}
-			</div>
-			<div className="rounded-lg border p-4 space-y-2">
-				<h2 className="font-medium">Notes</h2>
+				</div>
+			)}
+		</div>
+		
+		{/* Verification Details */}
+		<VerificationDetails 
+			session_id={params.id}
+			onReportIssue={() => {
+				alert('Report issue functionality - Coming soon! If you believe this session was incorrectly flagged, please contact support.');
+			}}
+		/>
+		
+		<div className="rounded-lg border p-4 space-y-2">
+			<h2 className="font-medium">Notes</h2>
 				<div className="flex gap-2 flex-wrap mb-1">
 					{quickTags.map(t => <button key={t} onClick={() => addTag(t)} className="px-2 py-1 rounded bg-gray-200 text-sm">{t}</button>)}
 				</div>

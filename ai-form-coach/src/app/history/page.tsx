@@ -4,9 +4,11 @@ import { getSupabaseClient } from '@/lib/supabase/client';
 import { FormIQTrending } from '@/components/FormIQTrending';
 import { Badge } from '@/ui/DS';
 import { subscriptionService } from '@/lib/subscription/subscriptionService';
+import { VerificationIcon } from '@/components/verification/VerificationBadge';
+import { CompactIntegrityScore } from '@/components/verification/IntegrityScoreDisplay';
 
 export default function History() {
-	type S = { id: string; exercise: string; started_at: string; total_reps: number | null; total_time_seconds: number | null; formIQ?: number; sideBalance?: number; is_demo?: boolean };
+	type S = { id: string; exercise: string; started_at: string; total_reps: number | null; total_time_seconds: number | null; formIQ?: number; sideBalance?: number; is_demo?: boolean; verified?: boolean; flagged?: boolean; integrity_score?: number };
 	type R = { session_id: string; rom_score: number | null; start_ms: number; end_ms: number };
 	const [sessions, setSessions] = useState<S[]>([]);
 	const [reps, setReps] = useState<R[]>([]);
@@ -45,6 +47,11 @@ export default function History() {
 				? Math.random() * 0.3 + 0.35 // 0.35 to 0.65 range (some imbalance)
 				: undefined;
 			
+			// Generate demo verification data
+			const integrityScore = Math.random() * 0.3 + 0.7; // 0.7 to 1.0 range
+			const verified = integrityScore >= 0.7 && Math.random() > 0.1; // 90% verified
+			const flagged = !verified && integrityScore < 0.5;
+			
 			demoSession.push({
 				id: sessionId,
 				exercise,
@@ -53,7 +60,10 @@ export default function History() {
 				total_time_seconds: totalTimeSeconds,
 				formIQ,
 				sideBalance,
-				is_demo: true
+				is_demo: true,
+				verified,
+				flagged,
+				integrity_score: integrityScore
 			});
 			
 			// Generate demo reps for non-plank exercises
@@ -246,18 +256,35 @@ export default function History() {
 				<ul className="space-y-3">
 					{sessions.map((s) => (
 						<li key={s.id} className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-4 flex items-center justify-between">
-							<div>
+							<div className="flex-1">
 								<div className="font-medium capitalize flex items-center gap-2 text-gray-900 dark:text-white">
 									{s.exercise}
 									{s.is_demo && <span className="px-2 py-1 text-xs bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 rounded-full">Demo</span>}
 								</div>
-								<div className="text-sm text-gray-600 dark:text-gray-400">{new Date(s.started_at).toLocaleString()}</div>
+								<div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+									<span>{new Date(s.started_at).toLocaleString()}</span>
+									{s.total_reps && <span>• {s.total_reps} reps</span>}
+									{s.total_time_seconds && <span>• {Math.floor(s.total_time_seconds / 60)}:{(s.total_time_seconds % 60).toString().padStart(2, '0')}</span>}
+								</div>
 							</div>
-							{s.is_demo ? (
-								<span className="text-gray-400 dark:text-gray-500 text-sm">Demo Session</span>
-							) : (
-								<a className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300" href={`/session/${s.id}`}>Open</a>
-							)}
+							<div className="flex items-center gap-3">
+								{/* Verification indicators */}
+								{!s.is_demo && s.integrity_score !== undefined && (
+									<div className="flex items-center gap-2">
+										<VerificationIcon
+											verified={s.verified || false}
+											flagged={s.flagged || false}
+											size="sm"
+										/>
+										<CompactIntegrityScore score={s.integrity_score} />
+									</div>
+								)}
+								{s.is_demo ? (
+									<span className="text-gray-400 dark:text-gray-500 text-sm">Demo Session</span>
+								) : (
+									<a className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium" href={`/session/${s.id}`}>View</a>
+								)}
+							</div>
 						</li>
 					))}
 				</ul>
