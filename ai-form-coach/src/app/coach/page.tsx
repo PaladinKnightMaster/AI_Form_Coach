@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { initPose, PoseEngine, type SmoothedLandmark } from '@/lib/pose';
+import { PoseEngine2, type PoseEstimateResult, type Landmark3D } from '@/lib/pose/engine';
 import { createValidator } from '@/lib/validators';
-import type { Exercise } from '@/lib/validators/types';
-import type { ValidatorConfig } from '@/lib/validators/types';
+import type { Exercise, RepMetric, ValidatorConfig } from '@/lib/validators/types';
 import { speak, setMuted, ensureSpeechReady } from '@/lib/voice/coachVoice';
 import PoseOverlay from '@/components/PoseOverlay';
 import HUD from '@/components/HUD';
@@ -21,15 +20,15 @@ import ProgressionIntegration from '@/components/progression/ProgressionIntegrat
 import HealthStatusWidget from '@/components/health/HealthStatusWidget';
 import PlanAdjustmentBanner from '@/components/plans/PlanAdjustmentBanner';
 import type { WorkoutTarget, ReadinessAssessment } from '@/lib/progression/engine';
-import { calculateFormIQ, calculateSideBalance, type FormIQMetrics } from '@/lib/validators/formIQ';
+import { type FormIQMetrics } from '@/lib/validators/formIQ';
 import type { UserPlan } from '@/types/plans';
 
-export default function Coach() {
+function CoachContent() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const [landmarks, setLandmarks] = useState<SmoothedLandmark[] | null>(null);
+	const [landmarks, setLandmarks] = useState<Landmark3D[] | null>(null);
 	const [exercise, setExercise] = useState<Exercise>('squat');
 	const [currentPlan, setCurrentPlan] = useState<{ id: string; name: string } | null>(null);
 	const [activePlan, setActivePlan] = useState<UserPlan | null>(null);
@@ -38,11 +37,16 @@ export default function Coach() {
 	const [running, setRunning] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [repCount, setRepCount] = useState(0);
-	const repMetricsRef = useRef<{ idx: number; start_ms: number; end_ms: number; peak_depth?: number; rom_score?: number; cues?: string[]; valid?: boolean }[]>([]);
+	const repMetricsRef = useRef<RepMetric[]>([]);
 	const [cue, setCue] = useState('');
 	const [spark, setSpark] = useState<number[]>([]);
-	const engineRef = useRef<PoseEngine | null>(null);
+	const engineRef = useRef<PoseEngine2 | null>(null);
 	const validatorRef = useRef(createValidator(exercise));
+	
+	// New PoseEngine2 state
+	const [visibilityScore, setVisibilityScore] = useState<number>(1);
+	const [, setBestSide] = useState<'left' | 'right'>('right'); // bestSide tracked for future use
+	const poseLoopRef = useRef<number | null>(null);
 	const [startTs, setStartTs] = useState<number | null>(null);
 	const [muted, updateMuted] = useState(false);
 	const flushTimerRef = useRef<number | null>(null);
@@ -86,12 +90,12 @@ export default function Coach() {
 
 	function onGoalTypeChange(val: string) { if (val === 'none' || val === 'reps' || val === 'time') setGoalType(val); }
 
-	function rateLimitedCue(newCue: string) {
+	const rateLimitedCue = useCallback((newCue: string) => {
 		const now = performance.now();
 		if (now - lastCueAtRef.current < 1500) return; // 1.5s throttle
 		lastCueAtRef.current = now; setCue(newCue);
 		if (!muted) speak(newCue);
-	}
+	}, [muted]);
 
 	function updatePillsFrom(s: { cues: string[] }) {
 		setPillCues(s.cues.slice(1, 3));
@@ -228,15 +232,138 @@ export default function Coach() {
 	}, [handleStartPause, undoLastRep, startRest]);
 	useEffect(() => { window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey); }, [onKey]);
 
+	// onPose function wrapped in useCallback
+	const onPose = useCallback((lms: Landmark3D[], result: PoseEstimateResult) => {
+		const ts = performance.now();
+		const avgVis = result.visibilityScore;
+		
+		// Track average visibility for session stats
+		if (running) { 
+			visSumRef.current += avgVis; 
+			visCountRef.current += 1; 
+		}
+		
+		// Update quality indicator based on visibility
+		if (avgVis > 0.7) { 
+			setQuality('good'); 
+		}
+		else if (avgVis > 0.55) { 
+			setQuality('warn'); 
+		}
+		else { 
+			setQuality('bad'); 
+		}
+		
+		// Log low visibility event
+		if (lowQualityFramesRef.current === 45 && running) { 
+			import('@/lib/observability/events').then(m => m.logEvent('pose_quality_low', { avgVis })).catch(()=>{}); 
+		}
+		
+		// Pass pose result to validator
+		const s = validatorRef.current(result, ts, { ...thrCfg, bestSide: result.bestSide });
+		if (s.metrics.length > repMetricsRef.current.length) vibrate(20);
+		// goal met haptic
+		if (goalType === 'reps' && repCount >= goalValue && repsAtGoalRef.current === 0) { vibrate(120); repsAtGoalRef.current = repCount; import('@/lib/observability/events').then(m => m.logEvent('goal_met', { goalType, goalValue, repCount })).catch(()=>{}); }
+		setRepCount(s.repCount);
+		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) {
+			const latest = s.metrics[s.metrics.length - 1];
+			repMetricsRef.current = s.metrics; setLandmarks(lms);
+			rateLimitedCue(s.cues[0] || ''); updatePillsFrom(s);
+			import('@/lib/observability/events').then(m => m.logEvent('rep_completed', { exercise, repCount: s.repCount, peakDepth: latest.peakDepth, peakAngle: latest.peakAngle })).catch(()=>{});
+		}
+		if (s.cues.length > 0) { setSpark(s.cues.map((_c, i) => performance.now() + i * 10)); }
+		
+		// Update FormIQ metrics if available
+		if (s.metrics.length > 0) {
+			const latestMetric = s.metrics[s.metrics.length - 1];
+			if (latestMetric.formIQ !== undefined) {
+				setFormIQMetrics({
+					formIQ: latestMetric.formIQ,
+					sideBalance: latestMetric.sideBalance ?? 0.5,
+					rangeOfMotion: 0.85, // Placeholder until ROM calculation is added
+					tempo: 0.90, // Placeholder until tempo calculation is added
+					stability: 0.88 // Placeholder until stability calculation is added
+				});
+			}
+		}
+	}, [running, goalType, goalValue, repCount, exercise, thrCfg, rateLimitedCue]);
+
+	// Async pose estimation loop for PoseEngine2
+	const startPoseLoop = useCallback(() => {
+		const loop = async () => {
+			const video = videoRef.current;
+			const engine = engineRef.current;
+			
+			if (!video || !engine || !running) {
+				return;
+			}
+			
+			try {
+				const result = await engine.estimate(video);
+				
+				if (result) {
+					// Update visibility and side info
+					setVisibilityScore(result.visibilityScore);
+					setBestSide(result.bestSide);
+					setFps(result.fps);
+					
+					// Visibility gating - only process frames with good visibility
+					if (result.visibilityScore >= 0.55) {
+						// Process pose with good visibility
+						onPose(result.landmarks, result);
+						
+						// Reset low quality counter on good frames
+						if (result.visibilityScore > 0.7) {
+							lowQualityFramesRef.current = 0;
+							setPausedByQuality(false);
+						}
+					} else {
+						// Low visibility - don't process frame for FSM
+						lowQualityFramesRef.current++;
+						
+						// Auto-pause after sustained low visibility
+						if (lowQualityFramesRef.current > 45 && running) {
+							setRunning(false);
+							setPausedByQuality(true);
+							return;
+						}
+					}
+				}
+			} catch (error) {
+				console.error('Pose estimation error:', error);
+			}
+			
+			// Continue loop if still running
+			if (running) {
+				poseLoopRef.current = requestAnimationFrame(loop);
+			}
+		};
+		
+		// Start the loop
+		poseLoopRef.current = requestAnimationFrame(loop);
+	}, [running, onPose]);
+
 	useEffect(() => {
 		let active = true; let stream: MediaStream | null = null;
 		(async () => {
 			const cached = localStorage.getItem('afc_model') as ('lite'|'full'|null);
+			
+			// Initialize PoseEngine2
+			const engine = new PoseEngine2({
+				model: (cached as 'lite' | 'full') ?? 'lite',
+				smoothingAlpha: 0.4,
+				visibilityThreshold: 0.55,
+				debounceFrames: 3
+			});
+			
 			try {
-				await initPose(cached ?? 'lite');
+				await engine.init();
 			} catch (err) {
+				console.error('Failed to initialize PoseEngine2:', err);
 				import('@/lib/observability/sentry').then(({ Sentry }) => { try { Sentry.captureException(err); } catch {} }).catch(() => {});
 			}
+			
+			// Get camera stream
 			try {
 				stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
 			} catch (err) {
@@ -244,16 +371,62 @@ export default function Coach() {
 				// setCameraError('Camera permission blocked or no camera found. Enable camera in your browser settings.');
 				return;
 			}
-			const video = videoRef.current; if (!video) return;
-			if (video.srcObject !== stream) { video.srcObject = stream; }
-			await new Promise<void>((resolve) => { if (!video) return resolve(); if (video.readyState >= 2) return resolve(); const handler = () => { video.removeEventListener('loadedmetadata', handler); resolve(); }; video.addEventListener('loadedmetadata', handler); });
+			
+			const video = videoRef.current;
+			if (!video) return;
+			
+			// Set video source and wait for ready
+			if (video.srcObject !== stream) { 
+				video.srcObject = stream; 
+			}
+			
+			await new Promise<void>((resolve) => { 
+				if (!video) return resolve(); 
+				if (video.readyState >= 2) return resolve(); 
+				const handler = () => { 
+					video.removeEventListener('loadedmetadata', handler); 
+					resolve(); 
+				}; 
+				video.addEventListener('loadedmetadata', handler); 
+			});
+			
 			if (!active || !video) return;
-			try { await video.play(); } catch (err) { import('@/lib/observability/sentry').then(({ Sentry }) => { try { Sentry.captureException(err); } catch {} }).catch(() => {}); }
-			const engine = new PoseEngine(video);
-			engineRef.current = engine; engine.subscribe(onPose); engine.subscribeStats(({ fps }) => setFps(fps));
+			
+			try { 
+				await video.play(); 
+			} catch (err) { 
+				import('@/lib/observability/sentry').then(({ Sentry }) => { try { Sentry.captureException(err); } catch {} }).catch(() => {}); 
+			}
+			
+			// Store engine reference
+			engineRef.current = engine;
 		})();
-		return () => { active = false; engineRef.current?.stop(); if (stream) { for (const t of stream.getTracks()) t.stop(); } if (wakeLockRef.current) { try { wakeLockRef.current.release?.(); } catch {} } };
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		
+		return () => { 
+			active = false; 
+			
+			// Stop pose loop
+			if (poseLoopRef.current) {
+				cancelAnimationFrame(poseLoopRef.current);
+				poseLoopRef.current = null;
+			}
+			
+			// Dispose engine
+			if (engineRef.current) {
+				engineRef.current.dispose();
+				engineRef.current = null;
+			}
+			
+			// Stop camera stream
+			if (stream) { 
+				for (const t of stream.getTracks()) t.stop(); 
+			}
+			
+			// Release wake lock
+			if (wakeLockRef.current) { 
+				try { wakeLockRef.current.release?.(); } catch {} 
+			} 
+		};
 	}, []);
 
 	useEffect(() => {
@@ -261,59 +434,37 @@ export default function Coach() {
 			setStartTs(performance.now());
 			visSumRef.current = 0;
 			visCountRef.current = 0;
-			engineRef.current?.start();
+			
+			// Start pose loop
+			startPoseLoop();
+			
+			// Request wake lock
 			const wlApi = (navigator as unknown as { wakeLock?: { request: (type: 'screen') => Promise<{ release?: () => Promise<void> }> } }).wakeLock;
 			wlApi?.request('screen').then((s) => { wakeLockRef.current = s; }).catch(() => {});
+			
+			// Start elapsed timer
 			elapsedTimerRef.current = window.setInterval(() => setElapsedMs((v) => v + 1000), 1000);
 		} else {
-			engineRef.current?.stop();
+			// Stop pose loop
+			if (poseLoopRef.current) {
+				cancelAnimationFrame(poseLoopRef.current);
+				poseLoopRef.current = null;
+			}
+			
+			// Release wake lock
 			if (wakeLockRef.current) {
 				try { wakeLockRef.current.release?.(); } catch {}
 			}
+			
+			// Stop elapsed timer
 			if (elapsedTimerRef.current) {
 				window.clearInterval(elapsedTimerRef.current);
 				elapsedTimerRef.current = null;
 			}
 		}
-	}, [running]);
+	}, [running, startPoseLoop]);
 
 	useEffect(() => { if (running) { flushTimerRef.current = window.setInterval(() => { flushWrites(); }, 10_000); return () => { if (flushTimerRef.current) window.clearInterval(flushTimerRef.current); flushTimerRef.current = null; }; } }, [running]);
-
-	function onPose(lms: SmoothedLandmark[] | null) {
-		if (!lms) return; const ts = performance.now();
-		const vis = lms.map(l => (l.visibility ?? 0)); const avgVis = vis.reduce((a, b) => a + b, 0) / Math.max(1, vis.length);
-		if (running) { visSumRef.current += avgVis; visCountRef.current += 1; }
-		if (avgVis > 0.7) { setQuality('good'); lowQualityFramesRef.current = 0; setPausedByQuality(false); }
-		else if (avgVis > 0.4) { setQuality('warn'); lowQualityFramesRef.current++; }
-		else { setQuality('bad'); lowQualityFramesRef.current++; }
-		if (lowQualityFramesRef.current === 45 && running) { import('@/lib/observability/events').then(m => m.logEvent('pose_quality_low', { avgVis })).catch(()=>{}); }
-		if (lowQualityFramesRef.current > 45 && running) { setRunning(false); setPausedByQuality(true); return; }
-		const s = validatorRef.current(lms, ts, thrCfg);
-		if (s.metrics.length > repMetricsRef.current.length) vibrate(20);
-		// goal met haptic
-		if (goalType === 'reps' && repCount >= goalValue && repsAtGoalRef.current === 0) { vibrate(120); repsAtGoalRef.current = repCount; import('@/lib/observability/events').then(m => m.logEvent('goal_met', { goalType, goalValue, repCount })).catch(()=>{}); }
-		setRepCount(s.repCount);
-		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) {
-			const m = s.metrics[s.metrics.length - 1]; repMetricsRef.current.push({ idx: s.metrics.length, start_ms: Math.round(m.startTs), end_ms: Math.round(m.endTs), peak_depth: (m as unknown as { peakDepth?: number }).peakDepth, cues: (s.cues ?? []).slice(0, 4), valid: true });
-			
-			// Calculate Form IQ and side balance for real-time feedback
-			if (s.metrics.length > 0) {
-				const sideBalanceData = calculateSideBalance(lms, exercise);
-				const formIQ = calculateFormIQ(s.metrics, exercise, sideBalanceData || undefined);
-				setFormIQMetrics(formIQ);
-			}
-			
-			// shallow rep tip for squats if peak_depth < threshold
-			if (exercise === 'squat') {
-				const d = (m as unknown as { peakDepth?: number }).peakDepth ?? 0;
-				if (d < (thrCfg.squat?.downDepth ?? 35)) {/* optional tip */}
-			}
-		}
-		const primary = s.cues[0] ?? '';
-		if (primary) rateLimitedCue(primary);
-		updatePillsFrom(s);
-		setSpark((prev) => (prev.concat([s.phase === 'down' ? 1 : 0]).slice(-100))); setLandmarks(lms);
-	}
 
 	function vibrate(ms: number) { try { navigator.vibrate?.(ms); } catch {} }
 	function goalSubtext(): string | undefined { if (goalType === 'reps') return `${repCount}/${goalValue} reps`; if (goalType === 'time') return `${Math.floor(elapsedMs/1000)}s / ${goalValue}s`; return undefined; }
@@ -365,6 +516,24 @@ export default function Coach() {
 					<canvas ref={canvasRef} className="absolute inset-0" />
 					{videoRef.current && (<PoseOverlay landmarks={landmarks} video={videoRef.current} mirror />)}
 					<HUD repCount={repCount} cue={pausedByQuality ? 'Step back into frame' : cue} spark={spark} subtext={`${goalSubtext() ?? ''}${goalSubtext() ? ' • ' : ''}${fps ? fps + ' FPS' : ''}`} large={largeText} pills={pillCues} formIQMetrics={formIQMetrics || undefined} />
+					
+					{/* Visibility Warning */}
+					{running && visibilityScore < 0.55 && (
+						<div className="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-500/95 dark:bg-amber-600/95 text-white px-6 py-3 rounded-xl shadow-2xl border-2 border-amber-300 dark:border-amber-400 animate-pulse">
+							<div className="flex items-center gap-3">
+								<Icon name="alert-triangle" className="w-6 h-6 flex-shrink-0" />
+								<div>
+									<div className="font-bold text-lg">Low Visibility</div>
+									<div className="text-sm opacity-90">Step back or improve lighting</div>
+								</div>
+								<div className="text-right ml-2">
+									<div className="font-mono text-2xl font-bold">{Math.round(visibilityScore * 100)}%</div>
+									<div className="text-xs">visibility</div>
+								</div>
+							</div>
+						</div>
+					)}
+					
 					{countdown !== null && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="text-6xl font-bold">{countdown || 'Go!'}</div></div>)}
 					{saving && (<div className="absolute inset-0 bg-black/40 backdrop-blur grid place-items-center text-white"><div className="animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent" /><p className="mt-3">Saving your session…</p></div>)}
 					{restLeft !== null && (<div className="absolute bottom-4 left-4 bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-gray-100 rounded px-3 py-2 text-sm border border-gray-200 dark:border-gray-700">Rest: {restLeft}s</div>)}
@@ -579,5 +748,20 @@ export default function Coach() {
 				</div>
 			</main>
 		</div>
+	);
+}
+
+export default function Coach() {
+	return (
+		<Suspense fallback={
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center space-y-4">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+					<p className="text-sm opacity-70">Loading...</p>
+				</div>
+			</div>
+		}>
+			<CoachContent />
+		</Suspense>
 	);
 } 

@@ -6,11 +6,11 @@
 
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Icon, Button } from '@/ui/DS';
 import VerificationBadge from './VerificationBadge';
 import IntegrityScoreDisplay from './IntegrityScoreDisplay';
-import type { SessionVerificationSummary } from '@/types/verification';
+import type { SessionVerificationSummary, IntegrityCheckResult } from '@/types/verification';
 
 interface VerificationDetailsProps {
   session_id: string;
@@ -25,11 +25,7 @@ export default function VerificationDetails({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchVerificationSummary();
-  }, [session_id]);
-
-  const fetchVerificationSummary = async () => {
+  const fetchVerificationSummary = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -51,7 +47,11 @@ export default function VerificationDetails({
     } finally {
       setLoading(false);
     }
-  };
+  }, [session_id]);
+
+  useEffect(() => {
+    fetchVerificationSummary();
+  }, [fetchVerificationSummary]);
 
   if (loading) {
     return (
@@ -73,14 +73,14 @@ export default function VerificationDetails({
   }
 
   // Map verification records to integrity check results format
-  const checks = summary.details.map(detail => ({
+  const checks: IntegrityCheckResult[] = summary.details.map(detail => ({
     check_type: detail.verification_type,
     passed: detail.passed,
     score: detail.score,
     message: detail.notes || '',
     details: detail.details,
-    severity: detail.passed ? 'info' : 'warning'
-  })) as any;
+    severity: (detail.passed ? 'info' : 'warning') as 'info' | 'warning' | 'error'
+  }));
 
   return (
     <div className="space-y-6">
@@ -105,7 +105,7 @@ export default function VerificationDetails({
             onClick={onReportIssue}
             className="flex items-center gap-2"
           >
-            <Icon name="flag" className="w-4 h-4" />
+            <Icon name="alert" className="w-4 h-4" />
             Report Issue
           </Button>
         )}
@@ -123,7 +123,7 @@ export default function VerificationDetails({
       {summary.flagged && summary.flag_reasons.length > 0 && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <div className="flex items-start gap-2">
-            <Icon name="alert-triangle" className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
+            <Icon name="alert" className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
             <div>
               <h4 className="text-sm font-medium text-red-900 dark:text-red-100 mb-2">
                 Session Flagged
@@ -150,13 +150,13 @@ export default function VerificationDetails({
         <StatCard
           label="Passed"
           value={summary.checks_passed}
-          icon="check-circle"
+          icon="check"
           valueColor="text-green-600 dark:text-green-400"
         />
         <StatCard
           label="Failed"
           value={summary.checks_failed}
-          icon="x-circle"
+          icon="x"
           valueColor="text-red-600 dark:text-red-400"
         />
       </div>
@@ -164,7 +164,7 @@ export default function VerificationDetails({
       {/* What This Means */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex items-start gap-2">
-          <Icon name="info" className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+          <Icon name="alert-circle" className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
           <div>
             <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
               What does this mean?
@@ -205,13 +205,13 @@ function StatCard({
 }: {
   label: string;
   value: number;
-  icon: string;
+  icon: 'activity' | 'check' | 'x';
   valueColor?: string;
 }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-2 mb-1">
-        <Icon name={icon as any} className="w-4 h-4 text-gray-500" />
+        <Icon name={icon} className="w-4 h-4 text-gray-500" />
         <span className="text-xs text-gray-600 dark:text-gray-400">{label}</span>
       </div>
       <div className={`text-2xl font-bold ${valueColor}`}>

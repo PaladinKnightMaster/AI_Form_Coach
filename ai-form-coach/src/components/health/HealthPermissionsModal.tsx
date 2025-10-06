@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Container, Button, Icon, Badge } from '@/ui/DS';
+import { Button, Icon, Badge } from '@/ui/DS';
 import { useToastContext } from '@/components/ToastProvider';
 import type { HealthPermissions } from '@/lib/health/healthData';
 
@@ -139,13 +139,13 @@ export default function HealthPermissionsModal({
   onPermissionsUpdate,
   currentPermissions
 }: HealthPermissionsModalProps) {
-  const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
+  const { success: showSuccess, error: showError } = useToastContext();
   const [permissions, setPermissions] = useState<HealthPermissions>(currentPermissions);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setPermissions(currentPermissions);
-  }, [currentPermissions]);
+  }, [currentPermissions, setPermissions]);
 
   const handlePermissionToggle = (permissionId: keyof HealthPermissions) => {
     setPermissions(prev => ({
@@ -216,7 +216,7 @@ export default function HealthPermissionsModal({
           {/* Privacy Notice */}
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
             <div className="flex items-start space-x-3">
-              <Icon name="shield" className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+              <Icon name="lock" className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
               <div>
                 <h3 className="font-medium text-blue-900 dark:text-blue-200 mb-1">
                   Your Privacy is Protected

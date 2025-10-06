@@ -454,7 +454,7 @@ export default function QuickAddFoodModal({
     } finally {
       setBarcodeLoading(false);
     }
-  }, [addFoodToMeal, fetchFoodImage]);
+  }, [fetchFoodImage]);
 
   const handleFoodSelect = async (food: Food) => {
     // Convert Food to the format expected by addFoodToMeal
@@ -745,7 +745,7 @@ export default function QuickAddFoodModal({
                       };
                       const topIngredients = food.ingredients 
                         ? Object.entries(food.ingredients)
-                            .filter(([_, items]) => items && items.length > 0)
+                            .filter(([, items]) => items && items.length > 0)
                             .slice(0, 2)
                             .map(([category]) => category)
                         : [];
@@ -857,11 +857,18 @@ export default function QuickAddFoodModal({
 
       {/* Barcode Scanner Modal */}
       {showBarcodeScanner && (
-        <BarcodeScanner
-          onBarcodeDetected={handleBarcodeDetected}
-          onClose={() => setShowBarcodeScanner(false)}
-          title="Scan Barcode or QR Code"
-        />
+        <div>
+          <BarcodeScanner
+            onBarcodeDetected={handleBarcodeDetected}
+            onClose={() => setShowBarcodeScanner(false)}
+            title="Scan Barcode or QR Code"
+          />
+          {barcodeError && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{barcodeError}</p>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Food Camera Modal */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { FormIQMetrics, getFormIQGrade, getSideBalanceFeedback } from '@/lib/validators/formIQ';
+import { getFormIQGrade, getSideBalanceFeedback } from '@/lib/validators/formIQ';
 
 interface FormIQTrendingProps {
   sessions: Array<{
@@ -77,25 +77,16 @@ export function FormIQTrending({ sessions, isPro, className = '' }: FormIQTrendi
         <>
           {/* Current Metrics */}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-              <div className={`text-3xl font-bold mb-1 ${formIQColor}`}>
-                {formIQGrade}
-              </div>
-              <div className="text-gray-600 text-sm">Average Form IQ</div>
-              <div className="text-gray-800 font-semibold">
-                {Math.round(avgFormIQ * 100)}%
-              </div>
-            </div>
-            
-            <div className="text-center p-4 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl border border-green-100">
-              <div className={`text-2xl font-bold mb-1 ${balanceFeedback.color}`}>
-                {Math.abs(avgSideBalance - 0.5) <= 0.05 ? '⚖️' : avgSideBalance > 0.5 ? '➡️' : '⬅️'}
-              </div>
-              <div className="text-gray-600 text-sm">Side Balance</div>
-              <div className="text-gray-800 font-semibold">
-                {Math.round(Math.abs(avgSideBalance - 0.5) * 200)}% imbalance
-              </div>
-            </div>
+            <InsightCard 
+              title="Average Form IQ" 
+              value={`${formIQGrade} (${Math.round(avgFormIQ * 100)}%)`}
+              className={`border-l-4 border-${formIQColor}-500`}
+            />
+            <InsightCard 
+              title="Side Balance" 
+              value={`${Math.abs(avgSideBalance - 0.5) <= 0.05 ? '⚖️' : avgSideBalance > 0.5 ? '➡️' : '⬅️'} ${Math.round(Math.abs(avgSideBalance - 0.5) * 200)}%`}
+              subtitle={balanceFeedback.description}
+            />
           </div>
 
           {/* Trending Chart */}
@@ -105,7 +96,7 @@ export function FormIQTrending({ sessions, isPro, className = '' }: FormIQTrendi
             </h4>
             <div className="h-48 bg-gray-50 rounded-xl p-4 flex items-end justify-between">
               {last7Days.length > 0 ? (
-                last7Days.map((session, index) => {
+                last7Days.map((session) => {
                   const value = selectedMetric === 'formIQ' 
                     ? (session.formIQ ?? 0) 
                     : Math.abs((session.sideBalance ?? 0.5) - 0.5) * 2; // Convert balance to 0-1 imbalance scale
@@ -196,11 +187,12 @@ export function FormIQTrending({ sessions, isPro, className = '' }: FormIQTrendi
 /**
  * Insight card for basic metrics
  */
-function InsightCard({ title, value }: { title: string; value: string }) {
+function InsightCard({ title, value, subtitle, className }: { title: string; value: string; subtitle?: string; className?: string }) {
   return (
-    <div className="bg-white p-4 rounded-xl border border-gray-100 hover:shadow-lg transition-shadow duration-300">
+    <div className={`bg-white p-4 rounded-xl border border-gray-100 hover:shadow-lg transition-shadow duration-300 ${className || ''}`}>
       <div className="text-sm text-gray-600 mb-1">{title}</div>
       <div className="text-xl font-bold text-gray-900">{value}</div>
+      {subtitle && <div className="text-xs text-gray-500 mt-1">{subtitle}</div>}
     </div>
   );
 }

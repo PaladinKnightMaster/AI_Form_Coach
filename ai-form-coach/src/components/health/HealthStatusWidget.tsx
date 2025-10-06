@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button, Icon, Badge } from '@/ui/DS';
 import { HealthDataManager } from '@/lib/health/healthData';
 import type { HealthData, HealthBaseline } from '@/lib/health/healthData';
@@ -16,12 +16,7 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
   const [baseline, setBaseline] = useState<HealthBaseline | null>(null);
   const { info: showInfo } = useToastContext();
 
-  useEffect(() => {
-    loadHealthData();
-    loadBaseline();
-  }, []);
-
-  const loadHealthData = async () => {
+  const loadHealthData = useCallback(async () => {
     try {
       const today = new Date();
       const data = await healthManager.fetchHealthData(today);
@@ -29,12 +24,17 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
     } catch (error) {
       console.error('Error loading health data:', error);
     }
-  };
+  }, [healthManager]);
 
-  const loadBaseline = () => {
+  const loadBaseline = useCallback(() => {
     const baselineData = healthManager.getBaseline();
     setBaseline(baselineData);
-  };
+  }, [healthManager]);
+
+  useEffect(() => {
+    loadHealthData();
+    loadBaseline();
+  }, [loadHealthData, loadBaseline]);
 
   const getReadinessScore = (): number => {
     if (!healthData || !baseline) return 0.5;

@@ -27,12 +27,35 @@ export interface ReadinessAssessment {
   assessmentDate: Date;
 }
 
+/**
+ * Extended readiness data including database-computed fields
+ * This represents the full record stored in the readiness_day table
+ */
+export interface ReadinessData extends ReadinessAssessment {
+  id?: string;
+  userId?: string;
+  date?: string;
+  // Health data inputs
+  sleepDuration?: number; // hours
+  restingHeartRate?: number; // bpm
+  hrvAverage?: number; // ms
+  stepCount?: number;
+  trainingLoad?: number;
+  // Computed fields (calculated by database functions)
+  computedReadiness?: number; // 0-1 scale (calculated by calculate_readiness_score)
+  readinessCategory?: 'poor' | 'fair' | 'good' | 'excellent'; // Calculated by get_readiness_category
+  // Metadata
+  dataSources?: string[];
+  lastUpdated?: Date;
+  createdAt?: Date;
+}
+
 export interface ProgressionRule {
   id: string;
   name: string;
   description: string;
   condition: (metrics: SessionMetrics[], readiness: ReadinessAssessment | null) => boolean;
-  action: (currentTarget: WorkoutTarget) => WorkoutTarget;
+  action: (currentTarget: WorkoutTarget, metrics: SessionMetrics[], readiness: ReadinessAssessment | null) => WorkoutTarget;
   priority: number; // Higher number = higher priority
 }
 
@@ -71,7 +94,7 @@ export class ProgressionEngine {
           session.qualityScore >= qualityThreshold
         );
       },
-      action: (currentTarget, _metrics, _readiness) => {
+      action: (currentTarget) => {
         const increasePercent = 0.075; // 7.5% average increase
         
         if (currentTarget.targetReps) {
@@ -100,13 +123,13 @@ export class ProgressionEngine {
       name: 'Volume Reduction - Low Readiness',
       description: 'Reduce volume by 20-30% when readiness is low but maintain intensity',
       priority: 4, // Higher priority than volume increase
-      condition: (metrics, readiness) => {
+      condition: (_metrics, readiness) => {
         if (!readiness) return false;
         
         const readinessScore = this.calculateReadinessScore(readiness);
         return readinessScore < 0.4; // Low readiness threshold
       },
-      action: (currentTarget, _metrics, _readiness) => {
+      action: (currentTarget) => {
         const reductionPercent = 0.25; // 25% reduction
         
         if (currentTarget.targetReps) {
@@ -137,12 +160,12 @@ export class ProgressionEngine {
       name: 'Maintain - High Soreness',
       description: 'Maintain current volume when soreness is high (6-8) or reduce if extreme (9-10)',
       priority: 5, // Highest priority
-      condition: (metrics, readiness) => {
+      condition: (_metrics, readiness) => {
         if (!readiness) return false;
         return readiness.sorenessLevel >= 6;
       },
-      action: (currentTarget, _metrics, _readiness) => {
-        if (_readiness && _readiness.sorenessLevel >= 9) {
+      action: (currentTarget, metrics, readiness) => {
+        if (readiness && readiness.sorenessLevel >= 9) {
           // Extreme soreness - reduce by 40%
           const reductionPercent = 0.4;
           
@@ -193,7 +216,7 @@ export class ProgressionEngine {
           session.qualityScore >= excellentThreshold
         );
       },
-      action: (currentTarget, _metrics, _readiness) => {
+      action: (currentTarget) => {
         return {
           ...currentTarget,
           intensity: currentTarget.intensity === 'low' ? 'moderate' : 
@@ -213,9 +236,15 @@ export class ProgressionEngine {
         if (metrics.length < 8) return false; // Need at least 8 sessions (4 weeks)
         
         const weeksSinceLastDeload = this.getWeeksSinceLastDeload(metrics);
-        return weeksSinceLastDeload >= 4;
+        const isReadyForDeload = weeksSinceLastDeload >= 4;
+        
+        // Also consider readiness score - if very low, prioritize deload
+        const overallScore = readiness ? (readiness.sorenessLevel + readiness.fatigueLevel + readiness.sleepQuality + (10 - readiness.stressLevel) + readiness.motivationLevel) / 50 : 1;
+        const lowReadiness = overallScore < 0.3;
+        
+        return isReadyForDeload || lowReadiness;
       },
-      action: (currentTarget, _metrics, _readiness) => {
+      action: (currentTarget) => {
         const deloadPercent = 0.5; // 50% reduction
         
         if (currentTarget.targetReps) {
@@ -280,8 +309,15 @@ export class ProgressionEngine {
       const current = metrics[i];
       const next = metrics[i + 1];
       
-      if (current.targetReps && next.targetReps) {
-        const dropPercent = (current.targetReps - next.targetReps) / current.targetReps;
+      if (current.totalReps && next.totalReps) {
+        const dropPercent = (current.totalReps - next.totalReps) / current.totalReps;
+        if (dropPercent > 0.3) { // 30% drop indicates deload
+          return Math.floor((metrics.length - i - 1) / 2); // Approximate weeks
+        }
+      }
+      
+      if (current.totalTimeSeconds && next.totalTimeSeconds) {
+        const dropPercent = (current.totalTimeSeconds - next.totalTimeSeconds) / current.totalTimeSeconds;
         if (dropPercent > 0.3) { // 30% drop indicates deload
           return Math.floor((metrics.length - i - 1) / 2); // Approximate weeks
         }

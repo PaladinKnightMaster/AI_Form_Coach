@@ -12,7 +12,7 @@ interface ActivityItemProps {
 
 export function ActivityItem({ activity, onLike, onComment }: ActivityItemProps) {
   const [isLiking, setIsLiking] = useState(false);
-  const [, setIsCommenting] = useState(false);
+  const [isCommenting, setIsCommenting] = useState(false);
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -31,7 +31,7 @@ export function ActivityItem({ activity, onLike, onComment }: ActivityItemProps)
       });
 
       if (response.ok) {
-        const _result = await response.json();
+        await response.json();
         if (onLike) {
           onLike(activity.id, activity.type);
         }
@@ -43,9 +43,18 @@ export function ActivityItem({ activity, onLike, onComment }: ActivityItemProps)
     }
   };
 
-  const handleComment = () => {
-    if (onComment) {
-      onComment(activity.id, activity.type);
+  const handleComment = async () => {
+    if (isCommenting) return;
+    
+    setIsCommenting(true);
+    try {
+      if (onComment) {
+        onComment(activity.id, activity.type);
+      }
+    } catch (error) {
+      console.error('Error commenting on activity:', error);
+    } finally {
+      setIsCommenting(false);
     }
   };
 

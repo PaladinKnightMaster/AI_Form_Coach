@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Icon } from '@/ui/DS';
 import type { FoodAnalysisResult } from '@/lib/ai/gemini';
 
@@ -83,9 +84,11 @@ export default function FoodAnalysisResult({
                     <Icon name="camera" className="w-6 h-6 text-gray-400" />
                   </div>
                 ) : foodImage ? (
-                  <img 
+                  <Image 
                     src={foodImage.imageUrl} 
                     alt={foodImage.alt}
+                    width={64}
+                    height={64}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       // Fallback to placeholder if image fails to load
@@ -139,9 +142,11 @@ export default function FoodAnalysisResult({
                     </div>
                   </div>
                 ) : (
-                  <img 
+                  <Image 
                     src={foodImage.imageUrl} 
                     alt={foodImage.alt}
+                    width={200}
+                    height={200}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;

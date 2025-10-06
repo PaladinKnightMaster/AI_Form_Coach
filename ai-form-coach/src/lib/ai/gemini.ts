@@ -253,7 +253,7 @@ Respond ONLY with valid JSON array, no additional text.
     try {
       const suggestions = JSON.parse(text);
       return Array.isArray(suggestions) ? suggestions.slice(0, 10) : [];
-    } catch (parseError) {
+    } catch {
       const arrayMatch = text.match(/\[[\s\S]*\]/);
       if (arrayMatch) {
         return JSON.parse(arrayMatch[0]);

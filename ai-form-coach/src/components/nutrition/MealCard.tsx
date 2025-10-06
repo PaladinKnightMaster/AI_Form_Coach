@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { Container, Button, Icon } from '@/ui/DS';
-import type { MealWithItems } from '@/types/nutrition';
+import { Button, Icon } from '@/ui/DS';
+import type { MealWithItems, FoodIngredients } from '@/types/nutrition';
 
 interface MealCardProps {
   meal: MealWithItems | null;
@@ -134,7 +134,19 @@ export default function MealCard({ meal, mealType, onAddFood }: MealCardProps) {
   );
 }
 
-function FoodItemCard({ item }: { item: any }) {
+interface FoodItemWithFood {
+  id?: string;
+  grams: number;
+  calories: number;
+  protein: number;
+  food?: {
+    name?: string;
+    brand?: string;
+    ingredients?: FoodIngredients;
+  };
+}
+
+function FoodItemCard({ item }: { item: FoodItemWithFood }) {
   const food = item.food;
   
   // Ingredient emoji mapping
@@ -151,7 +163,7 @@ function FoodItemCard({ item }: { item: any }) {
   const getTopIngredients = () => {
     if (!food?.ingredients) return [];
     return Object.entries(food.ingredients)
-      .filter(([_, items]) => items && (items as any[]).length > 0)
+      .filter(([, items]) => items && Array.isArray(items) && items.length > 0)
       .slice(0, 2)
       .map(([category]) => category);
   };

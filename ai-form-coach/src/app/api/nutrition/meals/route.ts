@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get or create meal
-    const { data: meal, error: mealError } = await supabase
+    const { data: initialMeal, error: mealError } = await supabase
       .from('meals')
       .select('id')
       .eq('user_id', user.id)
@@ -90,6 +90,8 @@ export async function POST(request: NextRequest) {
       .eq('name', meal_name || null)
       .single();
 
+    let meal = initialMeal;
+    
     if (mealError && mealError.code === 'PGRST116') {
       // Create new meal
       const { data: newMeal, error: createError } = await supabase
@@ -117,7 +119,7 @@ export async function POST(request: NextRequest) {
     const { data: mealItem, error: itemError } = await supabase
       .from('meal_items')
       .insert({
-        meal_id: meal.id,
+        meal_id: meal!.id,
         food_id,
         grams
       })

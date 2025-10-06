@@ -35,7 +35,7 @@ export default function History() {
 				Math.floor(Math.random() * 3) + 1 : 
 				Math.floor(Math.random() * 20) + 10;
 			
-			const _endedAt = new Date(startedAt.getTime() + durationMinutes * 60 * 1000);
+			// const endedAt = new Date(startedAt.getTime() + durationMinutes * 60 * 1000);
 			const totalReps = exercise === 'plank' ? null : Math.floor(Math.random() * 40) + 15;
 			const totalTimeSeconds = durationMinutes * 60;
 			

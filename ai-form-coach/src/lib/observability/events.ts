@@ -1,4 +1,4 @@
-export type EventName = 'session_started' | 'session_ended' | 'rest_started' | 'undo_used' | 'goal_met' | 'pose_quality_low';
+export type EventName = 'session_started' | 'session_ended' | 'rest_started' | 'undo_used' | 'goal_met' | 'pose_quality_low' | 'rep_completed';
 
 export async function logEvent(name: EventName, payload?: Record<string, unknown>) {
 	try {

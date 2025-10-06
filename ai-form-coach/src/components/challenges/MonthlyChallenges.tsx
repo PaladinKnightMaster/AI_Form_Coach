@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import { useToastContext } from '@/components/ToastProvider';
 import FeatureGate from '@/components/FeatureGate';
@@ -8,18 +8,14 @@ import LoadingOverlay from '@/components/LoadingOverlay';
 import type { MonthlyChallenge, ChallengeParticipation } from '@/lib/subscription/types';
 
 export default function MonthlyChallenges() {
-  const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
+  const { success: showSuccess, error: showError } = useToastContext();
   const [challenge, setChallenge] = useState<MonthlyChallenge | null>(null);
   const [participation, setParticipation] = useState<ChallengeParticipation | null>(null);
   const [leaderboard, setLeaderboard] = useState<ChallengeParticipation[]>([]);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
 
-  useEffect(() => {
-    fetchChallengeData();
-  }, []);
-
-  const fetchChallengeData = async () => {
+  const fetchChallengeData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -49,7 +45,11 @@ export default function MonthlyChallenges() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
+
+  useEffect(() => {
+    fetchChallengeData();
+  }, [fetchChallengeData]);
 
   const handleJoinChallenge = async () => {
     if (!challenge) return;
@@ -108,7 +108,7 @@ export default function MonthlyChallenges() {
   };
 
   if (loading) {
-    return <LoadingOverlay message="Loading challenges..." />;
+    return <LoadingOverlay isVisible={true} message="Loading challenges..." />;
   }
 
   return (

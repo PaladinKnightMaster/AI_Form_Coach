@@ -1,6 +1,14 @@
 import { FilesetResolver, PoseLandmarker, type PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { exponentialMovingAverage, type Point3 } from '../math/poseMath';
 
+// MediaPipe WasmFileset interface (not exported from the library)
+interface WasmFileset {
+  wasmLoaderPath: string;
+  wasmBinaryPath: string;
+  assetLoaderPath?: string;
+  assetBinaryPath?: string;
+}
+
 export type PoseModel = 'lite' | 'full';
 
 let landmarker: PoseLandmarker | null = null;
@@ -13,7 +21,7 @@ export async function initPose(model: PoseModel = 'lite') {
 		);
 	}
 	const fileset = await filesetReady;
-	landmarker = await PoseLandmarker.createFromOptions(fileset, {
+	landmarker = await PoseLandmarker.createFromOptions(fileset as WasmFileset, {
 		baseOptions: {
 			modelAssetPath:
 				model === 'full'

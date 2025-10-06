@@ -64,10 +64,10 @@ export const Button = forwardRef(function Button(
 	
 	if (asChild && React.isValidElement(children)) {
 		return React.cloneElement(children, {
-			className: `${buttonClasses} ${children.props.className || ''}`,
+			className: `${buttonClasses} ${(children.props as { className?: string }).className || ''}`,
 			ref,
 			...props
-		});
+		} as React.HTMLAttributes<HTMLElement>);
 	}
 	
 	return (

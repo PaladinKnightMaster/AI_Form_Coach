@@ -80,7 +80,7 @@ describe('Nutrition Workflow Tests', () => {
   describe('Food Search and Selection Workflow', () => {
     it('should complete food search and selection workflow', () => {
       // Test food search process
-      const searchQuery = 'chicken';
+      // const searchQuery = 'chicken';
       const searchResults = [
         { name: 'Chicken Breast', calories: 165, protein: 31, per: '100g' },
         { name: 'Chicken Thigh', calories: 209, protein: 26, per: '100g' },

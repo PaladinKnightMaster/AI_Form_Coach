@@ -140,8 +140,8 @@ describe('Readiness Workflow Tests', () => {
       expect(progressionDecision.reason).toBeDefined();
       expect(progressionDecision.confidence).toBeGreaterThan(0);
     });
+    });
   });
-});
 
 // Helper functions for readiness calculations
 function calculateReadinessScore(data: { soreness_level: number; fatigue_level: number; sleep_quality: number; stress_level: number; motivation_level: number }): number {
@@ -241,7 +241,7 @@ function integrateHealthData(readiness: { score: number }, health: { sleep_durat
   
   const combinedScore = (readiness.score + healthScore) / 2;
   
-  return {
+          return {
     combined_score: Math.min(1, Math.max(0, combinedScore || 0.5)), // Fallback to 0.5 if NaN
     health_factors: ['sleep_duration', 'hrv', 'step_count', 'resting_heart_rate']
   };

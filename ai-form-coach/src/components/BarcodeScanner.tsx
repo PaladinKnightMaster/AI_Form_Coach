@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } from '@zxing/library';
 
 interface BarcodeScannerProps {
@@ -24,6 +24,24 @@ export default function BarcodeScanner({
   const [isInitializing, setIsInitializing] = useState(true);
   const [detectionAttempts, setDetectionAttempts] = useState(0);
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
+
+  const stopScanning = useCallback(() => {
+    // Clear timeout if it exists
+    if (scanTimeout) {
+      clearTimeout(scanTimeout);
+      setScanTimeout(null);
+    }
+    
+    if (readerRef.current) {
+      readerRef.current.reset();
+    }
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setIsScanning(false);
+  }, [scanTimeout]);
 
   useEffect(() => {
     const initScanner = async () => {
@@ -144,7 +162,7 @@ export default function BarcodeScanner({
             }
           });
 
-        } catch (permissionError) {
+        } catch {
           setHasPermission(false);
           setError('Camera permission denied. Please allow camera access to scan codes.');
           setIsInitializing(false);
@@ -162,25 +180,7 @@ export default function BarcodeScanner({
     return () => {
       stopScanning();
     };
-  }, []); // Remove dependencies to avoid re-running
-
-  const stopScanning = () => {
-    // Clear timeout if it exists
-    if (scanTimeout) {
-      clearTimeout(scanTimeout);
-      setScanTimeout(null);
-    }
-    
-    if (readerRef.current) {
-      readerRef.current.reset();
-    }
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
-    setIsScanning(false);
-  };
+  }, [detectionAttempts, onBarcodeDetected, scanTimeout, stopScanning, supportedFormats]);
 
   const handleClose = () => {
     stopScanning();

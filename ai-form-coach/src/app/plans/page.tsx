@@ -92,10 +92,29 @@ export default function PlansPage() {
     }
   }, [showError]);
 
+  const checkAuthentication = useCallback(async () => {
+    try {
+      const supabase = getSupabaseClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setIsAuthenticated(false);
+        router.push('/signin?redirect=/plans');
+        return;
+      }
+      
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Error checking authentication:', error);
+      setIsAuthenticated(false);
+      router.push('/signin?redirect=/plans');
+    }
+  }, [router]);
+
   // Check authentication on component mount
   useEffect(() => {
     checkAuthentication();
-  }, []);
+  }, [checkAuthentication]);
 
   // Load data after authentication
   useEffect(() => {
@@ -115,25 +134,6 @@ export default function PlansPage() {
       loadData();
     }
   }, [isAuthenticated, fetchFeaturedPlans, fetchUserPlans]);
-
-  const checkAuthentication = async () => {
-    try {
-      const supabase = getSupabaseClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        setIsAuthenticated(false);
-        router.push('/signin?redirect=/plans');
-        return;
-      }
-      
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Error checking authentication:', error);
-      setIsAuthenticated(false);
-      router.push('/signin?redirect=/plans');
-    }
-  };
 
   // Fetch user plans when switching to my-plans view
   useEffect(() => {

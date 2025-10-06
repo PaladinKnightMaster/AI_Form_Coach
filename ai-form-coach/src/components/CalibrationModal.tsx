@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { SmoothedLandmark } from '@/lib/pose';
+import type { Landmark3D } from '@/lib/pose/engine';
 import { angleBetween, clamp } from '@/lib/math/poseMath';
 import { saveExerciseThresholds } from '@/lib/calibration';
 import type { Exercise } from '@/lib/validators/types';
 
-export default function CalibrationModal({ exercise, landmarks, onClose, onSaved }: { exercise: Exercise; landmarks: SmoothedLandmark[] | null; onClose: () => void; onSaved: () => void }) {
+export default function CalibrationModal({ exercise, landmarks, onClose, onSaved }: { exercise: Exercise; landmarks: Landmark3D[] | null; onClose: () => void; onSaved: () => void }) {
 	const [running, setRunning] = useState(false);
 	const [samples, setSamples] = useState<number[]>([]);
 	const [seconds, setSeconds] = useState(0);
@@ -81,7 +81,7 @@ export default function CalibrationModal({ exercise, landmarks, onClose, onSaved
 	);
 }
 
-function measure(exercise: Exercise, lm: SmoothedLandmark[]): number | null {
+function measure(exercise: Exercise, lm: Landmark3D[]): number | null {
 	try {
 		if (exercise === 'squat') {
 			// Use better-visibility side knee depth

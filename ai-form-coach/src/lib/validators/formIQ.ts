@@ -1,5 +1,5 @@
 import type { RepMetric, Exercise } from './types';
-import type { SmoothedLandmark } from '../pose';
+import type { Landmark3D } from '../pose/engine';
 import { angleBetween } from '../math/poseMath';
 
 export interface FormIQMetrics {
@@ -38,7 +38,7 @@ export function calculateFormIQ(
 
   // Calculate individual component scores
   const romScore = calculateROMScore(metrics, exercise);
-  const tempoScore = calculateTempoScore(metrics, exercise);
+  const tempoScore = calculateTempoScore(metrics);
   const stabilityScore = calculateStabilityScore(metrics);
   const balanceScore = sideBalance?.balanceScore ?? 0.5;
 
@@ -72,13 +72,6 @@ export function calculateFormIQ(
  * Calculate Range of Motion score based on exercise-specific targets
  */
 function calculateROMScore(metrics: RepMetric[], exercise: Exercise): number {
-  const targets = {
-    squat: { minDepth: 45, idealDepth: 90 },
-    pushup: { minAngle: 90, idealAngle: 70 },
-    plank: { minTime: 10, idealTime: 60 }
-  };
-
-  const target = targets[exercise];
   let totalScore = 0;
 
   for (const metric of metrics) {
@@ -86,30 +79,39 @@ function calculateROMScore(metrics: RepMetric[], exercise: Exercise): number {
     
     if (exercise === 'squat' && metric.peakDepth !== undefined) {
       const depth = metric.peakDepth;
-      if (depth >= target.idealDepth) {
+      const minDepth = 45;
+      const idealDepth = 90;
+      
+      if (depth >= idealDepth) {
         score = 1.0; // Perfect depth
-      } else if (depth >= target.minDepth) {
-        score = 0.5 + (depth - target.minDepth) / (target.idealDepth - target.minDepth) * 0.5;
+      } else if (depth >= minDepth) {
+        score = 0.5 + (depth - minDepth) / (idealDepth - minDepth) * 0.5;
       } else {
-        score = depth / target.minDepth * 0.5;
+        score = depth / minDepth * 0.5;
       }
     } else if (exercise === 'pushup' && metric.peakAngle !== undefined) {
       const angle = metric.peakAngle;
-      if (angle <= target.idealAngle) {
+      const minAngle = 90;
+      const idealAngle = 70;
+      
+      if (angle <= idealAngle) {
         score = 1.0; // Perfect angle
-      } else if (angle <= target.minAngle) {
-        score = 0.5 + (target.minAngle - angle) / (target.minAngle - target.idealAngle) * 0.5;
+      } else if (angle <= minAngle) {
+        score = 0.5 + (minAngle - angle) / (minAngle - idealAngle) * 0.5;
       } else {
-        score = Math.max(0, 1 - (angle - target.minAngle) / 90 * 0.5);
+        score = Math.max(0, 1 - (angle - minAngle) / 90 * 0.5);
       }
     } else if (exercise === 'plank') {
       const duration = (metric.endTs - metric.startTs) / 1000;
-      if (duration >= target.idealTime) {
+      const minTime = 10;
+      const idealTime = 60;
+      
+      if (duration >= idealTime) {
         score = 1.0;
-      } else if (duration >= target.minTime) {
-        score = 0.5 + (duration - target.minTime) / (target.idealTime - target.minTime) * 0.5;
+      } else if (duration >= minTime) {
+        score = 0.5 + (duration - minTime) / (idealTime - minTime) * 0.5;
       } else {
-        score = duration / target.minTime * 0.5;
+        score = duration / minTime * 0.5;
       }
     }
     
@@ -122,7 +124,7 @@ function calculateROMScore(metrics: RepMetric[], exercise: Exercise): number {
 /**
  * Calculate tempo consistency score
  */
-function calculateTempoScore(metrics: RepMetric[], exercise: Exercise): number {
+function calculateTempoScore(metrics: RepMetric[]): number {
   if (metrics.length < 2) return 1.0; // Single rep gets perfect tempo score
 
   const durations = metrics.map(m => (m.endTs - m.startTs) / 1000);
@@ -159,7 +161,7 @@ function calculateStabilityScore(metrics: RepMetric[]): number {
  * Calculate side balance for bilateral exercises (squats, pushups)
  */
 export function calculateSideBalance(
-  landmarks: SmoothedLandmark[],
+  landmarks: Landmark3D[],
   exercise: Exercise
 ): SideBalanceData | null {
   if (exercise === 'plank') return null; // Plank doesn't need side balance

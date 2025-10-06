@@ -299,7 +299,7 @@ export function checkProgressionNaturalness(
   const { max_rep_increase_percent, max_time_increase_percent, min_sessions_for_check } = thresholds;
   
   // Filter to same exercise only
-  const samExerciseSessions = previousSessions.filter(s => s.exercise === currentSession.exercise);
+  const sameExerciseSessions = previousSessions.filter(s => s.exercise === currentSession.exercise);
   
   // Not enough history
   if (sameExerciseSessions.length < min_sessions_for_check) {

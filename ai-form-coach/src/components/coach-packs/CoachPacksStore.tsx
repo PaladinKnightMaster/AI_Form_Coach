@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import { useToastContext } from '@/components/ToastProvider';
 import FeatureGate from '@/components/FeatureGate';
@@ -8,16 +8,12 @@ import LoadingOverlay from '@/components/LoadingOverlay';
 import type { CoachPack } from '@/lib/subscription/types';
 
 export default function CoachPacksStore() {
-  const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
+  const { success: showSuccess, error: showError } = useToastContext();
   const [coachPacks, setCoachPacks] = useState<CoachPack[]>([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchCoachPacks();
-  }, []);
-
-  const fetchCoachPacks = async () => {
+  const fetchCoachPacks = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/coach-packs', {
@@ -36,7 +32,11 @@ export default function CoachPacksStore() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
+
+  useEffect(() => {
+    fetchCoachPacks();
+  }, [fetchCoachPacks]);
 
   const handlePurchase = async (packId: string) => {
     try {
@@ -89,7 +89,7 @@ export default function CoachPacksStore() {
   };
 
   if (loading) {
-    return <LoadingOverlay message="Loading coach packs..." />;
+    return <LoadingOverlay isVisible={true} message="Loading coach packs..." />;
   }
 
   return (

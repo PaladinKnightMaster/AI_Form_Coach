@@ -69,7 +69,7 @@ export default function PricingTeaser() {
 							<li className="flex items-center gap-2"><Icon name="check" /> Export Data</li>
 							<li className="flex items-center gap-2"><Icon name="check" /> Priority Support</li>
 						</ul>
-						<Button variant="primary" className="w-full" onClick={startCheckout} disabled={loading}>{loading ? 'Redirecting…' : 'Upgrade to Pro'}</Button>
+						<Button variant="primary" className="w-full" onClick={() => startCheckout()} disabled={loading}>{loading ? 'Redirecting…' : 'Upgrade to Pro'}</Button>
 					</div>
 					
 					<div className="card p-4 border-purple-500/50 relative">

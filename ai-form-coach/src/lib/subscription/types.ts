@@ -96,6 +96,11 @@ export interface ChallengeParticipation {
   completed_at?: string;
   created_at: string;
   updated_at: string;
+  profiles?: {
+    id: string;
+    display_name?: string;
+    avatar_url?: string;
+  };
 }
 
 export interface SubscriptionPlan {

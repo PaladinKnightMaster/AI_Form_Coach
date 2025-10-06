@@ -28,7 +28,7 @@ export default function TestPage() {
               onClick={() => setCount(count - 1)}
               variant="secondary"
             >
-              <Icon name="minus" className="w-4 h-4 mr-2" />
+              <Icon name="chevron-down" className="w-4 h-4 mr-2" />
               Decrease
             </Button>
             
@@ -36,7 +36,7 @@ export default function TestPage() {
               onClick={() => setCount(count + 1)}
               variant="primary"
             >
-              <Icon name="plus" className="w-4 h-4 mr-2" />
+              <Icon name="chevron-up" className="w-4 h-4 mr-2" />
               Increase
             </Button>
           </div>

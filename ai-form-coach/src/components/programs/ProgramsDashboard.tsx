@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import { useToastContext } from '@/components/ToastProvider';
 import LoadingOverlay from '@/components/LoadingOverlay';
@@ -48,7 +48,7 @@ interface DayBlock {
 }
 
 export default function ProgramsDashboard() {
-  const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
+  const { success: showSuccess, error: showError } = useToastContext();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [userPrograms, setUserPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,11 +56,7 @@ export default function ProgramsDashboard() {
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [showProgramDetails, setShowProgramDetails] = useState(false);
 
-  useEffect(() => {
-    fetchPrograms();
-  }, []);
-
-  const fetchPrograms = async () => {
+  const fetchPrograms = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -91,7 +87,11 @@ export default function ProgramsDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
+
+  useEffect(() => {
+    fetchPrograms();
+  }, [fetchPrograms]);
 
   const handleCreateProgram = async (templateId: string, programName: string) => {
     try {
@@ -112,7 +112,7 @@ export default function ProgramsDashboard() {
         throw new Error('Failed to create program');
       }
 
-      const data = await response.json();
+      await response.json();
       showSuccess('Program Created!', 'Your program has been created successfully');
       fetchPrograms(); // Refresh the list
     } catch (error) {
@@ -133,7 +133,7 @@ export default function ProgramsDashboard() {
   const currentPrograms = activeTab === 'templates' ? programs : userPrograms;
 
   if (loading) {
-    return <LoadingOverlay message="Loading programs..." />;
+    return <LoadingOverlay isVisible={true} message="Loading programs..." />;
   }
 
   return (
@@ -224,7 +224,7 @@ export default function ProgramsDashboard() {
                     }}
                     className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300"
                   >
-                    <Icon name="eye" className="w-4 h-4 mr-2" />
+                    <Icon name="search" className="w-4 h-4 mr-2" />
                     View Details
                   </Button>
                   
@@ -245,7 +245,7 @@ export default function ProgramsDashboard() {
 
         {currentPrograms.length === 0 && (
           <div className="text-center py-12">
-            <Icon name="folder-open" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <Icon name="package" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No programs found
             </h3>

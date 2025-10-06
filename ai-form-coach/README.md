@@ -11,11 +11,14 @@ A revolutionary fitness application that combines AI-powered form coaching with 
 
 ### 🎯 AI Form Coaching
 - **Real-time pose detection** using MediaPipe for squats, push-ups, and planks
-- **Instant form feedback** with voice coaching cues
+- **3D Pose Analysis** - Professional-grade 3D pose reconstruction and biomechanical analysis
+- **Advanced Form Scoring** - Multi-metric analysis including technique, ROM, stability, and alignment
+- **Instant form feedback** with voice coaching cues and visual corrections
 - **Automatic rep counting** with precision accuracy tracking
-- **Form quality scoring** and progress visualization
+- **Biomechanical Analysis** - Center of mass, balance, stability, and joint force calculations
+- **Exercise-Specific Scoring** - Tailored analysis for squats, push-ups, planks, deadlifts, and lunges
 - **Auto-pause functionality** when you step out of view
-- **Injury prevention alerts** based on form analysis
+- **Injury prevention alerts** based on comprehensive form analysis
 - **Privacy-first design** - all processing happens on your device
 
 ### 🥗 Smart Nutrition Tracking
@@ -224,13 +227,23 @@ ai-form-coach/
 │   │   ├── account/           # User account management
 │   │   └── api/               # API routes
 │   ├── components/            # Reusable React components
+│   │   ├── Pose3D*           # 3D pose analysis components
+│   │   └── verification/      # Session verification UI
 │   ├── lib/                   # Utility libraries
-│   │   ├── pose/             # MediaPipe pose detection
+│   │   ├── pose/             # MediaPipe pose detection & 3D analysis
+│   │   │   ├── pose3D.ts     # 3D pose analysis engine
+│   │   │   ├── pose3DFeedback.ts # Real-time feedback system
+│   │   │   └── pose3DVisualization.ts # 3D visualization
 │   │   ├── validators/       # Exercise form validation
 │   │   ├── nutrition/        # Nutrition tracking logic
+│   │   ├── verification/     # Session integrity checking
 │   │   └── supabase/         # Database client
 │   ├── ui/                    # UI components and design system
 │   └── types/                 # TypeScript type definitions
+├── docs/                      # Comprehensive documentation
+│   ├── pose/                 # 3D pose system documentation
+│   ├── systems/              # System architecture docs
+│   └── development/          # Development guides
 ├── supabase/                  # Database schema and functions
 ├── public/                    # Static assets and images
 └── scripts/                   # Utility scripts
@@ -344,6 +357,25 @@ ai-form-coach/
 - **JSONB storage** - Flexible plan data and health metrics storage
 - **Custom functions** - Readiness scoring, goal calculations, and progression logic
 - **Comprehensive indexes** - Optimized query performance for all workflows
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+
+### 🎯 Pose Analysis System
+- **[3D Pose System Overview](docs/pose/README_3D_POSE_SYSTEM.md)** - Complete guide to the 3D pose analysis system
+- **[Integrated Validator System](docs/pose/INTEGRATED_VALIDATOR_SYSTEM.md)** - 2D/3D validator integration
+- **[Pose Engine Comparison](docs/pose/POSE_ENGINE_COMPARISON.md)** - V1 vs V2 feature comparison
+- **[3D Integration Guide](docs/pose/pose3DIntegrationGuide.md)** - Implementation guide for 3D features
+
+### 🏗️ System Architecture
+- **[Verification System](docs/systems/VERIFICATION_SYSTEM.md)** - Session integrity checking system
+- **[Readiness System](docs/systems/READINESS_SYSTEM_IMPLEMENTATION.md)** - Health monitoring and readiness assessment
+- **[Type Architecture](docs/systems/READINESS_TYPE_ARCHITECTURE.md)** - Type system design patterns
+
+### 🛠️ Development
+- **[Pose Engine Integration Status](docs/development/POSE_ENGINE2_INTEGRATION_STATUS.md)** - Current integration progress
+- **[Validation Checklist](docs/development/VALIDATION_CHECKLIST.md)** - Development validation procedures
 
 ## 🧪 Testing & Quality Assurance
 
@@ -497,6 +529,9 @@ For support, email support@aiformcoach.com or join our Discord community.
 
 ### ✅ Completed Features
 - **AI Form Coaching** - Real-time pose detection and form feedback
+- **3D Pose Analysis System** - Professional-grade 3D pose reconstruction and biomechanical analysis
+- **Advanced Form Scoring** - Multi-metric analysis with exercise-specific scoring algorithms
+- **Integrated Validator System** - Combines 2D rep counting with 3D biomechanical analysis
 - **Smart Nutrition Tracking** - AI food recognition and macro tracking
 - **AI-Powered Workout Plans** - Generated plans with quiz-style wizard
 - **Health Monitoring** - Readiness assessment and health data integration
@@ -512,6 +547,12 @@ For support, email support@aiformcoach.com or join our Discord community.
 - **Enhanced Navigation** - Real-time feedback and community hub integration
 
 ### 🚀 Recent Updates (Latest Maintenance)
+- **3D Pose Analysis System** ⭐ NEW - Professional-grade 3D pose reconstruction and biomechanical analysis
+  - 3D skeleton reconstruction from 2D MediaPipe landmarks
+  - Biomechanical analysis: center of mass, balance, stability, joint forces
+  - Advanced form scoring with exercise-specific algorithms
+  - Real-time 3D feedback and visual corrections
+  - Integrated validator system combining 2D and 3D analysis
 - **Session Verification System** ⭐ NEW - Complete Strava-like integrity system with automated checks
   - 4 verification algorithms: ROM consistency, tempo realism, progression naturalness, outlier detection
   - Auto-verification on session completion, configurable thresholds, complete audit trail

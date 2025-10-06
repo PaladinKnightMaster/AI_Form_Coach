@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Button, Icon } from '@/ui/DS';
+import { Icon } from '@/ui/DS';
 import PrivacyBadge from '@/components/PrivacyBadge';
 import type { Food, FoodSearchResult } from '@/types/nutrition';
 
@@ -22,12 +22,12 @@ const categories = [
 ];
 
 const quickAddItems = [
-  { name: 'Apple', calories: 95, protein: 0.5, carbs: 25, fat: 0.3, emoji: '🍎' },
-  { name: 'Banana', calories: 105, protein: 1.3, carbs: 27, fat: 0.4, emoji: '🍌' },
-  { name: 'Chicken Breast', calories: 165, protein: 31, carbs: 0, fat: 3.6, emoji: '🍗' },
-  { name: 'Rice (1 cup)', calories: 205, protein: 4.3, carbs: 45, fat: 0.4, emoji: '🍚' },
-  { name: 'Greek Yogurt', calories: 100, protein: 17, carbs: 6, fat: 0, emoji: '🥛' },
-  { name: 'Almonds (1 oz)', calories: 164, protein: 6, carbs: 6, fat: 14, emoji: '🥜' }
+  { id: 'quick-apple', name: 'Apple', calories_per_100g: 52, protein_per_100g: 0.3, carbs_per_100g: 14, fat_per_100g: 0.2, emoji: '🍎' },
+  { id: 'quick-banana', name: 'Banana', calories_per_100g: 89, protein_per_100g: 1.1, carbs_per_100g: 23, fat_per_100g: 0.3, emoji: '🍌' },
+  { id: 'quick-chicken', name: 'Chicken Breast', calories_per_100g: 165, protein_per_100g: 31, carbs_per_100g: 0, fat_per_100g: 3.6, emoji: '🍗' },
+  { id: 'quick-rice', name: 'Rice', calories_per_100g: 130, protein_per_100g: 2.7, carbs_per_100g: 28, fat_per_100g: 0.3, emoji: '🍚' },
+  { id: 'quick-yogurt', name: 'Greek Yogurt', calories_per_100g: 59, protein_per_100g: 10, carbs_per_100g: 3.6, fat_per_100g: 0.4, emoji: '🥛' },
+  { id: 'quick-almonds', name: 'Almonds', calories_per_100g: 579, protein_per_100g: 21, carbs_per_100g: 22, fat_per_100g: 50, emoji: '🥜' }
 ];
 
 export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
@@ -78,10 +78,10 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
     const food: Food = {
       id: `quick_${Date.now()}`,
       name: item.name,
-      calories_per_100g: (item.calories / 100) * 100,
-      protein_per_100g: (item.protein / 100) * 100,
-      carbs_per_100g: (item.carbs / 100) * 100,
-      fat_per_100g: (item.fat / 100) * 100,
+      calories_per_100g: item.calories_per_100g,
+      protein_per_100g: item.protein_per_100g,
+      carbs_per_100g: item.carbs_per_100g,
+      fat_per_100g: item.fat_per_100g,
       fiber_per_100g: 0,
       sugar_per_100g: 0,
       sodium_per_100g: 0,
@@ -175,7 +175,7 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
                         {item.name}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {item.calories} cal • {item.protein}g protein
+                        {item.calories_per_100g} cal • {item.protein_per_100g}g protein
                       </div>
                     </div>
                   </button>
@@ -228,7 +228,7 @@ function FoodSearchResult({ food, onSelect }: { food: Food; onSelect: () => void
   // Get top 2 ingredient categories
   const topIngredients = food.ingredients 
     ? Object.entries(food.ingredients)
-        .filter(([_, items]) => items && items.length > 0)
+        .filter(([, items]) => items && items.length > 0)
         .slice(0, 2)
         .map(([category]) => category)
     : [];

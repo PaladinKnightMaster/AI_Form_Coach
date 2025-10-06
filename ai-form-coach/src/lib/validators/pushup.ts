@@ -1,10 +1,8 @@
-import { angleBetween, clamp } from '../math/poseMath';
+import { clamp } from '../math/poseMath';
 import type { Validator, ValidatorState, ValidatorConfig } from './types';
-import type { SmoothedLandmark } from '../pose';
+import type { PoseEstimateResult } from '../pose/engine';
 import { calculateFormIQ, calculateSideBalance } from './formIQ';
-
-const L = { SHOULDER: 11, ELBOW: 13, WRIST: 15 } as const;
-const R = { SHOULDER: 12, ELBOW: 14, WRIST: 16 } as const;
+import { getExerciseAngle } from '../pose/normalize';
 
 export function createPushupValidator(): Validator {
 	const state: ValidatorState = { repCount: 0, phase: 'idle', cues: [], metrics: [] };
@@ -12,20 +10,15 @@ export function createPushupValidator(): Validator {
 	let peakAngle = 180;
 	let stable = 0;
 
-	return (lm: SmoothedLandmark[] | null, ts: number, cfg?: ValidatorConfig) => {
+	return (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => {
 		state.cues = [];
-		if (!lm || lm.length < 17) return state; // Ensure we have all required landmarks
+		if (!result || !result.landmarks || result.landmarks.length < 17) return state;
 		
-		// Check if required landmarks exist and have valid positions
-		const requiredLandmarks = [L.SHOULDER, L.ELBOW, L.WRIST, R.SHOULDER, R.ELBOW, R.WRIST];
-		if (!requiredLandmarks.every(idx => lm[idx] && typeof lm[idx].x === 'number' && typeof lm[idx].y === 'number')) {
-			return state;
-		}
+		// Use the robust angle calculation from the pose engine
+		const elbowAngle = getExerciseAngle(result, 'pushup');
+		if (elbowAngle === null) return state;
 		
-		const lv = (lm[L.SHOULDER]?.visibility ?? 0) + (lm[L.ELBOW]?.visibility ?? 0) + (lm[L.WRIST]?.visibility ?? 0);
-		const rv = (lm[R.SHOULDER]?.visibility ?? 0) + (lm[R.ELBOW]?.visibility ?? 0) + (lm[R.WRIST]?.visibility ?? 0);
-		const side = rv > lv ? R : L;
-		const e = angleBetween(lm[side.SHOULDER], lm[side.ELBOW], lm[side.WRIST]);
+		const e = elbowAngle;
 		const bend = clamp(180 - e, 0, 160);
 
 		const bottomElbow = cfg?.pushup?.bottomElbow ?? 70; // elbow angle at bottom
@@ -59,7 +52,7 @@ export function createPushupValidator(): Validator {
 
 		if (state.phase === 'up' && bend < 10 && currentRepStart !== null) {
 			// Calculate side balance for this rep
-			const sideBalanceData = calculateSideBalance(lm, 'pushup');
+			const sideBalanceData = calculateSideBalance(result.landmarks, 'pushup');
 			
 			// Create rep metric with enhanced data
 			const repMetric = { 
@@ -73,7 +66,7 @@ export function createPushupValidator(): Validator {
 			state.metrics.push(repMetric);
 			
 			// Calculate Form IQ for all reps so far
-			const formIQMetrics = calculateFormIQ(state.metrics, 'pushup', sideBalanceData);
+			const formIQMetrics = calculateFormIQ(state.metrics, 'pushup', sideBalanceData || undefined);
 			
 			// Update the latest rep with Form IQ
 			if (state.metrics.length > 0) {

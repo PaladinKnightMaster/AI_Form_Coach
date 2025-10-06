@@ -115,8 +115,11 @@ export async function GET(req: NextRequest) {
     (sessions || []).forEach(session => {
       const userId = session.user_id;
       const score = exercise === 'plank' ? 
-        (session.total_time_seconds || 0) : 
-        (session.total_reps || 0);
+        ((session as {total_time_seconds?: number}).total_time_seconds || 0) : 
+        ((session as {total_reps?: number}).total_reps || 0);
+      
+      // Type assertion for profiles (Supabase returns array for !inner joins but we know it's a single object)
+      const profiles = Array.isArray(session.profiles) ? session.profiles[0] : session.profiles;
       
       if (userStats.has(userId)) {
         const existing = userStats.get(userId)!;
@@ -125,8 +128,8 @@ export async function GET(req: NextRequest) {
       } else {
         userStats.set(userId, {
           userId,
-          userName: session.profiles?.username || 'Anonymous',
-          avatarUrl: session.profiles?.avatar_url,
+          userName: profiles?.username || 'Anonymous',
+          avatarUrl: profiles?.avatar_url,
           totalScore: score,
           sessionCount: 1
         });
@@ -139,15 +142,15 @@ export async function GET(req: NextRequest) {
       .slice(0, limit);
 
     // Create leaderboard entries
-    const leaderboard: LeaderboardEntry[] = sortedUsers.map((user, index) => ({
+    const leaderboard: LeaderboardEntry[] = sortedUsers.map((userEntry, index) => ({
       rank: index + 1,
-      userId: user.userId,
-      userName: user.userName,
-      avatar: user.avatarUrl,
-      score: user.totalScore,
+      userId: userEntry.userId,
+      userName: userEntry.userName,
+      avatar: userEntry.avatarUrl,
+      score: userEntry.totalScore,
       metric: exercise === 'plank' ? 'duration' : 'reps',
       period,
-      isCurrentUser: user.userId === user.id
+      isCurrentUser: userEntry.userId === user.id
     }));
 
     return NextResponse.json({

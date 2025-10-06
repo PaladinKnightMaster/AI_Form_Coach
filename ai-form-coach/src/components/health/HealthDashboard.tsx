@@ -1,29 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import { useToastContext } from '@/components/ToastProvider';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import EnhancedReadinessAssessment from '@/components/progression/EnhancedReadinessAssessment';
-
-interface ReadinessData {
-  id: string;
-  user_id: string;
-  date: string;
-  soreness_level: number;
-  fatigue_level: number;
-  sleep_quality: number;
-  stress_level: number;
-  motivation_level: number;
-  sleep_duration?: number;
-  resting_heart_rate?: number;
-  hrv_average?: number;
-  step_count?: number;
-  training_load?: number;
-  computed_readiness: number;
-  readiness_category: 'poor' | 'fair' | 'good' | 'excellent';
-  created_at: string;
-}
+import type { ReadinessAssessment, ReadinessDataDB } from '@/types/readiness';
 
 interface HealthBaseline {
   sleep_baseline: number;
@@ -34,18 +16,14 @@ interface HealthBaseline {
 }
 
 export default function HealthDashboard() {
-  const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
-  const [readinessData, setReadinessData] = useState<ReadinessData[]>([]);
-  const [todayReadiness, setTodayReadiness] = useState<ReadinessData | null>(null);
+  const { error: showError } = useToastContext();
+  const [readinessData, setReadinessData] = useState<ReadinessDataDB[]>([]);
+  const [todayReadiness, setTodayReadiness] = useState<ReadinessDataDB | null>(null);
   const [healthBaseline, setHealthBaseline] = useState<HealthBaseline | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAssessment, setShowAssessment] = useState(false);
 
-  useEffect(() => {
-    fetchHealthData();
-  }, []);
-
-  const fetchHealthData = async () => {
+  const fetchHealthData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -85,9 +63,28 @@ export default function HealthDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
 
-  const handleAssessmentSubmit = (assessment: { energy: number; mood: number; sleep: number; soreness: number; stress: number; notes?: string }) => {
+  useEffect(() => {
+    fetchHealthData();
+  }, [fetchHealthData]);
+
+  const handleAssessmentSubmit = (assessment: ReadinessAssessment) => {
+    // Calculate computed readiness from the assessment scores
+    const computedReadiness = (
+      (10 - assessment.sorenessLevel) +
+      (10 - assessment.fatigueLevel) +
+      assessment.sleepQuality +
+      (10 - assessment.stressLevel) +
+      assessment.motivationLevel
+    ) / 50;
+    
+    // Determine category based on computed readiness
+    const readinessCategory = 
+      computedReadiness >= 0.8 ? 'excellent' :
+      computedReadiness >= 0.6 ? 'good' :
+      computedReadiness >= 0.4 ? 'fair' : 'poor';
+    
     setTodayReadiness({
       id: 'new',
       user_id: 'current',
@@ -97,8 +94,8 @@ export default function HealthDashboard() {
       sleep_quality: assessment.sleepQuality,
       stress_level: assessment.stressLevel,
       motivation_level: assessment.motivationLevel,
-      computed_readiness: assessment.computedReadiness || 0.5,
-      readiness_category: assessment.readinessCategory || 'fair',
+      computed_readiness: computedReadiness,
+      readiness_category: readinessCategory,
       created_at: new Date().toISOString()
     });
     setShowAssessment(false);
@@ -117,16 +114,16 @@ export default function HealthDashboard() {
 
   const getReadinessIcon = (category: string) => {
     switch (category) {
-      case 'excellent': return 'trending-up';
-      case 'good': return 'check-circle';
+      case 'excellent': return 'chart';
+      case 'good': return 'check';
       case 'fair': return 'alert-circle';
-      case 'poor': return 'x-circle';
-      default: return 'help-circle';
+      case 'poor': return 'x';
+      default: return 'alert';
     }
   };
 
   if (loading) {
-    return <LoadingOverlay message="Loading health data..." />;
+    return <LoadingOverlay isVisible={true} message="Loading health data..." />;
   }
 
   return (

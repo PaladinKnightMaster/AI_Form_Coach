@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Container, Button, Icon } from '@/ui/DS';
 import { getSupabaseClient } from '@/lib/supabase/client';
@@ -8,7 +8,7 @@ import BarcodeScanner from '@/components/BarcodeScanner';
 import { lookupProductByBarcode } from '@/lib/nutrition/openFoodFacts';
 import { foodCacheManager } from '@/lib/nutrition/foodCache';
 
-export default function AddFoodPage() {
+function AddFoodPageContent() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	
@@ -529,5 +529,20 @@ function FoodSearchResults({
 				</button>
 			))}
 		</div>
+	);
+}
+
+export default function AddFoodPage() {
+	return (
+		<Suspense fallback={
+			<div className="min-h-screen flex items-center justify-center">
+				<div className="text-center space-y-4">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+					<p className="text-sm opacity-70">Loading...</p>
+				</div>
+			</div>
+		}>
+			<AddFoodPageContent />
+		</Suspense>
 	);
 }

@@ -1,30 +1,25 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button, Icon, Badge } from '@/ui/DS';
 import type { HealthData, HealthBaseline } from '@/lib/health/healthData';
 import { HealthDataManager } from '@/lib/health/healthData';
 import { useToastContext } from '@/components/ToastProvider';
 
-interface ReadinessDashboardProps {
-  exercise: 'squat' | 'pushup' | 'plank';
-}
+// interface ReadinessDashboardProps {
+//   exercise: 'squat' | 'pushup' | 'plank'; // TODO: Implement exercise-specific readiness
+// }
 
-export default function ReadinessDashboard({ exercise }: ReadinessDashboardProps) {
+export default function ReadinessDashboard() {
   const [healthManager] = useState(() => new HealthDataManager());
   const [healthData, setHealthData] = useState<HealthData[]>([]);
   const [baseline, setBaseline] = useState<HealthBaseline | null>(null);
   const [readinessScores, setReadinessScores] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d'>('7d');
-  const { success: showSuccess, error: showError } = useToastContext();
+  const { error: showError } = useToastContext();
 
-  useEffect(() => {
-    loadHealthData();
-    loadBaseline();
-  }, [selectedPeriod]);
-
-  const loadHealthData = async () => {
+  const loadHealthData = useCallback(async () => {
     setLoading(true);
     try {
       const days = selectedPeriod === '7d' ? 7 : selectedPeriod === '30d' ? 30 : 90;
@@ -51,12 +46,17 @@ export default function ReadinessDashboard({ exercise }: ReadinessDashboardProps
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedPeriod, healthManager, showError]);
 
-  const loadBaseline = () => {
+  const loadBaseline = useCallback(() => {
     const baselineData = healthManager.getBaseline();
     setBaseline(baselineData);
-  };
+  }, [healthManager]);
+
+  useEffect(() => {
+    loadHealthData();
+    loadBaseline();
+  }, [loadHealthData, loadBaseline]);
 
   const getReadinessCategory = (score: number): 'excellent' | 'good' | 'fair' | 'poor' => {
     if (score >= 0.8) return 'excellent';
@@ -182,7 +182,7 @@ export default function ReadinessDashboard({ exercise }: ReadinessDashboardProps
           </h4>
           <div className="flex items-center gap-2">
             <Icon 
-              name={trendDirection === 'up' ? 'trending-up' : trendDirection === 'down' ? 'trending-down' : 'minus'} 
+              name={trendDirection === 'up' ? 'chevron-up' : trendDirection === 'down' ? 'chevron-down' : 'activity'} 
               className={`w-4 h-4 ${
                 trendDirection === 'up' ? 'text-green-500' : 
                 trendDirection === 'down' ? 'text-red-500' : 
@@ -196,7 +196,7 @@ export default function ReadinessDashboard({ exercise }: ReadinessDashboardProps
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">
+          <div className={`text-3xl font-bold ${getReadinessColor(currentCategory)}`}>
             {Math.round(averageReadiness * 100)}%
           </div>
           <div className="flex-1">
@@ -249,7 +249,7 @@ export default function ReadinessDashboard({ exercise }: ReadinessDashboardProps
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-gray-600 dark:text-gray-400">{metric.label}</span>
                 <Icon 
-                  name={metric.trend === 'up' ? 'trending-up' : metric.trend === 'down' ? 'trending-down' : 'minus'} 
+                  name={metric.trend === 'up' ? 'chevron-up' : metric.trend === 'down' ? 'chevron-down' : 'activity'} 
                   className={`w-3 h-3 ${
                     metric.trend === 'up' ? 'text-green-500' : 
                     metric.trend === 'down' ? 'text-red-500' : 

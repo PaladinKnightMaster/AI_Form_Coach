@@ -56,14 +56,13 @@ export default function ReadinessAssessment({
         throw new Error('Failed to save readiness assessment');
       }
 
-      const data = await response.json();
+      await response.json();
       
-      // Call the original onSubmit with the API response
+      // Call the original onSubmit with only core assessment fields
+      // The API response contains computed fields, but we pass only the input assessment
       onSubmit({
         ...assessment,
-        assessmentDate: new Date(),
-        computedReadiness: data.readiness?.computed_readiness,
-        readinessCategory: data.readiness?.readiness_category
+        assessmentDate: new Date()
       });
     } catch (error) {
       console.error('Error saving readiness assessment:', error);

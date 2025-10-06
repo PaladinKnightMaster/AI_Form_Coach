@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@/ui/DS';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { DailyProgress } from '@/types/nutrition';
@@ -16,11 +16,30 @@ export default function ProteinAdvisory({ date, onDismiss }: ProteinAdvisoryProp
   const [dismissed, setDismissed] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    checkAuthAndFetchProgress();
+  const fetchProgress = useCallback(async () => {
+    try {
+      const supabase = getSupabaseClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.log('No session found, skipping progress fetch');
+        return;
+      }
+
+      const response = await fetch(`/api/nutrition/progress?date=${date}`, {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProgress(data);
+      }
+    } catch (error) {
+      console.error('Error fetching progress:', error);
+    }
   }, [date]);
 
-  const checkAuthAndFetchProgress = async () => {
+  const checkAuthAndFetchProgress = useCallback(async () => {
     try {
       const supabase = getSupabaseClient();
       const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -39,47 +58,11 @@ export default function ProteinAdvisory({ date, onDismiss }: ProteinAdvisoryProp
       setIsAuthenticated(false);
       setLoading(false);
     }
-  };
+  }, [fetchProgress]);
 
-  const fetchProgress = async () => {
-    try {
-      const supabase = getSupabaseClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        console.log('No session found, skipping progress fetch');
-        setProgress(null);
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch(`/api/nutrition/progress?date=${date}`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          console.log('Unauthorized access to progress API');
-          setProgress(null);
-          return;
-        }
-        console.error('Failed to fetch progress:', response.status, response.statusText);
-        setProgress(null);
-        return;
-      }
-
-      const data = await response.json();
-      setProgress(data.progress);
-    } catch (error) {
-      console.error('Error fetching progress:', error);
-      setProgress(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    checkAuthAndFetchProgress();
+  }, [checkAuthAndFetchProgress]);
 
   const handleDismiss = () => {
     setDismissed(true);

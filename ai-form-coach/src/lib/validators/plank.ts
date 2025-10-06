@@ -1,28 +1,21 @@
-import { angleBetween } from '../math/poseMath';
 import type { Validator, ValidatorState, ValidatorConfig } from './types';
-import type { SmoothedLandmark } from '../pose';
-
-const LEFT_SHOULDER = 11, LEFT_HIP = 23, LEFT_KNEE = 25;
-const RIGHT_SHOULDER = 12, RIGHT_HIP = 24, RIGHT_KNEE = 26;
+import type { PoseEstimateResult } from '../pose/engine';
+import { getExerciseAngle } from '../pose/normalize';
 
 export function createPlankValidator(): Validator {
 	const state: ValidatorState = { repCount: 0, phase: 'idle', cues: [], metrics: [] };
 	let holdStart: number | null = null;
 	let stable = 0;
 
-	return (lm: SmoothedLandmark[] | null, ts: number, cfg?: ValidatorConfig) => {
+	return (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => {
 		state.cues = [];
-		if (!lm || lm.length < 27) return state; // Ensure we have all required landmarks
+		if (!result || !result.landmarks || result.landmarks.length < 27) return state;
 		
-		// Check if required landmarks exist and have valid positions
-		const requiredLandmarks = [LEFT_SHOULDER, LEFT_HIP, LEFT_KNEE, RIGHT_SHOULDER, RIGHT_HIP, RIGHT_KNEE];
-		if (!requiredLandmarks.every(idx => lm[idx] && typeof lm[idx].x === 'number' && typeof lm[idx].y === 'number')) {
-			return state;
-		}
+		// Use the robust angle calculation from the pose engine
+		const torsoAngle = getExerciseAngle(result, 'plank');
+		if (torsoAngle === null) return state;
 		
-		const lh = angleBetween(lm[LEFT_SHOULDER], lm[LEFT_HIP], lm[LEFT_KNEE]);
-		const rh = angleBetween(lm[RIGHT_SHOULDER], lm[RIGHT_HIP], lm[RIGHT_KNEE]);
-		const hipAngle = (lh + rh) / 2;
+		const hipAngle = torsoAngle; // For plank, torso angle represents hip alignment
 
 		const minHipAngle = cfg?.plank?.minHipAngle ?? 170;
 		const debounce = cfg?.debounceFrames ?? 3;

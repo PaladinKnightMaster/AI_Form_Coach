@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Container, Button, Icon, Badge } from '@/ui/DS';
-import { useToastContext } from '@/components/ToastProvider';
+import { useRouter } from 'next/navigation';
+import { Button, Icon } from '@/ui/DS';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import ActivityFeed from './ActivityFeed';
 import RealTimeFeedback from '../feedback/RealTimeFeedback';
@@ -16,12 +15,12 @@ interface EnhancedNavigationProps {
 
 export default function EnhancedNavigation({ className = '' }: EnhancedNavigationProps) {
   const router = useRouter();
-  const pathname = usePathname();
+  // const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<'feed' | 'feedback' | 'competition'>('feed');
   const [stats, setStats] = useState<ActivityStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const { success: showSuccess } = useToastContext();
+  // const { success: showSuccess } = useToastContext();
 
   useEffect(() => {
     fetchUserStats();
@@ -69,14 +68,14 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
     {
       id: 'feedback',
       label: 'Real-time Feedback',
-      icon: 'message-circle',
+      icon: 'message',
       description: 'Get instant coaching during workouts',
       color: 'text-green-600 dark:text-green-400'
     },
     {
       id: 'competition',
       label: 'Fair Competition',
-      icon: 'trophy',
+      icon: 'star',
       description: 'Compete with similar fitness levels',
       color: 'text-purple-600 dark:text-purple-400'
     }
@@ -135,7 +134,7 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
             onClick={fetchUserStats}
             disabled={loading}
           >
-            <Icon name="refresh-cw" className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <Icon name="refresh" className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
 
@@ -195,7 +194,7 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
             }`}
           >
             <div className="flex items-center justify-center space-x-2">
-              <Icon name={item.icon as 'activity' | 'message-circle' | 'trophy'} className="w-4 h-4" />
+              <Icon name={item.icon as 'activity' | 'message' | 'star'} className="w-4 h-4" />
               <span className="hidden sm:inline">{item.label}</span>
             </div>
           </button>

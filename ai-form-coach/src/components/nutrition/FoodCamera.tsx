@@ -107,7 +107,7 @@ export default function FoodCamera({ onPhotoTaken, onClose }: FoodCameraProps) {
     return () => {
       stopCamera();
     };
-  }, []); // Remove dependencies to avoid re-running
+  }, [startCamera, stopCamera]);
 
   // Cleanup on unmount
   React.useEffect(() => {

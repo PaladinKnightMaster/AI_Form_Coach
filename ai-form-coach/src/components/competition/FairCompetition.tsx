@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Container, Button, Icon, Badge } from '@/ui/DS';
+import { useState, useEffect, useCallback } from 'react';
+import { Button, Icon, Badge } from '@/ui/DS';
 import { useToastContext } from '@/components/ToastProvider';
 import type { LeaderboardEntry, ChallengeProgress } from '@/types/activity';
 
@@ -22,11 +22,7 @@ export default function FairCompetition({
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'challenges'>('leaderboard');
   const { success: showSuccess, error: showError } = useToastContext();
 
-  useEffect(() => {
-    fetchCompetitionData();
-  }, [exercise, period]);
-
-  const fetchCompetitionData = async () => {
+  const fetchCompetitionData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -56,7 +52,11 @@ export default function FairCompetition({
     } finally {
       setLoading(false);
     }
-  };
+  }, [exercise, period, showError]);
+
+  useEffect(() => {
+    fetchCompetitionData();
+  }, [exercise, period, fetchCompetitionData]);
 
   const joinChallenge = async (challengeId: string) => {
     try {
@@ -145,7 +145,7 @@ export default function FairCompetition({
           </p>
         </div>
         <Button variant="secondary" onClick={fetchCompetitionData}>
-          <Icon name="refresh-cw" className="w-4 h-4 mr-2" />
+          <Icon name="refresh" className="w-4 h-4 mr-2" />
           Refresh
         </Button>
       </div>
@@ -206,7 +206,7 @@ export default function FairCompetition({
               </div>
             ) : (
               <div className="space-y-3">
-                {leaderboard.map((entry, index) => (
+                {leaderboard.map((entry) => (
                   <div
                     key={entry.userId}
                     className={`flex items-center space-x-4 p-3 rounded-lg ${
@@ -282,7 +282,7 @@ export default function FairCompetition({
                     </h3>
                     <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                       <span className="flex items-center">
-                        <Icon name="users" className="w-4 h-4 mr-1" />
+                        <Icon name="user" className="w-4 h-4 mr-1" />
                         {challenge.participants} participants
                       </span>
                       <span className="flex items-center">
@@ -297,7 +297,7 @@ export default function FairCompetition({
                       )}
                     </div>
                   </div>
-                  <Badge tone={challenge.isActive ? 'success' : 'secondary'} size="sm">
+                  <Badge tone={challenge.isActive ? 'success' : 'neutral'} size="sm">
                     {challenge.isActive ? 'Active' : 'Ended'}
                   </Badge>
                 </div>

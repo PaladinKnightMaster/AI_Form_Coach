@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { Container, Button, Icon, Badge } from '@/ui/DS';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Button, Icon, Badge } from '@/ui/DS';
 import { useToastContext } from '@/components/ToastProvider';
 
 interface RealTimeFeedbackProps {
@@ -25,6 +25,8 @@ interface PerformanceMetrics {
   lastRepTime: number;
   streak: number;
   personalBest: number;
+  lastFeedbackTime: number;
+  feedbackCount: number;
 }
 
 export default function RealTimeFeedback({ 
@@ -40,11 +42,13 @@ export default function RealTimeFeedback({
     tempo: 0,
     lastRepTime: 0,
     streak: 0,
-    personalBest: 0
+    personalBest: 0,
+    lastFeedbackTime: 0,
+    feedbackCount: 0
   });
   const [isMuted, setIsMuted] = useState(false);
   const { success: showSuccess } = useToastContext();
-  const feedbackTimeoutRef = useRef<NodeJS.Timeout>();
+  const feedbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastRepTimeRef = useRef<number>(0);
 
   // Strava-inspired feedback messages
@@ -91,33 +95,7 @@ export default function RealTimeFeedback({
     ]
   };
 
-  useEffect(() => {
-    if (isActive) {
-      startFeedbackLoop();
-    } else {
-      stopFeedbackLoop();
-    }
-
-    return () => stopFeedbackLoop();
-  }, [isActive, exercise]);
-
-  const startFeedbackLoop = () => {
-    const interval = setInterval(() => {
-      if (isActive && !isMuted) {
-        generateFeedback();
-      }
-    }, 3000 + Math.random() * 2000); // Random interval between 3-5 seconds
-
-    feedbackTimeoutRef.current = interval;
-  };
-
-  const stopFeedbackLoop = () => {
-    if (feedbackTimeoutRef.current) {
-      clearInterval(feedbackTimeoutRef.current);
-    }
-  };
-
-  const generateFeedback = () => {
+  const generateFeedback = useCallback(() => {
     const now = Date.now();
     const timeSinceLastRep = now - lastRepTimeRef.current;
     
@@ -161,11 +139,43 @@ export default function RealTimeFeedback({
     setFeedback(prev => [newFeedback, ...prev.slice(0, 4)]); // Keep last 5 messages
     onFeedback?.(newFeedback);
 
+    // Update metrics based on feedback type
+    updateMetrics({
+      lastFeedbackTime: now,
+      feedbackCount: metrics.feedbackCount + 1
+    });
+
     // Show toast for high priority feedback
     if (priority === 'high') {
       showSuccess('Great job!', message);
     }
+  }, [metrics, showSuccess, onFeedback, feedbackMessages.achievement, feedbackMessages.encouragement, feedbackMessages.form, feedbackMessages.motivation]);
+
+  const startFeedbackLoop = useCallback(() => {
+    const interval = setInterval(() => {
+      if (isActive && !isMuted) {
+        generateFeedback();
+      }
+    }, 3000 + Math.random() * 2000); // Random interval between 3-5 seconds
+
+    feedbackTimeoutRef.current = interval;
+  }, [isActive, isMuted, generateFeedback]);
+
+  const stopFeedbackLoop = () => {
+    if (feedbackTimeoutRef.current) {
+      clearInterval(feedbackTimeoutRef.current);
+    }
   };
+
+  useEffect(() => {
+    if (isActive) {
+      startFeedbackLoop();
+    } else {
+      stopFeedbackLoop();
+    }
+
+    return () => stopFeedbackLoop();
+  }, [isActive, exercise, startFeedbackLoop]);
 
   const updateMetrics = (newMetrics: Partial<PerformanceMetrics>) => {
     setMetrics(prev => {
@@ -182,11 +192,11 @@ export default function RealTimeFeedback({
 
   const getFeedbackIcon = (type: FeedbackMessage['type']) => {
     switch (type) {
-      case 'encouragement': return 'thumbs-up';
+      case 'encouragement': return 'check';
       case 'form': return 'target';
       case 'achievement': return 'trophy';
-      case 'motivation': return 'zap';
-      default: return 'message-circle';
+      case 'motivation': return 'activity';
+      default: return 'message';
     }
   };
 
@@ -216,7 +226,7 @@ export default function RealTimeFeedback({
             Real-time Feedback
           </h3>
           <div className="flex items-center space-x-2">
-            <Badge tone={isActive ? 'success' : 'secondary'} size="sm">
+            <Badge tone={isActive ? 'success' : 'neutral'} size="sm">
               {isActive ? 'Active' : 'Inactive'}
             </Badge>
             <Button
@@ -225,7 +235,7 @@ export default function RealTimeFeedback({
               onClick={() => setIsMuted(!isMuted)}
               className={isMuted ? 'text-red-600' : 'text-gray-600'}
             >
-              <Icon name={isMuted ? 'volume-x' : 'volume-2'} className="w-4 h-4" />
+              <Icon name={isMuted ? 'volume' : 'volume'} className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -264,7 +274,7 @@ export default function RealTimeFeedback({
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {feedback.length === 0 ? (
             <div className="text-center py-4 text-gray-500 dark:text-gray-400">
-              <Icon name="message-circle" className="w-8 h-8 mx-auto mb-2" />
+              <Icon name="message" className="w-8 h-8 mx-auto mb-2" />
               <p>Start your workout to see real-time feedback!</p>
             </div>
           ) : (
@@ -309,7 +319,7 @@ export default function RealTimeFeedback({
               onClick={() => setFeedback([])}
               disabled={feedback.length === 0}
             >
-              <Icon name="trash-2" className="w-4 h-4 mr-1" />
+              <Icon name="trash" className="w-4 h-4 mr-1" />
               Clear
             </Button>
             <Button
@@ -318,7 +328,7 @@ export default function RealTimeFeedback({
               onClick={() => generateFeedback()}
               disabled={!isActive}
             >
-              <Icon name="refresh-cw" className="w-4 h-4 mr-1" />
+              <Icon name="refresh" className="w-4 h-4 mr-1" />
               Test
             </Button>
           </div>

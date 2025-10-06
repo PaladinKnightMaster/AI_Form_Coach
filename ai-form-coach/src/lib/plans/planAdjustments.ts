@@ -117,8 +117,16 @@ export class PlanAdjustmentService {
       };
     }
 
-    const readinessScore = readiness.overallScore;
-    const hasSoreness = readiness.soreness > 0.3; // Soreness scale 0-1, >0.3 is significant
+    // Calculate overall readiness score from individual metrics (0-1 scale)
+    const readinessScore = (
+      (10 - readiness.sorenessLevel) + // Lower soreness = higher readiness
+      (10 - readiness.fatigueLevel) + // Lower fatigue = higher readiness
+      readiness.sleepQuality + // Higher sleep = higher readiness
+      (10 - readiness.stressLevel) + // Lower stress = higher readiness
+      readiness.motivationLevel // Higher motivation = higher readiness
+    ) / 50; // Normalize to 0-1 scale
+    
+    const hasSoreness = readiness.sorenessLevel > 3; // Soreness scale 0-10, >3 is significant
 
     // Get today's session from the plan
     const todaySession = this.getTodaySession(plan, currentDay);
@@ -216,7 +224,7 @@ export class PlanAdjustmentService {
     const adjustedPlan = { ...plan };
     
     // Only adjust AI-generated plans (those with plan_data)
-    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions) {
+    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions && Array.isArray(adjustedPlan.plan_data.sessions)) {
       const sessionIndex = adjustedPlan.plan_data.sessions.findIndex(
         (s: { id?: string; day?: string }) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
       );
@@ -265,7 +273,7 @@ export class PlanAdjustmentService {
     const adjustedPlan = { ...plan };
     
     // Only adjust AI-generated plans (those with plan_data)
-    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions) {
+    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions && Array.isArray(adjustedPlan.plan_data.sessions)) {
       const sessionIndex = adjustedPlan.plan_data.sessions.findIndex(
         (s: { id?: string; day?: string }) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
       );
@@ -277,7 +285,7 @@ export class PlanAdjustmentService {
         if (session.exercises) {
           session.exercises = session.exercises.map((exercise: { sets?: number; [key: string]: unknown }) => ({
             ...exercise,
-            sets: Math.max(1, Math.round(exercise.sets * 0.8))
+            sets: Math.max(1, Math.round((exercise.sets || 1) * 0.8))
           }));
         }
         
@@ -322,7 +330,7 @@ export class PlanAdjustmentService {
     const adjustedPlan = { ...plan };
     
     // Only adjust AI-generated plans (those with plan_data)
-    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions) {
+    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions && Array.isArray(adjustedPlan.plan_data.sessions)) {
       const sessionIndex = adjustedPlan.plan_data.sessions.findIndex(
         (s: { id?: string; day?: string }) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
       );

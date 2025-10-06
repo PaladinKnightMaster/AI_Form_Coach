@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button, Icon } from '@/ui/DS';
 import Link from 'next/link';
 import { subscriptionService } from '@/lib/subscription/subscriptionService';
@@ -25,11 +25,7 @@ export default function FeatureGate({
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    checkAccess();
-  }, [feature]);
-
-  const checkAccess = async () => {
+  const checkAccess = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -54,7 +50,11 @@ export default function FeatureGate({
     } finally {
       setLoading(false);
     }
-  };
+  }, [feature]);
+
+  useEffect(() => {
+    checkAccess();
+  }, [feature, checkAccess]);
 
   if (loading) {
     return (
@@ -151,11 +151,7 @@ export function useFeatureAccess(feature: keyof SubscriptionFeatures) {
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAccess();
-  }, [feature]);
-
-  const checkAccess = async () => {
+  const checkAccess = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -175,7 +171,11 @@ export function useFeatureAccess(feature: keyof SubscriptionFeatures) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [feature]);
+
+  useEffect(() => {
+    checkAccess();
+  }, [feature, checkAccess]);
 
   return { hasAccess, loading, refetch: checkAccess };
 }

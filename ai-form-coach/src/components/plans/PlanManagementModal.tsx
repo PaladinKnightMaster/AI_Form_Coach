@@ -87,7 +87,7 @@ export default function PlanManagementModal({
               </div>
               <div>
                 <div className="font-semibold text-gray-900 dark:text-white">
-                  {plan.plan_templates?.duration_weeks || 'N/A'} weeks
+                  {(plan as unknown as {plan_templates?: {duration_weeks?: number}}).plan_templates?.duration_weeks || 'N/A'} weeks
                 </div>
                 <div className="text-gray-500 dark:text-gray-400">Duration</div>
               </div>
@@ -106,14 +106,14 @@ export default function PlanManagementModal({
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-gray-600 dark:text-gray-400">Week Progress</span>
                   <span className="text-gray-900 dark:text-white">
-                    {plan.current_week} / {plan.plan_templates?.duration_weeks || 'N/A'}
+                    {plan.current_week} / {(plan as unknown as {plan_templates?: {duration_weeks?: number}}).plan_templates?.duration_weeks || 'N/A'}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                   <div 
                     className="bg-blue-500 h-2 rounded-full transition-all duration-300"
                     style={{ 
-                      width: `${Math.min(100, ((plan.current_week - 1) / (plan.plan_templates?.duration_weeks || 1)) * 100)}%` 
+                      width: `${Math.min(100, ((plan.current_week - 1) / ((plan as unknown as {plan_templates?: {duration_weeks?: number}}).plan_templates?.duration_weeks || 1)) * 100)}%` 
                     }}
                   />
                 </div>
@@ -124,14 +124,14 @@ export default function PlanManagementModal({
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-gray-600 dark:text-gray-400">Day Progress</span>
                   <span className="text-gray-900 dark:text-white">
-                    {plan.current_day} / {plan.plan_templates?.sessions_per_week || 'N/A'}
+                    {plan.current_day} / {(plan as unknown as {plan_templates?: {sessions_per_week?: number}}).plan_templates?.sessions_per_week || 'N/A'}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                   <div 
                     className="bg-green-500 h-2 rounded-full transition-all duration-300"
                     style={{ 
-                      width: `${Math.min(100, ((plan.current_day - 1) / (plan.plan_templates?.sessions_per_week || 1)) * 100)}%` 
+                      width: `${Math.min(100, ((plan.current_day - 1) / ((plan as unknown as {plan_templates?: {sessions_per_week?: number}}).plan_templates?.sessions_per_week || 1)) * 100)}%`
                     }}
                   />
                 </div>

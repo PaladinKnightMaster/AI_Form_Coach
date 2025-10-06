@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@/ui/DS';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { DailyProgress } from '@/types/nutrition';
@@ -24,12 +24,7 @@ export default function ProgressPanel({ date, onClose }: ProgressPanelProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchProgress();
-    fetchStreak();
-  }, [date]);
-
-  const fetchProgress = async () => {
+  const fetchProgress = useCallback(async () => {
     try {
       const supabase = getSupabaseClient();
       const { data: { session } } = await supabase.auth.getSession();
@@ -62,9 +57,9 @@ export default function ProgressPanel({ date, onClose }: ProgressPanelProps) {
       console.error('Error fetching progress:', error);
       setError('Failed to load progress');
     }
-  };
+  }, [date]);
 
-  const fetchStreak = async () => {
+  const fetchStreak = useCallback(async () => {
     try {
       const supabase = getSupabaseClient();
       const { data: { session } } = await supabase.auth.getSession();
@@ -94,7 +89,12 @@ export default function ProgressPanel({ date, onClose }: ProgressPanelProps) {
     } catch (error) {
       console.error('Error fetching streak:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProgress();
+    fetchStreak();
+  }, [fetchProgress, fetchStreak]);
 
   useEffect(() => {
     if (progress && streak) {

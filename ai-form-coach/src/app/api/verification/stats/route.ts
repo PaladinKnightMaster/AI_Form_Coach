@@ -5,11 +5,11 @@
  * Retrieves overall verification statistics for the current user
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { VerificationStats } from '@/types/verification';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const supabase = await getSupabaseServerClient();
     
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
       average_integrity_score: Math.round(averageIntegrityScore * 100) / 100,
       verification_rate: Math.round(verificationRate * 10) / 10,
       flag_rate: Math.round(flagRate * 10) / 10,
-      checks_by_type: checksByType as any
+      checks_by_type: checksByType
     };
 
     return NextResponse.json(stats);

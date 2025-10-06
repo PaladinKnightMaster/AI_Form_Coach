@@ -10,7 +10,7 @@
 import React from 'react';
 import { Icon } from '@/ui/DS';
 import type { VerificationBadgeProps } from '@/types/verification';
-import { getIntegrityScoreColor, getIntegrityScoreLabel } from '@/types/verification';
+// import { getIntegrityScoreColor, getIntegrityScoreLabel } from '@/types/verification';
 
 export default function VerificationBadge({
   verified,
@@ -22,32 +22,32 @@ export default function VerificationBadge({
 }: VerificationBadgeProps) {
   // Determine status and styling
   let status: 'verified' | 'flagged' | 'pending' | 'unverified';
-  let icon: string;
+  let icon: 'check' | 'alert' | 'activity' | 'alert-circle';
   let colorClasses: string;
   let bgClasses: string;
   let tooltipText: string;
 
   if (flagged) {
     status = 'flagged';
-    icon = 'alert-triangle';
+    icon = 'alert';
     colorClasses = 'text-red-600 dark:text-red-400';
     bgClasses = 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-800';
     tooltipText = 'Session flagged for suspicious activity';
   } else if (verified) {
     status = 'verified';
-    icon = 'check-circle';
+    icon = 'check';
     colorClasses = 'text-green-600 dark:text-green-400';
     bgClasses = 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-800';
     tooltipText = `Verified session (${Math.round(integrity_score * 100)}% integrity)`;
   } else if (integrity_score >= 0.5) {
     status = 'pending';
-    icon = 'clock';
+    icon = 'activity';
     colorClasses = 'text-yellow-600 dark:text-yellow-400';
     bgClasses = 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-800';
     tooltipText = 'Verification pending';
   } else {
     status = 'unverified';
-    icon = 'help-circle';
+    icon = 'alert-circle';
     colorClasses = 'text-gray-600 dark:text-gray-400';
     bgClasses = 'bg-gray-100 dark:bg-gray-700/30 border-gray-300 dark:border-gray-600';
     tooltipText = 'Not verified';
@@ -76,7 +76,7 @@ export default function VerificationBadge({
       `}
       title={showTooltip ? tooltipText : undefined}
     >
-      <Icon name={icon as any} className={iconSizes[size]} />
+      <Icon name={icon} className={iconSizes[size]} />
       <span>
         {status === 'verified' && 'Verified'}
         {status === 'flagged' && 'Flagged'}
@@ -109,7 +109,7 @@ export function VerificationIcon({
 }) {
   if (!verified && !flagged) return null;
 
-  const icon = flagged ? 'alert-triangle' : 'check-circle';
+  const icon: 'alert' | 'check' = flagged ? 'alert' : 'check';
   const colorClass = flagged 
     ? 'text-red-500 dark:text-red-400' 
     : 'text-green-500 dark:text-green-400';
@@ -123,11 +123,12 @@ export function VerificationIcon({
   const tooltip = flagged ? 'Flagged' : 'Verified';
 
   return (
-    <Icon
-      name={icon as any}
-      className={`${colorClass} ${sizeClass}`}
-      title={showTooltip ? tooltip : undefined}
-    />
+    <span title={showTooltip ? tooltip : undefined}>
+      <Icon
+        name={icon}
+        className={`${colorClass} ${sizeClass}`}
+      />
+    </span>
   );
 }
 

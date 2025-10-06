@@ -25,7 +25,7 @@ export interface SessionVerificationRecord {
   verified_by: string; // 'system' or user_id
   passed: boolean;
   score: number; // 0-1
-  details: Record<string, any>; // Check-specific details
+  details: Record<string, unknown>; // Check-specific details
   notes?: string;
   created_at: string;
 }
@@ -69,7 +69,7 @@ export interface IntegrityCheckConfig {
   check_name: string;
   enabled: boolean;
   weight: number; // 0-1, weight in overall score
-  thresholds: Record<string, any>;
+  thresholds: Record<string, unknown>;
   description: string;
   updated_at: string;
   updated_by?: string;
@@ -107,7 +107,7 @@ export interface IntegrityCheckResult {
   passed: boolean;
   score: number; // 0-1
   message: string;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
   severity: 'info' | 'warning' | 'error';
 }
 

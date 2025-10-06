@@ -25,7 +25,7 @@ export default function PrivacyBadge({
       iconColor: 'text-green-600 dark:text-green-400'
     },
     'anonymous': {
-      icon: 'eye',
+      icon: 'user',
       text: 'Anonymous Lookups',
       description: 'No personal tracking',
       color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
@@ -62,7 +62,7 @@ export default function PrivacyBadge({
 
   return (
     <div className={`inline-flex items-center gap-2 ${sizeClasses[size]} ${config.color} rounded-full font-medium ${className}`}>
-      <Icon name={config.icon as 'shield' | 'lock' | 'eye' | 'check-circle'} className={`${iconSizes[size]} ${config.iconColor}`} />
+      <Icon name={config.icon as 'check' | 'user' | 'settings' | 'save'} className={`${iconSizes[size]} ${config.iconColor}`} />
       <span>{config.text}</span>
       {showLink && (
         <Link 
@@ -70,7 +70,7 @@ export default function PrivacyBadge({
           className="hover:underline opacity-80 hover:opacity-100 transition-opacity"
           title={config.description}
         >
-          <Icon name="external-link" className={`${iconSizes[size]} opacity-60`} />
+          <Icon name="link" className={`${iconSizes[size]} opacity-60`} />
         </Link>
       )}
     </div>

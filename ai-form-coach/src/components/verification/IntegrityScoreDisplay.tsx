@@ -24,7 +24,7 @@ export default function IntegrityScoreDisplay({
   const label = getIntegrityScoreLabel(score);
 
   // Color mapping
-  const colorClasses = {
+  const colorClasses: Record<string, { bg: string; text: string; ring: string; fill: string }> = {
     green: {
       bg: 'bg-green-100 dark:bg-green-900/30',
       text: 'text-green-700 dark:text-green-300',
@@ -51,7 +51,7 @@ export default function IntegrityScoreDisplay({
     }
   };
 
-  const colors = colorClasses[color];
+  const colors = colorClasses[color] || colorClasses.green;
 
   return (
     <div className="space-y-3">
@@ -116,7 +116,7 @@ function CheckResultCard({ check }: { check: IntegrityCheckResult }) {
   const checkScore = Math.round(check.score * 100);
   
   // Icon and color based on pass/fail
-  const icon = check.passed ? 'check-circle' : 'x-circle';
+  const icon: 'check' | 'alert-circle' = check.passed ? 'check' : 'alert-circle';
   const iconColor = check.passed 
     ? 'text-green-500 dark:text-green-400'
     : check.severity === 'error' 
@@ -136,7 +136,7 @@ function CheckResultCard({ check }: { check: IntegrityCheckResult }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
       <div className="flex items-start gap-3">
-        <Icon name={icon as any} className={`${iconColor} w-5 h-5 mt-0.5 flex-shrink-0`} />
+        <Icon name={icon} className={`${iconColor} w-5 h-5 mt-0.5 flex-shrink-0`} />
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
@@ -181,7 +181,7 @@ export function CompactIntegrityScore({ score }: { score: number }) {
   const scorePercent = Math.round(score * 100);
   const color = getIntegrityScoreColor(score);
 
-  const colorClasses = {
+  const colorClasses: Record<string, string> = {
     green: 'text-green-600 dark:text-green-400',
     yellow: 'text-yellow-600 dark:text-yellow-400',
     orange: 'text-orange-600 dark:text-orange-400',
@@ -189,7 +189,7 @@ export function CompactIntegrityScore({ score }: { score: number }) {
   };
 
   return (
-    <span className={`text-sm font-semibold ${colorClasses[color]}`}>
+    <span className={`text-sm font-semibold ${colorClasses[color] || colorClasses.green}`}>
       {scorePercent}%
     </span>
   );

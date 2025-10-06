@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button, Icon, Badge } from '@/ui/DS';
 import type { SessionMetrics, ReadinessAssessment, WorkoutTarget } from '@/lib/progression/engine';
 import { ProgressionEngine } from '@/lib/progression/engine';
-import ReadinessAssessment from './ReadinessAssessment';
+import ReadinessAssessmentModal from './ReadinessAssessment';
 
 interface ProgressionDashboardProps {
   exercise: 'squat' | 'pushup' | 'plank';
@@ -225,7 +225,7 @@ export default function ProgressionDashboard({
             
             {nextTarget.notes && (
               <div className="text-sm text-blue-800 dark:text-blue-300">
-                <Icon name="info" className="w-4 h-4 inline mr-1" />
+                <Icon name="alert-circle" className="w-4 h-4 inline mr-1" />
                 {nextTarget.notes}
               </div>
             )}
@@ -264,7 +264,7 @@ export default function ProgressionDashboard({
                     {session.sessionDate.toLocaleDateString()}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {session.targetReps ? `${session.totalReps} reps` : `${session.totalTimeSeconds}s`}
+                    {session.totalReps ? `${session.totalReps} reps` : `${session.totalTimeSeconds}s`}
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -282,7 +282,7 @@ export default function ProgressionDashboard({
       )}
 
       {/* Readiness Assessment Modal */}
-      <ReadinessAssessment
+      <ReadinessAssessmentModal
         isOpen={showReadinessModal}
         onClose={() => setShowReadinessModal(false)}
         onSubmit={handleReadinessSubmit}
