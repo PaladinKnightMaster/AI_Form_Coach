@@ -72,13 +72,16 @@ export function calculateFormIQ(
  * Calculate Range of Motion score based on exercise-specific targets
  */
 function calculateROMScore(metrics: RepMetric[], exercise: Exercise): number {
+  if (metrics.length === 0) return 0;
+  
   let totalScore = 0;
 
   for (const metric of metrics) {
     let score = 0;
     
-    if (exercise === 'squat' && metric.peakDepth !== undefined) {
-      const depth = metric.peakDepth;
+    // Use enhanced exercise-specific metrics if available
+    if (exercise === 'squat' && metric.squat) {
+      const depth = metric.squat.depth;
       const minDepth = 45;
       const idealDepth = 90;
       
@@ -89,8 +92,13 @@ function calculateROMScore(metrics: RepMetric[], exercise: Exercise): number {
       } else {
         score = depth / minDepth * 0.5;
       }
-    } else if (exercise === 'pushup' && metric.peakAngle !== undefined) {
-      const angle = metric.peakAngle;
+      
+      // Bonus for good torso angle and low knee valgus
+      if (metric.squat.torsoAngle > 150) score += 0.1;
+      if (metric.squat.kneeValgus < 5) score += 0.1;
+      
+    } else if (exercise === 'pushup' && metric.pushup) {
+      const angle = metric.pushup.elbowAngle;
       const minAngle = 90;
       const idealAngle = 70;
       
@@ -101,24 +109,78 @@ function calculateROMScore(metrics: RepMetric[], exercise: Exercise): number {
       } else {
         score = Math.max(0, 1 - (angle - minAngle) / 90 * 0.5);
       }
-    } else if (exercise === 'plank') {
-      const duration = (metric.endTs - metric.startTs) / 1000;
-      const minTime = 10;
-      const idealTime = 60;
       
-      if (duration >= idealTime) {
-        score = 1.0;
-      } else if (duration >= minTime) {
-        score = 0.5 + (duration - minTime) / (idealTime - minTime) * 0.5;
+      // Bonus for good body line percentage
+      if (metric.pushup.bodyLinePercentage > 80) score += 0.1;
+      
+    } else if (exercise === 'plank' && metric.plank) {
+      const angle = metric.plank.bodyLine;
+      const minAngle = 160;
+      const idealAngle = 180;
+      
+      if (angle >= idealAngle) {
+        score = 1.0; // Perfect alignment
+      } else if (angle >= minAngle) {
+        score = 0.5 + (angle - minAngle) / (idealAngle - minAngle) * 0.5;
       } else {
-        score = duration / minTime * 0.5;
+        score = angle / minAngle * 0.5;
+      }
+      
+      // Bonus for high body line percentage and low hip sag
+      if (metric.plank.bodyLinePercentage > 90) score += 0.1;
+      if (metric.plank.hipSagDuration < 100) score += 0.1;
+      
+    } else {
+      // Fallback to legacy metrics
+      if (exercise === 'squat' && metric.peakDepth !== undefined) {
+        const depth = metric.peakDepth;
+        const minDepth = 45;
+        const idealDepth = 90;
+        
+        if (depth >= idealDepth) {
+          score = 1.0;
+        } else if (depth >= minDepth) {
+          score = 0.5 + (depth - minDepth) / (idealDepth - minDepth) * 0.5;
+        } else {
+          score = depth / minDepth * 0.5;
+        }
+      } else if (exercise === 'pushup' && metric.peakAngle !== undefined) {
+        const angle = metric.peakAngle;
+        const minAngle = 90;
+        const idealAngle = 70;
+        
+        if (angle <= idealAngle) {
+          score = 1.0;
+        } else if (angle <= minAngle) {
+          score = 0.5 + (minAngle - angle) / (minAngle - idealAngle) * 0.5;
+        } else {
+          score = Math.max(0, 1 - (angle - minAngle) / 90 * 0.5);
+        }
+      } else if (exercise === 'plank') {
+        const duration = (metric.endTs - metric.startTs) / 1000;
+        const minTime = 10;
+        const idealTime = 60;
+        
+        if (duration >= idealTime) {
+          score = 1.0;
+        } else if (duration >= minTime) {
+          score = 0.5 + (duration - minTime) / (idealTime - minTime) * 0.5;
+        } else {
+          score = duration / minTime * 0.5;
+        }
+      } else {
+        score = 0.5; // Default score for missing data
       }
     }
+    
+    // Penalty for errors
+    const errorPenalty = Math.min(0.3, metric.errors.length * 0.1);
+    score = Math.max(0, score - errorPenalty);
     
     totalScore += score;
   }
 
-  return metrics.length > 0 ? totalScore / metrics.length : 0;
+  return totalScore / metrics.length;
 }
 
 /**
@@ -127,7 +189,8 @@ function calculateROMScore(metrics: RepMetric[], exercise: Exercise): number {
 function calculateTempoScore(metrics: RepMetric[]): number {
   if (metrics.length < 2) return 1.0; // Single rep gets perfect tempo score
 
-  const durations = metrics.map(m => (m.endTs - m.startTs) / 1000);
+  // Use enhanced duration field if available, fallback to calculated duration
+  const durations = metrics.map(m => (m.duration || (m.endTs - m.startTs)) / 1000);
   const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
   
   // Calculate coefficient of variation (lower is better)
@@ -136,7 +199,14 @@ function calculateTempoScore(metrics: RepMetric[]): number {
   const cv = avgDuration > 0 ? stdDev / avgDuration : 0;
 
   // Convert CV to 0-1 score (lower CV = higher score)
-  return Math.max(0, 1 - cv * 2);
+  let tempoScore = Math.max(0, 1 - cv * 2);
+  
+  // Bonus for having mostly 'normal' tempo reps
+  const normalTempoCount = metrics.filter(m => m.tempo === 'normal').length;
+  const normalTempoRatio = normalTempoCount / metrics.length;
+  tempoScore = (tempoScore + normalTempoRatio) / 2;
+  
+  return tempoScore;
 }
 
 /**

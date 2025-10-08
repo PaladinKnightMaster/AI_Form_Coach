@@ -4,6 +4,8 @@
 
 The Integrated Validator System bridges 2D validators with 3D pose analysis to create a comprehensive, professional-grade form assessment system. This unified approach combines the best of both worlds:
 
+> **Note**: This system is extended by the [Enhanced Validator System](ENHANCED_VALIDATOR_SYSTEM.md) which adds quality scoring, error tracking, session analytics, and AI-powered recommendations.
+
 - **2D Validators**: Rep counting, phase detection, and basic form scoring
 - **3D Analysis**: Advanced biomechanical analysis, stability assessment, and detailed form scoring
 - **Combined Output**: Weighted overall form score with comprehensive feedback

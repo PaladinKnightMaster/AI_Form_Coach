@@ -485,11 +485,50 @@ function CoachContent() {
 		const device_info = { ua: navigator.userAgent, viewport: { w: window.innerWidth, h: window.innerHeight }, model };
 		const avg_pose_quality = visCountRef.current ? (visSumRef.current / visCountRef.current) : null;
 		const total_valid_reps = repMetricsRef.current.filter(r => r.valid !== false).length;
-		const sessionPayload = { user_id: userId, exercise, started_at: new Date(start).toISOString(), ended_at: new Date(endTs).toISOString(), total_reps: total_valid_reps, total_time_seconds: Math.round((endTs - start) / 1000), goal_type: goalType === 'none' ? null : goalType, goal_value: goalType === 'none' ? null : goalValue, rpe, device_info, avg_pose_quality } as Record<string, unknown>;
-		await enqueueWrite({ table: 'sessions', payload: sessionPayload });
-		for (const r of repMetricsRef.current) { await enqueueWrite({ table: 'reps', payload: { ...r, session_id: 'PENDING', valid: r.valid !== false } }); }
-		await flushWrites(); setSaving(false); alert('Session saved');
-		import('@/lib/observability/events').then(m => m.logEvent('session_ended', { exercise, total_valid_reps, duration_s: Math.round((endTs - start)/1000) })).catch(()=>{});
+		
+		// Calculate enhanced session metrics
+		const { calculateSessionMetrics } = await import('@/lib/validators/sessionAnalysis');
+		const { sessionSummaryToDatabase, repMetricsToDatabase } = await import('@/lib/validators/databaseUtils');
+		
+		const sessionSummary = calculateSessionMetrics(repMetricsRef.current);
+		const enhancedSessionData = sessionSummaryToDatabase(sessionSummary, {
+			user_id: userId || '',
+			exercise,
+			started_at: new Date(start).toISOString(),
+			ended_at: new Date(endTs).toISOString(),
+			goal_type: goalType === 'none' ? undefined : goalType,
+			goal_value: goalType === 'none' ? undefined : goalValue,
+			rpe: rpe || undefined,
+			device_info,
+			avg_pose_quality: avg_pose_quality || undefined
+		});
+		
+		// Save enhanced session data
+		await enqueueWrite({ table: 'sessions', payload: enhancedSessionData as unknown as Record<string, unknown> });
+		
+		// Save enhanced rep data
+		const enhancedRepData = repMetricsToDatabase(repMetricsRef.current, 'PENDING');
+		for (const r of enhancedRepData) { 
+			await enqueueWrite({ table: 'reps', payload: r as unknown as Record<string, unknown> }); 
+		}
+		
+		await flushWrites(); 
+		setSaving(false); 
+		
+		// Show enhanced session summary
+		const { getImprovementRecommendations } = await import('@/lib/validators/sessionAnalysis');
+		const recommendations = getImprovementRecommendations(sessionSummary);
+		const summaryMessage = `Session completed!\n\nQuality: ${sessionSummary.averageQuality.toFixed(1)}/100\nConsistency: ${sessionSummary.consistencyScore.toFixed(1)}/100\nErrors: ${sessionSummary.totalErrors}\n\n${recommendations.length > 0 ? 'Recommendations:\n' + recommendations.join('\n') : 'Great job!'}`;
+		alert(summaryMessage);
+		
+		import('@/lib/observability/events').then(m => m.logEvent('session_ended', { 
+			exercise, 
+			total_valid_reps, 
+			duration_s: Math.round((endTs - start)/1000),
+			avg_quality: sessionSummary.averageQuality,
+			consistency_score: sessionSummary.consistencyScore,
+			total_errors: sessionSummary.totalErrors
+		})).catch(()=>{});
 	}
 
 	return (

@@ -1,51 +1,35 @@
-"use client";
+/**
+ * Session Summary Component
+ * 
+ * Displays comprehensive session analysis including quality metrics,
+ * error analysis, and improvement recommendations
+ */
 
-import { useEffect, useState } from 'react';
-import { FormIQDisplay } from './FormIQDisplay';
-import { CoachingInsights } from './CoachingInsights';
-import VerificationBadge from './verification/VerificationBadge';
-import { CompactIntegrityScore } from './verification/IntegrityScoreDisplay';
-import { VerificationService } from '@/lib/verification/verificationService';
-import type { FormIQMetrics } from '@/lib/validators/formIQ';
-import type { SessionAnalysis } from '@/lib/insights/coachingInsights';
-import type { VerificationResponse } from '@/types/verification';
+import React from 'react';
+import type { SessionSummary as SessionSummaryType } from '@/lib/validators/sessionAnalysis';
 
 interface SessionSummaryProps {
-  exercise: string;
-  repCount: number;
-  duration: number;
-  formIQMetrics: FormIQMetrics;
-  sessionAnalysis: SessionAnalysis;
-  onClose: () => void;
-  onNewSession: () => void;
-  sessionId?: string;
+  sessionSummary: SessionSummaryType;
   className?: string;
 }
 
-export function SessionSummary({
-  exercise,
-  repCount,
-  duration,
-  formIQMetrics,
-  sessionAnalysis,
-  onClose,
-  onNewSession,
-  sessionId,
-  className = ''
-}: SessionSummaryProps) {
-  const [verification, setVerification] = useState<VerificationResponse | null>(null);
-  const [verificationLoading, setVerificationLoading] = useState(false);
+export default function SessionSummary({ sessionSummary, className = '' }: SessionSummaryProps) {
+  
+  const getQualityColor = (score: number) => {
+    if (score >= 90) return 'text-green-600';
+    if (score >= 75) return 'text-blue-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
 
-  // Fetch verification if sessionId provided
-  useEffect(() => {
-    if (sessionId) {
-      setVerificationLoading(true);
-      VerificationService.checkSession(sessionId, false)
-        .then(setVerification)
-        .catch(err => console.error('Verification check failed:', err))
-        .finally(() => setVerificationLoading(false));
+  const getProgressionColor = (progression: string) => {
+    switch (progression) {
+      case 'improving': return 'text-green-600 bg-green-50';
+      case 'stable': return 'text-blue-600 bg-blue-50';
+      case 'declining': return 'text-red-600 bg-red-50';
+      default: return 'text-gray-600 bg-gray-50';
     }
-  }, [sessionId]);
+  };
 
   const formatDuration = (ms: number) => {
     const minutes = Math.floor(ms / 60000);
@@ -53,208 +37,257 @@ export function SessionSummary({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  return (
-    <div className={`fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 ${className}`}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white p-6 rounded-t-2xl">
+  const formatTempo = (ms: number) => {
+    return `${(ms / 1000).toFixed(1)}s`;
+  };
+
+  const getMostCommonError = () => {
+    const errorTypes = sessionSummary.errorTypes;
+    const mostCommon = Object.entries(errorTypes).reduce((max, [type, count]) => 
+      count > max.count ? { type, count } : max, 
+      { type: '', count: 0 }
+    );
+    return mostCommon.count > 0 ? mostCommon : null;
+  };
+
+  const renderQualityDistribution = () => {
+    const { excellent, good, fair, poor } = sessionSummary.qualityDistribution;
+    const total = excellent + good + fair + poor;
+    
+    if (total === 0) return null;
+
+    return (
+      <div className="space-y-2">
+        <div className="text-sm font-medium">Quality Distribution</div>
+        <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Session Complete! 🎉</h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors"
-              aria-label="Close summary"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
+            <span className="text-green-600 text-sm">Excellent</span>
+            <span className="text-sm">{excellent} ({((excellent / total) * 100).toFixed(0)}%)</span>
           </div>
-          
-          {/* Session Stats */}
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold">{repCount}</div>
-              <div className="text-sm opacity-90">
-                {exercise === 'plank' ? 'Seconds' : 'Reps'}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">{formatDuration(duration)}</div>
-              <div className="text-sm opacity-90">Duration</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold">{Math.round(sessionAnalysis.overallScore * 100)}%</div>
-              <div className="text-sm opacity-90">Overall Score</div>
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="text-blue-600 text-sm">Good</span>
+            <span className="text-sm">{good} ({((good / total) * 100).toFixed(0)}%)</span>
           </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Form IQ Display */}
-            <FormIQDisplay 
-              formIQMetrics={formIQMetrics} 
-              exercise={exercise}
-              className="bg-gradient-to-br from-gray-50 to-blue-50 border-blue-100"
-            />
-
-            {/* Coaching Insights */}
-            <CoachingInsights 
-              sessionAnalysis={sessionAnalysis}
-              className="bg-gradient-to-br from-gray-50 to-purple-50 border-purple-100"
-            />
+          <div className="flex items-center justify-between">
+            <span className="text-yellow-600 text-sm">Fair</span>
+            <span className="text-sm">{fair} ({((fair / total) * 100).toFixed(0)}%)</span>
           </div>
-
-          {/* Verification Section */}
-          {sessionId && verification && (
-            <div className="mt-6 p-4 bg-gradient-to-br from-gray-50 to-purple-50 border border-purple-100 rounded-xl">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Session Verification</h3>
-                <VerificationBadge
-                  verified={verification.verified}
-                  integrity_score={verification.integrity_score}
-                  flagged={verification.flagged}
-                  size="md"
-                  showScore={false}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-gray-600 mb-1">Integrity Score</div>
-                  <CompactIntegrityScore score={verification.integrity_score} />
-                </div>
-                
-                {verification.verified && (
-                  <div className="text-sm text-gray-600">
-                    ✓ This session counts towards leaderboards and challenges
-                  </div>
-                )}
-                
-                {verification.flagged && verification.flag_reasons && verification.flag_reasons.length > 0 && (
-                  <div className="text-sm text-red-600">
-                    ⚠️ {verification.flag_reasons[0]}
-                  </div>
-                )}
-              </div>
-
-              {verification.recommendations && verification.recommendations.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-purple-200">
-                  <div className="text-xs font-medium text-gray-700 mb-2">💡 Tips to Improve:</div>
-                  <ul className="text-xs text-gray-600 space-y-1">
-                    {verification.recommendations.slice(0, 2).map((rec, idx) => (
-                      <li key={idx}>• {rec}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-          {sessionId && verificationLoading && (
-            <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                <span className="text-sm text-gray-600">Verifying session integrity...</span>
-              </div>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-gray-100">
-            <button
-              onClick={onNewSession}
-              className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105"
-            >
-              Start New Session
-            </button>
-            <button
-              onClick={onClose}
-              className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
-            >
-              View History
-            </button>
-            <a
-              href="/plans"
-              className="flex-1 bg-purple-100 text-purple-700 px-6 py-3 rounded-xl font-semibold hover:bg-purple-200 transition-colors text-center"
-            >
-              Get AI Plan
-            </a>
+          <div className="flex items-center justify-between">
+            <span className="text-red-600 text-sm">Poor</span>
+            <span className="text-sm">{poor} ({((poor / total) * 100).toFixed(0)}%)</span>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  };
 
-/**
- * Compact session summary for quick view
- */
-export function CompactSessionSummary({
-  formIQMetrics,
-  repCount,
-  exercise,
-  className = ''
-}: {
-  formIQMetrics: FormIQMetrics;
-  repCount: number;
-  exercise: string;
-  className?: string;
-}) {
-  const { grade, color } = getFormIQGrade(formIQMetrics.formIQ);
+  const renderErrorAnalysis = () => {
+    if (sessionSummary.totalErrors === 0) {
+      return (
+        <div className="text-center py-4">
+          <div className="text-green-600 text-lg font-medium">🎉 Perfect Form!</div>
+          <div className="text-sm text-gray-600">No errors detected</div>
+        </div>
+      );
+    }
+
+    const mostCommon = getMostCommonError();
+
+    return (
+      <div className="space-y-3">
+        <div className="text-sm font-medium">Error Analysis</div>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <div className="text-gray-500">Total Errors</div>
+            <div className="font-medium">{sessionSummary.totalErrors}</div>
+          </div>
+          <div>
+            <div className="text-gray-500">Error Rate</div>
+            <div className="font-medium">{sessionSummary.errorRate.toFixed(1)} per rep</div>
+          </div>
+        </div>
+        
+        {mostCommon && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+            <div className="text-sm font-medium text-yellow-800">Most Common Error</div>
+            <div className="text-yellow-700">
+              {mostCommon.type.replace('_', ' ')} ({mostCommon.count} times)
+            </div>
+          </div>
+        )}
+
+        <div className="text-sm">
+          <div className="text-gray-500 mb-1">Error Severity</div>
+          <div className="flex gap-2">
+            <span className="text-red-600">High: {sessionSummary.errorSeverity.high}</span>
+            <span className="text-yellow-600">Medium: {sessionSummary.errorSeverity.medium}</span>
+            <span className="text-blue-600">Low: {sessionSummary.errorSeverity.low}</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderExerciseMetrics = () => {
+    const { exerciseMetrics } = sessionSummary;
+    
+    if (exerciseMetrics.squat) {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Squat Metrics</div>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <div className="text-gray-500">Avg Depth</div>
+              <div className="font-medium">{exerciseMetrics.squat.averageDepth.toFixed(1)}°</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Torso Angle</div>
+              <div className="font-medium">{exerciseMetrics.squat.averageTorsoAngle.toFixed(1)}°</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Knee Valgus</div>
+              <div className="font-medium">{exerciseMetrics.squat.averageKneeValgus.toFixed(1)}%</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Consistency</div>
+              <div className="font-medium">{exerciseMetrics.squat.depthConsistency.toFixed(0)}%</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    if (exerciseMetrics.pushup) {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Push-up Metrics</div>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <div className="text-gray-500">Elbow Angle</div>
+              <div className="font-medium">{exerciseMetrics.pushup.averageElbowAngle.toFixed(1)}°</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Body Line</div>
+              <div className="font-medium">{exerciseMetrics.pushup.averageBodyLine.toFixed(1)}°</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Alignment</div>
+              <div className="font-medium">{exerciseMetrics.pushup.averageBodyLinePercentage.toFixed(0)}%</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Consistency</div>
+              <div className="font-medium">{exerciseMetrics.pushup.bodyLineConsistency.toFixed(0)}%</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    if (exerciseMetrics.plank) {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Plank Metrics</div>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <div className="text-gray-500">Body Line</div>
+              <div className="font-medium">{exerciseMetrics.plank.averageBodyLine.toFixed(1)}°</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Alignment</div>
+              <div className="font-medium">{exerciseMetrics.plank.averageBodyLinePercentage.toFixed(0)}%</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Hip Sag</div>
+              <div className="font-medium">{exerciseMetrics.plank.totalHipSagDuration}ms</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Sag Rate</div>
+              <div className="font-medium">{exerciseMetrics.plank.hipSagRate.toFixed(1)}%</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    return null;
+  };
 
   return (
-    <div className={`bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 ${className}`}>
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="font-semibold text-white">Session Summary</h4>
-        <div className={`text-lg font-bold ${color}`}>{grade}</div>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4 text-sm">
-        <div>
-          <div className="text-gray-200">Reps</div>
-          <div className="text-white font-semibold">{repCount}</div>
-        </div>
-        <div>
-          <div className="text-gray-200">Form IQ</div>
-          <div className="text-white font-semibold">{Math.round(formIQMetrics.formIQ * 100)}%</div>
+    <div className={`bg-white border rounded-lg p-6 ${className}`}>
+      {/* Header */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-2">Session Summary</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold">{sessionSummary.totalReps}</div>
+            <div className="text-sm text-gray-500">Reps</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold">{formatDuration(sessionSummary.totalDuration)}</div>
+            <div className="text-sm text-gray-500">Duration</div>
+          </div>
+          <div className="text-center">
+            <div className={`text-2xl font-bold ${getQualityColor(sessionSummary.averageQuality)}`}>
+              {sessionSummary.averageQuality.toFixed(1)}
+            </div>
+            <div className="text-sm text-gray-500">Avg Quality</div>
+          </div>
         </div>
       </div>
 
-      {(exercise === 'squat' || exercise === 'pushup') && (
-        <div className="mt-3 pt-3 border-t border-white/10">
-          <div className="text-xs text-gray-200 mb-1">Side Balance</div>
-          <div className="w-full h-2 bg-gray-600 rounded-full relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-0.5 h-3 bg-white/50"></div>
-            </div>
-            <div 
-              className={`h-full rounded-full transition-all duration-500 ${
-                Math.abs(formIQMetrics.sideBalance - 0.5) <= 0.05 
-                  ? 'bg-green-500' 
-                  : 'bg-yellow-500'
-              }`}
-              style={{ 
-                width: '100%',
-                transform: `translateX(${(formIQMetrics.sideBalance - 0.5) * 100}%)`
-              }}
-            />
+      {/* Main Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Quality Distribution */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          {renderQualityDistribution()}
+        </div>
+
+        {/* Error Analysis */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          {renderErrorAnalysis()}
+        </div>
+      </div>
+
+      {/* Exercise-specific Metrics */}
+      {renderExerciseMetrics() && (
+        <div className="mb-6">
+          <div className="bg-gray-50 rounded-lg p-4">
+            {renderExerciseMetrics()}
           </div>
         </div>
       )}
+
+      {/* Performance Indicators */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="text-center">
+          <div className="text-lg font-semibold">{formatTempo(sessionSummary.averageTempo)}</div>
+          <div className="text-sm text-gray-500">Avg Tempo</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-semibold">{sessionSummary.consistencyScore.toFixed(0)}%</div>
+          <div className="text-sm text-gray-500">Consistency</div>
+        </div>
+        <div className="text-center">
+          <div className={`px-3 py-1 rounded-full text-sm font-medium ${getProgressionColor(sessionSummary.formProgression)}`}>
+            {sessionSummary.formProgression}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">Progression</div>
+        </div>
+      </div>
+
+      {/* Improvement Trend */}
+      <div className="text-center">
+        <div className="text-sm text-gray-500 mb-1">Improvement Trend</div>
+        <div className="flex items-center justify-center gap-2">
+          <div className={`text-lg ${sessionSummary.improvementTrend > 0 ? 'text-green-600' : sessionSummary.improvementTrend < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+            {sessionSummary.improvementTrend > 0 ? '📈' : sessionSummary.improvementTrend < 0 ? '📉' : '➡️'}
+          </div>
+          <span className="text-sm">
+            {sessionSummary.improvementTrend > 0.1 ? 'Improving' : 
+             sessionSummary.improvementTrend < -0.1 ? 'Declining' : 'Stable'}
+          </span>
+        </div>
+      </div>
     </div>
   );
-}
-
-function getFormIQGrade(formIQ: number): { grade: string; color: string } {
-  if (formIQ >= 0.9) return { grade: 'A+', color: 'text-green-600' };
-  if (formIQ >= 0.8) return { grade: 'A', color: 'text-green-500' };
-  if (formIQ >= 0.7) return { grade: 'B+', color: 'text-blue-500' };
-  if (formIQ >= 0.6) return { grade: 'B', color: 'text-blue-400' };
-  if (formIQ >= 0.5) return { grade: 'C+', color: 'text-yellow-500' };
-  if (formIQ >= 0.4) return { grade: 'C', color: 'text-orange-500' };
-  return { grade: 'D', color: 'text-red-500' };
 }

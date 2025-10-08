@@ -5,8 +5,9 @@ This directory contains comprehensive documentation for the AI Form Coach applic
 ## 📁 Documentation Structure
 
 ### 🎯 Pose Analysis System
+- **[Enhanced Validator System](pose/ENHANCED_VALIDATOR_SYSTEM.md)** - Comprehensive form analysis with quality scoring, error tracking, and session analytics (extends Integrated System)
+- **[Integrated Validator System](pose/INTEGRATED_VALIDATOR_SYSTEM.md)** - 2D/3D validator integration and weighted scoring system
 - **[3D Pose System Overview](pose/README_3D_POSE_SYSTEM.md)** - Complete guide to the 3D pose analysis system
-- **[Integrated Validator System](pose/INTEGRATED_VALIDATOR_SYSTEM.md)** - 2D/3D validator integration
 - **[Pose Engine Comparison](pose/POSE_ENGINE_COMPARISON.md)** - V1 vs V2 feature comparison
 - **[3D Integration Guide](pose/pose3DIntegrationGuide.md)** - Implementation guide for 3D features
 
@@ -22,8 +23,9 @@ This directory contains comprehensive documentation for the AI Form Coach applic
 ## 🚀 Quick Navigation
 
 ### For Developers
-- Start with [3D Pose System Overview](pose/README_3D_POSE_SYSTEM.md) for pose analysis
-- Review [Verification System](systems/VERIFICATION_SYSTEM.md) for session integrity
+- Start with [Enhanced Validator System](pose/ENHANCED_VALIDATOR_SYSTEM.md) for comprehensive form analysis
+- Review [3D Pose System Overview](pose/README_3D_POSE_SYSTEM.md) for pose analysis
+- Check [Verification System](systems/VERIFICATION_SYSTEM.md) for session integrity
 - Check [Integration Status](development/POSE_ENGINE2_INTEGRATION_STATUS.md) for current progress
 
 ### For System Understanding
