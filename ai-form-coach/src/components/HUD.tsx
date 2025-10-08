@@ -15,7 +15,8 @@ export default function HUD({
   showCorrectnessBadge,
   mentorCue,
   lastCueKey,
-  poseQuality
+  poseQuality,
+  lastRepErrors
 }: { 
   repCount: number; 
   cue: string; 
@@ -37,6 +38,11 @@ export default function HUD({
     score: number;
     state: 'good' | 'fair' | 'low';
   };
+  lastRepErrors?: Array<{
+    type: string;
+    message: string;
+    severity: 'low' | 'medium' | 'high';
+  }>;
 }) {
 	const pct = (spark.filter(Boolean).length / Math.max(1, spark.length)) * 100;
 	return (
@@ -79,6 +85,28 @@ export default function HUD({
 						: 'bg-red-100 text-red-800 border border-red-200'
 				}`}>
 					{lastRepCorrect ? '✓ Correct' : 'Try again'}
+				</div>
+			)}
+			
+			{/* Error Chips - P3: Show up to 2 error chips for 1 second */}
+			{showCorrectnessBadge && lastRepErrors && lastRepErrors.length > 0 && !lastRepCorrect && (
+				<div className="mt-1 flex flex-wrap gap-1 transition-opacity duration-1000">
+					{lastRepErrors.slice(0, 2).map((error, index) => (
+						<div key={index} className={`px-2 py-1 rounded-full text-xs font-medium ${
+							error.severity === 'high' ? 'bg-red-100 text-red-800 border border-red-200' :
+							error.severity === 'medium' ? 'bg-orange-100 text-orange-800 border border-orange-200' :
+							'bg-yellow-100 text-yellow-800 border border-yellow-200'
+						}`}>
+							{error.type === 'depth_low' ? '📏 Depth' :
+							 error.type === 'knee_valgus' ? '🦵 Knees' :
+							 error.type === 'chest_drop' ? '📉 Chest' :
+							 error.type === 'hip_sag' ? '📐 Hips' :
+							 error.type === 'tempo_fast' ? '⚡ Fast' :
+							 error.type === 'tempo_slow' ? '🐌 Slow' :
+							 error.type === 'bodyline_poor' ? '📐 Line' :
+							 error.type}
+						</div>
+					))}
 				</div>
 			)}
 			

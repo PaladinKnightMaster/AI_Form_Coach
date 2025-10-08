@@ -208,11 +208,11 @@ export function createSquatValidator(): Validator {
 			const repDuration = ts - state.currentRep.startTs;
 			const tempo = calculateTempo(repDuration);
 			
-			// Check for tempo errors
+			// P3: Enforce strict tempo windows (0.6-2.5s)
 			if (tempo === 'fast') {
 				const error = createFormError(
 					'tempo_fast',
-					'low',
+					'high', // P3: Make tempo errors high severity
 					repDuration,
 					'Too fast - slow down for better control',
 					ts,
@@ -223,7 +223,7 @@ export function createSquatValidator(): Validator {
 			} else if (tempo === 'slow') {
 				const error = createFormError(
 					'tempo_slow',
-					'low',
+					'high', // P3: Make tempo errors high severity
 					repDuration,
 					'Too slow - try to maintain steady rhythm',
 					ts,
@@ -233,8 +233,22 @@ export function createSquatValidator(): Validator {
 				state.currentRep.errorHistory.push(error);
 			}
 			
-			// Calculate rep metrics
+			// P3: Check for depth validation - ensure adequate depth was achieved
 			const peakDepth = Math.max(...state.currentRep.measurements.depths);
+			if (peakDepth < minDepthThreshold) {
+				const error = createFormError(
+					'depth_low',
+					'high',
+					repDuration,
+					`Insufficient depth - only ${Math.round(peakDepth)}° (need ${Math.round(minDepthThreshold)}°)`,
+					ts,
+					peakDepth,
+					minDepthThreshold
+				);
+				state.currentRep.errorHistory.push(error);
+			}
+			
+			// Calculate rep metrics
 			const avgTorsoAngle = state.currentRep.measurements.bodyLines.reduce((a, b) => a + b, 0) / state.currentRep.measurements.bodyLines.length;
 			const avgValgus = valgusData.valgus; // Use current valgus as approximation
 			

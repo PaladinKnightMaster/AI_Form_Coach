@@ -91,6 +91,11 @@ function CoachContent() {
 	// Correctness evaluation state (A4)
 	const [lastRepCorrect, setLastRepCorrect] = useState<boolean | undefined>(undefined);
 	const [showCorrectnessBadge, setShowCorrectnessBadge] = useState(false);
+	const [lastRepErrors, setLastRepErrors] = useState<Array<{
+		type: string;
+		message: string;
+		severity: 'low' | 'medium' | 'high';
+	}>>([]);
 	const [correctRepsCount, setCorrectRepsCount] = useState(0); // M2: Track correct reps for ghost pacing
 	
 	// Mentor cue system state (A5)
@@ -442,6 +447,14 @@ function CoachContent() {
 			setLastRepCorrect(correctnessResult.is_correct);
 			setShowCorrectnessBadge(true);
 			
+			// P3: Set error data for error chips
+			const errorChips = latest.errors.slice(0, 2).map(error => ({
+				type: error.type,
+				message: error.message,
+				severity: error.severity
+			}));
+			setLastRepErrors(errorChips);
+			
 			// M2: Update correct reps count for ghost pacing
 			if (correctnessResult.is_correct) {
 				setCorrectRepsCount(prev => prev + 1);
@@ -450,6 +463,7 @@ function CoachContent() {
 			// Hide badge after 1 second
 			setTimeout(() => {
 				setShowCorrectnessBadge(false);
+				setLastRepErrors([]); // Clear errors when badge hides
 			}, 1000);
 			
 			repMetricsRef.current = s.metrics; setLandmarks(lms);
@@ -460,7 +474,13 @@ function CoachContent() {
 				peakDepth: latest.peakDepth, 
 				peakAngle: latest.peakAngle,
 				is_correct: correctnessResult.is_correct,
-				confidence: correctnessResult.confidence
+				confidence: correctnessResult.confidence,
+				// P3: Enhanced error data
+				error_count: latest.errors.length,
+				error_types: latest.errors.map(e => e.type),
+				tempo: latest.tempo,
+				quality: latest.quality,
+				quality_score: latest.score
 			})).catch(()=>{});
 		}
 		if (s.cues.length > 0) { setSpark(s.cues.map((_c, i) => performance.now() + i * 10)); }
@@ -804,6 +824,7 @@ function CoachContent() {
 							score: visibilityScore,
 							state: poseQualityState
 						}}
+						lastRepErrors={lastRepErrors}
 					/>
 					
 					{/* Visibility Warning */}

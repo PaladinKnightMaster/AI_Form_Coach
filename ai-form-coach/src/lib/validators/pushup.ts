@@ -168,11 +168,11 @@ export function createPushupValidator(): Validator {
 			const repDuration = ts - state.currentRep.startTs;
 			const tempo = calculateTempo(repDuration);
 			
-			// Check for tempo errors
+			// P3: Enforce strict tempo windows (0.6-2.5s)
 			if (tempo === 'fast') {
 				const error = createFormError(
 					'tempo_fast',
-					'low',
+					'high', // P3: Make tempo errors high severity
 					repDuration,
 					'Too fast - slow down for better control',
 					ts,
@@ -183,7 +183,7 @@ export function createPushupValidator(): Validator {
 			} else if (tempo === 'slow') {
 				const error = createFormError(
 					'tempo_slow',
-					'low',
+					'high', // P3: Make tempo errors high severity
 					repDuration,
 					'Too slow - try to maintain steady rhythm',
 					ts,
