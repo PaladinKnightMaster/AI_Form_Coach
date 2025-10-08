@@ -25,6 +25,7 @@ import type { UserPlan } from '@/types/plans';
 import { finalizeRepEval, createRepTrace } from '@/lib/correctness/eval';
 import { initializeMentor } from '@/lib/coach/mentor';
 import QualityOverlay from '@/components/QualityOverlay';
+import Top10Toast from '@/components/leaderboards/Top10Toast';
 
 function CoachContent() {
 	const searchParams = useSearchParams();
@@ -737,11 +738,14 @@ function CoachContent() {
 					<canvas ref={canvasRef} className="absolute inset-0" />
 					{videoRef.current && (<PoseOverlay landmarks={landmarks} video={videoRef.current} mirror={mirrorVideo} />)}
 					
-					{/* A6: Quality Overlay */}
-					<QualityOverlay 
-						isVisible={showQualityOverlay} 
-						onDismiss={handleQualityOverlayDismiss} 
-					/>
+		{/* A6: Quality Overlay */}
+		<QualityOverlay 
+			isVisible={showQualityOverlay} 
+			onDismiss={handleQualityOverlayDismiss} 
+		/>
+		
+		{/* M1: Top 10 Toast */}
+		<Top10Toast exercise={exercise} />
 					<HUD 
 						repCount={repCount} 
 						cue={pausedByQuality ? 'Step back into frame' : cue} 

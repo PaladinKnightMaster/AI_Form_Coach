@@ -6,6 +6,7 @@ import { Badge } from '@/ui/DS';
 import { subscriptionService } from '@/lib/subscription/subscriptionService';
 import { VerificationIcon } from '@/components/verification/VerificationBadge';
 import { CompactIntegrityScore } from '@/components/verification/IntegrityScoreDisplay';
+import RankWidget from '@/components/leaderboards/RankWidget';
 
 export default function History() {
 	type S = { id: string; exercise: string; started_at: string; total_reps: number | null; total_time_seconds: number | null; formIQ?: number; sideBalance?: number; is_demo?: boolean; verified?: boolean; flagged?: boolean; integrity_score?: number };
@@ -212,6 +213,8 @@ export default function History() {
 				<InsightCard title="Best set (reps)" value={insights.bestSessionReps.toString()} />
 				<InsightCard title="Best tempo (ms)" value={isFinite(Number(insights.bestTempoMs)) ? insights.bestTempoMs : '-'} />
 				<InsightCard title="Consistency streak" value={`${insights.streak} days`} />
+				{/* Rank Widget */}
+				<RankWidget />
 			</div>
 			{/* Badges */}
 			<div className="flex items-center gap-2 flex-wrap mb-6">

@@ -129,6 +129,7 @@ export default function SiteHeader() {
 									<Link href="/plans" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Plans</Link>
 									<Link href="/coach-packs" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors whitespace-nowrap">Coach Packs</Link>
 									<Link href="/challenges" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Challenges</Link>
+									<Link href="/leaderboards" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Leaderboards</Link>
 									<Link href="/health" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Health</Link>
 									<Link href="/history" onClick={() => setOpen(false)} className="block py-3 px-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">History</Link>
 								</>
