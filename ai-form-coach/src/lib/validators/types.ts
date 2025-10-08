@@ -117,6 +117,7 @@ export type ValidatorConfig = {
 	mentorCues?: {
 		enabled: boolean;
 		voiceEnabled: boolean;
+		detailedCoaching: boolean;
 		cooldownMs: number;
 		phaseCooldowns: {
 			down: number;

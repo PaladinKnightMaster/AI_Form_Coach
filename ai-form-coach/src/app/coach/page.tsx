@@ -101,6 +101,7 @@ function CoachContent() {
 	// Mentor cue system state (A5)
 	const [mentorCueEnabled, setMentorCueEnabled] = useState(true);
 	const [voiceEnabled, setVoiceEnabled] = useState(true);
+	const [detailedCoaching, setDetailedCoaching] = useState(true);
 	const [lastCueKey, setLastCueKey] = useState<string | undefined>(undefined);
 	const [currentMentorCue, setCurrentMentorCue] = useState<{
 		key: string;
@@ -231,6 +232,7 @@ function CoachContent() {
 			mentorCues: {
 				enabled: mentorCueEnabled,
 				voiceEnabled: voiceEnabled,
+				detailedCoaching: detailedCoaching,
 				cooldownMs: 3000,
 				phaseCooldowns: {
 					down: 2000,
@@ -240,8 +242,8 @@ function CoachContent() {
 				}
 			}
 		});
-	}, [mentorCueEnabled, voiceEnabled]);
-	useEffect(() => { reloadThresholds(); }, [mentorCueEnabled, voiceEnabled, reloadThresholds]);
+	}, [mentorCueEnabled, voiceEnabled, detailedCoaching]);
+	useEffect(() => { reloadThresholds(); }, [mentorCueEnabled, voiceEnabled, detailedCoaching, reloadThresholds]);
 	
 	// Load mentor cue settings from localStorage and initialize mentor system
 	useEffect(() => {
@@ -253,11 +255,15 @@ function CoachContent() {
 				// Load settings from localStorage
 				const savedMentorCueEnabled = localStorage.getItem('mentorCueEnabled');
 				const savedVoiceEnabled = localStorage.getItem('voiceEnabled');
+				const savedDetailedCoaching = localStorage.getItem('detailedCoaching');
 				if (savedMentorCueEnabled !== null) {
 					setMentorCueEnabled(savedMentorCueEnabled === 'true');
 				}
 				if (savedVoiceEnabled !== null) {
 					setVoiceEnabled(savedVoiceEnabled === 'true');
+				}
+				if (savedDetailedCoaching !== null) {
+					setDetailedCoaching(savedDetailedCoaching === 'true');
 				}
 				
 				// Load A6 camera assist settings
@@ -418,6 +424,21 @@ function CoachContent() {
 			if (s.mentorCue.shouldSpeak && voiceEnabled) {
 				speak(s.mentorCue.text);
 			}
+			
+			// P5: Log cue_emitted analytics event
+			if (s.mentorCue) {
+				import('@/lib/observability/events').then(m => m.logEvent('cue_emitted', {
+					exercise,
+					cue_key: s.mentorCue!.key,
+					cue_text: s.mentorCue!.text,
+					severity: s.mentorCue!.severity,
+					should_speak: s.mentorCue!.shouldSpeak,
+					voice_enabled: voiceEnabled,
+					detailed_coaching: detailedCoaching,
+					phase: s.phase,
+					rep_count: s.repCount
+				})).catch(()=>{});
+			}
 		} else {
 			// Clear current mentor cue if no new cue
 			setCurrentMentorCue(undefined);
@@ -512,7 +533,7 @@ function CoachContent() {
 				});
 			}
 		}
-	}, [running, goalType, goalValue, repCount, exercise, thrCfg, rateLimitedCue, mentorCueEnabled, voiceEnabled, lowQualityStartTime, pausedByQuality]);
+	}, [running, goalType, goalValue, repCount, exercise, thrCfg, rateLimitedCue, mentorCueEnabled, voiceEnabled, detailedCoaching, lowQualityStartTime, pausedByQuality]);
 
 	// Async pose estimation loop for PoseEngine2
 	const startPoseLoop = useCallback(async () => {

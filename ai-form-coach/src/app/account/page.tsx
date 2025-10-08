@@ -20,6 +20,7 @@ export default function Account() {
 	// Mentor cue settings (A5)
 	const [mentorCueEnabled, setMentorCueEnabled] = useState(true);
 	const [voiceEnabled, setVoiceEnabled] = useState(true);
+	const [detailedCoaching, setDetailedCoaching] = useState(true);
 	
 	// Camera assist settings (A6)
 	const [mirrorVideo, setMirrorVideo] = useState(true);
@@ -47,11 +48,15 @@ export default function Account() {
 			try {
 				const savedMentorCueEnabled = localStorage.getItem('mentorCueEnabled');
 				const savedVoiceEnabled = localStorage.getItem('voiceEnabled');
+				const savedDetailedCoaching = localStorage.getItem('detailedCoaching');
 				if (savedMentorCueEnabled !== null) {
 					setMentorCueEnabled(savedMentorCueEnabled === 'true');
 				}
 				if (savedVoiceEnabled !== null) {
 					setVoiceEnabled(savedVoiceEnabled === 'true');
+				}
+				if (savedDetailedCoaching !== null) {
+					setDetailedCoaching(savedDetailedCoaching === 'true');
 				}
 			} catch (error) {
 				console.warn('Failed to load mentor cue settings:', error);
@@ -106,6 +111,15 @@ export default function Account() {
 			localStorage.setItem('voiceEnabled', enabled.toString());
 		} catch (error) {
 			console.warn('Failed to save voice setting:', error);
+		}
+	}
+	
+	function handleDetailedCoachingToggle(enabled: boolean) {
+		setDetailedCoaching(enabled);
+		try {
+			localStorage.setItem('detailedCoaching', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save detailed coaching setting:', error);
 		}
 	}
 	
@@ -281,6 +295,23 @@ export default function Account() {
 									checked={voiceEnabled && mentorCueEnabled}
 									disabled={!mentorCueEnabled}
 									onChange={(e) => handleVoiceToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 ${!mentorCueEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+							</label>
+						</div>
+						
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Detailed Coaching</h4>
+								<p className="text-sm text-gray-600">Show detailed form feedback vs minimal cues only</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={detailedCoaching && mentorCueEnabled}
+									disabled={!mentorCueEnabled}
+									onChange={(e) => handleDetailedCoachingToggle(e.target.checked)}
 									className="sr-only peer"
 								/>
 								<div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 ${!mentorCueEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>

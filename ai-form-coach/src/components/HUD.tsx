@@ -126,10 +126,10 @@ export default function HUD({
 				</div>
 			)}
 			
-			{/* Last Cue Chip */}
+			{/* Last Cue Chip - Fading animation */}
 			{lastCueKey && lastCueKey !== mentorCue?.key && (
-				<div className="mt-1 px-2 py-0.5 rounded-full text-[10px] bg-gray-100 text-gray-600 border border-gray-200">
-					Last: {lastCueKey.replace('_', ' ')}
+				<div className="mt-1 px-2 py-0.5 rounded-full text-[10px] bg-gray-100 text-gray-600 border border-gray-200 animate-fade-out">
+					Last: {lastCueKey.replace(/_/g, ' ')}
 				</div>
 			)}
 			

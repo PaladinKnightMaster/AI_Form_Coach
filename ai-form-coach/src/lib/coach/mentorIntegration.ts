@@ -4,7 +4,7 @@
  * Provides integration utilities for validators to use the mentor cue system
  */
 
-import { nextCue, createCueContext, initializeMentor } from './mentor';
+import { nextCue, createCueContext, initializeMentor, getCueText } from './mentor';
 import type { ValidatorState, FormError, ValidatorConfig } from '../validators/types';
 import type { PoseEstimateResult } from '../pose/engine';
 
@@ -36,11 +36,22 @@ export async function processMentorCues(
     return state;
   }
   
+  // If detailed coaching is disabled, only show critical cues (severity 4-5)
+  const shouldFilterCues = !config.mentorCues?.detailedCoaching;
+  
   const now = performance.now();
+  
+  // Filter frame errors based on detailed coaching setting
+  const filteredFrameErrors = shouldFilterCues 
+    ? frameErrors.filter(error => {
+        const cue = getCueText(error.type);
+        return cue && cue.severity >= 4; // Only critical cues (severity 4-5)
+      })
+    : frameErrors;
   
   // Create cue context
   const cueContext = createCueContext(
-    frameErrors,
+    filteredFrameErrors,
     state.phase,
     state.metrics,
     now,
@@ -84,6 +95,7 @@ export function getDefaultMentorConfig(): ValidatorConfig['mentorCues'] {
   return {
     enabled: true,
     voiceEnabled: true,
+    detailedCoaching: true,
     cooldownMs: 3000,
     phaseCooldowns: {
       down: 2000,

@@ -1,4 +1,4 @@
-export type EventName = 'session_started' | 'session_ended' | 'rest_started' | 'undo_used' | 'goal_met' | 'pose_quality_low' | 'rep_completed' | 'pose_autopause_triggered' | 'pose_resume' | 'calibration_started' | 'calibration_completed' | 'rep_correct' | 'rep_incorrect';
+export type EventName = 'session_started' | 'session_ended' | 'rest_started' | 'undo_used' | 'goal_met' | 'pose_quality_low' | 'rep_completed' | 'pose_autopause_triggered' | 'pose_resume' | 'calibration_started' | 'calibration_completed' | 'rep_correct' | 'rep_incorrect' | 'cue_emitted';
 
 export async function logEvent(name: EventName, payload?: Record<string, unknown>) {
 	try {
