@@ -115,6 +115,26 @@ export default function SessionSummary({ sessionSummary, className = '' }: Sessi
             </div>
           </div>
         )}
+        
+        {/* Top Error Chips */}
+        {Object.keys(sessionSummary.errorTypes).length > 0 && (
+          <div>
+            <div className="text-sm text-gray-500 mb-2">Top Errors</div>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(sessionSummary.errorTypes)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 2)
+                .map(([errorType, count]) => (
+                  <span 
+                    key={errorType}
+                    className="px-3 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full border border-red-200"
+                  >
+                    {errorType.replace('_', ' ')} ({count})
+                  </span>
+                ))}
+            </div>
+          </div>
+        )}
 
         <div className="text-sm">
           <div className="text-gray-500 mb-1">Error Severity</div>
@@ -258,7 +278,7 @@ export default function SessionSummary({ sessionSummary, className = '' }: Sessi
       )}
 
       {/* Performance Indicators */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="text-center">
           <div className="text-lg font-semibold">{formatTempo(sessionSummary.averageTempo)}</div>
           <div className="text-sm text-gray-500">Avg Tempo</div>
@@ -266,6 +286,14 @@ export default function SessionSummary({ sessionSummary, className = '' }: Sessi
         <div className="text-center">
           <div className="text-lg font-semibold">{sessionSummary.consistencyScore.toFixed(0)}%</div>
           <div className="text-sm text-gray-500">Consistency</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-semibold text-green-600">{(sessionSummary.correctRate * 100).toFixed(0)}%</div>
+          <div className="text-sm text-gray-500">Correct Rate</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-semibold">{(sessionSummary.averageConfidence * 100).toFixed(0)}%</div>
+          <div className="text-sm text-gray-500">Avg Confidence</div>
         </div>
         <div className="text-center">
           <div className={`px-3 py-1 rounded-full text-sm font-medium ${getProgressionColor(sessionSummary.formProgression)}`}>

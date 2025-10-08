@@ -33,6 +33,10 @@ export type RepMetric = {
 	quality: 'excellent' | 'good' | 'fair' | 'poor'; // Overall rep quality
 	score: number; // 0-100 quality score
 	
+	// Correctness evaluation (A4)
+	is_correct?: boolean; // Whether this rep was performed correctly
+	confidence?: number; // Confidence score (0-1)
+	
 	// Exercise-specific metrics
 	squat?: {
 		depth: number; // Actual depth achieved

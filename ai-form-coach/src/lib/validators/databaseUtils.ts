@@ -28,6 +28,10 @@ export interface DatabaseRepData {
   error_count?: number;
   error_types?: Record<string, number>;
   exercise_metrics?: Record<string, unknown>;
+  
+  // Correctness evaluation (A4)
+  is_correct?: boolean;
+  confidence?: number;
 }
 
 export interface DatabaseSessionData {
@@ -60,6 +64,9 @@ export interface DatabaseSessionData {
   consistency_score?: number;
   improvement_trend?: number;
   form_progression?: 'improving' | 'stable' | 'declining';
+  
+  // Correctness evaluation (A4)
+  correct_rate?: number;
 }
 
 /**
@@ -108,7 +115,11 @@ export function repMetricToDatabase(
     errors: repMetric.errors,
     error_count: repMetric.errors.length,
     error_types: errorTypes,
-    exercise_metrics: exerciseMetrics
+    exercise_metrics: exerciseMetrics,
+    
+    // Correctness evaluation (A4)
+    is_correct: repMetric.is_correct,
+    confidence: repMetric.confidence
   };
 }
 

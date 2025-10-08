@@ -22,6 +22,7 @@ import PlanAdjustmentBanner from '@/components/plans/PlanAdjustmentBanner';
 import type { WorkoutTarget, ReadinessAssessment } from '@/lib/progression/engine';
 import { type FormIQMetrics } from '@/lib/validators/formIQ';
 import type { UserPlan } from '@/types/plans';
+import { finalizeRepEval, createRepTrace } from '@/lib/correctness/eval';
 
 function CoachContent() {
 	const searchParams = useSearchParams();
@@ -82,6 +83,10 @@ function CoachContent() {
 	// const [cameraError, setCameraError] = useState<string | null>(null);
 	const [showSafety, setShowSafety] = useState(false);
 	const [formIQMetrics, setFormIQMetrics] = useState<FormIQMetrics | null>(null);
+	
+	// Correctness evaluation state (A4)
+	const [lastRepCorrect, setLastRepCorrect] = useState<boolean | undefined>(undefined);
+	const [showCorrectnessBadge, setShowCorrectnessBadge] = useState(false);
 	// Track average pose visibility for quality
 	const visSumRef = useRef(0);
 	const visCountRef = useRef(0);
@@ -268,9 +273,40 @@ function CoachContent() {
 		setRepCount(s.repCount);
 		if (s.metrics.length && repMetricsRef.current.length < s.metrics.length) {
 			const latest = s.metrics[s.metrics.length - 1];
+			
+			// Evaluate correctness for the completed rep
+			const repTrace = createRepTrace(
+				latest,
+				visCountRef.current, // frame count
+				Math.floor(visCountRef.current * (avgVis || 0.5)), // valid frame count
+				['down', 'up'] // mandatory phases
+			);
+			
+			const correctnessResult = finalizeRepEval(repTrace);
+			
+			// Update the rep metric with correctness data
+			latest.is_correct = correctnessResult.is_correct;
+			latest.confidence = correctnessResult.confidence;
+			
+			// Update correctness state for HUD badge
+			setLastRepCorrect(correctnessResult.is_correct);
+			setShowCorrectnessBadge(true);
+			
+			// Hide badge after 1 second
+			setTimeout(() => {
+				setShowCorrectnessBadge(false);
+			}, 1000);
+			
 			repMetricsRef.current = s.metrics; setLandmarks(lms);
 			rateLimitedCue(s.cues[0] || ''); updatePillsFrom(s);
-			import('@/lib/observability/events').then(m => m.logEvent('rep_completed', { exercise, repCount: s.repCount, peakDepth: latest.peakDepth, peakAngle: latest.peakAngle })).catch(()=>{});
+			import('@/lib/observability/events').then(m => m.logEvent('rep_completed', { 
+				exercise, 
+				repCount: s.repCount, 
+				peakDepth: latest.peakDepth, 
+				peakAngle: latest.peakAngle,
+				is_correct: correctnessResult.is_correct,
+				confidence: correctnessResult.confidence
+			})).catch(()=>{});
 		}
 		if (s.cues.length > 0) { setSpark(s.cues.map((_c, i) => performance.now() + i * 10)); }
 		
@@ -557,7 +593,17 @@ function CoachContent() {
 					<video ref={videoRef} className="w-full h-full object-contain" playsInline muted />
 					<canvas ref={canvasRef} className="absolute inset-0" />
 					{videoRef.current && (<PoseOverlay landmarks={landmarks} video={videoRef.current} mirror />)}
-					<HUD repCount={repCount} cue={pausedByQuality ? 'Step back into frame' : cue} spark={spark} subtext={`${goalSubtext() ?? ''}${goalSubtext() ? ' • ' : ''}${fps ? fps + ' FPS' : ''}`} large={largeText} pills={pillCues} formIQMetrics={formIQMetrics || undefined} />
+					<HUD 
+						repCount={repCount} 
+						cue={pausedByQuality ? 'Step back into frame' : cue} 
+						spark={spark} 
+						subtext={`${goalSubtext() ?? ''}${goalSubtext() ? ' • ' : ''}${fps ? fps + ' FPS' : ''}`} 
+						large={largeText} 
+						pills={pillCues} 
+						formIQMetrics={formIQMetrics || undefined}
+						lastRepCorrect={lastRepCorrect}
+						showCorrectnessBadge={showCorrectnessBadge}
+					/>
 					
 					{/* Visibility Warning */}
 					{running && visibilityScore < 0.55 && (

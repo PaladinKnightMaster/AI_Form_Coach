@@ -32,6 +32,11 @@ export interface SessionSummary {
     low: number;
   };
   
+  // Correctness evaluation (A4)
+  correctReps: number;
+  correctRate: number; // 0-1
+  averageConfidence: number; // 0-1
+  
   // Exercise-specific metrics
   exerciseMetrics: {
     squat?: {
@@ -84,6 +89,11 @@ export function calculateSessionMetrics(metrics: RepMetric[]): SessionSummary {
   const errorTypes = calculateErrorTypes(allErrors);
   const errorSeverity = calculateErrorSeverity(allErrors);
   
+  // Correctness evaluation (A4)
+  const correctReps = metrics.filter(rep => rep.is_correct === true).length;
+  const correctRate = totalReps > 0 ? correctReps / totalReps : 0;
+  const averageConfidence = metrics.reduce((sum, rep) => sum + (rep.confidence || 0), 0) / totalReps;
+  
   // Exercise-specific metrics
   const exerciseMetrics = calculateExerciseSpecificMetrics(metrics);
   
@@ -102,6 +112,9 @@ export function calculateSessionMetrics(metrics: RepMetric[]): SessionSummary {
     errorRate,
     errorTypes,
     errorSeverity,
+    correctReps,
+    correctRate,
+    averageConfidence,
     exerciseMetrics,
     improvementTrend,
     consistencyScore,
@@ -193,6 +206,9 @@ function getEmptySessionSummary(): SessionSummary {
     errorRate: 0,
     errorTypes: {},
     errorSeverity: { high: 0, medium: 0, low: 0 },
+    correctReps: 0,
+    correctRate: 0,
+    averageConfidence: 0,
     exerciseMetrics: {},
     improvementTrend: 0,
     consistencyScore: 0,

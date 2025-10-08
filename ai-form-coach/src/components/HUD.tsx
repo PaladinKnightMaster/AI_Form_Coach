@@ -10,7 +10,9 @@ export default function HUD({
   subtext, 
   large, 
   pills,
-  formIQMetrics 
+  formIQMetrics,
+  lastRepCorrect,
+  showCorrectnessBadge
 }: { 
   repCount: number; 
   cue: string; 
@@ -19,6 +21,8 @@ export default function HUD({
   large?: boolean; 
   pills?: string[];
   formIQMetrics?: FormIQMetrics;
+  lastRepCorrect?: boolean;
+  showCorrectnessBadge?: boolean;
 }) {
 	const pct = (spark.filter(Boolean).length / Math.max(1, spark.length)) * 100;
 	return (
@@ -36,6 +40,17 @@ export default function HUD({
 			<div className="mt-2 h-8 w-40 bg-gray-200 rounded overflow-hidden">
 				<div className="h-full bg-green-500" style={{ width: `${pct}%` }} />
 			</div>
+			
+			{/* Correctness Badge */}
+			{showCorrectnessBadge && lastRepCorrect !== undefined && (
+				<div className={`mt-2 px-2 py-1 rounded-full text-xs font-medium transition-opacity duration-1000 ${
+					lastRepCorrect 
+						? 'bg-green-100 text-green-800 border border-green-200' 
+						: 'bg-red-100 text-red-800 border border-red-200'
+				}`}>
+					{lastRepCorrect ? '✓ Correct' : 'Try again'}
+				</div>
+			)}
 			
 			{/* Form IQ Indicator */}
 			{formIQMetrics && repCount > 0 && (
