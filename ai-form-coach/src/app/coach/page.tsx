@@ -482,6 +482,20 @@ function CoachContent() {
 				quality: latest.quality,
 				quality_score: latest.score
 			})).catch(()=>{});
+			
+			// P4: Log specific correctness events
+			import('@/lib/observability/events').then(m => m.logEvent(
+				correctnessResult.is_correct ? 'rep_correct' : 'rep_incorrect', 
+				{ 
+					exercise, 
+					repCount: s.repCount, 
+					confidence: correctnessResult.confidence,
+					error_count: latest.errors.length,
+					error_types: latest.errors.map(e => e.type),
+					quality: latest.quality,
+					quality_score: latest.score
+				}
+			)).catch(()=>{});
 		}
 		if (s.cues.length > 0) { setSpark(s.cues.map((_c, i) => performance.now() + i * 10)); }
 		

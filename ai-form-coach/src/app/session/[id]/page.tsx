@@ -7,10 +7,38 @@ import VerificationDetails from '@/components/verification/VerificationDetails';
 
 const SessionChart = dynamic(() => import('@/components/SessionChart'), { ssr: false });
 
-type S = { id: string; exercise: string; started_at: string; ended_at: string | null; total_reps: number | null; notes: string | null };
- type R = { id: string; idx: number; start_ms: number; end_ms: number; peak_depth: number | null; rom_score: number | null };
- type OS = { id: string; total_reps: number | null };
- type OR = { session_id: string; rom_score: number | null };
+type S = { 
+	id: string; 
+	exercise: string; 
+	started_at: string; 
+	ended_at: string | null; 
+	total_reps: number | null; 
+	notes: string | null;
+	correct_rate: number | null;
+	avg_quality_score: number | null;
+};
+type R = { 
+	id: string; 
+	idx: number; 
+	start_ms: number; 
+	end_ms: number; 
+	peak_depth: number | null; 
+	rom_score: number | null;
+	// P4: Enhanced correctness data
+	is_correct: boolean | null;
+	confidence: number | null;
+	errors: Array<{
+		type: string;
+		severity: 'low' | 'medium' | 'high';
+		message: string;
+		duration: number;
+	}> | null;
+	quality: 'excellent' | 'good' | 'fair' | 'poor' | null;
+	quality_score: number | null;
+	tempo: 'fast' | 'normal' | 'slow' | null;
+};
+type OS = { id: string; total_reps: number | null };
+type OR = { session_id: string; rom_score: number | null };
 
 export default function SessionDetail() {
 	const params = useParams<{ id: string }>();
@@ -23,8 +51,10 @@ export default function SessionDetail() {
 	useEffect(() => {
 		(async () => {
 			const supabase = getSupabaseClient();
-			const { data: s } = await supabase.from('sessions').select('id,exercise,started_at,ended_at,total_reps,notes').eq('id', params.id).single() as { data: S | null };
-			const { data: r } = await supabase.from('reps').select('id,idx,start_ms,end_ms,peak_depth,rom_score').eq('session_id', params.id).order('start_ms') as { data: R[] | null };
+			// P4: Enhanced session query with correctness data
+			const { data: s } = await supabase.from('sessions').select('id,exercise,started_at,ended_at,total_reps,notes,correct_rate,avg_quality_score').eq('id', params.id).single() as { data: S | null };
+			// P4: Enhanced reps query with correctness data
+			const { data: r } = await supabase.from('reps').select('id,idx,start_ms,end_ms,peak_depth,rom_score,is_correct,confidence,errors,quality,quality_score,tempo').eq('session_id', params.id).order('start_ms') as { data: R[] | null };
 			setSession(s ?? null);
 			setNotes(s?.notes ?? '');
 			setReps(r ?? []);
@@ -60,8 +90,27 @@ export default function SessionDetail() {
 	}
 
 	function exportCSV() {
-		const header = 'idx,start_ms,end_ms,peak_depth,rom_score';
-		const rows = reps.map((r) => [r.idx, r.start_ms, r.end_ms, r.peak_depth ?? '', r.rom_score ?? ''].join(','));
+		// P4: Enhanced CSV export with correctness data
+		const header = 'idx,start_ms,end_ms,duration_ms,peak_depth,rom_score,is_correct,confidence,quality,quality_score,tempo,error_count,errors';
+		const rows = reps.map((r) => {
+			const duration = r.end_ms - r.start_ms;
+			const errors = r.errors ? r.errors.map(e => `${e.type}:${e.severity}`).join(';') : '';
+			return [
+				r.idx, 
+				r.start_ms, 
+				r.end_ms, 
+				duration,
+				r.peak_depth ?? '', 
+				r.rom_score ?? '',
+				r.is_correct ?? '',
+				r.confidence ? Math.round(r.confidence * 100) / 100 : '',
+				r.quality ?? '',
+				r.quality_score ?? '',
+				r.tempo ?? '',
+				r.errors ? r.errors.length : 0,
+				`"${errors}"`
+			].join(',');
+		});
 		const csv = [header, ...rows].join('\n');
 		const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
 		const url = URL.createObjectURL(blob);
@@ -113,12 +162,37 @@ export default function SessionDetail() {
 		const a = document.createElement('a'); a.href = dataUrl; a.download = `session_${session.id}_share.png`; a.click();
 	}
 
+	// P4: Calculate quality reps for header display
+	const correctReps = reps.filter(r => r.is_correct === true).length;
+	const totalReps = reps.length;
+	const qualityRepsPercentage = totalReps > 0 ? Math.round((correctReps / totalReps) * 100) : 0;
+
 	return (
 		<div className="p-6 max-w-4xl mx-auto space-y-4">
 			<h1 className="text-2xl font-semibold flex items-center gap-2">Session {pr.reps || pr.rom ? <span className="px-2 py-0.5 text-xs rounded bg-emerald-600 text-white">PR</span> : null}</h1>
 			<div className="rounded-lg border p-4 flex items-center justify-between">
 				<div>Exercise: <span className="capitalize">{session.exercise}</span></div>
 				<div className="text-sm opacity-70">{new Date(session.started_at).toLocaleString()}</div>
+			</div>
+			{/* P4: Quality reps header */}
+			<div className="rounded-lg border p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+				<div className="flex items-center justify-between">
+					<div>
+						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">Quality Reps: {correctReps}/{totalReps} ({qualityRepsPercentage}%)</h2>
+						{session.avg_quality_score && (
+							<p className="text-sm text-gray-600 dark:text-gray-400">Average Quality Score: {Math.round(session.avg_quality_score)}/100</p>
+						)}
+					</div>
+					<div className="flex items-center gap-2">
+						<div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+							<div 
+								className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-300"
+								style={{ width: `${qualityRepsPercentage}%` }}
+							/>
+						</div>
+						<span className="text-sm font-medium text-gray-700 dark:text-gray-300">{qualityRepsPercentage}%</span>
+					</div>
+				</div>
 			</div>
 			<div className="flex items-center gap-2">
 				<button onClick={copySummary} className="px-3 py-2 rounded bg-black text-white">Copy summary</button>
@@ -132,11 +206,85 @@ export default function SessionDetail() {
 				) : (
 					<div className="space-y-4">
 						<SessionChart reps={reps.map(r => ({ idx: r.idx, start_ms: r.start_ms, end_ms: r.end_ms, peak_depth: r.peak_depth, rom_score: r.rom_score }))} />
-						<ul className="space-y-1">
+						<ul className="space-y-3">
 							{reps.map((r) => (
-								<li key={r.id} className="flex items-center justify-between text-sm">
-									<span>Rep {r.idx}</span>
-									<span className="opacity-70">{(r.end_ms - r.start_ms).toFixed(0)} ms · ROM {r.rom_score ?? '-'} · depth {r.peak_depth ?? '-'}</span>
+								<li key={r.id} className="border rounded-lg p-3 bg-white dark:bg-gray-800">
+									<div className="flex items-center justify-between mb-2">
+										<div className="flex items-center gap-3">
+											<span className="font-medium">Rep {r.idx}</span>
+											{/* P4: Correctness badge */}
+											{r.is_correct !== null && (
+												<span className={`px-2 py-1 rounded-full text-xs font-medium ${
+													r.is_correct 
+														? 'bg-green-100 text-green-800 border border-green-200' 
+														: 'bg-red-100 text-red-800 border border-red-200'
+												}`}>
+													{r.is_correct ? '✅ Correct' : '⚠️ Try again'}
+												</span>
+											)}
+											{/* P4: Quality badge */}
+											{r.quality && (
+												<span className={`px-2 py-1 rounded-full text-xs font-medium ${
+													r.quality === 'excellent' ? 'bg-emerald-100 text-emerald-800' :
+													r.quality === 'good' ? 'bg-green-100 text-green-800' :
+													r.quality === 'fair' ? 'bg-yellow-100 text-yellow-800' :
+													'bg-red-100 text-red-800'
+												}`}>
+													{r.quality} ({r.quality_score ? Math.round(r.quality_score) : '-'}/100)
+												</span>
+											)}
+										</div>
+										<div className="text-sm opacity-70">
+											{(r.end_ms - r.start_ms).toFixed(0)} ms · ROM {r.rom_score ?? '-'} · depth {r.peak_depth ?? '-'}
+										</div>
+									</div>
+									
+									{/* P4: Confidence bar */}
+									{r.confidence !== null && (
+										<div className="mb-2">
+											<div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+												<span>Confidence</span>
+												<span>{Math.round(r.confidence * 100)}%</span>
+											</div>
+											<div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+												<div 
+													className={`h-full transition-all duration-300 ${
+														r.confidence >= 0.8 ? 'bg-green-500' :
+														r.confidence >= 0.6 ? 'bg-yellow-500' :
+														'bg-red-500'
+													}`}
+													style={{ width: `${r.confidence * 100}%` }}
+												/>
+											</div>
+										</div>
+									)}
+									
+									{/* P4: Error chips */}
+									{r.errors && r.errors.length > 0 && (
+										<div className="flex flex-wrap gap-1">
+											{r.errors.slice(0, 3).map((error, index) => (
+												<div key={index} className={`px-2 py-1 rounded-full text-xs font-medium ${
+													error.severity === 'high' ? 'bg-red-100 text-red-800 border border-red-200' :
+													error.severity === 'medium' ? 'bg-orange-100 text-orange-800 border border-orange-200' :
+													'bg-yellow-100 text-yellow-800 border border-yellow-200'
+												}`}>
+													{error.type === 'depth_low' ? '📏 Depth' :
+													 error.type === 'knee_valgus' ? '🦵 Knees' :
+													 error.type === 'chest_drop' ? '📉 Chest' :
+													 error.type === 'hip_sag' ? '📐 Hips' :
+													 error.type === 'tempo_fast' ? '⚡ Fast' :
+													 error.type === 'tempo_slow' ? '🐌 Slow' :
+													 error.type === 'bodyline_poor' ? '📐 Line' :
+													 error.type}
+												</div>
+											))}
+											{r.errors.length > 3 && (
+												<div className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+													+{r.errors.length - 3} more
+												</div>
+											)}
+										</div>
+									)}
 								</li>
 							))}
 						</ul>
