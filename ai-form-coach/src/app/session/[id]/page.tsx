@@ -4,6 +4,8 @@ import { useParams } from 'next/navigation';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
 import VerificationDetails from '@/components/verification/VerificationDetails';
+import SimilarSessions from '@/components/embeddings/SimilarSessions';
+import CompareToBest from '@/components/embeddings/CompareToBest';
 
 const SessionChart = dynamic(() => import('@/components/SessionChart'), { ssr: false });
 
@@ -47,10 +49,16 @@ export default function SessionDetail() {
 	const [notes, setNotes] = useState('');
 	const [saving, setSaving] = useState(false);
 	const [pr, setPr] = useState<{ reps: boolean; rom: boolean }>({ reps: false, rom: false });
+	const [userId, setUserId] = useState<string | null>(null);
 
 	useEffect(() => {
 		(async () => {
 			const supabase = getSupabaseClient();
+			
+			// Get current user
+			const { data: { user } } = await supabase.auth.getUser();
+			setUserId(user?.id || null);
+			
 			// P4: Enhanced session query with correctness data
 			const { data: s } = await supabase.from('sessions').select('id,exercise,started_at,ended_at,total_reps,notes,correct_rate,avg_quality_score').eq('id', params.id).single() as { data: S | null };
 			// P4: Enhanced reps query with correctness data
@@ -292,6 +300,28 @@ export default function SessionDetail() {
 				</div>
 			)}
 		</div>
+		
+		{/* P7: Movement Embeddings - Similar Sessions and Compare to Best */}
+		{session && userId && (
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+				<SimilarSessions 
+					sessionId={params.id}
+					userId={userId}
+					exercise={session.exercise as 'squat' | 'pushup' | 'plank'}
+				/>
+				<CompareToBest
+					currentSession={{
+						sessionId: params.id,
+						totalReps: session.total_reps || 0,
+						avgQuality: session.avg_quality_score || 0,
+						avgRom: avgRom || 0,
+						createdAt: session.started_at
+					}}
+					userId={userId}
+					exercise={session.exercise as 'squat' | 'pushup' | 'plank'}
+				/>
+			</div>
+		)}
 		
 		{/* Verification Details */}
 		<VerificationDetails 

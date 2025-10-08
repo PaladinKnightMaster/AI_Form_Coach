@@ -795,6 +795,38 @@ function CoachContent() {
 			await enqueueWrite({ table: 'reps', payload: r as unknown as Record<string, unknown> }); 
 		}
 		
+		// P7: Generate movement embedding for similarity search
+		try {
+			const { getEmbeddingService } = await import('@/lib/embeddings/embeddingService');
+			const embeddingService = getEmbeddingService();
+			await embeddingService.initialize();
+			
+			// Get user's session count for this exercise
+			const { getSupabaseClient } = await import('@/lib/supabase/client');
+			const supabase = getSupabaseClient();
+			const { count: sessionCount } = await supabase
+				.from('sessions')
+				.select('*', { count: 'exact', head: true })
+				.eq('user_id', userId)
+				.eq('exercise', exercise);
+			
+			await embeddingService.generateSessionEmbedding(
+				sessionId,
+				sessionSummary,
+				exercise,
+				userId || '',
+				{
+					totalReps: total_valid_reps,
+					sessionDuration: endTs - start,
+					createdAt: new Date(),
+					sessionNumber: (sessionCount || 0) + 1
+				}
+			);
+		} catch (error) {
+			console.warn('Failed to generate session embedding:', error);
+			// Don't fail the session save if embedding generation fails
+		}
+		
 		await flushWrites(); 
 		setSaving(false); 
 		
