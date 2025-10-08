@@ -1,6 +1,7 @@
 import type { Validator, ValidatorState, ValidatorConfig, RepMetric } from './types';
 import type { PoseEstimateResult } from '../pose/engine';
 import { getExerciseAngle } from '../pose/normalize';
+import { getExerciseConfig } from '@/lib/calibration/constants';
 import { getUserCalibration } from '@/lib/calibration/service';
 import type { DeviceCalibration } from '@/types/calibration';
 import { 
@@ -36,6 +37,13 @@ export function createPlankValidator(): Validator {
 			userCalibration = await getUserCalibration();
 		}
 		
+		// Get personalized configuration
+		const config = getExerciseConfig(userCalibration ? {
+			squat_full_depth_angle: userCalibration.squat_full_depth_angle,
+			pushup_elbow_bottom_angle: userCalibration.pushup_elbow_bottom_angle,
+			bodyline_target: userCalibration.bodyline_target,
+		} : undefined);
+		
 		// Use the robust angle calculation from the pose engine
 		const torsoAngle = getExerciseAngle(result, 'plank');
 		if (torsoAngle === null) return state;
@@ -43,7 +51,7 @@ export function createPlankValidator(): Validator {
 		const bodyLineAngle = torsoAngle; // For plank, torso angle represents body line alignment
 		
 		// Use calibrated thresholds
-		const bodyLineThreshold = cfg?.plank?.bodyLineThreshold ?? 170; // degrees
+		const bodyLineThreshold = config.plank.idealHipAngle; // Use calibrated body line target
 		const debounce = cfg?.debounceFrames ?? 3;
 		const hipSagThreshold = cfg?.errorThresholds?.errorDurationThresholds?.hipSag ?? 300; // ms
 

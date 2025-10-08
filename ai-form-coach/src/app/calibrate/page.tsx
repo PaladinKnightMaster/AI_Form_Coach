@@ -13,6 +13,7 @@ import { saveUserCalibration, getCalibrationStatus } from '@/lib/calibration/ser
 import { getExerciseAngle } from '@/lib/pose/normalize';
 import { PoseEngine2 } from '@/lib/pose/engine';
 import type { PoseEstimateResult } from '@/lib/pose/engine';
+import { logEvent } from '@/lib/observability/events';
 
 interface CalibrationSession {
   steps: CalibrationStep[];
@@ -79,6 +80,14 @@ function CalibrationContent() {
       const result = await saveUserCalibration(data);
       
       if (result.success) {
+        // P2: Log calibration completed event
+        logEvent('calibration_completed', {
+          squat_full_depth_angle: data.squat_full_depth_angle,
+          pushup_elbow_bottom_angle: data.pushup_elbow_bottom_angle,
+          bodyline_target: data.bodyline_target,
+          stepResults: result.stepResults
+        }).catch(() => {});
+        
         showSuccess('Calibration Complete!', 'Your personalized thresholds have been saved');
         setIsCalibrated(true);
         setTimeout(() => {
@@ -166,9 +175,15 @@ function CalibrationContent() {
   }, [session.steps, session.collectedData, collectedAngles, showError, completeCalibration]);
 
   const startCalibration = useCallback(() => {
+    // P2: Log calibration started event
+    logEvent('calibration_started', {
+      totalSteps: session.steps.length,
+      exercises: session.steps.map(step => step.id)
+    }).catch(() => {});
+    
     setSession(prev => ({ ...prev, isActive: true }));
     startStep(0);
-  }, [startStep]);
+  }, [startStep, session.steps]);
 
   // Pose detection loop
   useEffect(() => {

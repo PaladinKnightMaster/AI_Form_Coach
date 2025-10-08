@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseClient } from '@/lib/supabase/client';
-import { Badge } from '@/ui/DS';
+import { Badge, Button } from '@/ui/DS';
 import { getCalibrationStatus } from '@/lib/calibration/service';
 
 export default function Account() {
@@ -403,6 +403,43 @@ export default function Account() {
 								<div className="text-sm text-blue-800">
 									<p className="font-medium">Live PR Ghost</p>
 									<p>The pacing bar shows how you&apos;re performing compared to your best verified session. It helps you maintain consistent pace and push for new personal records.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				{/* Calibration Settings (P2) */}
+				<div className="rounded-lg border p-4">
+					<div className="flex items-center justify-between mb-4">
+						<div>
+							<h3 className="text-lg font-semibold text-gray-900">Personal Calibration</h3>
+							<p className="text-sm text-gray-600">Calibrate your personal movement ranges for accurate coaching</p>
+						</div>
+						<Badge tone="info" size="sm">🎯 Personalization</Badge>
+					</div>
+					
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Recalibrate Movement Ranges</h4>
+								<p className="text-sm text-gray-600">Update your personal depth and angle thresholds</p>
+							</div>
+							<Button
+								onClick={() => router.push('/calibrate')}
+								variant="outline"
+								size="sm"
+							>
+								Recalibrate
+							</Button>
+						</div>
+						
+						<div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+							<div className="flex items-start gap-2">
+								<div className="text-blue-600 text-sm">💡</div>
+								<div className="text-sm text-blue-800">
+									<p className="font-medium">Personalized Coaching</p>
+									<p>We&apos;ll learn your range so coaching matches your body. This ensures &quot;Correct&quot; judgments align with your natural movement patterns.</p>
 								</div>
 							</div>
 						</div>
