@@ -14,7 +14,8 @@ export default function HUD({
   lastRepCorrect,
   showCorrectnessBadge,
   mentorCue,
-  lastCueKey
+  lastCueKey,
+  poseQuality
 }: { 
   repCount: number; 
   cue: string; 
@@ -32,6 +33,10 @@ export default function HUD({
     shouldSpeak: boolean;
   };
   lastCueKey?: string;
+  poseQuality?: {
+    score: number;
+    state: 'good' | 'fair' | 'low';
+  };
 }) {
 	const pct = (spark.filter(Boolean).length / Math.max(1, spark.length)) * 100;
 	return (
@@ -49,6 +54,22 @@ export default function HUD({
 			<div className="mt-2 h-8 w-40 bg-gray-200 rounded overflow-hidden">
 				<div className="h-full bg-green-500" style={{ width: `${pct}%` }} />
 			</div>
+			
+			{/* Pose Quality Light */}
+			{poseQuality && (
+				<div className="mt-2 flex items-center gap-2">
+					<div className={`w-3 h-3 rounded-full border-2 ${
+						poseQuality.state === 'good' ? 'bg-green-500 border-green-600' :
+						poseQuality.state === 'fair' ? 'bg-yellow-500 border-yellow-600' :
+						'bg-red-500 border-red-600'
+					}`} />
+					<span className="text-xs font-medium text-gray-700">
+						{poseQuality.state === 'good' ? 'Good' :
+						 poseQuality.state === 'fair' ? 'Fair' : 'Low'} 
+						({Math.round(poseQuality.score * 100)}%)
+					</span>
+				</div>
+			)}
 			
 			{/* Correctness Badge */}
 			{showCorrectnessBadge && lastRepCorrect !== undefined && (

@@ -20,6 +20,11 @@ export default function Account() {
 	// Mentor cue settings (A5)
 	const [mentorCueEnabled, setMentorCueEnabled] = useState(true);
 	const [voiceEnabled, setVoiceEnabled] = useState(true);
+	
+	// Camera assist settings (A6)
+	const [mirrorVideo, setMirrorVideo] = useState(true);
+	const [largeText, setLargeText] = useState(false);
+	const [highContrast, setHighContrast] = useState(false);
 
 	useEffect(() => {
 		(async () => {
@@ -48,6 +53,24 @@ export default function Account() {
 			} catch (error) {
 				console.warn('Failed to load mentor cue settings:', error);
 			}
+			
+			// Load A6 camera assist settings from localStorage
+			try {
+				const savedMirrorVideo = localStorage.getItem('mirrorVideo');
+				const savedLargeText = localStorage.getItem('largeText');
+				const savedHighContrast = localStorage.getItem('highContrast');
+				if (savedMirrorVideo !== null) {
+					setMirrorVideo(savedMirrorVideo === 'true');
+				}
+				if (savedLargeText !== null) {
+					setLargeText(savedLargeText === 'true');
+				}
+				if (savedHighContrast !== null) {
+					setHighContrast(savedHighContrast === 'true');
+				}
+			} catch (error) {
+				console.warn('Failed to load camera assist settings:', error);
+			}
 		})();
 	}, []);
 
@@ -70,6 +93,34 @@ export default function Account() {
 			localStorage.setItem('voiceEnabled', enabled.toString());
 		} catch (error) {
 			console.warn('Failed to save voice setting:', error);
+		}
+	}
+	
+	// A6: Camera assist setting handlers
+	function handleMirrorVideoToggle(enabled: boolean) {
+		setMirrorVideo(enabled);
+		try {
+			localStorage.setItem('mirrorVideo', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save mirror video setting:', error);
+		}
+	}
+	
+	function handleLargeTextToggle(enabled: boolean) {
+		setLargeText(enabled);
+		try {
+			localStorage.setItem('largeText', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save large text setting:', error);
+		}
+	}
+	
+	function handleHighContrastToggle(enabled: boolean) {
+		setHighContrast(enabled);
+		try {
+			localStorage.setItem('highContrast', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save high contrast setting:', error);
 		}
 	}
 
@@ -219,6 +270,77 @@ export default function Account() {
 								<div className="text-sm text-blue-800">
 									<p className="font-medium">Smart Cue System</p>
 									<p>Mentor cues use intelligent prioritization and cooldowns to reduce spam while providing actionable feedback. Critical errors (🚨) get priority over minor issues (💡).</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				{/* Camera Assist Settings (A6) */}
+				<div className="rounded-lg border p-4">
+					<div className="flex items-center justify-between mb-4">
+						<div>
+							<h3 className="text-lg font-semibold text-gray-900">Camera Assist</h3>
+							<p className="text-sm text-gray-600">Optimize your camera setup and display preferences</p>
+						</div>
+						<Badge tone="info" size="sm">📹 Camera Quality</Badge>
+					</div>
+					
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Mirror Video</h4>
+								<p className="text-sm text-gray-600">Flip the video horizontally for a mirror-like view</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={mirrorVideo}
+									onChange={(e) => handleMirrorVideoToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+							</label>
+						</div>
+						
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Large Text</h4>
+								<p className="text-sm text-gray-600">Use larger text in the HUD for better visibility</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={largeText}
+									onChange={(e) => handleLargeTextToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+							</label>
+						</div>
+						
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">High Contrast Overlay</h4>
+								<p className="text-sm text-gray-600">Use high contrast colors for better visibility</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={highContrast}
+									onChange={(e) => handleHighContrastToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+							</label>
+						</div>
+						
+						<div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+							<div className="flex items-start gap-2">
+								<div className="text-blue-600 text-sm">💡</div>
+								<div className="text-sm text-blue-800">
+									<p className="font-medium">Quality Monitoring</p>
+									<p>The app automatically monitors camera quality and will pause counting if it can&apos;t see your full body clearly for more than 1.5 seconds. This helps ensure accurate pose detection.</p>
 								</div>
 							</div>
 						</div>

@@ -24,6 +24,7 @@ import { type FormIQMetrics } from '@/lib/validators/formIQ';
 import type { UserPlan } from '@/types/plans';
 import { finalizeRepEval, createRepTrace } from '@/lib/correctness/eval';
 import { initializeMentor } from '@/lib/coach/mentor';
+import QualityOverlay from '@/components/QualityOverlay';
 
 function CoachContent() {
 	const searchParams = useSearchParams();
@@ -99,6 +100,12 @@ function CoachContent() {
 		severity: number;
 		shouldSpeak: boolean;
 	} | undefined>(undefined);
+	
+	// Camera assist & quality (A6)
+	const [mirrorVideo, setMirrorVideo] = useState(true);
+	const [showQualityOverlay, setShowQualityOverlay] = useState(false);
+	const [lowQualityStartTime, setLowQualityStartTime] = useState<number | null>(null);
+	const [poseQualityState, setPoseQualityState] = useState<'good' | 'fair' | 'low'>('good');
 	// Track average pose visibility for quality
 	const visSumRef = useRef(0);
 	const visCountRef = useRef(0);
@@ -240,6 +247,20 @@ function CoachContent() {
 				if (savedVoiceEnabled !== null) {
 					setVoiceEnabled(savedVoiceEnabled === 'true');
 				}
+				
+				// Load A6 camera assist settings
+				const savedMirrorVideo = localStorage.getItem('mirrorVideo');
+				const savedLargeText = localStorage.getItem('largeText');
+				const savedHighContrast = localStorage.getItem('highContrast');
+				if (savedMirrorVideo !== null) {
+					setMirrorVideo(savedMirrorVideo === 'true');
+				}
+				if (savedLargeText !== null) {
+					setLargeText(savedLargeText === 'true');
+				}
+				if (savedHighContrast !== null) {
+					setHighContrast(savedHighContrast === 'true');
+				}
 			} catch (error) {
 				console.warn('Failed to initialize mentor system or load settings:', error);
 			}
@@ -276,6 +297,13 @@ function CoachContent() {
 	}, [running, exercise]);
 	const undoLastRep = useCallback(() => { if (repMetricsRef.current.length === 0 || repCount === 0) return; const last = repMetricsRef.current[repMetricsRef.current.length - 1]; if (last) last.valid = false; setRepCount((c) => Math.max(0, c - 1)); import('@/lib/observability/events').then(m => m.logEvent('undo_used', { exercise })).catch(()=>{}); }, [repCount, exercise]);
 	const startRest = useCallback((seconds: number) => { setRunning(false); setRestLeft(seconds); import('@/lib/observability/events').then(m => m.logEvent('rest_started', { seconds, exercise })).catch(()=>{}); if (restTimerRef.current) window.clearInterval(restTimerRef.current); restTimerRef.current = window.setInterval(() => { setRestLeft((v) => { const next = (v ?? 0) - 1; if (next <= 0) { window.clearInterval(restTimerRef.current!); restTimerRef.current = null; speak('Rest over'); return null; } return next; }); }, 1000); }, [exercise]);
+	
+	// A6: Quality overlay dismiss handler
+	const handleQualityOverlayDismiss = useCallback(() => {
+		setShowQualityOverlay(false);
+		setPausedByQuality(false);
+		setLowQualityStartTime(null);
+	}, []);
 	const onKey = useCallback((e: KeyboardEvent) => {
 		if (e.code === 'Space') { e.preventDefault(); handleStartPause(); }
 		if (e.key === '1') setExercise('squat');
@@ -298,15 +326,40 @@ function CoachContent() {
 			visCountRef.current += 1; 
 		}
 		
-		// Update quality indicator based on visibility
-		if (avgVis > 0.7) { 
+		// Update quality indicator based on visibility (A6)
+		let newQualityState: 'good' | 'fair' | 'low';
+		if (avgVis >= 0.7) { 
+			newQualityState = 'good';
 			setQuality('good'); 
 		}
-		else if (avgVis > 0.55) { 
+		else if (avgVis >= 0.55) { 
+			newQualityState = 'fair';
 			setQuality('warn'); 
 		}
 		else { 
+			newQualityState = 'low';
 			setQuality('bad'); 
+		}
+		
+		// Update pose quality state for HUD
+		setPoseQualityState(newQualityState);
+		
+		// Handle low quality auto-pause (A6)
+		if (newQualityState === 'low' && running) {
+			const now = performance.now();
+			if (lowQualityStartTime === null) {
+				setLowQualityStartTime(now);
+			} else if (now - lowQualityStartTime > 1500) { // 1.5 seconds
+				if (!pausedByQuality) {
+					setPausedByQuality(true);
+					setShowQualityOverlay(true);
+					// Auto-pause counting
+					setRunning(false);
+				}
+			}
+		} else {
+			// Reset low quality timer when quality improves
+			setLowQualityStartTime(null);
 		}
 		
 		// Log low visibility event
@@ -388,7 +441,7 @@ function CoachContent() {
 				});
 			}
 		}
-	}, [running, goalType, goalValue, repCount, exercise, thrCfg, rateLimitedCue, mentorCueEnabled, voiceEnabled]);
+	}, [running, goalType, goalValue, repCount, exercise, thrCfg, rateLimitedCue, mentorCueEnabled, voiceEnabled, lowQualityStartTime, pausedByQuality]);
 
 	// Async pose estimation loop for PoseEngine2
 	const startPoseLoop = useCallback(async () => {
@@ -524,9 +577,14 @@ function CoachContent() {
 				for (const t of stream.getTracks()) t.stop(); 
 			}
 			
-			// Release wake lock
+			// Release wake lock (A6)
 			if (wakeLockRef.current) { 
-				try { wakeLockRef.current.release?.(); } catch {} 
+				try { 
+					wakeLockRef.current.release?.(); 
+					console.log('Wake lock released on cleanup');
+				} catch (err) {
+					console.warn('Failed to release wake lock on cleanup:', err);
+				}
 			} 
 		};
 	}, []);
@@ -542,9 +600,18 @@ function CoachContent() {
 				await startPoseLoop();
 			})();
 			
-			// Request wake lock
+			// Request wake lock (A6)
 			const wlApi = (navigator as unknown as { wakeLock?: { request: (type: 'screen') => Promise<{ release?: () => Promise<void> }> } }).wakeLock;
-			wlApi?.request('screen').then((s) => { wakeLockRef.current = s; }).catch(() => {});
+			if (wlApi) {
+				wlApi.request('screen')
+					.then((s) => { 
+						wakeLockRef.current = s; 
+						console.log('Wake lock acquired');
+					})
+					.catch((err) => {
+						console.warn('Failed to acquire wake lock:', err);
+					});
+			}
 			
 			// Start elapsed timer
 			elapsedTimerRef.current = window.setInterval(() => setElapsedMs((v) => v + 1000), 1000);
@@ -555,9 +622,14 @@ function CoachContent() {
 				poseLoopRef.current = null;
 			}
 			
-			// Release wake lock
+			// Release wake lock (A6)
 			if (wakeLockRef.current) {
-				try { wakeLockRef.current.release?.(); } catch {}
+				try { 
+					wakeLockRef.current.release?.(); 
+					console.log('Wake lock released');
+				} catch (err) {
+					console.warn('Failed to release wake lock:', err);
+				}
 			}
 			
 			// Stop elapsed timer
@@ -663,7 +735,13 @@ function CoachContent() {
 				<div className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-black">
 					<video ref={videoRef} className="w-full h-full object-contain" playsInline muted />
 					<canvas ref={canvasRef} className="absolute inset-0" />
-					{videoRef.current && (<PoseOverlay landmarks={landmarks} video={videoRef.current} mirror />)}
+					{videoRef.current && (<PoseOverlay landmarks={landmarks} video={videoRef.current} mirror={mirrorVideo} />)}
+					
+					{/* A6: Quality Overlay */}
+					<QualityOverlay 
+						isVisible={showQualityOverlay} 
+						onDismiss={handleQualityOverlayDismiss} 
+					/>
 					<HUD 
 						repCount={repCount} 
 						cue={pausedByQuality ? 'Step back into frame' : cue} 
@@ -676,6 +754,10 @@ function CoachContent() {
 						showCorrectnessBadge={showCorrectnessBadge}
 						mentorCue={currentMentorCue}
 						lastCueKey={lastCueKey}
+						poseQuality={{
+							score: visibilityScore,
+							state: poseQualityState
+						}}
 					/>
 					
 					{/* Visibility Warning */}
