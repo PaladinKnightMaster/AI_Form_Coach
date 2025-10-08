@@ -16,7 +16,8 @@ export default function HUD({
   mentorCue,
   lastCueKey,
   poseQuality,
-  lastRepErrors
+  lastRepErrors,
+  wakeLockActive
 }: { 
   repCount: number; 
   cue: string; 
@@ -43,6 +44,7 @@ export default function HUD({
     message: string;
     severity: 'low' | 'medium' | 'high';
   }>;
+  wakeLockActive?: boolean;
 }) {
 	const pct = (spark.filter(Boolean).length / Math.max(1, spark.length)) * 100;
 	return (
@@ -61,15 +63,19 @@ export default function HUD({
 				<div className="h-full bg-green-500" style={{ width: `${pct}%` }} />
 			</div>
 			
-			{/* Pose Quality Light */}
+			{/* Pose Quality Light - Enhanced with pulsing animation for low quality */}
 			{poseQuality && (
 				<div className="mt-2 flex items-center gap-2">
 					<div className={`w-3 h-3 rounded-full border-2 ${
 						poseQuality.state === 'good' ? 'bg-green-500 border-green-600' :
 						poseQuality.state === 'fair' ? 'bg-yellow-500 border-yellow-600' :
-						'bg-red-500 border-red-600'
+						'bg-red-500 border-red-600 animate-pulse'
 					}`} />
-					<span className="text-xs font-medium text-gray-700">
+					<span className={`text-xs font-medium ${
+						poseQuality.state === 'good' ? 'text-gray-700' :
+						poseQuality.state === 'fair' ? 'text-yellow-700' :
+						'text-red-700 font-semibold'
+					}`}>
 						{poseQuality.state === 'good' ? 'Good' :
 						 poseQuality.state === 'fair' ? 'Fair' : 'Low'} 
 						({Math.round(poseQuality.score * 100)}%)
@@ -130,6 +136,14 @@ export default function HUD({
 			{lastCueKey && lastCueKey !== mentorCue?.key && (
 				<div className="mt-1 px-2 py-0.5 rounded-full text-[10px] bg-gray-100 text-gray-600 border border-gray-200 animate-fade-out">
 					Last: {lastCueKey.replace(/_/g, ' ')}
+				</div>
+			)}
+			
+			{/* Wake Lock Status Indicator */}
+			{wakeLockActive && (
+				<div className="mt-2 flex items-center gap-1 text-xs text-green-600">
+					<span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+					<span>Screen awake</span>
 				</div>
 			)}
 			

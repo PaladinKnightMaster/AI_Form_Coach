@@ -56,7 +56,8 @@ function CoachContent() {
 	const [muted, updateMuted] = useState(false);
 	const flushTimerRef = useRef<number | null>(null);
 	const [countdown, setCountdown] = useState<number | null>(null);
-	const wakeLockRef = useRef<{ release?: () => Promise<void> } | null>(null);
+	const wakeLockRef = useRef<{ release?: () => Promise<void>; addEventListener?: (event: string, callback: () => void) => void } | null>(null);
+	const [wakeLockActive, setWakeLockActive] = useState(false);
 	const [quality, setQuality] = useState<'good' | 'warn' | 'bad'>('good');
 	
 	// Welcome and first-run tutorial states
@@ -360,13 +361,13 @@ function CoachContent() {
 			visCountRef.current += 1; 
 		}
 		
-		// Update quality indicator based on visibility (A6)
+		// Update quality indicator based on visibility (A6) - Enhanced thresholds
 		let newQualityState: 'good' | 'fair' | 'low';
-		if (avgVis >= 0.7) { 
+		if (avgVis >= 0.75) { 
 			newQualityState = 'good';
 			setQuality('good'); 
 		}
-		else if (avgVis >= 0.55) { 
+		else if (avgVis >= 0.6) { 
 			newQualityState = 'fair';
 			setQuality('warn'); 
 		}
@@ -555,12 +556,12 @@ function CoachContent() {
 					setFps(result.fps);
 					
 					// Visibility gating - only process frames with good visibility
-					if (result.visibilityScore >= 0.55) {
+					if (result.visibilityScore >= 0.6) {
 						// Process pose with good visibility
 						await onPose(result.landmarks, result);
 						
 						// Reset low quality counter on good frames
-						if (result.visibilityScore > 0.7) {
+						if (result.visibilityScore > 0.75) {
 							lowQualityFramesRef.current = 0;
 							setPausedByQuality(false);
 						}
@@ -669,6 +670,7 @@ function CoachContent() {
 			if (wakeLockRef.current) { 
 				try { 
 					wakeLockRef.current.release?.(); 
+					setWakeLockActive(false);
 					console.log('Wake lock released on cleanup');
 				} catch (err) {
 					console.warn('Failed to release wake lock on cleanup:', err);
@@ -688,17 +690,30 @@ function CoachContent() {
 				await startPoseLoop();
 			})();
 			
-			// Request wake lock (A6)
-			const wlApi = (navigator as unknown as { wakeLock?: { request: (type: 'screen') => Promise<{ release?: () => Promise<void> }> } }).wakeLock;
+			// Request wake lock (A6) - Enhanced with better error handling
+			const wlApi = (navigator as unknown as { wakeLock?: { request: (type: 'screen') => Promise<{ release?: () => Promise<void>; addEventListener?: (event: string, callback: () => void) => void }> } }).wakeLock;
 			if (wlApi) {
 				wlApi.request('screen')
 					.then((s) => { 
 						wakeLockRef.current = s; 
-						console.log('Wake lock acquired');
+						setWakeLockActive(true);
+						console.log('Wake lock acquired successfully');
+						
+						// Handle wake lock release (e.g., when user switches tabs)
+						if (s.addEventListener) {
+							s.addEventListener('release', () => {
+								console.log('Wake lock was released by the system');
+								wakeLockRef.current = null;
+								setWakeLockActive(false);
+							});
+						}
 					})
 					.catch((err) => {
 						console.warn('Failed to acquire wake lock:', err);
+						// Wake lock is not critical, continue without it
 					});
+			} else {
+				console.log('Wake lock API not supported in this browser');
 			}
 			
 			// Start elapsed timer
@@ -714,6 +729,7 @@ function CoachContent() {
 			if (wakeLockRef.current) {
 				try { 
 					wakeLockRef.current.release?.(); 
+					setWakeLockActive(false);
 					console.log('Wake lock released');
 				} catch (err) {
 					console.warn('Failed to release wake lock:', err);
@@ -860,10 +876,11 @@ function CoachContent() {
 							state: poseQualityState
 						}}
 						lastRepErrors={lastRepErrors}
+						wakeLockActive={wakeLockActive}
 					/>
 					
 					{/* Visibility Warning */}
-					{running && visibilityScore < 0.55 && (
+					{running && visibilityScore < 0.6 && (
 						<div className="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-500/95 dark:bg-amber-600/95 text-white px-6 py-3 rounded-xl shadow-2xl border-2 border-amber-300 dark:border-amber-400 animate-pulse">
 							<div className="flex items-center gap-3">
 								<Icon name="alert-triangle" className="w-6 h-6 flex-shrink-0" />
