@@ -31,4 +31,4 @@ export type ValidatorConfig = {
 	plank?: { minHipAngle: number };
 };
 
-export type Validator = (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => ValidatorState; 
+export type Validator = (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => ValidatorState | Promise<ValidatorState>; 

@@ -123,20 +123,23 @@ export class IntegratedPoseValidator {
   /**
    * Process pose estimate with integrated 2D and 3D analysis
    */
-  processPose(poseResult: PoseEstimateResult, timestamp: number): IntegratedValidatorState {
+  async processPose(poseResult: PoseEstimateResult, timestamp: number): Promise<IntegratedValidatorState> {
     if (!poseResult || !poseResult.landmarks) {
       return this.state;
     }
 
     try {
       // 1. Run 2D validator for rep counting and phase detection
-      const validatorState = this.validator(poseResult, timestamp, {
+      const validatorResult = this.validator(poseResult, timestamp, {
         debounceFrames: this.config.debounceFrames,
         bestSide: this.config.bestSide,
         squat: this.config.squat,
         pushup: this.config.pushup,
         plank: this.config.plank
       });
+      
+      // Handle async validators
+      const validatorState = validatorResult instanceof Promise ? await validatorResult : validatorResult;
 
       // 2. Run 3D analysis for advanced form assessment
       let pose3D: Pose3D | null = null;

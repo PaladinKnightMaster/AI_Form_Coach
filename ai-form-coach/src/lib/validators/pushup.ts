@@ -3,16 +3,32 @@ import type { Validator, ValidatorState, ValidatorConfig } from './types';
 import type { PoseEstimateResult } from '../pose/engine';
 import { calculateFormIQ, calculateSideBalance } from './formIQ';
 import { getExerciseAngle } from '../pose/normalize';
+import { getExerciseConfig } from '@/lib/calibration/constants';
+import { getUserCalibration } from '@/lib/calibration/service';
+import type { DeviceCalibration } from '@/types/calibration';
 
 export function createPushupValidator(): Validator {
 	const state: ValidatorState = { repCount: 0, phase: 'idle', cues: [], metrics: [] };
 	let currentRepStart: number | null = null;
 	let peakAngle = 180;
 	let stable = 0;
+	let userCalibration: DeviceCalibration | null = null;
 
-	return (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => {
+	return async (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => {
 		state.cues = [];
 		if (!result || !result.landmarks || result.landmarks.length < 17) return state;
+		
+		// Load user calibration if not already loaded
+		if (!userCalibration) {
+			userCalibration = await getUserCalibration();
+		}
+		
+		// Get personalized configuration
+		const config = getExerciseConfig(userCalibration ? {
+			squat_full_depth_angle: userCalibration.squat_full_depth_angle,
+			pushup_elbow_bottom_angle: userCalibration.pushup_elbow_bottom_angle,
+			bodyline_target: userCalibration.bodyline_target,
+		} : undefined);
 		
 		// Use the robust angle calculation from the pose engine
 		const elbowAngle = getExerciseAngle(result, 'pushup');
@@ -21,7 +37,8 @@ export function createPushupValidator(): Validator {
 		const e = elbowAngle;
 		const bend = clamp(180 - e, 0, 160);
 
-		const bottomElbow = cfg?.pushup?.bottomElbow ?? 70; // elbow angle at bottom
+		// Use calibrated thresholds or fallback to config/defaults
+		const bottomElbow = cfg?.pushup?.bottomElbow ?? config.pushup.minElbowAngle;
 		const topElbow = cfg?.pushup?.topElbow ?? 155;
 		const debounce = cfg?.debounceFrames ?? 3;
 

@@ -3,16 +3,32 @@ import type { Validator, ValidatorState, ValidatorConfig } from './types';
 import type { PoseEstimateResult } from '../pose/engine';
 import { calculateFormIQ, calculateSideBalance } from './formIQ';
 import { getExerciseAngle } from '../pose/normalize';
+import { getExerciseConfig } from '@/lib/calibration/constants';
+import { getUserCalibration } from '@/lib/calibration/service';
+import type { DeviceCalibration } from '@/types/calibration';
 
 export function createSquatValidator(): Validator {
 	const state: ValidatorState = { repCount: 0, phase: 'idle', cues: [], metrics: [] };
 	let currentRepStart: number | null = null;
 	let peakDepth = 0;
 	let stable = 0;
+	let userCalibration: DeviceCalibration | null = null;
 
-	return (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => {
+	return async (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => {
 		state.cues = [];
 		if (!result || !result.landmarks || result.landmarks.length < 29) return state;
+		
+		// Load user calibration if not already loaded
+		if (!userCalibration) {
+			userCalibration = await getUserCalibration();
+		}
+		
+		// Get personalized configuration
+		const config = getExerciseConfig(userCalibration ? {
+			squat_full_depth_angle: userCalibration.squat_full_depth_angle,
+			pushup_elbow_bottom_angle: userCalibration.pushup_elbow_bottom_angle,
+			bodyline_target: userCalibration.bodyline_target,
+		} : undefined);
 		
 		// Use the robust angle calculation from the pose engine
 		const kneeAngle = getExerciseAngle(result, 'squat');
@@ -21,7 +37,8 @@ export function createSquatValidator(): Validator {
 		const k = kneeAngle;
 		const depth = clamp(180 - k, 0, 120);
 
-		const downDepth = cfg?.squat?.downDepth ?? 35;
+		// Use calibrated thresholds or fallback to config/defaults
+		const downDepth = cfg?.squat?.downDepth ?? (180 - config.squat.minDepthAngle);
 		const upDepth = cfg?.squat?.upDepth ?? 10;
 		const debounce = cfg?.debounceFrames ?? 3;
 

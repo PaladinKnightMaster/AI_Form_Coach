@@ -133,7 +133,7 @@ export default function Pose3DIntegratedAnalysis({
           if (poseResult && integratedValidatorRef.current) {
             // Process through integrated validator
             const timestamp = Date.now();
-            const state = integratedValidatorRef.current.processPose(poseResult, timestamp);
+            const state = await integratedValidatorRef.current.processPose(poseResult, timestamp);
             setValidatorState(state);
           }
         } catch (err) {

@@ -233,7 +233,7 @@ function CoachContent() {
 	useEffect(() => { window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey); }, [onKey]);
 
 	// onPose function wrapped in useCallback
-	const onPose = useCallback((lms: Landmark3D[], result: PoseEstimateResult) => {
+	const onPose = useCallback(async (lms: Landmark3D[], result: PoseEstimateResult) => {
 		const ts = performance.now();
 		const avgVis = result.visibilityScore;
 		
@@ -259,8 +259,9 @@ function CoachContent() {
 			import('@/lib/observability/events').then(m => m.logEvent('pose_quality_low', { avgVis })).catch(()=>{}); 
 		}
 		
-		// Pass pose result to validator
-		const s = validatorRef.current(result, ts, { ...thrCfg, bestSide: result.bestSide });
+		// Pass pose result to validator (handle async validators)
+		const validatorResult = validatorRef.current(result, ts, { ...thrCfg, bestSide: result.bestSide });
+		const s = validatorResult instanceof Promise ? await validatorResult : validatorResult;
 		if (s.metrics.length > repMetricsRef.current.length) vibrate(20);
 		// goal met haptic
 		if (goalType === 'reps' && repCount >= goalValue && repsAtGoalRef.current === 0) { vibrate(120); repsAtGoalRef.current = repCount; import('@/lib/observability/events').then(m => m.logEvent('goal_met', { goalType, goalValue, repCount })).catch(()=>{}); }
@@ -289,7 +290,7 @@ function CoachContent() {
 	}, [running, goalType, goalValue, repCount, exercise, thrCfg, rateLimitedCue]);
 
 	// Async pose estimation loop for PoseEngine2
-	const startPoseLoop = useCallback(() => {
+	const startPoseLoop = useCallback(async () => {
 		const loop = async () => {
 			const video = videoRef.current;
 			const engine = engineRef.current;
@@ -310,7 +311,7 @@ function CoachContent() {
 					// Visibility gating - only process frames with good visibility
 					if (result.visibilityScore >= 0.55) {
 						// Process pose with good visibility
-						onPose(result.landmarks, result);
+						await onPose(result.landmarks, result);
 						
 						// Reset low quality counter on good frames
 						if (result.visibilityScore > 0.7) {
@@ -436,7 +437,9 @@ function CoachContent() {
 			visCountRef.current = 0;
 			
 			// Start pose loop
-			startPoseLoop();
+			(async () => {
+				await startPoseLoop();
+			})();
 			
 			// Request wake lock
 			const wlApi = (navigator as unknown as { wakeLock?: { request: (type: 'screen') => Promise<{ release?: () => Promise<void> }> } }).wakeLock;
