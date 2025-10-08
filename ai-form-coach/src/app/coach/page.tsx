@@ -318,7 +318,15 @@ function CoachContent() {
 		setShowQualityOverlay(false);
 		setPausedByQuality(false);
 		setLowQualityStartTime(null);
-	}, []);
+		
+		// P1: Log pose resume event
+		import('@/lib/observability/events')
+			.then(m => m.logEvent('pose_resume', { 
+				exercise,
+				visibilityScore: visibilityScore
+			}))
+			.catch(() => {});
+	}, [exercise, visibilityScore]);
 	const onKey = useCallback((e: KeyboardEvent) => {
 		if (e.code === 'Space') { e.preventDefault(); handleStartPause(); }
 		if (e.key === '1') setExercise('squat');
@@ -370,6 +378,15 @@ function CoachContent() {
 					setShowQualityOverlay(true);
 					// Auto-pause counting
 					setRunning(false);
+					
+					// P1: Log auto-pause triggered event
+					import('@/lib/observability/events')
+						.then(m => m.logEvent('pose_autopause_triggered', { 
+							visibilityScore: avgVis,
+							exercise,
+							duration: now - lowQualityStartTime
+						}))
+						.catch(() => {});
 				}
 			}
 		} else {
@@ -496,12 +513,8 @@ function CoachContent() {
 						// Low visibility - don't process frame for FSM
 						lowQualityFramesRef.current++;
 						
-						// Auto-pause after sustained low visibility
-						if (lowQualityFramesRef.current > 45 && running) {
-							setRunning(false);
-							setPausedByQuality(true);
-							return;
-						}
+						// Note: Auto-pause logic is handled in onPose function
+						// to maintain consistency with the 1.5s timer approach
 					}
 				}
 			} catch (error) {
