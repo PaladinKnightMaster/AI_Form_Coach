@@ -25,6 +25,9 @@ export default function Account() {
 	const [mirrorVideo, setMirrorVideo] = useState(true);
 	const [largeText, setLargeText] = useState(false);
 	const [highContrast, setHighContrast] = useState(false);
+	
+	// Ghost pacing settings (M2)
+	const [reducedMotion, setReducedMotion] = useState(false);
 
 	useEffect(() => {
 		(async () => {
@@ -70,6 +73,16 @@ export default function Account() {
 				}
 			} catch (error) {
 				console.warn('Failed to load camera assist settings:', error);
+			}
+			
+			// Load M2 ghost pacing settings from localStorage
+			try {
+				const savedReducedMotion = localStorage.getItem('reducedMotion');
+				if (savedReducedMotion !== null) {
+					setReducedMotion(savedReducedMotion === 'true');
+				}
+			} catch (error) {
+				console.warn('Failed to load ghost pacing settings:', error);
 			}
 		})();
 	}, []);
@@ -121,6 +134,16 @@ export default function Account() {
 			localStorage.setItem('highContrast', enabled.toString());
 		} catch (error) {
 			console.warn('Failed to save high contrast setting:', error);
+		}
+	}
+	
+	// M2: Ghost pacing setting handlers
+	function handleReducedMotionToggle(enabled: boolean) {
+		setReducedMotion(enabled);
+		try {
+			localStorage.setItem('reducedMotion', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save reduced motion setting:', error);
 		}
 	}
 
@@ -341,6 +364,45 @@ export default function Account() {
 								<div className="text-sm text-blue-800">
 									<p className="font-medium">Quality Monitoring</p>
 									<p>The app automatically monitors camera quality and will pause counting if it can&apos;t see your full body clearly for more than 1.5 seconds. This helps ensure accurate pose detection.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				{/* Ghost Pacing Settings (M2) */}
+				<div className="rounded-lg border p-4">
+					<div className="flex items-center justify-between mb-4">
+						<div>
+							<h3 className="text-lg font-semibold text-gray-900">Ghost Pacing</h3>
+							<p className="text-sm text-gray-600">Compare your current session against your best performance</p>
+						</div>
+						<Badge tone="info" size="sm">👻 PR Ghost</Badge>
+					</div>
+					
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Reduced Motion</h4>
+								<p className="text-sm text-gray-600">Disable animations and transitions for accessibility</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={reducedMotion}
+									onChange={(e) => handleReducedMotionToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+							</label>
+						</div>
+						
+						<div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+							<div className="flex items-start gap-2">
+								<div className="text-blue-600 text-sm">💡</div>
+								<div className="text-sm text-blue-800">
+									<p className="font-medium">Live PR Ghost</p>
+									<p>The pacing bar shows how you&apos;re performing compared to your best verified session. It helps you maintain consistent pace and push for new personal records.</p>
 								</div>
 							</div>
 						</div>

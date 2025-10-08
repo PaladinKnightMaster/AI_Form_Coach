@@ -26,6 +26,7 @@ import { finalizeRepEval, createRepTrace } from '@/lib/correctness/eval';
 import { initializeMentor } from '@/lib/coach/mentor';
 import QualityOverlay from '@/components/QualityOverlay';
 import Top10Toast from '@/components/leaderboards/Top10Toast';
+import PacingBar from '@/components/ghost/PacingBar';
 
 function CoachContent() {
 	const searchParams = useSearchParams();
@@ -90,6 +91,7 @@ function CoachContent() {
 	// Correctness evaluation state (A4)
 	const [lastRepCorrect, setLastRepCorrect] = useState<boolean | undefined>(undefined);
 	const [showCorrectnessBadge, setShowCorrectnessBadge] = useState(false);
+	const [correctRepsCount, setCorrectRepsCount] = useState(0); // M2: Track correct reps for ghost pacing
 	
 	// Mentor cue system state (A5)
 	const [mentorCueEnabled, setMentorCueEnabled] = useState(true);
@@ -107,6 +109,10 @@ function CoachContent() {
 	const [showQualityOverlay, setShowQualityOverlay] = useState(false);
 	const [lowQualityStartTime, setLowQualityStartTime] = useState<number | null>(null);
 	const [poseQualityState, setPoseQualityState] = useState<'good' | 'fair' | 'low'>('good');
+	
+	// Ghost pacing (M2)
+	const [reducedMotion, setReducedMotion] = useState(false);
+	const [sessionStartTime, setSessionStartTime] = useState(0);
 	// Track average pose visibility for quality
 	const visSumRef = useRef(0);
 	const visCountRef = useRef(0);
@@ -262,6 +268,12 @@ function CoachContent() {
 				if (savedHighContrast !== null) {
 					setHighContrast(savedHighContrast === 'true');
 				}
+				
+				// Load M2 ghost pacing settings
+				const savedReducedMotion = localStorage.getItem('reducedMotion');
+				if (savedReducedMotion !== null) {
+					setReducedMotion(savedReducedMotion === 'true');
+				}
 			} catch (error) {
 				console.warn('Failed to initialize mentor system or load settings:', error);
 			}
@@ -288,6 +300,8 @@ function CoachContent() {
 				setElapsedMs(0); 
 				ensureSpeechReady(); 
 				setRunning(true); 
+				setSessionStartTime(performance.now()); // M2: Set session start time for ghost pacing
+				setCorrectRepsCount(0); // M2: Reset correct reps count for new session
 				safetyBypassRef.current = false; 
 				vibrate(60); 
 				import('@/lib/observability/events')
@@ -410,6 +424,11 @@ function CoachContent() {
 			// Update correctness state for HUD badge
 			setLastRepCorrect(correctnessResult.is_correct);
 			setShowCorrectnessBadge(true);
+			
+			// M2: Update correct reps count for ghost pacing
+			if (correctnessResult.is_correct) {
+				setCorrectRepsCount(prev => prev + 1);
+			}
 			
 			// Hide badge after 1 second
 			setTimeout(() => {
@@ -746,6 +765,16 @@ function CoachContent() {
 		
 		{/* M1: Top 10 Toast */}
 		<Top10Toast exercise={exercise} />
+		
+		{/* M2: Ghost Pacing Bar */}
+		<PacingBar 
+			exercise={exercise}
+			currentReps={correctRepsCount}
+			sessionStartTime={sessionStartTime}
+			isRunning={running}
+			reducedMotion={reducedMotion}
+			className="absolute top-4 left-4 right-4 z-10"
+		/>
 					<HUD 
 						repCount={repCount} 
 						cue={pausedByQuality ? 'Step back into frame' : cue} 
