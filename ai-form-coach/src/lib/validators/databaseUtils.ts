@@ -155,6 +155,10 @@ export function sessionSummaryToDatabase(
     consistencyScore: number;
     improvementTrend: number;
     formProgression: 'improving' | 'stable' | 'declining';
+    // Correctness evaluation (A4)
+    correctReps: number;
+    correctRate: number;
+    averageConfidence: number;
   },
   baseSessionData: Partial<DatabaseSessionData>
 ): DatabaseSessionData {
@@ -169,7 +173,9 @@ export function sessionSummaryToDatabase(
     error_rate: sessionSummary.errorRate,
     consistency_score: sessionSummary.consistencyScore,
     improvement_trend: sessionSummary.improvementTrend,
-    form_progression: sessionSummary.formProgression
+    form_progression: sessionSummary.formProgression,
+    // Correctness evaluation (A4)
+    correct_rate: sessionSummary.correctRate
   } as DatabaseSessionData;
 }
 

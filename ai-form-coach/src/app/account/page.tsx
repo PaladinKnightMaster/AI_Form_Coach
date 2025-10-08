@@ -16,6 +16,10 @@ export default function Account() {
 		missingSteps: string[];
 		lastCalibrated?: Date;
 	} | null>(null);
+	
+	// Mentor cue settings (A5)
+	const [mentorCueEnabled, setMentorCueEnabled] = useState(true);
+	const [voiceEnabled, setVoiceEnabled] = useState(true);
 
 	useEffect(() => {
 		(async () => {
@@ -30,11 +34,43 @@ export default function Account() {
 				const status = await getCalibrationStatus();
 				setCalibrationStatus(status);
 			}
+			
+			// Load mentor cue settings from localStorage
+			try {
+				const savedMentorCueEnabled = localStorage.getItem('mentorCueEnabled');
+				const savedVoiceEnabled = localStorage.getItem('voiceEnabled');
+				if (savedMentorCueEnabled !== null) {
+					setMentorCueEnabled(savedMentorCueEnabled === 'true');
+				}
+				if (savedVoiceEnabled !== null) {
+					setVoiceEnabled(savedVoiceEnabled === 'true');
+				}
+			} catch (error) {
+				console.warn('Failed to load mentor cue settings:', error);
+			}
 		})();
 	}, []);
 
 	async function goManage() {
 		alert('Coming soon: billing portal');
+	}
+	
+	function handleMentorCueToggle(enabled: boolean) {
+		setMentorCueEnabled(enabled);
+		try {
+			localStorage.setItem('mentorCueEnabled', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save mentor cue setting:', error);
+		}
+	}
+	
+	function handleVoiceToggle(enabled: boolean) {
+		setVoiceEnabled(enabled);
+		try {
+			localStorage.setItem('voiceEnabled', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save voice setting:', error);
+		}
 	}
 
 	return (
@@ -130,6 +166,62 @@ export default function Account() {
 								Clear Calibration
 							</button>
 						)}
+					</div>
+				</div>
+				
+				{/* Mentor Cue Settings */}
+				<div className="rounded-lg border p-4">
+					<div className="flex items-center justify-between mb-4">
+						<div>
+							<h3 className="text-lg font-semibold text-gray-900">Mentor Cues</h3>
+							<p className="text-sm text-gray-600">Configure intelligent coaching feedback and voice cues</p>
+						</div>
+						<Badge tone="info" size="sm">🎯 Smart Coaching</Badge>
+					</div>
+					
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Enable Mentor Cues</h4>
+								<p className="text-sm text-gray-600">Show intelligent coaching feedback during exercises</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={mentorCueEnabled}
+									onChange={(e) => handleMentorCueToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+							</label>
+						</div>
+						
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Voice Cues</h4>
+								<p className="text-sm text-gray-600">Enable spoken coaching feedback (requires mentor cues)</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={voiceEnabled && mentorCueEnabled}
+									disabled={!mentorCueEnabled}
+									onChange={(e) => handleVoiceToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 ${!mentorCueEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+							</label>
+						</div>
+						
+						<div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+							<div className="flex items-start gap-2">
+								<div className="text-blue-600 text-sm">💡</div>
+								<div className="text-sm text-blue-800">
+									<p className="font-medium">Smart Cue System</p>
+									<p>Mentor cues use intelligent prioritization and cooldowns to reduce spam while providing actionable feedback. Critical errors (🚨) get priority over minor issues (💡).</p>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

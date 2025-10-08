@@ -61,6 +61,16 @@ export type ValidatorState = {
 	cues: string[];
 	metrics: RepMetric[];
 	
+	// Mentor cue system (A5)
+	mentorCue?: {
+		key: string;
+		text: string;
+		severity: number;
+		shouldSpeak: boolean;
+	};
+	lastCueTime: number;
+	lastCueKey?: string;
+	
 	// Enhanced state tracking
 	currentRep?: {
 		startTs: number;
@@ -100,6 +110,19 @@ export type ValidatorConfig = {
 			valgus: number; // ms
 			chestDrop: number; // ms
 			hipSag: number; // ms
+		};
+	};
+	
+	// Mentor cue system (A5)
+	mentorCues?: {
+		enabled: boolean;
+		voiceEnabled: boolean;
+		cooldownMs: number;
+		phaseCooldowns: {
+			down: number;
+			up: number;
+			hold: number;
+			idle: number;
 		};
 	};
 	

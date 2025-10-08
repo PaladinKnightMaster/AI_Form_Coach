@@ -15,7 +15,8 @@ export function createPlankValidator(): Validator {
 		phase: 'idle', 
 		cues: [], 
 		metrics: [],
-		currentRep: undefined
+		currentRep: undefined,
+		lastCueTime: 0
 	};
 	
 	let userCalibration: DeviceCalibration | null = null;

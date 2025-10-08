@@ -23,6 +23,7 @@ import type { WorkoutTarget, ReadinessAssessment } from '@/lib/progression/engin
 import { type FormIQMetrics } from '@/lib/validators/formIQ';
 import type { UserPlan } from '@/types/plans';
 import { finalizeRepEval, createRepTrace } from '@/lib/correctness/eval';
+import { initializeMentor } from '@/lib/coach/mentor';
 
 function CoachContent() {
 	const searchParams = useSearchParams();
@@ -87,6 +88,17 @@ function CoachContent() {
 	// Correctness evaluation state (A4)
 	const [lastRepCorrect, setLastRepCorrect] = useState<boolean | undefined>(undefined);
 	const [showCorrectnessBadge, setShowCorrectnessBadge] = useState(false);
+	
+	// Mentor cue system state (A5)
+	const [mentorCueEnabled, setMentorCueEnabled] = useState(true);
+	const [voiceEnabled, setVoiceEnabled] = useState(true);
+	const [lastCueKey, setLastCueKey] = useState<string | undefined>(undefined);
+	const [currentMentorCue, setCurrentMentorCue] = useState<{
+		key: string;
+		text: string;
+		severity: number;
+		shouldSpeak: boolean;
+	} | undefined>(undefined);
 	// Track average pose visibility for quality
 	const visSumRef = useRef(0);
 	const visCountRef = useRef(0);
@@ -186,15 +198,53 @@ function CoachContent() {
 	useEffect(() => { getPendingCount().then(setPending).catch(() => setPending(0)); }, [saving, running]);
 
 	// Load thresholds (all exercises) once, and reload after calibration
-	async function reloadThresholds() {
+	const reloadThresholds = useCallback(async () => {
 		const [sq, pu, pl] = await Promise.all([
 			loadExerciseThresholds('squat'),
 			loadExerciseThresholds('pushup'),
 			loadExerciseThresholds('plank'),
 		]);
-		setThrCfg({ debounceFrames: 3, squat: sq?.squat, pushup: pu?.pushup, plank: pl?.plank });
-	}
-	useEffect(() => { reloadThresholds(); }, []);
+		setThrCfg({ 
+			debounceFrames: 3, 
+			squat: sq?.squat, 
+			pushup: pu?.pushup, 
+			plank: pl?.plank,
+			mentorCues: {
+				enabled: mentorCueEnabled,
+				voiceEnabled: voiceEnabled,
+				cooldownMs: 3000,
+				phaseCooldowns: {
+					down: 2000,
+					up: 1000,
+					hold: 3000,
+					idle: 5000
+				}
+			}
+		});
+	}, [mentorCueEnabled, voiceEnabled]);
+	useEffect(() => { reloadThresholds(); }, [mentorCueEnabled, voiceEnabled, reloadThresholds]);
+	
+	// Load mentor cue settings from localStorage and initialize mentor system
+	useEffect(() => {
+		(async () => {
+			try {
+				// Initialize mentor system
+				await initializeMentor();
+				
+				// Load settings from localStorage
+				const savedMentorCueEnabled = localStorage.getItem('mentorCueEnabled');
+				const savedVoiceEnabled = localStorage.getItem('voiceEnabled');
+				if (savedMentorCueEnabled !== null) {
+					setMentorCueEnabled(savedMentorCueEnabled === 'true');
+				}
+				if (savedVoiceEnabled !== null) {
+					setVoiceEnabled(savedVoiceEnabled === 'true');
+				}
+			} catch (error) {
+				console.warn('Failed to initialize mentor system or load settings:', error);
+			}
+		})();
+	}, []);
 
 	// memoized handlers and key listener
 	const handleStartPause = useCallback(() => {
@@ -267,6 +317,21 @@ function CoachContent() {
 		// Pass pose result to validator (handle async validators)
 		const validatorResult = validatorRef.current(result, ts, { ...thrCfg, bestSide: result.bestSide });
 		const s = validatorResult instanceof Promise ? await validatorResult : validatorResult;
+		
+		// Process mentor cues if enabled
+		if (s.mentorCue && mentorCueEnabled) {
+			// Update mentor cue state
+			setCurrentMentorCue(s.mentorCue);
+			setLastCueKey(s.lastCueKey);
+			
+			// Speak the cue if voice is enabled
+			if (s.mentorCue.shouldSpeak && voiceEnabled) {
+				speak(s.mentorCue.text);
+			}
+		} else {
+			// Clear current mentor cue if no new cue
+			setCurrentMentorCue(undefined);
+		}
 		if (s.metrics.length > repMetricsRef.current.length) vibrate(20);
 		// goal met haptic
 		if (goalType === 'reps' && repCount >= goalValue && repsAtGoalRef.current === 0) { vibrate(120); repsAtGoalRef.current = repCount; import('@/lib/observability/events').then(m => m.logEvent('goal_met', { goalType, goalValue, repCount })).catch(()=>{}); }
@@ -323,7 +388,7 @@ function CoachContent() {
 				});
 			}
 		}
-	}, [running, goalType, goalValue, repCount, exercise, thrCfg, rateLimitedCue]);
+	}, [running, goalType, goalValue, repCount, exercise, thrCfg, rateLimitedCue, mentorCueEnabled, voiceEnabled]);
 
 	// Async pose estimation loop for PoseEngine2
 	const startPoseLoop = useCallback(async () => {
@@ -539,11 +604,17 @@ function CoachContent() {
 			avg_pose_quality: avg_pose_quality || undefined
 		});
 		
-		// Save enhanced session data
-		await enqueueWrite({ table: 'sessions', payload: enhancedSessionData as unknown as Record<string, unknown> });
+		// Generate session ID
+		const sessionId = crypto.randomUUID();
 		
-		// Save enhanced rep data
-		const enhancedRepData = repMetricsToDatabase(repMetricsRef.current, 'PENDING');
+		// Add session ID to session data
+		const sessionDataWithId = { ...enhancedSessionData, id: sessionId };
+		
+		// Save enhanced session data
+		await enqueueWrite({ table: 'sessions', payload: sessionDataWithId as unknown as Record<string, unknown> });
+		
+		// Save enhanced rep data with proper session ID
+		const enhancedRepData = repMetricsToDatabase(repMetricsRef.current, sessionId);
 		for (const r of enhancedRepData) { 
 			await enqueueWrite({ table: 'reps', payload: r as unknown as Record<string, unknown> }); 
 		}
@@ -554,7 +625,7 @@ function CoachContent() {
 		// Show enhanced session summary
 		const { getImprovementRecommendations } = await import('@/lib/validators/sessionAnalysis');
 		const recommendations = getImprovementRecommendations(sessionSummary);
-		const summaryMessage = `Session completed!\n\nQuality: ${sessionSummary.averageQuality.toFixed(1)}/100\nConsistency: ${sessionSummary.consistencyScore.toFixed(1)}/100\nErrors: ${sessionSummary.totalErrors}\n\n${recommendations.length > 0 ? 'Recommendations:\n' + recommendations.join('\n') : 'Great job!'}`;
+		const summaryMessage = `Session completed!\n\nQuality: ${sessionSummary.averageQuality.toFixed(1)}/100\nConsistency: ${sessionSummary.consistencyScore.toFixed(1)}/100\nCorrectness: ${(sessionSummary.correctRate * 100).toFixed(1)}%\nErrors: ${sessionSummary.totalErrors}\n\n${recommendations.length > 0 ? 'Recommendations:\n' + recommendations.join('\n') : 'Great job!'}`;
 		alert(summaryMessage);
 		
 		import('@/lib/observability/events').then(m => m.logEvent('session_ended', { 
@@ -603,6 +674,8 @@ function CoachContent() {
 						formIQMetrics={formIQMetrics || undefined}
 						lastRepCorrect={lastRepCorrect}
 						showCorrectnessBadge={showCorrectnessBadge}
+						mentorCue={currentMentorCue}
+						lastCueKey={lastCueKey}
 					/>
 					
 					{/* Visibility Warning */}
