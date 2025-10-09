@@ -10,10 +10,10 @@ import {
 	calculateKneeValgus, 
 	calculateTorsoAngle, 
 	calculateTempo, 
-	calculateRepQuality, 
 	createFormError, 
 	checkErrorDuration
 } from './formAnalysis';
+import { calculateHybridRepQuality } from '../microModel/qualityIntegration';
 
 export function createSquatValidator(): Validator {
 	const state: ValidatorState = { 
@@ -22,7 +22,8 @@ export function createSquatValidator(): Validator {
 		cues: [], 
 		metrics: [],
 		currentRep: undefined,
-		lastCueTime: 0
+		lastCueTime: 0,
+		sessionStartTs: performance.now()
 	};
 	
 	let userCalibration: DeviceCalibration | null = null;
@@ -255,8 +256,16 @@ export function createSquatValidator(): Validator {
 			// Calculate side balance for this rep
 			const sideBalanceData = calculateSideBalance(result.landmarks, 'squat');
 			
-			// Calculate rep quality
-			const { score, quality } = calculateRepQuality(
+			// Calculate rep quality using hybrid scorer
+			const sessionContext = {
+				totalReps: state.repCount + 1, // Current rep + 1
+				currentRepIndex: state.repCount,
+				recentReps: state.metrics.slice(-5), // Last 5 reps for context
+				sessionDuration: ts - (state.sessionStartTs || ts),
+				exercise: 'squat' as const
+			};
+			
+			const { score, quality } = await calculateHybridRepQuality(
 				state.currentRep.errorHistory,
 				repDuration,
 				'squat',
@@ -264,7 +273,8 @@ export function createSquatValidator(): Validator {
 					depth: peakDepth,
 					torsoAngle: avgTorsoAngle,
 					kneeValgus: avgValgus
-				}
+				},
+				sessionContext
 			);
 			
 			// Create enhanced rep metric

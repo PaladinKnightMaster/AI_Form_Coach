@@ -5,10 +5,10 @@ import { getExerciseConfig } from '@/lib/calibration/constants';
 import { getUserCalibration } from '@/lib/calibration/service';
 import type { DeviceCalibration } from '@/types/calibration';
 import { 
-	calculateRepQuality, 
 	createFormError, 
 	checkErrorDuration
 } from './formAnalysis';
+import { calculateHybridRepQuality } from '../microModel/qualityIntegration';
 
 export function createPlankValidator(): Validator {
 	const state: ValidatorState = { 
@@ -17,7 +17,8 @@ export function createPlankValidator(): Validator {
 		cues: [], 
 		metrics: [],
 		currentRep: undefined,
-		lastCueTime: 0
+		lastCueTime: 0,
+		sessionStartTs: performance.now()
 	};
 	
 	let userCalibration: DeviceCalibration | null = null;
@@ -89,8 +90,16 @@ export function createPlankValidator(): Validator {
 						const goodBodyLineCount = state.currentRep.measurements.bodyLines.filter(angle => angle >= bodyLineThreshold).length;
 						const bodyLinePercentage = (goodBodyLineCount / state.currentRep.measurements.bodyLines.length) * 100;
 						
-						// Calculate rep quality
-						const { score, quality } = calculateRepQuality(
+						// Calculate rep quality using hybrid scorer
+						const sessionContext = {
+							totalReps: state.repCount + 1, // Current rep + 1
+							currentRepIndex: state.repCount,
+							recentReps: state.metrics.slice(-5), // Last 5 reps for context
+							sessionDuration: ts - (state.sessionStartTs || ts),
+							exercise: 'plank' as const
+						};
+						
+						const { score, quality } = await calculateHybridRepQuality(
 							state.currentRep.errorHistory,
 							holdDuration,
 							'plank',
@@ -100,7 +109,8 @@ export function createPlankValidator(): Validator {
 								hipSagDuration: state.currentRep.errorHistory
 									.filter(e => e.type === 'hip_sag')
 									.reduce((total, e) => total + e.duration, 0)
-							}
+							},
+							sessionContext
 						);
 						
 						// Create enhanced rep metric

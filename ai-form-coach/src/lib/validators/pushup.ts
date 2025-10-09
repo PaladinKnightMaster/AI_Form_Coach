@@ -9,10 +9,10 @@ import type { DeviceCalibration } from '@/types/calibration';
 import { 
 	calculateBodyLine, 
 	calculateTempo, 
-	calculateRepQuality, 
 	createFormError, 
 	checkErrorDuration
 } from './formAnalysis';
+import { calculateHybridRepQuality } from '../microModel/qualityIntegration';
 
 export function createPushupValidator(): Validator {
 	const state: ValidatorState = { 
@@ -21,7 +21,8 @@ export function createPushupValidator(): Validator {
 		cues: [], 
 		metrics: [],
 		currentRep: undefined,
-		lastCueTime: 0
+		lastCueTime: 0,
+		sessionStartTs: performance.now()
 	};
 	
 	let userCalibration: DeviceCalibration | null = null;
@@ -217,8 +218,16 @@ export function createPushupValidator(): Validator {
 			// Calculate side balance for this rep
 			const sideBalanceData = calculateSideBalance(result.landmarks, 'pushup');
 			
-			// Calculate rep quality
-			const { score, quality } = calculateRepQuality(
+			// Calculate rep quality using hybrid scorer
+			const sessionContext = {
+				totalReps: state.repCount + 1, // Current rep + 1
+				currentRepIndex: state.repCount,
+				recentReps: state.metrics.slice(-5), // Last 5 reps for context
+				sessionDuration: ts - (state.sessionStartTs || ts),
+				exercise: 'pushup' as const
+			};
+			
+			const { score, quality } = await calculateHybridRepQuality(
 				state.currentRep.errorHistory,
 				repDuration,
 				'pushup',
@@ -226,7 +235,8 @@ export function createPushupValidator(): Validator {
 					elbowAngle: peakElbowAngle,
 					bodyLine: avgBodyLine,
 					bodyLinePercentage
-				}
+				},
+				sessionContext
 			);
 			
 			// Create enhanced rep metric

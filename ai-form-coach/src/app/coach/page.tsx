@@ -24,6 +24,7 @@ import { type FormIQMetrics } from '@/lib/validators/formIQ';
 import type { UserPlan } from '@/types/plans';
 import { finalizeRepEval, createRepTrace } from '@/lib/correctness/eval';
 import { initializeMentor } from '@/lib/coach/mentor';
+import { initializeQualityScorer } from '@/lib/microModel/qualityIntegration';
 import QualityOverlay from '@/components/QualityOverlay';
 import Top10Toast from '@/components/leaderboards/Top10Toast';
 import PacingBar from '@/components/ghost/PacingBar';
@@ -253,6 +254,9 @@ function CoachContent() {
 				// Initialize mentor system
 				await initializeMentor();
 				
+				// Initialize quality scorer
+				await initializeQualityScorer();
+				
 				// Load settings from localStorage
 				const savedMentorCueEnabled = localStorage.getItem('mentorCueEnabled');
 				const savedVoiceEnabled = localStorage.getItem('voiceEnabled');
@@ -285,6 +289,15 @@ function CoachContent() {
 				const savedReducedMotion = localStorage.getItem('reducedMotion');
 				if (savedReducedMotion !== null) {
 					setReducedMotion(savedReducedMotion === 'true');
+				}
+				
+				// Load P8 micro model settings
+				const savedMicroModelEnabled = localStorage.getItem('microModelEnabled');
+				if (savedMicroModelEnabled !== null) {
+					// Update the quality scorer with the user's preference
+					const { getHybridQualityScorer } = await import('@/lib/microModel/hybridQualityScorer');
+					const scorer = getHybridQualityScorer();
+					scorer.setModelEnabled(savedMicroModelEnabled === 'true');
 				}
 			} catch (error) {
 				console.warn('Failed to initialize mentor system or load settings:', error);

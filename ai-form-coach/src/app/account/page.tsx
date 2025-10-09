@@ -29,6 +29,9 @@ export default function Account() {
 	
 	// Ghost pacing settings (M2)
 	const [reducedMotion, setReducedMotion] = useState(false);
+	
+	// Micro model settings (P8)
+	const [microModelEnabled, setMicroModelEnabled] = useState(false);
 
 	useEffect(() => {
 		(async () => {
@@ -88,6 +91,16 @@ export default function Account() {
 				}
 			} catch (error) {
 				console.warn('Failed to load ghost pacing settings:', error);
+			}
+			
+			// Load P8 micro model settings from localStorage
+			try {
+				const savedMicroModelEnabled = localStorage.getItem('microModelEnabled');
+				if (savedMicroModelEnabled !== null) {
+					setMicroModelEnabled(savedMicroModelEnabled === 'true');
+				}
+			} catch (error) {
+				console.warn('Failed to load micro model settings:', error);
 			}
 		})();
 	}, []);
@@ -158,6 +171,16 @@ export default function Account() {
 			localStorage.setItem('reducedMotion', enabled.toString());
 		} catch (error) {
 			console.warn('Failed to save reduced motion setting:', error);
+		}
+	}
+	
+	// P8: Micro model setting handlers
+	function handleMicroModelToggle(enabled: boolean) {
+		setMicroModelEnabled(enabled);
+		try {
+			localStorage.setItem('microModelEnabled', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save micro model setting:', error);
 		}
 	}
 
@@ -434,6 +457,55 @@ export default function Account() {
 								<div className="text-sm text-blue-800">
 									<p className="font-medium">Live PR Ghost</p>
 									<p>The pacing bar shows how you&apos;re performing compared to your best verified session. It helps you maintain consistent pace and push for new personal records.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				{/* Micro Model Settings (P8) */}
+				<div className="rounded-lg border p-4">
+					<div className="flex items-center justify-between mb-4">
+						<div>
+							<h3 className="text-lg font-semibold text-gray-900">AI Quality Scorer</h3>
+							<p className="text-sm text-gray-600">Enhanced quality scoring using machine learning</p>
+						</div>
+						<Badge tone="warning" size="sm">🧠 Beta</Badge>
+					</div>
+					
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Enable Micro Model</h4>
+								<p className="text-sm text-gray-600">Blend rule-based scoring (60%) with AI model scoring (40%) for better edge case handling</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={microModelEnabled}
+									onChange={(e) => handleMicroModelToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+							</label>
+						</div>
+						
+						<div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+							<div className="flex items-start gap-2">
+								<div className="text-amber-600 text-sm">⚠️</div>
+								<div className="text-sm text-amber-800">
+									<p className="font-medium">Beta Feature</p>
+									<p>This feature uses a tiny on-device AI model to improve quality scoring for borderline cases. When disabled, the app uses traditional rule-based scoring only.</p>
+								</div>
+							</div>
+						</div>
+						
+						<div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+							<div className="flex items-start gap-2">
+								<div className="text-blue-600 text-sm">💡</div>
+								<div className="text-sm text-blue-800">
+									<p className="font-medium">How It Works</p>
+									<p>The micro model analyzes 15 features (duration, tempo, ROM, errors, depth, stability, etc.) and provides a quality score that&apos;s blended with traditional rules for more consistent borderline rep classification.</p>
 								</div>
 							</div>
 						</div>

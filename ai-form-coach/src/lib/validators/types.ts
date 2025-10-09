@@ -90,6 +90,9 @@ export type ValidatorState = {
 		qualityDistribution: Record<string, number>;
 		improvementTrend: number;
 	};
+	
+	// Session timing
+	sessionStartTs?: number;
 };
 
 export type ValidatorConfig = {
