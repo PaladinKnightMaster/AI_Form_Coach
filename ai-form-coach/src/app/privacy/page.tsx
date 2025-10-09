@@ -46,7 +46,7 @@ export default function Privacy() {
 					</section>
 
 					<section id="video-privacy">
-						<h2 className="font-semibold mb-3">Your Video Stays Private</h2>
+						<h2 className="font-semibold mb-3">On-Device by Default</h2>
 						<div className="space-y-3 opacity-80">
 							<p>
 								<strong>No video uploads:</strong> Your camera feed is processed locally using WebAssembly and MediaPipe Pose Landmarker. 
@@ -63,6 +63,76 @@ export default function Privacy() {
 							<p>
 								<strong>What we receive:</strong> Only numerical summaries like &ldquo;completed 12 squats with 85% average form score&rdquo; 
 								— never images or video data.
+							</p>
+						</div>
+					</section>
+
+					<section id="verification-transparency">
+						<h2 className="font-semibold mb-3">What &ldquo;Verified&rdquo; Means</h2>
+						<div className="space-y-3 opacity-80">
+							<p>
+								<strong>Verified sessions:</strong> Sessions where your camera was properly positioned, lighting was adequate, 
+								and our AI could clearly see your full body throughout the workout. These sessions provide the most accurate form analysis.
+							</p>
+							<p>
+								<strong>Verification criteria:</strong> We check for consistent pose visibility (≥80% of frames), 
+								proper camera angle (side view for squats/push-ups, front view for planks), and adequate lighting conditions.
+							</p>
+							<p>
+								<strong>Unverified sessions:</strong> Sessions where visibility was limited, camera angle was suboptimal, 
+								or lighting was poor. These sessions are still tracked but may have less accurate form analysis.
+							</p>
+							<p>
+								<strong>Leaderboard inclusion:</strong> By default, leaderboards show only verified sessions to ensure fair comparison. 
+								You can toggle to include unverified sessions if desired.
+							</p>
+						</div>
+					</section>
+
+					<section id="scoring-transparency">
+						<h2 className="font-semibold mb-3">How We Judge a Correct Rep</h2>
+						<div className="space-y-3 opacity-80">
+							<p>
+								<strong>Form analysis:</strong> Our AI analyzes 33 key body landmarks in real-time, tracking joint angles, 
+								movement patterns, and exercise-specific criteria for each rep.
+							</p>
+							<p>
+								<strong>Exercise-specific criteria:</strong>
+							</p>
+							<ul className="ml-4 space-y-2">
+								<li><strong>Squats:</strong> Hip crease below knee level, knees tracking over toes, chest up, full return to standing</li>
+								<li><strong>Push-ups:</strong> Chest to ground, straight body line, full arm extension, controlled tempo</li>
+								<li><strong>Planks:</strong> Straight body line, engaged core, no sagging hips or raised buttocks</li>
+							</ul>
+							<p>
+								<strong>Quality scoring:</strong> Each rep receives a score from 0-100% based on form accuracy, 
+								range of motion, and movement control. Scores above 70% are considered &ldquo;correct.&rdquo;
+							</p>
+							<p>
+								<strong>Integrity score:</strong> Measures how consistently you maintain good form throughout the session, 
+								calculated as the percentage of reps that meet quality standards.
+							</p>
+						</div>
+					</section>
+
+					<section id="calibration-notes">
+						<h2 className="font-semibold mb-3">Calibration & Setup</h2>
+						<div className="space-y-3 opacity-80">
+							<p>
+								<strong>Initial calibration:</strong> Before your first workout, we guide you through proper camera positioning 
+								and lighting setup to ensure accurate form analysis.
+							</p>
+							<p>
+								<strong>Camera positioning:</strong> For squats and push-ups, position your device 6-8 feet away at hip height, 
+								showing your full body in profile. For planks, position directly in front at chest height.
+							</p>
+							<p>
+								<strong>Lighting requirements:</strong> Ensure even lighting without harsh shadows. Avoid backlighting 
+								from windows or bright lights behind you.
+							</p>
+							<p>
+								<strong>Continuous monitoring:</strong> Our AI continuously monitors visibility and will alert you 
+								if camera position or lighting conditions deteriorate during your workout.
 							</p>
 						</div>
 					</section>

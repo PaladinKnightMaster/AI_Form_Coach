@@ -6,6 +6,14 @@ const faqs = [
     answer: "Our AI uses advanced computer vision to analyze your body movements in real-time through your camera. It provides instant feedback on your form, counts reps, and alerts you to potential issues that could lead to injury."
   },
   {
+    question: "What does 'verified' mean for my sessions?",
+    answer: "A verified session means your camera was properly positioned, lighting was adequate, and our AI could clearly see your full body throughout the workout. These sessions provide the most accurate form analysis and are included in leaderboards by default."
+  },
+  {
+    question: "How do you judge if a rep is correct?",
+    answer: "Our AI analyzes 33 key body landmarks in real-time, tracking joint angles and movement patterns. For squats: hip crease below knee level, knees tracking over toes. For push-ups: chest to ground, straight body line. For planks: straight body line, engaged core. Each rep gets a 0-100% score based on form accuracy, range of motion, and control."
+  },
+  {
     question: "What exercises are supported?",
     answer: "Currently, we support squats, push-ups, planks, and several other bodyweight exercises. We&apos;re constantly adding new exercises based on user feedback and demand."
   },
@@ -15,7 +23,11 @@ const faqs = [
   },
   {
     question: "Is my workout data private?",
-    answer: "Absolutely. Your workout data is encrypted and stored securely. We never share your personal information or workout data with third parties. You have full control over your data."
+    answer: "Absolutely. All video processing happens on your device using MediaPipe technology - your video never leaves your device. Only numerical summaries like 'completed 12 squats with 85% form score' are stored on our servers."
+  },
+  {
+    question: "How do I set up my camera for best results?",
+    answer: "For squats and push-ups: position your device 6-8 feet away at hip height, showing your full body in profile. For planks: position directly in front at chest height. Ensure even lighting without harsh shadows and avoid backlighting."
   },
   {
     question: "Can I use this offline?",
@@ -28,6 +40,10 @@ const faqs = [
   {
     question: "How accurate is the AI feedback?",
     answer: "Our AI has been trained on thousands of hours of exercise data and achieves over 95% accuracy in form analysis. However, it&apos;s designed to complement, not replace, professional fitness guidance."
+  },
+  {
+    question: "What are the different scoring metrics?",
+    answer: "Quality Score: 0-100% for each rep based on form accuracy. Correct Rate: percentage of reps scoring above 70%. Integrity Score: how consistently you maintain good form throughout the session. Volume: total reps multiplied by average quality score."
   },
   {
     question: "Can I cancel my subscription anytime?",

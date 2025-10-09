@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
-import { Badge, Button } from '@/ui/DS';
+import { Badge, Button, Icon } from '@/ui/DS';
 import { logEvent } from '@/lib/observability/events';
 import Top10Notification from '@/components/leaderboards/Top10Notification';
+import TransparencyPanel from '@/components/leaderboards/TransparencyPanel';
 import { 
   getLeaderboardByExercisePaginated,
   getOverallLeaderboardPaginated,
@@ -249,6 +250,9 @@ export default function LeaderboardsPage() {
           </p>
         </div>
 
+        {/* Transparency Panel */}
+        <TransparencyPanel className="mb-6" />
+
         {/* Filters */}
         <div className="bg-white dark:bg-gray-800 rounded-lg border p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -279,9 +283,14 @@ export default function LeaderboardsPage() {
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Verified Only
-                </span>
+                <div className="ml-3">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Verified Only
+                  </span>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {verifiedOnly ? 'Showing verified sessions only' : 'Including unverified sessions'}
+                  </div>
+                </div>
               </label>
             </div>
 
@@ -379,11 +388,61 @@ export default function LeaderboardsPage() {
                     <tr className="border-b border-gray-200 dark:border-gray-700">
                       <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Rank</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Athlete</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Total Reps</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Sessions</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Quality</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Correct Rate</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Integrity</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                        <div className="flex items-center">
+                          Total Reps
+                          <div className="ml-1 group relative">
+                            <Icon name="alert-circle" className="w-4 h-4 text-gray-400 cursor-help" />
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                              Total number of reps completed across all sessions
+                            </div>
+                          </div>
+                        </div>
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                        <div className="flex items-center">
+                          Sessions
+                          <div className="ml-1 group relative">
+                            <Icon name="alert-circle" className="w-4 h-4 text-gray-400 cursor-help" />
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                              Number of workout sessions completed
+                            </div>
+                          </div>
+                        </div>
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                        <div className="flex items-center">
+                          Quality
+                          <div className="ml-1 group relative">
+                            <Icon name="alert-circle" className="w-4 h-4 text-gray-400 cursor-help" />
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                              Average quality score (0-100%) across all reps
+                            </div>
+                          </div>
+                        </div>
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                        <div className="flex items-center">
+                          Correct Rate
+                          <div className="ml-1 group relative">
+                            <Icon name="alert-circle" className="w-4 h-4 text-gray-400 cursor-help" />
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                              Percentage of reps scoring above 70% quality
+                            </div>
+                          </div>
+                        </div>
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                        <div className="flex items-center">
+                          Integrity
+                          <div className="ml-1 group relative">
+                            <Icon name="alert-circle" className="w-4 h-4 text-gray-400 cursor-help" />
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                              Consistency of good form throughout sessions
+                            </div>
+                          </div>
+                        </div>
+                      </th>
                       <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Actions</th>
                     </tr>
                   </thead>
