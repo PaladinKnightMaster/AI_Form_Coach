@@ -9,6 +9,7 @@ import {
 	checkErrorDuration
 } from './formAnalysis';
 import { calculateHybridRepQuality } from '../microModel/qualityIntegration';
+import { ValidatorPhaseDetector } from '../phaseDetection/validatorIntegration';
 
 export function createPlankValidator(): Validator {
 	const state: ValidatorState = { 
@@ -23,6 +24,7 @@ export function createPlankValidator(): Validator {
 	
 	let userCalibration: DeviceCalibration | null = null;
 	let stable = 0;
+	let phaseDetector: ValidatorPhaseDetector | null = null;
 	
 	// Error tracking state
 	const errorStates = {
@@ -56,10 +58,25 @@ export function createPlankValidator(): Validator {
 		const debounce = cfg?.debounceFrames ?? 3;
 		const hipSagThreshold = cfg?.errorThresholds?.errorDurationThresholds?.hipSag ?? 300; // ms
 
-		// Phase detection - continuous monitoring
-		const desired: ValidatorState['phase'] = bodyLineAngle >= bodyLineThreshold ? 'hold' : 'idle';
+		// Initialize enhanced phase detector if not already done
+		if (!phaseDetector) {
+			phaseDetector = new ValidatorPhaseDetector('plank', cfg);
+		}
 		
-		// Phase transition with debouncing
+		// Enhanced phase detection with Savitzky-Golay smoothing and HMM
+		const phaseDetectionResult = phaseDetector.detectPhase(ts, bodyLineAngle, bodyLineAngle);
+		const desired = phaseDetectionResult.phase;
+		
+		// Update enhanced phase detection state
+		state.enhancedPhaseDetection = {
+			enabled: phaseDetectionResult.enhanced,
+			confidence: phaseDetectionResult.confidence,
+			smoothedValue: phaseDetectionResult.smoothedValue,
+			originalValue: phaseDetectionResult.originalValue,
+			processingTime: phaseDetectionResult.processingTime,
+		};
+		
+		// Phase transition with enhanced detection and debouncing
 		if (desired !== state.phase) {
 			stable += 1;
 			if (stable >= debounce) {

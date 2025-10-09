@@ -93,6 +93,15 @@ export type ValidatorState = {
 	
 	// Session timing
 	sessionStartTs?: number;
+	
+	// Enhanced phase detection (P9)
+	enhancedPhaseDetection?: {
+		enabled: boolean;
+		confidence: number;
+		smoothedValue: number;
+		originalValue: number;
+		processingTime: number;
+	};
 };
 
 export type ValidatorConfig = {
@@ -127,6 +136,25 @@ export type ValidatorConfig = {
 			up: number;
 			hold: number;
 			idle: number;
+		};
+	};
+	
+	// Enhanced phase detection configuration (P9)
+	enhancedPhaseDetection?: {
+		enabled: boolean;
+		smoothing: {
+			enabled: boolean;
+			windowSize: number;
+			polynomialOrder: number;
+		};
+		hmm: {
+			enabled: boolean;
+			transitionSmoothing: number;
+			observationNoise: number;
+		};
+		debounce: {
+			enabled: boolean;
+			frames: number;
 		};
 	};
 	

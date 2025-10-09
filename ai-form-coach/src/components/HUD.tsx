@@ -17,7 +17,8 @@ export default function HUD({
   lastCueKey,
   poseQuality,
   lastRepErrors,
-  wakeLockActive
+  wakeLockActive,
+  enhancedPhaseDetection
 }: { 
   repCount: number; 
   cue: string; 
@@ -45,6 +46,13 @@ export default function HUD({
     severity: 'low' | 'medium' | 'high';
   }>;
   wakeLockActive?: boolean;
+  enhancedPhaseDetection?: {
+    enabled: boolean;
+    confidence: number;
+    smoothedValue: number;
+    originalValue: number;
+    processingTime: number;
+  };
 }) {
 	const pct = (spark.filter(Boolean).length / Math.max(1, spark.length)) * 100;
 	return (
@@ -144,6 +152,20 @@ export default function HUD({
 				<div className="mt-2 flex items-center gap-1 text-xs text-green-600">
 					<span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
 					<span>Screen awake</span>
+				</div>
+			)}
+			
+			{/* Enhanced Phase Detection Indicator (P9) */}
+			{enhancedPhaseDetection?.enabled && (
+				<div className="mt-2 flex items-center gap-2 text-xs">
+					<div className={`w-2 h-2 rounded-full ${
+						enhancedPhaseDetection.confidence > 0.8 ? 'bg-green-500' :
+						enhancedPhaseDetection.confidence > 0.6 ? 'bg-yellow-500' :
+						'bg-red-500'
+					}`} />
+					<span className="text-gray-600">
+						Enhanced Phase Detection ({Math.round(enhancedPhaseDetection.confidence * 100)}%)
+					</span>
 				</div>
 			)}
 			

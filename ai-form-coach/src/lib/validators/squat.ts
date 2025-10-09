@@ -14,6 +14,7 @@ import {
 	checkErrorDuration
 } from './formAnalysis';
 import { calculateHybridRepQuality } from '../microModel/qualityIntegration';
+import { ValidatorPhaseDetector } from '../phaseDetection/validatorIntegration';
 
 export function createSquatValidator(): Validator {
 	const state: ValidatorState = { 
@@ -28,6 +29,7 @@ export function createSquatValidator(): Validator {
 	
 	let userCalibration: DeviceCalibration | null = null;
 	let stable = 0;
+	let phaseDetector: ValidatorPhaseDetector | null = null;
 	
 	// Error tracking state
 	let errorStates = {
@@ -69,7 +71,7 @@ export function createSquatValidator(): Validator {
 		// Use calibrated thresholds
 		const calibratedDepth = 180 - config.squat.idealDepthAngle;
 		const minDepthThreshold = calibratedDepth * 0.9; // 90% of calibrated depth
-		const repDepthThreshold = calibratedDepth - 5; // 5° tolerance for rep counting
+		// const repDepthThreshold = calibratedDepth - 5; // 5° tolerance for rep counting (unused with enhanced phase detection)
 		const upDepth = cfg?.squat?.upDepth ?? 10;
 		const debounce = cfg?.debounceFrames ?? 3;
 		
@@ -79,15 +81,25 @@ export function createSquatValidator(): Validator {
 		const valgusDurationThreshold = cfg?.errorThresholds?.errorDurationThresholds?.valgus ?? 150; // ms
 		const chestDropDurationThreshold = cfg?.errorThresholds?.errorDurationThresholds?.chestDrop ?? 100; // ms
 
-		// Phase detection with enhanced logic
-		let desiredPhase: ValidatorState['phase'] = state.phase;
-		if (state.phase === 'idle' || state.phase === 'up') {
-			if (depth > repDepthThreshold) desiredPhase = 'down';
-		} else if (state.phase === 'down') {
-			if (depth < upDepth) desiredPhase = 'up';
+		// Initialize enhanced phase detector if not already done
+		if (!phaseDetector) {
+			phaseDetector = new ValidatorPhaseDetector('squat', cfg);
 		}
-
-		// Phase transition with debouncing
+		
+		// Enhanced phase detection with Savitzky-Golay smoothing and HMM
+		const phaseDetectionResult = phaseDetector.detectPhase(ts, k, k);
+		const desiredPhase = phaseDetectionResult.phase;
+		
+		// Update enhanced phase detection state
+		state.enhancedPhaseDetection = {
+			enabled: phaseDetectionResult.enhanced,
+			confidence: phaseDetectionResult.confidence,
+			smoothedValue: phaseDetectionResult.smoothedValue,
+			originalValue: phaseDetectionResult.originalValue,
+			processingTime: phaseDetectionResult.processingTime,
+		};
+		
+		// Phase transition with enhanced detection and debouncing
 		if (desiredPhase !== state.phase) {
 			stable += 1;
 			if (stable >= debounce) {

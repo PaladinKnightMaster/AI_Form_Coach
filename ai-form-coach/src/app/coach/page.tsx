@@ -121,6 +121,15 @@ function CoachContent() {
 	// Ghost pacing (M2)
 	const [reducedMotion, setReducedMotion] = useState(false);
 	const [sessionStartTime, setSessionStartTime] = useState(0);
+	
+	// Enhanced phase detection state (P9)
+	const [enhancedPhaseDetection, setEnhancedPhaseDetection] = useState<{
+		enabled: boolean;
+		confidence: number;
+		smoothedValue: number;
+		originalValue: number;
+		processingTime: number;
+	} | undefined>(undefined);
 	// Track average pose visibility for quality
 	const visSumRef = useRef(0);
 	const visCountRef = useRef(0);
@@ -299,6 +308,13 @@ function CoachContent() {
 					const scorer = getHybridQualityScorer();
 					scorer.setModelEnabled(savedMicroModelEnabled === 'true');
 				}
+				
+				// Load P9 enhanced phase detection settings
+				const savedEnhancedPhaseDetection = localStorage.getItem('enhancedPhaseDetectionEnabled');
+				if (savedEnhancedPhaseDetection !== null) {
+					// This setting will be used by the validators to enable/disable enhanced phase detection
+					// The validators check this setting when creating the ValidatorPhaseDetector
+				}
 			} catch (error) {
 				console.warn('Failed to initialize mentor system or load settings:', error);
 			}
@@ -427,6 +443,11 @@ function CoachContent() {
 		// Pass pose result to validator (handle async validators)
 		const validatorResult = validatorRef.current(result, ts, { ...thrCfg, bestSide: result.bestSide });
 		const s = validatorResult instanceof Promise ? await validatorResult : validatorResult;
+		
+		// Update enhanced phase detection state (P9)
+		if (s.enhancedPhaseDetection) {
+			setEnhancedPhaseDetection(s.enhancedPhaseDetection);
+		}
 		
 		// Process mentor cues if enabled
 		if (s.mentorCue && mentorCueEnabled) {
@@ -922,6 +943,7 @@ function CoachContent() {
 						}}
 						lastRepErrors={lastRepErrors}
 						wakeLockActive={wakeLockActive}
+						enhancedPhaseDetection={enhancedPhaseDetection}
 					/>
 					
 					{/* Visibility Warning */}

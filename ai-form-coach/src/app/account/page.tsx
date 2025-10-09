@@ -32,6 +32,9 @@ export default function Account() {
 	
 	// Micro model settings (P8)
 	const [microModelEnabled, setMicroModelEnabled] = useState(false);
+	
+	// Enhanced phase detection settings (P9)
+	const [enhancedPhaseDetectionEnabled, setEnhancedPhaseDetectionEnabled] = useState(true);
 
 	useEffect(() => {
 		(async () => {
@@ -93,15 +96,25 @@ export default function Account() {
 				console.warn('Failed to load ghost pacing settings:', error);
 			}
 			
-			// Load P8 micro model settings from localStorage
-			try {
-				const savedMicroModelEnabled = localStorage.getItem('microModelEnabled');
-				if (savedMicroModelEnabled !== null) {
-					setMicroModelEnabled(savedMicroModelEnabled === 'true');
-				}
-			} catch (error) {
-				console.warn('Failed to load micro model settings:', error);
+		// Load P8 micro model settings from localStorage
+		try {
+			const savedMicroModelEnabled = localStorage.getItem('microModelEnabled');
+			if (savedMicroModelEnabled !== null) {
+				setMicroModelEnabled(savedMicroModelEnabled === 'true');
 			}
+		} catch (error) {
+			console.warn('Failed to load micro model settings:', error);
+		}
+		
+		// Load P9 enhanced phase detection settings from localStorage
+		try {
+			const savedEnhancedPhaseDetection = localStorage.getItem('enhancedPhaseDetectionEnabled');
+			if (savedEnhancedPhaseDetection !== null) {
+				setEnhancedPhaseDetectionEnabled(savedEnhancedPhaseDetection === 'true');
+			}
+		} catch (error) {
+			console.warn('Failed to load enhanced phase detection settings:', error);
+		}
 		})();
 	}, []);
 
@@ -181,6 +194,16 @@ export default function Account() {
 			localStorage.setItem('microModelEnabled', enabled.toString());
 		} catch (error) {
 			console.warn('Failed to save micro model setting:', error);
+		}
+	}
+	
+	// P9: Enhanced phase detection setting handlers
+	function handleEnhancedPhaseDetectionToggle(enabled: boolean) {
+		setEnhancedPhaseDetectionEnabled(enabled);
+		try {
+			localStorage.setItem('enhancedPhaseDetectionEnabled', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save enhanced phase detection setting:', error);
 		}
 	}
 
@@ -543,6 +566,55 @@ export default function Account() {
 								<div className="text-sm text-blue-800">
 									<p className="font-medium">Personalized Coaching</p>
 									<p>We&apos;ll learn your range so coaching matches your body. This ensures &quot;Correct&quot; judgments align with your natural movement patterns.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				{/* Enhanced Phase Detection Settings (P9) */}
+				<div className="rounded-lg border p-4">
+					<div className="flex items-center justify-between mb-4">
+						<div>
+							<h3 className="text-lg font-semibold text-gray-900">Enhanced Phase Detection</h3>
+							<p className="text-sm text-gray-600">Advanced phase detection with Savitzky-Golay smoothing and HMM</p>
+						</div>
+						<Badge tone="success" size="sm">🎯 P9</Badge>
+					</div>
+					
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Enable Enhanced Detection</h4>
+								<p className="text-sm text-gray-600">Use advanced signal processing to reduce noise and improve phase detection accuracy</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={enhancedPhaseDetectionEnabled}
+									onChange={(e) => handleEnhancedPhaseDetectionToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+							</label>
+						</div>
+						
+						<div className="bg-green-50 border border-green-200 rounded-lg p-3">
+							<div className="flex items-start gap-2">
+								<div className="text-green-600 text-sm">✨</div>
+								<div className="text-sm text-green-800">
+									<p className="font-medium">Advanced Signal Processing</p>
+									<p>Uses Savitzky-Golay smoothing to reduce noise and Hidden Markov Models (HMM) for robust phase detection. This helps with wobbly mid-range movements and slow, controlled reps.</p>
+								</div>
+							</div>
+						</div>
+						
+						<div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+							<div className="flex items-start gap-2">
+								<div className="text-blue-600 text-sm">🎯</div>
+								<div className="text-sm text-blue-800">
+									<p className="font-medium">Benefits</p>
+									<p>• Reduces false phase changes from noise<br/>• Better detection of slow, controlled movements<br/>• More stable rep counting<br/>• Improved accuracy for borderline cases</p>
 								</div>
 							</div>
 						</div>

@@ -3,7 +3,7 @@ import type { Validator, ValidatorState, ValidatorConfig, RepMetric } from './ty
 import type { PoseEstimateResult } from '../pose/engine';
 import { calculateFormIQ, calculateSideBalance } from './formIQ';
 import { getExerciseAngle } from '../pose/normalize';
-import { getExerciseConfig } from '@/lib/calibration/constants';
+// import { getExerciseConfig } from '@/lib/calibration/constants'; // (unused with enhanced phase detection)
 import { getUserCalibration } from '@/lib/calibration/service';
 import type { DeviceCalibration } from '@/types/calibration';
 import { 
@@ -13,6 +13,7 @@ import {
 	checkErrorDuration
 } from './formAnalysis';
 import { calculateHybridRepQuality } from '../microModel/qualityIntegration';
+import { ValidatorPhaseDetector } from '../phaseDetection/validatorIntegration';
 
 export function createPushupValidator(): Validator {
 	const state: ValidatorState = { 
@@ -27,6 +28,7 @@ export function createPushupValidator(): Validator {
 	
 	let userCalibration: DeviceCalibration | null = null;
 	let stable = 0;
+	let phaseDetector: ValidatorPhaseDetector | null = null;
 	
 	// Error tracking state
 	let errorStates = {
@@ -44,11 +46,11 @@ export function createPushupValidator(): Validator {
 		}
 		
 		// Get personalized configuration
-		const config = getExerciseConfig(userCalibration ? {
-			squat_full_depth_angle: userCalibration.squat_full_depth_angle,
-			pushup_elbow_bottom_angle: userCalibration.pushup_elbow_bottom_angle,
-			bodyline_target: userCalibration.bodyline_target,
-		} : undefined);
+		// const config = getExerciseConfig(userCalibration ? {
+		// 	squat_full_depth_angle: userCalibration.squat_full_depth_angle,
+		// 	pushup_elbow_bottom_angle: userCalibration.pushup_elbow_bottom_angle,
+		// 	bodyline_target: userCalibration.bodyline_target,
+		// } : undefined); // (unused with enhanced phase detection)
 		
 		// Use the robust angle calculation from the pose engine
 		const elbowAngle = getExerciseAngle(result, 'pushup');
@@ -64,24 +66,34 @@ export function createPushupValidator(): Validator {
 		const bodyLineAngle = calculateBodyLine(result.landmarks, bestSide);
 		
 		// Use calibrated thresholds
-		const calibratedBottom = config.pushup.idealElbowAngle;
-		const bottomElbow = calibratedBottom + 5; // 5° tolerance for true bottom
-		const topElbow = cfg?.pushup?.topElbow ?? 155;
+		// const calibratedBottom = config.pushup.idealElbowAngle; // (unused with enhanced phase detection)
+		// const bottomElbow = calibratedBottom + 5; // 5° tolerance for true bottom (unused with enhanced phase detection)
+		// const topElbow = cfg?.pushup?.topElbow ?? 155; // (unused with enhanced phase detection)
 		const debounce = cfg?.debounceFrames ?? 3;
 		
 		// Body line thresholds
 		const bodyLineThreshold = cfg?.pushup?.bodyLineThreshold ?? 165; // degrees
 		const hipSagThreshold = cfg?.errorThresholds?.errorDurationThresholds?.hipSag ?? 200; // ms
 
-		// Phase detection with enhanced logic
-		let desired: ValidatorState['phase'] = state.phase;
-		if (state.phase === 'idle' || state.phase === 'up') {
-			if (e < bottomElbow) desired = 'down';
-		} else if (state.phase === 'down') {
-			if (e > topElbow) desired = 'up';
+		// Initialize enhanced phase detector if not already done
+		if (!phaseDetector) {
+			phaseDetector = new ValidatorPhaseDetector('pushup', cfg);
 		}
-
-		// Phase transition with debouncing
+		
+		// Enhanced phase detection with Savitzky-Golay smoothing and HMM
+		const phaseDetectionResult = phaseDetector.detectPhase(ts, e, e);
+		const desired = phaseDetectionResult.phase;
+		
+		// Update enhanced phase detection state
+		state.enhancedPhaseDetection = {
+			enabled: phaseDetectionResult.enhanced,
+			confidence: phaseDetectionResult.confidence,
+			smoothedValue: phaseDetectionResult.smoothedValue,
+			originalValue: phaseDetectionResult.originalValue,
+			processingTime: phaseDetectionResult.processingTime,
+		};
+		
+		// Phase transition with enhanced detection and debouncing
 		if (desired !== state.phase) {
 			stable += 1;
 			if (stable >= debounce) {
