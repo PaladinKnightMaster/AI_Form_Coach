@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import VerificationDetails from '@/components/verification/VerificationDetails';
 import SimilarSessions from '@/components/embeddings/SimilarSessions';
 import CompareToBest from '@/components/embeddings/CompareToBest';
+import ReportGenerator from '@/components/reports/ReportGenerator';
 
 const SessionChart = dynamic(() => import('@/components/SessionChart'), { ssr: false });
 
@@ -322,6 +323,9 @@ export default function SessionDetail() {
 				/>
 			</div>
 		)}
+		
+		{/* Form Report Generator */}
+		<ReportGenerator sessionId={params.id} className="mb-6" />
 		
 		{/* Verification Details */}
 		<VerificationDetails 
