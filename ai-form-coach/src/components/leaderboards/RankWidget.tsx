@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
-import { getUserOverallRank, type UserRank } from '@/lib/leaderboards/query';
+import { getUserRankWithContext, type LeaderboardEntry } from '@/lib/leaderboards/query';
 import { Badge } from '@/ui/DS';
 
 interface RankWidgetProps {
@@ -10,7 +10,7 @@ interface RankWidgetProps {
 }
 
 export default function RankWidget({ className = '' }: RankWidgetProps) {
-  const [userRank, setUserRank] = useState<UserRank | null>(null);
+  const [userRank, setUserRank] = useState<LeaderboardEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,9 +25,10 @@ export default function RankWidget({ className = '' }: RankWidgetProps) {
           return;
         }
 
-        const rank = await getUserOverallRank(user.id, {
+        const rank = await getUserRankWithContext(user.id, 'overall', {
           timeRange: 'month',
-          verifiedOnly: true
+          verifiedOnly: true,
+          sortBy: 'volume'
         });
 
         setUserRank(rank);
@@ -98,16 +99,37 @@ export default function RankWidget({ className = '' }: RankWidgetProps) {
         </div>
         
         <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600 dark:text-gray-400">Total Reps</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-white">
+            {userRank.total_reps.toLocaleString()}
+          </span>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600 dark:text-gray-400">Quality Score</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-white">
+            {Math.round(userRank.avg_quality_score)}%
+          </span>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600 dark:text-gray-400">Verified Sessions</span>
+          <span className="text-sm font-medium text-gray-900 dark:text-white">
+            {userRank.verified_sessions || 0} / {userRank.total_sessions}
+          </span>
+        </div>
+        
+        <div className="flex items-center justify-between">
           <span className="text-sm text-gray-600 dark:text-gray-400">Percentile</span>
           <span className="text-sm font-medium text-gray-900 dark:text-white">
-            Top {Math.round(100 - userRank.percentile)}%
+            Top {userRank.total_entries ? Math.round(((userRank.total_entries - userRank.rank + 1) / userRank.total_entries) * 100) : 0}%
           </span>
         </div>
         
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-600 dark:text-gray-400">Total Athletes</span>
           <span className="text-sm font-medium text-gray-900 dark:text-white">
-            {userRank.total_entries.toLocaleString()}
+            {(userRank.total_entries || 0).toLocaleString()}
           </span>
         </div>
         
@@ -116,13 +138,13 @@ export default function RankWidget({ className = '' }: RankWidgetProps) {
             <div>
               <div className="text-gray-500 dark:text-gray-400">Reps</div>
               <div className="font-medium text-gray-900 dark:text-white">
-                {userRank.entry.total_reps.toLocaleString()}
+                {userRank.total_reps.toLocaleString()}
               </div>
             </div>
             <div>
               <div className="text-gray-500 dark:text-gray-400">Quality</div>
               <div className="font-medium text-gray-900 dark:text-white">
-                {Math.round(userRank.entry.avg_quality_score)}%
+                {Math.round(userRank.avg_quality_score)}%
               </div>
             </div>
           </div>

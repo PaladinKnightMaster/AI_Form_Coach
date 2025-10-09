@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
-import { checkTop10Entry } from '@/lib/leaderboards/query';
+import { checkTop10EntryEnhanced } from '@/lib/leaderboards/query';
 import { useToastContext } from '@/components/ToastProvider';
 
 interface Top10ToastProps {
@@ -28,7 +28,7 @@ export default function Top10Toast({ exercise }: Top10ToastProps) {
         lastCheckedRef.current = now;
 
         // Check for top 10 entry
-        const result = await checkTop10Entry(user.id, exercise, 'all');
+        const result = await checkTop10EntryEnhanced(user.id, exercise, 'all');
         
         if (result.entered && result.leaderboards.length > 0) {
           const getLeaderboardName = (board: string) => {

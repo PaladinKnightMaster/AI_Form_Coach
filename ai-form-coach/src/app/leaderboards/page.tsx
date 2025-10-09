@@ -2,20 +2,23 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
-import { Badge } from '@/ui/DS';
+import { Badge, Button } from '@/ui/DS';
+import { logEvent } from '@/lib/observability/events';
+import Top10Notification from '@/components/leaderboards/Top10Notification';
 import { 
-  getTopByExercise, 
-  getTopByCorrectRate, 
-  getTopByVolume, 
-  getOverallLeaderboard,
+  getLeaderboardByExercisePaginated,
+  getOverallLeaderboardPaginated,
+  getUserRankWithContext,
+  getUserDepthSparkline,
   type LeaderboardEntry,
   type LeaderboardFilters,
   type TimeRange,
-  type Exercise
+  type Exercise,
+  type DepthSparklinePoint
 } from '@/lib/leaderboards/query';
 
 type LeaderboardType = 'overall' | 'exercise' | 'friends';
-type SortBy = 'reps' | 'correct_rate' | 'volume';
+type SortBy = 'reps' | 'correct_rate' | 'volume' | 'integrity';
 
 export default function LeaderboardsPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardType>('overall');
@@ -28,6 +31,13 @@ export default function LeaderboardsPage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [currentUser, setCurrentUser] = useState<{ id: string; email: string } | null>(null);
+  
+  // P10: Enhanced state for pagination and sparklines
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalEntries, setTotalEntries] = useState(0);
+  const [userRank, setUserRank] = useState<LeaderboardEntry | null>(null);
+  const [sparklineData, setSparklineData] = useState<Map<string, DepthSparklinePoint[]>>(new Map());
+  const [loadingSparkline, setLoadingSparkline] = useState<Set<string>>(new Set());
 
   // Load current user
   useEffect(() => {
@@ -41,7 +51,7 @@ export default function LeaderboardsPage() {
     loadUser();
   }, []);
 
-  // Load leaderboard data
+  // Load leaderboard data with pagination
   const loadLeaderboardData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -50,41 +60,105 @@ export default function LeaderboardsPage() {
       const filters: LeaderboardFilters = {
         timeRange,
         verifiedOnly,
-        limit: 50
+        limit: 50,
+        offset: currentPage * 50,
+        sortBy
       };
 
       let data: LeaderboardEntry[] = [];
 
       if (activeTab === 'overall') {
-        data = await getOverallLeaderboard(filters);
+        data = await getOverallLeaderboardPaginated(filters);
       } else if (activeTab === 'exercise') {
-        switch (sortBy) {
-          case 'reps':
-            data = await getTopByExercise(selectedExercise, filters);
-            break;
-          case 'correct_rate':
-            data = await getTopByCorrectRate(selectedExercise, filters);
-            break;
-          case 'volume':
-            data = await getTopByVolume(selectedExercise, filters);
-            break;
-        }
+        data = await getLeaderboardByExercisePaginated(selectedExercise, filters);
       } else if (activeTab === 'friends') {
         // For now, show overall leaderboard (friends functionality can be added later)
-        data = await getOverallLeaderboard(filters);
+        data = await getOverallLeaderboardPaginated(filters);
       }
 
       setLeaderboardData(data);
+      
+      // Update total entries from first entry if available
+      if (data.length > 0 && data[0].total_entries) {
+        setTotalEntries(data[0].total_entries);
+      }
+      
+      // Track leaderboard view
+      logEvent('leaderboard_view', {
+        tab: activeTab,
+        exercise: activeTab === 'exercise' ? selectedExercise : 'overall',
+        timeRange,
+        verifiedOnly,
+        sortBy,
+        page: currentPage,
+        totalEntries: data.length > 0 ? data[0].total_entries : 0
+      });
+      
+      // Load user's rank if logged in
+      if (currentUser) {
+        const userRankData = await getUserRankWithContext(
+          currentUser.id,
+          activeTab === 'overall' ? 'overall' : selectedExercise,
+          { timeRange, verifiedOnly, sortBy }
+        );
+        setUserRank(userRankData);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
     } finally {
       setLoading(false);
     }
-  }, [activeTab, sortBy, timeRange, verifiedOnly, selectedExercise]);
+  }, [activeTab, sortBy, timeRange, verifiedOnly, selectedExercise, currentPage, currentUser]);
 
   useEffect(() => {
     loadLeaderboardData();
   }, [loadLeaderboardData]);
+
+  // Load sparkline data for a specific user
+  const loadSparklineData = useCallback(async (userId: string, exercise: Exercise) => {
+    if (sparklineData.has(userId) || loadingSparkline.has(userId)) return;
+    
+    setLoadingSparkline(prev => new Set(prev).add(userId));
+    
+    try {
+      const data = await getUserDepthSparkline(userId, exercise, {
+        timeRange,
+        verifiedOnly
+      });
+      
+      setSparklineData(prev => new Map(prev).set(userId, data));
+    } catch (err) {
+      console.error('Failed to load sparkline data:', err);
+    } finally {
+      setLoadingSparkline(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    }
+  }, [timeRange, verifiedOnly, sparklineData, loadingSparkline]);
+
+  // Handle pagination
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    setExpandedRow(null); // Close expanded rows when changing pages
+  };
+
+  // Reset pagination when filters change and track filter changes
+  useEffect(() => {
+    setCurrentPage(0);
+    
+    // Track filter changes (but not on initial load)
+    if (leaderboardData.length > 0) {
+      logEvent('leaderboard_filter_change', {
+        tab: activeTab,
+        exercise: activeTab === 'exercise' ? selectedExercise : 'overall',
+        timeRange,
+        verifiedOnly,
+        sortBy
+      });
+    }
+  }, [activeTab, sortBy, timeRange, verifiedOnly, selectedExercise, leaderboardData.length]);
 
   const formatEmail = (email: string) => {
     const [username, domain] = email.split('@');
@@ -107,26 +181,60 @@ export default function LeaderboardsPage() {
   };
 
   const renderSparkline = (entry: LeaderboardEntry) => {
-    // Simple sparkline representation (in a real app, you'd use a proper charting library)
-    const quality = Math.round(entry.avg_quality_score);
-    const bars = Math.ceil(quality / 10);
+    const userId = entry.user_id;
+    const exercise = activeTab === 'overall' ? 'overall' : selectedExercise;
+    
+    // Load sparkline data if not already loaded
+    if (!sparklineData.has(userId) && !loadingSparkline.has(userId)) {
+      loadSparklineData(userId, exercise as Exercise);
+    }
+    
+    const data = sparklineData.get(userId) || [];
+    const isLoading = loadingSparkline.has(userId);
+    
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center w-32 h-8">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+        </div>
+      );
+    }
+    
+    if (data.length === 0) {
+      return (
+        <div className="text-gray-400 text-xs">No data</div>
+      );
+    }
+    
+    // Simple sparkline representation
+    const avgDepth = data.reduce((sum, point) => sum + point.avg_depth, 0) / data.length;
+    const bars = Math.ceil((avgDepth / 100) * 10);
+    
     return (
       <div className="flex items-end gap-0.5 h-4">
         {Array.from({ length: 10 }, (_, i) => (
           <div
             key={i}
             className={`w-1 rounded-sm ${
-              i < bars ? 'bg-green-500' : 'bg-gray-200'
+              i < bars ? 'bg-blue-500' : 'bg-gray-200'
             }`}
             style={{ height: `${(i + 1) * 10}%` }}
           />
         ))}
+        <span className="ml-2 text-xs text-gray-600">
+          {avgDepth.toFixed(1)}
+        </span>
       </div>
     );
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 dark:from-slate-900 dark:via-gray-900/30 dark:to-zinc-900/30">
+      {/* Top 10 Notifications */}
+      {activeTab === 'exercise' && (
+        <Top10Notification exercise={selectedExercise as 'squat' | 'pushup' | 'plank'} timeRange={timeRange} />
+      )}
+      
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center space-y-4 mb-8">
@@ -209,6 +317,7 @@ export default function LeaderboardsPage() {
                   <option value="reps">Total Reps</option>
                   <option value="correct_rate">Correct Rate</option>
                   <option value="volume">Volume (Reps × Quality)</option>
+                  <option value="integrity">Integrity Score</option>
                 </select>
               </div>
             )}
@@ -350,24 +459,63 @@ export default function LeaderboardsPage() {
                         </tr>
                         {expandedRow === index && (
                           <tr className="bg-gray-50 dark:bg-gray-800/50">
-                            <td colSpan={8} className="py-4 px-4">
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                <div>
-                                  <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Best Session</div>
-                                  <div className="text-gray-600 dark:text-gray-400">
-                                    {entry.best_session_date ? new Date(entry.best_session_date).toLocaleDateString() : 'N/A'}
+                            <td colSpan={8} className="py-6 px-4">
+                              <div className="space-y-4">
+                                {/* Performance Metrics */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                                  <div>
+                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Best Session</div>
+                                    <div className="text-gray-600 dark:text-gray-400">
+                                      {entry.best_session_date ? new Date(entry.best_session_date).toLocaleDateString() : 'N/A'}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Last Session</div>
+                                    <div className="text-gray-600 dark:text-gray-400">
+                                      {entry.last_session_date ? new Date(entry.last_session_date).toLocaleDateString() : 'N/A'}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Total Volume</div>
+                                    <div className="text-gray-600 dark:text-gray-400">
+                                      {Math.round(entry.total_volume).toLocaleString()}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Verified Sessions</div>
+                                    <div className="text-gray-600 dark:text-gray-400">
+                                      {entry.verified_sessions || 0} / {entry.total_sessions}
+                                    </div>
                                   </div>
                                 </div>
+                                
+                                {/* Depth Sparkline */}
                                 <div>
-                                  <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Last Session</div>
-                                  <div className="text-gray-600 dark:text-gray-400">
-                                    {entry.last_session_date ? new Date(entry.last_session_date).toLocaleDateString() : 'N/A'}
+                                  <div className="font-medium text-gray-700 dark:text-gray-300 mb-2">Performance Trend</div>
+                                  <div className="bg-white dark:bg-gray-700 rounded-lg p-4 border">
+                                    {renderSparkline(entry)}
                                   </div>
                                 </div>
-                                <div>
-                                  <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Total Volume</div>
-                                  <div className="text-gray-600 dark:text-gray-400">
-                                    {Math.round(entry.total_volume).toLocaleString()}
+                                
+                                {/* Additional Stats */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                  <div>
+                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Average Quality</div>
+                                    <div className="text-gray-600 dark:text-gray-400">
+                                      {Math.round(entry.avg_quality_score)}%
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Correct Rate</div>
+                                    <div className="text-gray-600 dark:text-gray-400">
+                                      {Math.round(entry.correct_rate * 100)}%
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Integrity Score</div>
+                                    <div className="text-gray-600 dark:text-gray-400">
+                                      {Math.round(entry.integrity_score * 100)}%
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -378,6 +526,58 @@ export default function LeaderboardsPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+            
+            {/* Pagination Controls */}
+            {leaderboardData.length > 0 && totalEntries > 50 && (
+              <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Showing {currentPage * 50 + 1} to {Math.min((currentPage + 1) * 50, totalEntries)} of {totalEntries} entries
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 0}
+                    size="sm"
+                    variant="outline"
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Page {currentPage + 1} of {Math.ceil(totalEntries / 50)}
+                  </span>
+                  <Button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={(currentPage + 1) * 50 >= totalEntries}
+                    size="sm"
+                    variant="outline"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            {/* User Rank Display */}
+            {userRank && (
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium text-blue-900 dark:text-blue-100">Your Rank</h3>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      You&apos;re ranked #{userRank.rank} out of {userRank.total_entries || 0} athletes
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                      #{userRank.rank}
+                    </div>
+                    <div className="text-sm text-blue-700 dark:text-blue-300">
+                      {userRank.total_entries ? Math.round(((userRank.total_entries - userRank.rank + 1) / userRank.total_entries) * 100) : 0}th percentile
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

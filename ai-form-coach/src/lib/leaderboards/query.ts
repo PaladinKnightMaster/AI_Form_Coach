@@ -7,7 +7,7 @@
 import { getSupabaseClient } from '@/lib/supabase/client';
 
 export type TimeRange = 'today' | 'week' | 'month' | 'all';
-export type Exercise = 'squat' | 'pushup' | 'plank';
+export type Exercise = 'squat' | 'pushup' | 'plank' | 'overall';
 
 export interface LeaderboardEntry {
   rank: number;
@@ -22,6 +22,8 @@ export interface LeaderboardEntry {
   total_volume: number; // total_reps * avg_quality_score
   best_session_date: string;
   last_session_date: string;
+  verified_sessions?: number;
+  total_entries?: number;
 }
 
 export interface LeaderboardFilters {
@@ -29,6 +31,8 @@ export interface LeaderboardFilters {
   verifiedOnly: boolean;
   exercise?: Exercise;
   limit?: number;
+  offset?: number;
+  sortBy?: 'reps' | 'correct_rate' | 'volume' | 'integrity';
 }
 
 export interface UserRank {
@@ -36,6 +40,17 @@ export interface UserRank {
   total_entries: number;
   percentile: number;
   entry: LeaderboardEntry;
+}
+
+export interface DepthSparklinePoint {
+  session_date: string;
+  avg_depth: number;
+  session_count: number;
+}
+
+export interface Top10CheckResult {
+  entered: boolean;
+  leaderboards: string[];
 }
 
 /**
@@ -245,4 +260,150 @@ export async function checkTop10Entry(
   }
   
   return data || { entered: false, leaderboards: [] };
+}
+
+// =====================================================
+// P10: ENHANCED LEADERBOARD FUNCTIONS
+// =====================================================
+
+/**
+ * Get leaderboard by exercise with pagination and enhanced filtering
+ */
+export async function getLeaderboardByExercisePaginated(
+  exercise: Exercise,
+  filters: LeaderboardFilters = { timeRange: 'all', verifiedOnly: true }
+): Promise<LeaderboardEntry[]> {
+  const supabase = getSupabaseClient();
+  
+  const timeFilter = getTimeRangeFilter(filters.timeRange);
+  const limit = filters.limit || 50;
+  const offset = filters.offset || 0;
+  const sortBy = filters.sortBy || 'reps';
+  
+  const { data, error } = await supabase.rpc('get_leaderboard_by_exercise_paginated', {
+    p_exercise: exercise,
+    p_time_filter: timeFilter,
+    p_verified_only: filters.verifiedOnly,
+    p_limit: limit,
+    p_offset: offset,
+    p_sort_by: sortBy
+  });
+  
+  if (error) {
+    console.error('Error fetching paginated leaderboard by exercise:', error);
+    throw error;
+  }
+  
+  return data || [];
+}
+
+/**
+ * Get overall leaderboard with pagination and enhanced filtering
+ */
+export async function getOverallLeaderboardPaginated(
+  filters: LeaderboardFilters = { timeRange: 'all', verifiedOnly: true }
+): Promise<LeaderboardEntry[]> {
+  const supabase = getSupabaseClient();
+  
+  const timeFilter = getTimeRangeFilter(filters.timeRange);
+  const limit = filters.limit || 50;
+  const offset = filters.offset || 0;
+  const sortBy = filters.sortBy || 'volume';
+  
+  const { data, error } = await supabase.rpc('get_overall_leaderboard_paginated', {
+    p_time_filter: timeFilter,
+    p_verified_only: filters.verifiedOnly,
+    p_limit: limit,
+    p_offset: offset,
+    p_sort_by: sortBy
+  });
+  
+  if (error) {
+    console.error('Error fetching paginated overall leaderboard:', error);
+    throw error;
+  }
+  
+  return data || [];
+}
+
+/**
+ * Get user's rank with full context including pagination info
+ */
+export async function getUserRankWithContext(
+  userId: string,
+  exercise: Exercise,
+  filters: LeaderboardFilters = { timeRange: 'all', verifiedOnly: true }
+): Promise<LeaderboardEntry | null> {
+  const supabase = getSupabaseClient();
+  
+  const timeFilter = getTimeRangeFilter(filters.timeRange);
+  const sortBy = filters.sortBy || 'reps';
+  
+  const { data, error } = await supabase.rpc('get_user_rank_with_context', {
+    p_user_id: userId,
+    p_exercise: exercise,
+    p_time_filter: timeFilter,
+    p_verified_only: filters.verifiedOnly,
+    p_sort_by: sortBy
+  });
+  
+  if (error) {
+    console.error('Error fetching user rank with context:', error);
+    throw error;
+  }
+  
+  return data?.[0] || null;
+}
+
+/**
+ * Get user's depth sparkline data for performance visualization
+ */
+export async function getUserDepthSparkline(
+  userId: string,
+  exercise: Exercise,
+  filters: LeaderboardFilters = { timeRange: 'all', verifiedOnly: true }
+): Promise<DepthSparklinePoint[]> {
+  const supabase = getSupabaseClient();
+  
+  const timeFilter = getTimeRangeFilter(filters.timeRange);
+  const limit = 20; // Default limit for sparkline data
+  
+  const { data, error } = await supabase.rpc('get_user_depth_sparkline', {
+    p_user_id: userId,
+    p_exercise: exercise,
+    p_time_filter: timeFilter,
+    p_verified_only: filters.verifiedOnly,
+    p_limit: limit
+  });
+  
+  if (error) {
+    console.error('Error fetching user depth sparkline:', error);
+    throw error;
+  }
+  
+  return data || [];
+}
+
+/**
+ * Enhanced top 10 check with better performance
+ */
+export async function checkTop10EntryEnhanced(
+  userId: string,
+  exercise: Exercise,
+  timeRange: TimeRange = 'all'
+): Promise<Top10CheckResult> {
+  const supabase = getSupabaseClient();
+  
+  const { data, error } = await supabase.rpc('check_top_10_entry', {
+    p_user_id: userId,
+    p_exercise: exercise,
+    p_time_filter: timeRange
+  });
+  
+  if (error) {
+    console.error('Error checking top 10 entry:', error);
+    throw error;
+  }
+  
+  return data?.[0] || { entered: false, leaderboards: [] };
 }
