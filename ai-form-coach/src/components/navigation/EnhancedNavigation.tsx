@@ -95,6 +95,12 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
       color: 'bg-blue-500 hover:bg-blue-600'
     },
     {
+      label: 'Organizations',
+      icon: 'home',
+      href: '/org',
+      color: 'bg-purple-500 hover:bg-purple-600'
+    },
+    {
       label: 'Nutrition',
       icon: 'apple',
       href: '/nutrition',
