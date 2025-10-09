@@ -118,8 +118,7 @@ function CoachContent() {
 	const [lowQualityStartTime, setLowQualityStartTime] = useState<number | null>(null);
 	const [poseQualityState, setPoseQualityState] = useState<'good' | 'fair' | 'low'>('good');
 	
-	// Ghost pacing (M2)
-	const [reducedMotion, setReducedMotion] = useState(false);
+	// Session timing
 	const [sessionStartTime, setSessionStartTime] = useState(0);
 	
 	// Enhanced phase detection state (P9)
@@ -130,6 +129,10 @@ function CoachContent() {
 		originalValue: number;
 		processingTime: number;
 	} | undefined>(undefined);
+	
+	// Ghost pacing settings (M2)
+	const [pacingBarEnabled, setPacingBarEnabled] = useState(true);
+	const [reducedMotion, setReducedMotion] = useState(false);
 	// Track average pose visibility for quality
 	const visSumRef = useRef(0);
 	const visCountRef = useRef(0);
@@ -314,6 +317,12 @@ function CoachContent() {
 				if (savedEnhancedPhaseDetection !== null) {
 					// This setting will be used by the validators to enable/disable enhanced phase detection
 					// The validators check this setting when creating the ValidatorPhaseDetector
+				}
+				
+				// Load M2 ghost pacing settings
+				const savedPacingBarEnabled = localStorage.getItem('pacingBarEnabled');
+				if (savedPacingBarEnabled !== null) {
+					setPacingBarEnabled(savedPacingBarEnabled === 'true');
 				}
 			} catch (error) {
 				console.warn('Failed to initialize mentor system or load settings:', error);
@@ -917,14 +926,16 @@ function CoachContent() {
 		<Top10Toast exercise={exercise} />
 		
 		{/* M2: Ghost Pacing Bar */}
-		<PacingBar 
-			exercise={exercise}
-			currentReps={correctRepsCount}
-			sessionStartTime={sessionStartTime}
-			isRunning={running}
-			reducedMotion={reducedMotion}
-			className="absolute top-4 left-4 right-4 z-10"
-		/>
+		{pacingBarEnabled && (
+			<PacingBar 
+				exercise={exercise}
+				currentReps={correctRepsCount}
+				sessionStartTime={sessionStartTime}
+				isRunning={running}
+				reducedMotion={reducedMotion}
+				className="absolute top-4 left-4 right-4 z-10"
+			/>
+		)}
 					<HUD 
 						repCount={repCount} 
 						cue={pausedByQuality ? 'Step back into frame' : cue} 

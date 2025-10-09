@@ -29,6 +29,7 @@ export default function Account() {
 	
 	// Ghost pacing settings (M2)
 	const [reducedMotion, setReducedMotion] = useState(false);
+	const [pacingBarEnabled, setPacingBarEnabled] = useState(true);
 	
 	// Micro model settings (P8)
 	const [microModelEnabled, setMicroModelEnabled] = useState(false);
@@ -91,6 +92,11 @@ export default function Account() {
 				const savedReducedMotion = localStorage.getItem('reducedMotion');
 				if (savedReducedMotion !== null) {
 					setReducedMotion(savedReducedMotion === 'true');
+				}
+				
+				const savedPacingBarEnabled = localStorage.getItem('pacingBarEnabled');
+				if (savedPacingBarEnabled !== null) {
+					setPacingBarEnabled(savedPacingBarEnabled === 'true');
 				}
 			} catch (error) {
 				console.warn('Failed to load ghost pacing settings:', error);
@@ -184,6 +190,15 @@ export default function Account() {
 			localStorage.setItem('reducedMotion', enabled.toString());
 		} catch (error) {
 			console.warn('Failed to save reduced motion setting:', error);
+		}
+	}
+	
+	function handlePacingBarToggle(enabled: boolean) {
+		setPacingBarEnabled(enabled);
+		try {
+			localStorage.setItem('pacingBarEnabled', enabled.toString());
+		} catch (error) {
+			console.warn('Failed to save pacing bar setting:', error);
 		}
 	}
 	
@@ -458,6 +473,22 @@ export default function Account() {
 					</div>
 					
 					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<div>
+								<h4 className="font-medium text-gray-900">Enable Pacing Bar</h4>
+								<p className="text-sm text-gray-600">Show live comparison with your best session during workouts</p>
+							</div>
+							<label className="relative inline-flex items-center cursor-pointer">
+								<input 
+									type="checkbox" 
+									checked={pacingBarEnabled}
+									onChange={(e) => handlePacingBarToggle(e.target.checked)}
+									className="sr-only peer"
+								/>
+								<div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+							</label>
+						</div>
+						
 						<div className="flex items-center justify-between">
 							<div>
 								<h4 className="font-medium text-gray-900">Reduced Motion</h4>

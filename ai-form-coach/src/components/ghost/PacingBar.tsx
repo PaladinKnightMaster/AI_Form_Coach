@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { 
   getCurrentUserGhostSeries, 
   getLiveDelta, 
@@ -32,6 +32,7 @@ export default function PacingBar({
   const [isExpanded, setIsExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const lastUpdateRef = useRef<number>(0);
 
   // Load ghost series on mount
   useEffect(() => {
@@ -57,7 +58,7 @@ export default function PacingBar({
     loadGhostSeries();
   }, [exercise]);
 
-  // Update live delta when reps change
+  // Update live delta when reps change (throttled for performance)
   useEffect(() => {
     if (!ghostSeries || !isRunning || sessionStartTime === 0) {
       return;
@@ -71,11 +72,16 @@ export default function PacingBar({
       return;
     }
 
-    // Create live data point
+    // Throttle updates to every 500ms to prevent FPS drops
+    if (now - lastUpdateRef.current < 500) {
+      return;
+    }
+    lastUpdateRef.current = now;
+
     const liveDataPoint: LiveDataPoint = {
       timestamp: sessionTime,
-      cumulativeCorrectReps: currentReps, // This is now the correct reps count from coach page
-      totalReps: currentReps // For now, we only track correct reps
+      cumulativeCorrectReps: currentReps,
+      totalReps: currentReps
     };
 
     const delta = getLiveDelta([liveDataPoint], ghostSeries, sessionTime);
@@ -185,8 +191,8 @@ export default function PacingBar({
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  reducedMotion ? '' : 'transition-all duration-300'
+                className={`h-2 rounded-full ${
+                  reducedMotion ? '' : 'transition-all duration-500 ease-out'
                 }`}
                 style={{ 
                   width: `${getProgressPercentage()}%`,
