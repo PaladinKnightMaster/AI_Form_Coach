@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 		const errorMessage = err instanceof Error ? err.message : String(err);
 		return new NextResponse(`Webhook Error: ${errorMessage}`, { status: 400 });
 	}
-	const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+	const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 	try {
 		switch (event.type) {
 			case 'checkout.session.completed': {
@@ -26,20 +26,36 @@ export async function POST(req: NextRequest) {
 					const customer = typeof session.customer === 'string' ? await stripe.customers.retrieve(session.customer) : session.customer;
 					const userId = (customer as Stripe.Customer).metadata?.user_id;
 					if (userId) {
-						// Determine tier from session metadata
-						const tier = session.metadata?.tier || 'pro';
-						
-						// Insert or update user subscription
-						await sb.from('user_subscriptions').upsert({
-							user_id: userId,
-							tier: tier,
-							status: 'active',
-							stripe_customer_id: typeof session.customer === 'string' ? session.customer : session.customer?.id,
-							current_period_start: new Date().toISOString(),
-							current_period_end: tier === 'founder' ? null : new Date(Date.now() + (tier === 'pro' ? 30 * 24 * 60 * 60 * 1000 : 365 * 24 * 60 * 60 * 1000)).toISOString()
-						}, {
-							onConflict: 'user_id'
-						});
+						// Check if this is a Creator Pack purchase
+						if (session.metadata?.type === 'creator_pack_purchase') {
+							const packId = session.metadata?.packId;
+							if (packId) {
+								// Record the Creator Pack purchase
+								await sb.from('coach_pack_purchases').insert({
+									user_id: userId,
+									coach_pack_id: packId,
+									amount: session.amount_total || 0,
+									currency: session.currency || 'usd',
+									stripe_payment_intent_id: session.payment_intent as string,
+									status: 'completed'
+								});
+							}
+						} else {
+							// Handle subscription purchases
+							const tier = session.metadata?.tier || 'pro';
+							
+							// Insert or update user subscription
+							await sb.from('user_subscriptions').upsert({
+								user_id: userId,
+								tier: tier,
+								status: 'active',
+								stripe_customer_id: typeof session.customer === 'string' ? session.customer : session.customer?.id,
+								current_period_start: new Date().toISOString(),
+								current_period_end: tier === 'founder' ? null : new Date(Date.now() + (tier === 'pro' ? 30 * 24 * 60 * 60 * 1000 : 365 * 24 * 60 * 60 * 1000)).toISOString()
+							}, {
+								onConflict: 'user_id'
+							});
+						}
 					}
 				}
 				break;
