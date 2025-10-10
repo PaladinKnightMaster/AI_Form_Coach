@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import { useToastContext } from '@/components/ToastProvider';
 import LoadingOverlay from '@/components/LoadingOverlay';
@@ -255,12 +256,14 @@ export default function CreatorPacksMarketplace() {
             className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
           >
             {/* Pack Image/Thumbnail */}
-            <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative">
               {pack.preview?.thumbnailUrl ? (
-                <img
+                <Image
                   src={pack.preview.thumbnailUrl}
                   alt={pack.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               ) : (
                 <div className="text-white text-center">

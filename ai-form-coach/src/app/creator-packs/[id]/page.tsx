@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import { useToastContext } from '@/components/ToastProvider';
 import LoadingOverlay from '@/components/LoadingOverlay';
@@ -165,12 +166,14 @@ export default function PackDetailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         {/* Pack Image/Thumbnail */}
         <div className="lg:col-span-1">
-          <div className="aspect-square bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <div className="aspect-square bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center relative">
             {pack.preview?.thumbnailUrl ? (
-              <img
+              <Image
                 src={pack.preview.thumbnailUrl}
                 alt={pack.title}
-                className="w-full h-full object-cover rounded-lg"
+                fill
+                className="object-cover rounded-lg"
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
             ) : (
               <div className="text-white text-center">
