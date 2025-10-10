@@ -30,7 +30,8 @@ export async function GET(
       userFilter: searchParams.get('userFilter')?.split(',')
     };
 
-    const orgService = new (await import('@/lib/organizations/service')).OrganizationService(supabase);
+    const { OrganizationService } = await import('@/lib/organizations/service');
+    const orgService = new OrganizationService(supabase);
     const dashboard = await orgService.getOrganizationDashboard(
       resolvedParams.id,
       user.id,

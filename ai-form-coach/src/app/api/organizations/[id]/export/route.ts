@@ -39,7 +39,8 @@ export async function POST(
     }
 
     // Get dashboard data for export
-    const orgService = new (await import('@/lib/organizations/service')).OrganizationService(supabase);
+    const { OrganizationService } = await import('@/lib/organizations/service');
+    const orgService = new OrganizationService(supabase);
     const dashboard = await orgService.getOrganizationDashboard(
       resolvedParams.id,
       user.id,

@@ -20,7 +20,8 @@ export async function GET(
     const page = searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1;
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 20;
 
-    const orgService = new (await import('@/lib/organizations/service')).OrganizationService(supabase);
+    const { OrganizationService } = await import('@/lib/organizations/service');
+    const orgService = new OrganizationService(supabase);
     const users = await orgService.getOrganizationUsers(
       resolvedParams.id,
       user.id,
@@ -64,7 +65,8 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
 
-    const orgService = new (await import('@/lib/organizations/service')).OrganizationService(supabase);
+    const { OrganizationService } = await import('@/lib/organizations/service');
+    const orgService = new OrganizationService(supabase);
     const invite = await orgService.inviteUser(
       resolvedParams.id,
       user.id,

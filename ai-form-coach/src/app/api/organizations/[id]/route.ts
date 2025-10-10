@@ -16,7 +16,8 @@ export async function GET(
     }
     
     const resolvedParams = await params;
-    const orgService = new (await import('@/lib/organizations/service')).OrganizationService(supabase);
+    const { OrganizationService } = await import('@/lib/organizations/service');
+    const orgService = new OrganizationService(supabase);
     const organization = await orgService.getOrganization(resolvedParams.id, user.id);
     
     return NextResponse.json(organization);

@@ -14,7 +14,8 @@ export async function GET() {
 
     // Check if user is admin of any organization (for now, allow all authenticated users)
     // In production, you might want to restrict this to super admins only
-    const orgService = new (await import('@/lib/organizations/service')).OrganizationService(supabase);
+    const { OrganizationService } = await import('@/lib/organizations/service');
+    const orgService = new OrganizationService(supabase);
     const stats = await orgService.getOrganizationStats();
     
     return NextResponse.json(stats);

@@ -4,6 +4,20 @@ This directory contains comprehensive documentation for the AI Form Coach applic
 
 ## 📁 Documentation Structure
 
+### 🎯 Features
+- **[Async Form Report](features/ASYNC_FORM_REPORT.md)** - Client-side PDF report generation with monetization
+- **[Copy & Trust Pass](features/COPY_TRUST_PASS.md)** - Transparency and trust-building features
+- **[Organization Dashboard](features/ORGANIZATION_DASHBOARD.md)** - B2B-ready dashboard with CSV export
+- **[Metrics & Guardrails](features/METRICS_GUARDRAILS.md)** - Investor-grade analytics system
+
+### 🔧 Technical
+- **[Movement Embeddings](technical/MOVEMENT_EMBEDDINGS.md)** - Vector embeddings for movement pattern analysis
+- **[Micro Model](technical/MICRO_MODEL.md)** - Lightweight model deployment system
+- **[Phase Detection](technical/PHASE_DETECTION.md)** - Enhanced phase detection algorithms
+- **[Leaderboards](technical/LEADERBOARDS.md)** - Rankings and competition system
+- **[Metrics & Guardrails Documentation](technical/METRICS_GUARDRAILS_DOCUMENTATION.md)** - Detailed technical documentation
+- **[Metrics & Guardrails Implementation](technical/METRICS_GUARDRAILS_IMPLEMENTATION.md)** - Implementation details
+
 ### 🎯 Pose Analysis System
 - **[Enhanced Validator System](pose/ENHANCED_VALIDATOR_SYSTEM.md)** - Comprehensive form analysis with quality scoring, error tracking, and session analytics (extends Integrated System)
 - **[Integrated Validator System](pose/INTEGRATED_VALIDATOR_SYSTEM.md)** - 2D/3D validator integration and weighted scoring system
@@ -19,6 +33,15 @@ This directory contains comprehensive documentation for the AI Form Coach applic
 ### 🛠️ Development
 - **[Pose Engine Integration Status](development/POSE_ENGINE2_INTEGRATION_STATUS.md)** - Current integration progress
 - **[Validation Checklist](development/VALIDATION_CHECKLIST.md)** - Development validation procedures
+
+### ✅ Verification Reports
+- **[Async Form Report Verification](verification/ASYNC_FORM_REPORT_VERIFICATION.md)** - Comprehensive verification report
+- **[Copy & Trust Pass Verification](verification/COPY_TRUST_PASS_VERIFICATION.md)** - Complete verification report
+- **[Movement Embeddings Verification](verification/MOVEMENT_EMBEDDINGS_VERIFICATION.md)** - Technical verification
+- **[Micro Model Verification](verification/MICRO_MODEL_VERIFICATION.md)** - Implementation verification
+- **[Pacing Bar Verification](verification/PACING_BAR_VERIFICATION.md)** - Feature verification
+- **[Organization Dashboard Verification](verification/ORGANIZATION_DASHBOARD_VERIFICATION.md)** - B2B feature verification
+- **[Pacing Bar Complete](verification/PACING_BAR_COMPLETE.md)** - Complete verification report
 
 ## 🚀 Quick Navigation
 

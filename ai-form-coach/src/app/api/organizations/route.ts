@@ -16,7 +16,8 @@ export async function GET(request: Request) {
     const page = searchParams.get('page') ? parseInt(searchParams.get('page')!) : 1;
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 10;
 
-    const orgService = new (await import('@/lib/organizations/service')).OrganizationService(supabase);
+    const { OrganizationService } = await import('@/lib/organizations/service');
+    const orgService = new OrganizationService(supabase);
     const organizations = await orgService.getOrganizations(user.id, page, limit);
     
     return NextResponse.json(organizations);
