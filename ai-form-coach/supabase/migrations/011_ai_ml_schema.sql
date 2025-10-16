@@ -1,6 +1,6 @@
 -- =====================================================
--- AI/ML SCHEMA
--- Machine learning features and embeddings
+-- MIGRATION 011: AI & MACHINE LEARNING
+-- Embeddings, ML features, and pattern analysis
 -- =====================================================
 
 -- Session Embeddings (Movement Feature Vectors)

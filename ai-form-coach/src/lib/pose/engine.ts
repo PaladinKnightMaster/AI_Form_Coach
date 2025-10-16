@@ -16,6 +16,7 @@
 
 import { PoseLandmarker, PoseLandmarkerResult, FilesetResolver } from '@mediapipe/tasks-vision';
 import { Point3 } from '../math/poseMath';
+import { SmoothingPipeline, SmoothingPipelineConfig, TemporalDebouncer } from './filters';
 
 // MediaPipe WasmFileset interface (not exported from the library)
 interface WasmFileset {
@@ -49,9 +50,11 @@ export interface PoseEstimateResult {
 export interface PoseEngineOptions {
   model?: PoseModel;
   runningMode?: RunningMode;
-  smoothingAlpha?: number; // EMA alpha (0-1), default 0.4
+  smoothingAlpha?: number; // EMA alpha (0-1), default 0.65
   visibilityThreshold?: number; // Min visibility score to accept frame, default 0.55
-  debounceFrames?: number; // Frames needed for phase change, default 3
+  debounceFrames?: number; // Frames needed for phase change, default 2
+  enableAdvancedSmoothing?: boolean; // Enable median + outlier detection
+  smoothingConfig?: Partial<SmoothingPipelineConfig>;
 }
 
 // ============================================
@@ -82,12 +85,29 @@ export class PoseEngine2 {
   private validFrameCount: number = 0;
   private lastValidFrame: PoseEstimateResult | null = null;
 
+  // 🏥 SWORD HEALTH: Advanced smoothing
+  private enableAdvancedSmoothing: boolean;
+  private smoothingPipeline: SmoothingPipeline;
+  private temporalDebouncer: TemporalDebouncer;
+
   constructor(options: PoseEngineOptions = {}) {
     this.model = options.model || 'lite';
     this.runningMode = options.runningMode || 'VIDEO';
-    this.smoothingAlpha = options.smoothingAlpha || 0.4;
+    this.smoothingAlpha = options.smoothingAlpha || 0.65; // 🏥 Increased for responsiveness
     this.visibilityThreshold = options.visibilityThreshold || 0.55;
-    this.debounceFrames = options.debounceFrames || 3;
+    this.debounceFrames = options.debounceFrames || 2; // 🏥 Reduced for faster response
+    this.enableAdvancedSmoothing = options.enableAdvancedSmoothing ?? true;
+
+    // 🏥 SWORD HEALTH: Initialize advanced smoothing pipeline (only if enabled)
+    // 🔧 PERFORMANCE: Conditional initialization to avoid unnecessary memory allocation
+    if (this.enableAdvancedSmoothing) {
+      this.smoothingPipeline = new SmoothingPipeline(options.smoothingConfig);
+      this.temporalDebouncer = new TemporalDebouncer();
+    } else {
+      // Stub instances to avoid null checks
+      this.smoothingPipeline = null as unknown as SmoothingPipeline;
+      this.temporalDebouncer = null as unknown as TemporalDebouncer;
+    }
   }
 
   /**
@@ -197,8 +217,20 @@ export class PoseEngine2 {
       };
     }
 
-    // Apply EMA smoothing
-    const smoothedLandmarks = this.applySmoothing(rawLandmarks, this.lastLandmarks, this.smoothingAlpha);
+    // 🏥 SWORD HEALTH: Apply multi-stage smoothing pipeline
+    let smoothedLandmarks: Landmark3D[];
+    
+    if (this.enableAdvancedSmoothing) {
+      // Stage 1: EMA smoothing (existing)
+      const emaSmoothed = this.applySmoothing(rawLandmarks, this.lastLandmarks, this.smoothingAlpha);
+      
+      // Stage 2: Advanced pipeline (median + outlier detection)
+      smoothedLandmarks = this.smoothingPipeline.process(emaSmoothed);
+    } else {
+      // Fallback: EMA only
+      smoothedLandmarks = this.applySmoothing(rawLandmarks, this.lastLandmarks, this.smoothingAlpha);
+    }
+    
     this.lastLandmarks = smoothedLandmarks;
 
     // Calculate side visibility

@@ -32,8 +32,21 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error && data.user) {
+      // Ensure profile exists for the user
+      try {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({ id: data.user.id }, { onConflict: 'id' });
+        
+        if (profileError) {
+          console.error('Profile creation error in callback:', profileError);
+        }
+      } catch (profileErr) {
+        console.error('Unexpected profile error in callback:', profileErr);
+      }
+      
       const forwardedHost = request.headers.get('x-forwarded-host'); // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === 'development';
       if (isLocalEnv) {

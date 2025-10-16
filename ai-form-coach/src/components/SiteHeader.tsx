@@ -2,19 +2,14 @@
 import Link from 'next/link';
 import ThemeToggle from '@/ui/ThemeToggle';
 import AuthStatus from '@/components/AuthStatus';
-import { useEffect, useState } from 'react';
-import { getSupabaseClient } from '@/lib/supabase/client';
+import { useState, useEffect } from 'react';
 import { Button, Icon } from '@/ui/DS';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function SiteHeader() {
 	const [open, setOpen] = useState(false);
-	const [isAuthed, setIsAuthed] = useState(false);
-	useEffect(() => {
-		const supabase = getSupabaseClient();
-		supabase.auth.getUser().then(({ data }) => setIsAuthed(!!data.user));
-		const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setIsAuthed(!!session?.user));
-		return () => sub.subscription.unsubscribe();
-	}, []);
+	const { user } = useAuth();
+	const isAuthed = !!user;
 
 	// Handle escape key to close menu
 	useEffect(() => {

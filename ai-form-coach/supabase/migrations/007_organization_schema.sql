@@ -1,6 +1,6 @@
 -- =====================================================
--- ORGANIZATION SCHEMA
--- B2B features and organization management
+-- MIGRATION 007: ORGANIZATIONS
+-- B2B features, organization management, and teams
 -- =====================================================
 
 -- Organizations

@@ -1,6 +1,6 @@
 -- =====================================================
--- CORE SCHEMA
--- Basic tables and foundational structure
+-- MIGRATION 001: CORE FOUNDATION
+-- Users, sessions, programs, and basic infrastructure
 -- =====================================================
 
 -- Add source field to foods table
@@ -45,3 +45,56 @@ COMMENT ON COLUMN public.sessions.template_id IS 'Reference to the program templ
 COMMENT ON COLUMN public.sessions.verified IS 'Whether this session has been verified for quality';
 COMMENT ON COLUMN public.sessions.verification_score IS 'Quality score for session verification (0-1)';
 COMMENT ON COLUMN public.sessions.verification_notes IS 'Notes about session verification';
+
+-- =====================================================
+-- EMAIL UNIQUENESS & PROFILE INTEGRITY
+-- =====================================================
+
+-- Function to check if user exists by email
+CREATE OR REPLACE FUNCTION check_user_exists(p_email TEXT)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS(SELECT 1 FROM auth.users WHERE email = p_email);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION check_user_exists(TEXT) TO authenticated;
+
+-- Function to get user by email (for client-side checks)
+CREATE OR REPLACE FUNCTION get_user_by_email(p_email TEXT)
+RETURNS TABLE(
+    id UUID,
+    email TEXT,
+    created_at TIMESTAMPTZ,
+    email_confirmed_at TIMESTAMPTZ
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        u.id,
+        u.email,
+        u.created_at,
+        u.email_confirmed_at
+    FROM auth.users u
+    WHERE u.email = p_email;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION get_user_by_email(TEXT) TO authenticated;
+
+-- Trigger to prevent duplicate profiles
+CREATE OR REPLACE FUNCTION prevent_duplicate_profiles()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM public.profiles WHERE id = NEW.id) THEN
+        RAISE EXCEPTION 'Profile already exists for user %', NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS prevent_duplicate_profiles_trigger ON public.profiles;
+CREATE TRIGGER prevent_duplicate_profiles_trigger
+    BEFORE INSERT ON public.profiles
+    FOR EACH ROW
+    EXECUTE FUNCTION prevent_duplicate_profiles();

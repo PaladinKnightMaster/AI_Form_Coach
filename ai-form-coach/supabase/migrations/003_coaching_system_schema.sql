@@ -1,6 +1,6 @@
 -- =====================================================
--- COACHING SYSTEM SCHEMA
--- Coach cues and mentoring system
+-- MIGRATION 003: COACHING SYSTEM
+-- Coach cues, hints, and feedback delivery
 -- =====================================================
 
 -- Create coach_cues table for mentor cue system

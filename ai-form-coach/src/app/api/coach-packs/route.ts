@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseServiceClient } from '@/lib/supabase/server';
+import { getSupabaseServerClient } from '@/lib/supabase/server';
 
 export async function GET() {
   try {
-    const supabase = getSupabaseServiceClient();
+    const supabase = await getSupabaseServerClient();
     
     // Get user from session
     const { data: { user }, error: authError } = await supabase.auth.getUser();

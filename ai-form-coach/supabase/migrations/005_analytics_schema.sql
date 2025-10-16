@@ -1,6 +1,6 @@
 -- =====================================================
--- ANALYTICS & MONITORING SCHEMA
--- Metrics, tracking, and performance monitoring
+-- MIGRATION 005: BUSINESS & ANALYTICS
+-- Subscriptions, monitoring, and performance metrics
 -- =====================================================
 
 -- Analytics Events Table

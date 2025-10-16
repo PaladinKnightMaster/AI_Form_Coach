@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServiceClient } from '@/lib/supabase/server';
+import { getSupabaseServerClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = getSupabaseServiceClient();
+    const supabase = await getSupabaseServerClient();
     
     // Get user from session
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = getSupabaseServiceClient();
+    const supabase = await getSupabaseServerClient();
     
     // Get user from session
     const { data: { user }, error: authError } = await supabase.auth.getUser();

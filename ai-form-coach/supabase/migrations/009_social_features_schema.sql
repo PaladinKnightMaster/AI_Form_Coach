@@ -1,6 +1,6 @@
 -- =====================================================
--- SOCIAL FEATURES SCHEMA
--- Community, sharing, and social interactions
+-- MIGRATION 009: SOCIAL FEATURES
+-- Activity feed, likes, comments, and sharing
 -- =====================================================
 
 -- Activity Feed

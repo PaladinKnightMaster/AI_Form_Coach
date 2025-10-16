@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServiceClient } from '@/lib/supabase/server';
+import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { CreateFoodRequest, FoodSearchResult } from '@/types/nutrition';
 
 export async function GET(req: NextRequest) {
@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 		const limit = parseInt(searchParams.get('limit') || '20');
 		const offset = parseInt(searchParams.get('offset') || '0');
 
-		const supabase = getSupabaseServiceClient();
+		const supabase = await getSupabaseServerClient();
 
 		if (barcode) {
 			// Search by barcode
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const supabase = getSupabaseServiceClient();
+		const supabase = await getSupabaseServerClient();
 
 		const body = await req.json() as CreateFoodRequest;
 

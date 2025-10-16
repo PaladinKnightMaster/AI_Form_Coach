@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Icon } from '@/ui/DS';
-import { getSupabaseClient } from '@/lib/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import ActivityFeed from './ActivityFeed';
 import RealTimeFeedback from '../feedback/RealTimeFeedback';
 import FairCompetition from '../competition/FairCompetition';
@@ -15,26 +15,17 @@ interface EnhancedNavigationProps {
 
 export default function EnhancedNavigation({ className = '' }: EnhancedNavigationProps) {
   const router = useRouter();
+  const { user } = useAuth();
   // const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<'feed' | 'feedback' | 'competition'>('feed');
   const [stats, setStats] = useState<ActivityStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const isAuthenticated = !!user;
   // const { success: showSuccess } = useToastContext();
 
-  useEffect(() => {
-    fetchUserStats();
-  }, []);
-
-  const fetchUserStats = async () => {
+  const fetchUserStats = useCallback(async () => {
     try {
       setLoading(true);
-      
-      // Check if user is authenticated first
-      const supabase = getSupabaseClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      setIsAuthenticated(!!user);
       
       if (!user) {
         // User not authenticated, don't fetch stats
@@ -55,7 +46,11 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchUserStats();
+  }, [fetchUserStats]);
 
   const navigationItems = [
     {

@@ -36,6 +36,14 @@ export default function Account() {
 	
 	// Enhanced phase detection settings (P9)
 	const [enhancedPhaseDetectionEnabled, setEnhancedPhaseDetectionEnabled] = useState(true);
+	
+	// Password management state
+	const [showPasswordSection, setShowPasswordSection] = useState(false);
+	const [newPassword, setNewPassword] = useState('');
+	const [confirmPassword, setConfirmPassword] = useState('');
+	const [passwordLoading, setPasswordLoading] = useState(false);
+	const [passwordMessage, setPasswordMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+	const [hasPassword, setHasPassword] = useState<boolean | null>(null);
 
 	useEffect(() => {
 		(async () => {
@@ -45,6 +53,14 @@ export default function Account() {
 			if (u.user) {
 				const { data } = await supabase.from('profiles').select('plan,plan_renews_at').eq('id', u.user.id).maybeSingle();
 				if (data) { setPlan((data.plan as typeof plan) ?? 'free'); setRenewsAt(data.plan_renews_at ?? null); }
+				
+				// Check if user has a password set (magic link users won't have one)
+				// We can detect this by checking if the user was created via email/password vs magic link
+				const userCreatedAt = new Date(u.user.created_at);
+				const now = new Date();
+				const timeDiff = now.getTime() - userCreatedAt.getTime();
+				// If user was created recently and has no email_confirmed_at, they likely used magic link
+				setHasPassword(!!u.user.email_confirmed_at || timeDiff > 300000); // 5 minutes
 				
 				// Load calibration status
 				const status = await getCalibrationStatus();
@@ -126,6 +142,72 @@ export default function Account() {
 
 	async function goManage() {
 		alert('Coming soon: billing portal');
+	}
+	
+	async function handlePasswordUpdate() {
+		if (!newPassword || !confirmPassword) {
+			setPasswordMessage({type: 'error', text: 'Please fill in all password fields'});
+			return;
+		}
+		
+		if (newPassword.length < 6) {
+			setPasswordMessage({type: 'error', text: 'Password must be at least 6 characters'});
+			return;
+		}
+		
+		if (newPassword !== confirmPassword) {
+			setPasswordMessage({type: 'error', text: 'New passwords do not match'});
+			return;
+		}
+		
+		setPasswordLoading(true);
+		setPasswordMessage(null);
+		
+		try {
+			const supabase = getSupabaseClient();
+			
+			if (hasPassword) {
+				// User has a password, update it
+				const { error } = await supabase.auth.updateUser({
+					password: newPassword
+				});
+				
+				if (error) {
+					setPasswordMessage({type: 'error', text: `Failed to update password: ${error.message}`});
+				} else {
+					setPasswordMessage({type: 'success', text: 'Password updated successfully!'});
+					setNewPassword('');
+					setConfirmPassword('');
+					setShowPasswordSection(false);
+				}
+			} else {
+				// User doesn't have a password (magic link user), set one
+				const { error } = await supabase.auth.updateUser({
+					password: newPassword
+				});
+				
+				if (error) {
+					setPasswordMessage({type: 'error', text: `Failed to set password: ${error.message}`});
+				} else {
+					setPasswordMessage({type: 'success', text: 'Password set successfully! You can now sign in with your email and password.'});
+					setNewPassword('');
+					setConfirmPassword('');
+					setShowPasswordSection(false);
+					setHasPassword(true);
+				}
+			}
+		} catch {
+			setPasswordMessage({type: 'error', text: 'An unexpected error occurred. Please try again.'});
+		} finally {
+			setPasswordLoading(false);
+		}
+	}
+	
+	function resetPasswordForm() {
+		setNewPassword('');
+		setConfirmPassword('');
+		setPasswordMessage(null);
+		setShowPasswordSection(false);
 	}
 	
 	function handleMentorCueToggle(enabled: boolean) {
@@ -259,6 +341,117 @@ export default function Account() {
 							Reset tutorial
 						</button>
 					</div>
+				</div>
+				
+				{/* Password Management Section */}
+				<div className="rounded-lg border p-4">
+					<div className="flex items-center justify-between mb-4">
+						<div>
+							<h3 className="text-lg font-semibold text-gray-900">Password Management</h3>
+							<p className="text-sm text-gray-600">
+								{hasPassword === null ? 'Checking...' : 
+								 hasPassword ? 'Update your password or continue using magic link sign-in' : 
+								 'Set a password to enable email/password sign-in'}
+							</p>
+						</div>
+						<div className="flex items-center gap-2">
+							{hasPassword === null ? (
+								<Badge tone="neutral" size="sm">⏳ Checking</Badge>
+							) : hasPassword ? (
+								<Badge tone="success" size="sm">🔐 Password Set</Badge>
+							) : (
+								<Badge tone="warning" size="sm">🔗 Magic Link Only</Badge>
+							)}
+						</div>
+					</div>
+					
+					{hasPassword !== null && (
+						<div className="space-y-4">
+							{!showPasswordSection ? (
+								<div className="space-y-3">
+									<div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+										<div className="flex items-start gap-2">
+											<div className="text-blue-600 text-sm">💡</div>
+											<div className="text-sm text-blue-800">
+												<p className="font-medium">
+													{hasPassword ? 'Password Management' : 'Set Up Password'}
+												</p>
+												<p>
+													{hasPassword 
+														? 'You can update your password or continue using magic link sign-in. Having a password allows you to sign in without checking your email.'
+														: 'You currently sign in using magic links sent to your email. Setting a password will allow you to sign in directly with your email and password.'
+													}
+												</p>
+											</div>
+										</div>
+									</div>
+									
+									<button 
+										onClick={() => setShowPasswordSection(true)}
+										className="btn btn-primary"
+									>
+										{hasPassword ? 'Update Password' : 'Set Password'}
+									</button>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{passwordMessage && (
+										<div className={`p-3 rounded-lg border ${
+											passwordMessage.type === 'success' 
+												? 'bg-green-50 border-green-200 text-green-800' 
+												: 'bg-red-50 border-red-200 text-red-800'
+										}`}>
+											{passwordMessage.text}
+										</div>
+									)}
+									
+									<div className="space-y-3">
+										<div>
+											<label className="block text-sm font-medium text-gray-700 mb-1">
+												New Password
+											</label>
+											<input
+												type="password"
+												value={newPassword}
+												onChange={(e) => setNewPassword(e.target.value)}
+												placeholder="Enter new password (min 6 characters)"
+												className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+											/>
+										</div>
+										
+										<div>
+											<label className="block text-sm font-medium text-gray-700 mb-1">
+												Confirm New Password
+											</label>
+											<input
+												type="password"
+												value={confirmPassword}
+												onChange={(e) => setConfirmPassword(e.target.value)}
+												placeholder="Confirm new password"
+												className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+											/>
+										</div>
+									</div>
+									
+									<div className="flex space-x-2">
+										<button 
+											onClick={handlePasswordUpdate}
+											disabled={passwordLoading}
+											className="btn btn-primary disabled:opacity-50"
+										>
+											{passwordLoading ? 'Updating...' : (hasPassword ? 'Update Password' : 'Set Password')}
+										</button>
+										<button 
+											onClick={resetPasswordForm}
+											className="btn btn-secondary"
+										>
+											Cancel
+										</button>
+									</div>
+								</div>
+							)}
+						</div>
+					)}
 				</div>
 				
 				{/* Device Calibration Section */}

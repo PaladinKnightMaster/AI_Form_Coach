@@ -1,5 +1,5 @@
 -- =====================================================
--- LEADERBOARDS SCHEMA
+-- MIGRATION 004: LEADERBOARDS
 -- Rankings, competition, and leaderboard functions
 -- =====================================================
 

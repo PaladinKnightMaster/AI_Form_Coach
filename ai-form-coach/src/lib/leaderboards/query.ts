@@ -392,18 +392,44 @@ export async function checkTop10EntryEnhanced(
   exercise: Exercise,
   timeRange: TimeRange = 'all'
 ): Promise<Top10CheckResult> {
-  const supabase = getSupabaseClient();
-  
-  const { data, error } = await supabase.rpc('check_top_10_entry', {
-    p_user_id: userId,
-    p_exercise: exercise,
-    p_time_filter: timeRange
-  });
-  
-  if (error) {
-    console.error('Error checking top 10 entry:', error);
-    throw error;
+  try {
+    const supabase = getSupabaseClient();
+    
+    // Convert timeRange to the format expected by the SQL function
+    const timeFilter = timeRange === 'all' ? '1=1' : timeRange;
+    
+    const { data, error } = await supabase.rpc('check_top_10_entry', {
+      p_user_id: userId,
+      p_exercise: exercise,
+      p_time_filter: timeFilter
+    });
+    
+    if (error) {
+      // Check if it's a function not found error
+      if (error.message?.includes('function') && error.message?.includes('does not exist')) {
+        console.warn('Leaderboards RPC function not available, skipping top 10 check');
+        return { entered: false, leaderboards: [] };
+      }
+      
+      // Log other errors but don't spam the console
+      console.warn('Leaderboards check failed:', error.message || 'Unknown error');
+      return { entered: false, leaderboards: [] };
+    }
+    
+    const result = data?.[0];
+    if (!result) {
+      return { entered: false, leaderboards: [] };
+    }
+    
+    return {
+      entered: result.is_top_10 || false,
+      leaderboards: result.is_top_10 ? [exercise] : []
+    };
+  } catch (error) {
+    // Only log unexpected errors, not RPC function issues
+    if (error instanceof Error && !error.message.includes('function')) {
+      console.warn('Unexpected error in checkTop10EntryEnhanced:', error.message);
+    }
+    return { entered: false, leaderboards: [] };
   }
-  
-  return data?.[0] || { entered: false, leaderboards: [] };
 }

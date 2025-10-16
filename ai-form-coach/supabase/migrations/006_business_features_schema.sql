@@ -1,6 +1,6 @@
 -- =====================================================
--- BUSINESS FEATURES SCHEMA
--- Monetization, subscriptions, and marketplace
+-- MIGRATION 006: SUBSCRIPTIONS & MARKETPLACE
+-- Coach packs, purchases, monetization features
 -- =====================================================
 
 -- User Subscriptions

@@ -1,6 +1,6 @@
 -- =====================================================
--- NUTRITION SCHEMA
--- Food tracking and nutrition management
+-- MIGRATION 010: NUTRITION SYSTEM
+-- Food tracking, meals, and nutrition management
 -- =====================================================
 
 -- Foods Table (with category)

@@ -1,6 +1,6 @@
 -- =====================================================
--- USER FEATURES SCHEMA
--- Plans, goals, health, and progression tracking
+-- MIGRATION 008: USER FEATURES
+-- Plans, goals, health tracking, and progression
 -- =====================================================
 
 -- User Plans

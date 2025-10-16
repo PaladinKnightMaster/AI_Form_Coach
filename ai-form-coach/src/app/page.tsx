@@ -1,11 +1,14 @@
+"use client";
 import Link from 'next/link';
 import { Container, Section, Button, Badge, Icon } from '@/ui/DS';
 import { HeroGradientBackground, NutritionGradientBackground, PlansGradientBackground } from '@/components/AnimatedGradientBackground';
 import { ProfessionalImage } from '@/components/ProfessionalImage';
 import { FeatureCarousel } from '@/components/FeatureCarousel';
 import EnhancedNavigation from '@/components/navigation/EnhancedNavigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Home() {
+	const { user } = useAuth();
 	return (
 		<div className="relative bg-white dark:bg-gray-900">
 			{/* Hero Section with Diagonal Slash Layout */}
@@ -64,14 +67,16 @@ export default function Home() {
 								<div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mb-8">
 									<Link href="/coach">
 										<Button variant="primary" size="xl" className="w-full sm:w-auto transform hover:scale-105 transition-all duration-300">
-											Start Free Workout <Icon name="chevron-right" className="ml-2" />
+											{user ? 'Continue Workout' : 'Start Free Workout'} <Icon name="chevron-right" className="ml-2" />
 										</Button>
 									</Link>
-									<Link href="/signin">
-										<Button variant="secondary" size="xl" className="w-full sm:w-auto">
-											Sign In <Icon name="user" className="ml-2" />
-										</Button>
-									</Link>
+									{!user && (
+										<Link href="/signin">
+											<Button variant="secondary" size="xl" className="w-full sm:w-auto">
+												Sign In <Icon name="user" className="ml-2" />
+											</Button>
+										</Link>
+									)}
 								</div>
 								<div className="flex items-center justify-center lg:justify-start gap-8 text-sm text-gray-300">
 									<div className="flex items-center gap-2">
@@ -416,7 +421,7 @@ export default function Home() {
 						<div className="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
 							<Link href="/coach">
 								<Button variant="primary" className="w-full sm:w-auto bg-white text-purple-600 hover:bg-gray-100 px-8 py-4 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-									Start Free Now <Icon name="chevron-right" className="ml-2" />
+									{user ? 'Continue Workout' : 'Start Free Now'} <Icon name="chevron-right" className="ml-2" />
 								</Button>
 							</Link>
 							<Link href="/pricing">

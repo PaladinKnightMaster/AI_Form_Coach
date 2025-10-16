@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button, Icon } from '@/ui/DS';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 import { subscriptionService } from '@/lib/subscription/subscriptionService';
 import type { SubscriptionFeatures } from '@/lib/subscription/types';
 
@@ -21,24 +22,18 @@ export default function FeatureGate({
   showUpgradePrompt = true,
   className = ''
 }: FeatureGateProps) {
+  const { user } = useAuth();
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
 
   const checkAccess = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Get current user
-      const supabase = (await import('@/lib/supabase/client')).getSupabaseClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      
       if (user) {
-        setUserId(user.id);
         const access = await subscriptionService.checkFeatureAccess(user.id, feature);
         setHasAccess(access);
       } else {
-        setUserId(null);
         // For non-authenticated users, check free tier access
         const freeFeatures = subscriptionService.getFeatureAccess('free');
         const freeAccess = freeFeatures[feature];
@@ -50,7 +45,7 @@ export default function FeatureGate({
     } finally {
       setLoading(false);
     }
-  }, [feature]);
+  }, [feature, user]);
 
   useEffect(() => {
     checkAccess();
@@ -92,7 +87,7 @@ export default function FeatureGate({
         </p>
         
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          {userId ? (
+          {user ? (
             <Link href="/pricing">
               <Button variant="primary" className="w-full sm:w-auto">
                 <Icon name="star" className="w-4 h-4 mr-2" />
