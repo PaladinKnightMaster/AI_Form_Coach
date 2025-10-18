@@ -1,25 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
-import { getSupabaseClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AuthStatus() {
-	const [email, setEmail] = useState<string | null>(null);
+	const { user, signOut } = useAuth();
 	const [open, setOpen] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		const supabase = getSupabaseClient();
-		let mounted = true;
-		supabase.auth.getUser().then(({ data }) => {
-			if (!mounted) return;
-			setEmail(data.user?.email ?? null);
-		});
-		const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-			setEmail(session?.user?.email ?? null);
-		});
-		return () => { mounted = false; sub.subscription.unsubscribe(); };
-	}, []);
+	const email = user?.email ?? null;
 
 	useEffect(() => {
 		function onDocClick(e: MouseEvent) { if (open && menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false); }
@@ -29,11 +17,10 @@ export default function AuthStatus() {
 		return () => { document.removeEventListener('mousedown', onDocClick); document.removeEventListener('keydown', onKey); };
 	}, [open]);
 
-	async function signOut() {
-		const supabase = getSupabaseClient();
-		await supabase.auth.signOut();
+	const handleSignOut = async () => {
+		await signOut();
 		setOpen(false);
-	}
+	};
 
 	if (!email) return <Link href="/signin">Sign in</Link>;
 	const initial = email?.charAt(0).toUpperCase() ?? '?';
@@ -47,7 +34,7 @@ export default function AuthStatus() {
 					<div className="px-2 py-1 opacity-70 truncate">{email}</div>
 					<Link role="menuitem" href="/coach" className="block px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10" onClick={() => setOpen(false)}>Start session</Link>
 					<Link role="menuitem" href="/history" className="block px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10" onClick={() => setOpen(false)}>History</Link>
-					<button role="menuitem" className="w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10" onClick={signOut}>Sign out</button>
+					<button role="menuitem" className="w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10" onClick={handleSignOut}>Sign out</button>
 				</div>
 			)}
 		</div>

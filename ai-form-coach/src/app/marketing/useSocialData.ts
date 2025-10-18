@@ -6,7 +6,7 @@ export type Testimonial = { quote: string; name: string; role: string; avatarIni
 export type Outcomes = { avgSessionMinutes: number; totalRepsCounted: number; romImprovedPct: number };
 
 export function useSocialData() {
-	const [testimonials, setTestimonials] = useState<Testimonial[]>([
+	const [testimonials] = useState<Testimonial[]>([
 		{ quote: 'Instant feedback without recording video is a game changer.', name: 'Alex P.', role: 'Coach', avatarInitial: 'A' },
 		{ quote: 'Counts reps and cues my form better than my old notes.', name: 'Jamie L.', role: 'Athlete', avatarInitial: 'J' },
 		{ quote: 'I trust it because everything runs locally on my phone.', name: 'Taylor K.', role: 'Engineer', avatarInitial: 'T' },
@@ -27,7 +27,7 @@ export function useSocialData() {
 				}
 			} catch {}
 		})();
-	}, []);
+	}, [outcomes.avgSessionMinutes, outcomes.romImprovedPct, outcomes.totalRepsCounted]);
 
 	return { testimonials, outcomes };
 } 
