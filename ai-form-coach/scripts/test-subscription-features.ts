@@ -29,7 +29,7 @@ async function testSubscriptionFeatures() {
     
     if (likesError && likesError.code === '42P01') {
       console.log('❌ activity_likes table does not exist');
-      console.log('   Run the migration: supabase/migrations/add_activity_social_features.sql');
+      console.log('   Run the migration: supabase/migrations/05_social_community.sql');
     } else {
       console.log('✅ activity_likes table exists');
     }
@@ -43,7 +43,7 @@ async function testSubscriptionFeatures() {
     
     if (commentsError && commentsError.code === '42P01') {
       console.log('❌ activity_comments table does not exist');
-      console.log('   Run the migration: supabase/migrations/add_activity_social_features.sql');
+      console.log('   Run the migration: supabase/migrations/05_social_community.sql');
     } else {
       console.log('✅ activity_comments table exists');
     }

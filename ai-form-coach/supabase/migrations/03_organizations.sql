@@ -1,6 +1,6 @@
 -- =====================================================
--- MIGRATION 007: ORGANIZATIONS
--- B2B features, organization management, and teams
+-- MIGRATION 03: ORGANIZATIONS & TEAM MANAGEMENT
+-- Organization profiles, team members, invitations, metrics, exports
 -- =====================================================
 
 -- Organizations
@@ -93,7 +93,10 @@ CREATE TABLE IF NOT EXISTS public.organization_webhook_logs (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Indexes for performance
+-- =====================================================
+-- INDEXES FOR PERFORMANCE
+-- =====================================================
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_organizations_domain_unique ON public.organizations(domain) WHERE domain IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS idx_organization_users_performance ON public.organization_users 
@@ -113,7 +116,10 @@ CREATE INDEX IF NOT EXISTS idx_organization_exports_created_at ON public.organiz
 CREATE INDEX IF NOT EXISTS idx_organization_webhook_logs_organization_id ON public.organization_webhook_logs(organization_id);
 CREATE INDEX IF NOT EXISTS idx_organization_webhook_logs_sent_at ON public.organization_webhook_logs(sent_at);
 
--- Add comments for documentation
+-- =====================================================
+-- DOCUMENTATION & COMMENTS
+-- =====================================================
+
 COMMENT ON TABLE public.organizations IS 'B2B organization management with settings and metadata';
 COMMENT ON TABLE public.organization_users IS 'Organization membership with role-based access control';
 COMMENT ON TABLE public.organization_invites IS 'Organization invitation system with expiration';

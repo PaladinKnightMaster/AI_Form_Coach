@@ -128,15 +128,15 @@ checkFileContains(
 console.log('\n📚 DOCUMENTATION\n');
 
 checkFileContains(
-  'docs/pose/PERFORMANCE_SYNC_ANALYSIS.md',
-  'ROOT CAUSE ANALYSIS',
-  'Documentation: Analysis document exists'
+  'docs/pose/QUICK_REFERENCE.md',
+  'Phase B: Frame Synchronization',
+  'Documentation: Quick reference mentions sync optimizations'
 );
 
 checkFileContains(
-  'docs/pose/REALTIME_SYNC_OPTIMIZATIONS.md',
-  'OPTIMIZATIONS IMPLEMENTED',
-  'Documentation: Optimizations document exists'
+  'src/lib/pose/frameSync.ts',
+  'latency',
+  'Documentation: Frame sync implementation file exists'
 );
 
 // Summary

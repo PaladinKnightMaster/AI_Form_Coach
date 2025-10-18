@@ -22,7 +22,7 @@ async function setupSubscriptionSystem() {
 
     if (tablesError && tablesError.code === '42P01') {
       console.log('❌ Subscription tables do not exist');
-      console.log('   Please run the migration: supabase/migrations/add_subscription_schema.sql');
+      console.log('   Please run the migration: supabase/migrations/08_analytics_monitoring.sql');
       return;
     }
     console.log('✅ Subscription tables exist');

@@ -1,6 +1,7 @@
 "use client";
 import { type Landmark3D } from '@/lib/pose/engine';
-import React, { useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
+import { getCurrentDepthConfig, getDepthMetricsTracker } from '@/lib/pose/depthOptimization';
 
 // Enhanced skeleton connections for Sword Health style
 const EDGES: [number, number][] = [
@@ -40,7 +41,6 @@ interface PoseOverlayProps {
 }
 
 function PoseOverlayComponent({ 
-  landmarks, 
   landmarksRef,
   video, 
   mirror = false, 
@@ -58,6 +58,11 @@ function PoseOverlayComponent({
 	const cachedSortedEdgesRef = useRef<[number, number][]>([]);
 	const cachedSortedJointsRef = useRef<number[]>([]);
 	
+	// 🏥 PHASE D: Depth rendering optimization
+	const depthConfigRef = useRef(getCurrentDepthConfig());
+	const depthMetricsRef = useRef(getDepthMetricsTracker());
+	const sortStartTimeRef = useRef<number>(0);
+	
 	// Continuous animation loop for smooth skeleton updates
 	const animate = useCallback(() => {
 		const canvas = canvasRef.current; 
@@ -65,6 +70,9 @@ function PoseOverlayComponent({
 			animationRef.current = requestAnimationFrame(animate);
 			return;
 		}
+		
+		// 🏥 PHASE B: Mark render start time
+		const renderStartTime = performance.now();
 		
 		const ctx = canvas.getContext('2d'); 
 		if (!ctx) {
@@ -146,24 +154,39 @@ function PoseOverlayComponent({
 		let sortedEdges: [number, number][];
 		
 		if (needsResort || cachedSortedEdgesRef.current.length === 0) {
-			sortedEdges = [...EDGES].sort((edgeA, edgeB) => {
-				const [a1, b1] = edgeA;
-				const [a2, b2] = edgeB;
-				const p1 = currentLandmarks[a1];
-				const p2 = currentLandmarks[b1];
-				const p3 = currentLandmarks[a2];
-				const p4 = currentLandmarks[b2];
-				if (!p1 || !p2 || !p3 || !p4) return 0;
-				// Average Z for each edge (higher Z = further from camera)
-				const z1 = (p1.z + p2.z) / 2;
-				const z2 = (p3.z + p4.z) / 2;
-				return z2 - z1; // Sort back to front (higher Z first)
-			});
-			cachedSortedEdgesRef.current = sortedEdges;
-			lastZValuesRef.current = currentZValues;
+			// 🏥 PHASE D: Only sort if depth rendering is enabled
+			if (depthConfigRef.current.enableDepthSorting) {
+				sortStartTimeRef.current = performance.now();
+				
+				sortedEdges = [...EDGES].sort((edgeA, edgeB) => {
+					const [a1, b1] = edgeA;
+					const [a2, b2] = edgeB;
+					const p1 = currentLandmarks[a1];
+					const p2 = currentLandmarks[b1];
+					const p3 = currentLandmarks[a2];
+					const p4 = currentLandmarks[b2];
+					if (!p1 || !p2 || !p3 || !p4) return 0;
+					// Average Z for each edge (higher Z = further from camera)
+					const z1 = (p1.z + p2.z) / 2;
+					const z2 = (p3.z + p4.z) / 2;
+					return z2 - z1; // Sort back to front (higher Z first)
+				});
+				
+				// 🏥 PHASE D: Track sort performance
+				const sortDuration = performance.now() - sortStartTimeRef.current;
+				depthMetricsRef.current.recordSort(sortDuration);
+				
+				cachedSortedEdgesRef.current = sortedEdges;
+				lastZValuesRef.current = currentZValues;
+			} else {
+				// 🏥 PHASE D: Use unsorted edges if depth disabled
+				sortedEdges = EDGES;
+				depthMetricsRef.current.recordCacheMiss();
+			}
 		} else {
 			// 🚀 PERFORMANCE: Use cached sorted arrays (saves ~5-10ms per frame)
 			sortedEdges = cachedSortedEdgesRef.current;
+			depthMetricsRef.current.recordCacheHit();
 		}
 		
 		// 🏥 Draw skeleton edges with Sword Health clinical style + depth
@@ -353,6 +376,13 @@ function PoseOverlayComponent({
 		});
 		
 		ctx.restore();
+		
+		// 🏥 PHASE C: Mark render end time and log timing
+		const renderEndTime = performance.now();
+		const renderDuration = renderEndTime - renderStartTime;
+		if (debug) {
+			console.log(`PoseOverlay render duration: ${renderDuration.toFixed(2)}ms`);
+		}
 		
 		// Continue animation loop
 		animationRef.current = requestAnimationFrame(animate);

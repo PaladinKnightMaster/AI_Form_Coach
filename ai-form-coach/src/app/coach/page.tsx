@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PoseEngine2, type PoseEstimateResult, type Landmark3D } from '@/lib/pose/engine';
+import { shouldProcessFrame, recordFrameDropFps, getGlobalAnalyticsLogger, logAnalyticsMetric } from '@/lib/pose';
 import { createValidator } from '@/lib/validators';
 import type { Exercise, RepMetric, ValidatorConfig } from '@/lib/validators/types';
 import { speak, setMuted, ensureSpeechReady } from '@/lib/voice/coachVoice';
@@ -28,6 +29,7 @@ import { initializeQualityScorer } from '@/lib/microModel/qualityIntegration';
 import QualityOverlay from '@/components/QualityOverlay';
 import Top10Toast from '@/components/leaderboards/Top10Toast';
 import PacingBar from '@/components/ghost/PacingBar';
+import { MetricsDashboard } from '@/components/MetricsDashboard';
 
 function CoachContent() {
 	const searchParams = useSearchParams();
@@ -265,6 +267,30 @@ function CoachContent() {
 	useEffect(() => {
 		(async () => {
 			try {
+				// 🏥 PHASE A: Initialize PoseEngine2 with advanced smoothing enabled
+				const engine = new PoseEngine2({
+					model: 'lite', // Use lite model for speed
+					smoothingAlpha: 0.70, // 🏥 PHASE A: Optimized for responsiveness
+					visibilityThreshold: 0.55, // Gate low-confidence frames
+					debounceFrames: 2, // Fast phase transitions
+					enableAdvancedSmoothing: true, // 🏥 PHASE A: Enable full smoothing pipeline
+					enableMetrics: true, // 🏥 PHASE A: Enable jitter/latency telemetry
+					smoothingConfig: {
+						enableMedianFilter: true, // Suppress outliers
+						enableOutlierDetection: true, // Detect impossible movements
+						enableKalmanFilter: false, // Disabled for now, can enable for critical joints
+						medianWindowSize: 5, // 166ms window at 30fps
+						outlierConfig: {
+							maxSpeed: 0.15, // 15% max movement per frame
+							maxAcceleration: 0.08, // 8% max acceleration
+							minVisibility: 0.3 // Reject low-confidence landmarks
+						}
+					}
+				});
+				
+				await engine.init({ model: 'lite', runningMode: 'VIDEO' });
+				engineRef.current = engine;
+
 				// Initialize mentor system
 				await initializeMentor();
 				
@@ -601,12 +627,30 @@ function CoachContent() {
 			}
 			
 			try {
+				// 🏥 PHASE B: Track detection timing (start)
+				const loopStartTime = performance.now();
+				
+				// 🏥 PHASE F: Adaptive frame dropping for low-FPS devices
+				if (!shouldProcessFrame()) {
+					// Frame dropped for performance optimization
+					// Continue loop without processing this frame
+					if (running) {
+						poseLoopRef.current = requestAnimationFrame(loop);
+					}
+					return;
+				}
+				
+				// Check if we should skip this frame for adaptive quality
+				// (This will be implemented fully in adaptive-quality task)
 				const result = await engine.estimate(video);
 				
 				if (result) {
 					// 🚀 PERFORMANCE: Update landmarks ref FIRST for immediate skeleton rendering
 					// This bypasses React state and directly updates the ref used by PoseOverlay
 					landmarksRef.current = result.landmarks;
+					
+					// 🏥 PHASE A: Extract metrics from result
+					const metrics = engine.getMetrics();
 					
 					// 🚀 PERFORMANCE: Batch state updates to reduce re-render overhead
 					// Use startTransition for non-urgent UI updates
@@ -616,51 +660,66 @@ function CoachContent() {
 						setFps(result.fps);
 					});
 					
-					// Debug: Log pose detection success (reduced frequency to avoid console spam)
-					if (poseLoopRef.current && poseLoopRef.current % 60 === 0) { // Log every 60 frames (~2 seconds)
-						console.log(`Pose detected: visibility=${result.visibilityScore.toFixed(2)}, FPS=${result.fps}`);
+					// 🏥 PHASE B: Log frame sync metrics at 1Hz (every 30 frames)
+					// Track end-to-end latency, detection time, and frame skips
+					if (poseLoopRef.current && typeof poseLoopRef.current === 'number' && poseLoopRef.current % 30 === 0) {
+						const loopEndTime = performance.now();
+						const loopDuration = loopEndTime - loopStartTime;
+						
+						// 🏥 PHASE F: Record FPS for adaptive frame dropping
+						recordFrameDropFps(result.fps);
+						
+						console.debug('[PoseEngine2 Phase B Frame Sync]', {
+							fps: result.fps,
+							loopDurationMs: loopDuration.toFixed(1),
+							jitterPx: metrics.avgPixelJitter.toFixed(2),
+							stabilityScore: `${metrics.stabilityScore}%`,
+							detectionLatencyMs: metrics.detectionLatency.toFixed(1),
+							frameDropRate: `${metrics.frameDropRate.toFixed(1)}%`
+						});
+						
+						// 🏥 PHASE F: Log metrics to database (async)
+						(async () => {
+							try {
+								const { getDepthMetricsTracker, getFrameDropMetrics } = await import('@/lib/pose');
+								const depthMetrics = getDepthMetricsTracker().getMetrics();
+								const frameDropMetrics = getFrameDropMetrics();
+								
+								await logAnalyticsMetric({
+									timestamp: Date.now(),
+									fps: result.fps,
+									latency: metrics.detectionLatency,
+									jitter: metrics.avgPixelJitter,
+									visibility: result.visibilityScore,
+									cacheHitRate: depthMetrics.cacheHitRate,
+									sortTime: depthMetrics.avgSortTimeMs,
+									frameDropRate: frameDropMetrics.dropRate,
+									deviceType: exercise
+								});
+							} catch (err) {
+								console.warn('[Analytics Error]', err);
+							}
+						})();
 					}
 					
 					// Visibility gating - only process frames with good visibility for FSM
-					if (result.visibilityScore >= 0.6) {
-						// 🚀 PERFORMANCE: Update state EVERY frame for real-time sync
-						// The ref is already updated above, but we update state for FSM/validator
-						setLandmarks(result.landmarks);
-						
-						// Process pose with good visibility
-						await onPose(result.landmarks, result);
-						
-						// Reset low quality counter on good frames
-						if (result.visibilityScore > 0.75) {
-							lowQualityFramesRef.current = 0;
-							setPausedByQuality(false);
-						}
+					if (result.visibilityScore >= 0.55) {
+						onPose(result.landmarks, result);
 					} else {
-						// Low visibility - don't process frame for FSM
 						lowQualityFramesRef.current++;
-						
-						// Note: Auto-pause logic is handled in onPose function
-						// to maintain consistency with the 1.5s timer approach
 					}
-				} else {
-					// No pose detected - clear landmarks for skeleton
-					landmarksRef.current = null;
 				}
 			} catch (error) {
-				console.error('Pose estimation error:', error);
-				// Clear landmarks on error to prevent stale skeleton
-				landmarksRef.current = null;
+				console.error('[Pose Loop Error]', error);
 			}
 			
-			// Continue loop if still running
+			// Continue loop
 			if (running) {
 				poseLoopRef.current = requestAnimationFrame(loop);
 			}
 		};
 		
-		// Start the loop
-		poseLoopRef.current = requestAnimationFrame(loop);
-		console.log('Pose loop started');
+		loop();
 	}, [running, onPose]);
 
 	useEffect(() => {
@@ -964,6 +1023,16 @@ function CoachContent() {
 					/>
 					<canvas ref={canvasRef} className="absolute inset-0 z-10" />
 					{videoRef.current && (<PoseOverlay landmarks={landmarks} landmarksRef={landmarksRef} video={videoRef.current} mirror={mirrorVideo} debug={debug} />)}
+					
+					{/* 🏥 PHASE F: Real-time Metrics Dashboard */}
+					{running && debug && (
+						<MetricsDashboard 
+							engine={engineRef.current} 
+							visible={true} 
+							compact={false}
+							position="top-right" 
+						/>
+					)}
 					
 		{/* A6: Quality Overlay */}
 		<QualityOverlay 

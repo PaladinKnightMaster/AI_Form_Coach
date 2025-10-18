@@ -1,6 +1,10 @@
 -- =====================================================
--- MIGRATION 001: CORE FOUNDATION
--- Users, sessions, programs, and basic infrastructure
+-- MIGRATION 00: AUTHENTICATION & CORE FOUNDATION
+-- Users, programs, sessions, and basic infrastructure
+-- =====================================================
+
+-- =====================================================
+-- CORE TABLES
 -- =====================================================
 
 -- Add source field to foods table
@@ -30,7 +34,10 @@ ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS verified BOOLEAN DEFAULT fa
 ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS verification_score REAL DEFAULT 0;
 ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS verification_notes TEXT;
 
--- Core indexes for performance
+-- =====================================================
+-- CORE INDEXES FOR PERFORMANCE
+-- =====================================================
+
 CREATE INDEX IF NOT EXISTS idx_sessions_core_performance ON public.sessions 
   (user_id, started_at DESC, ended_at) 
   WHERE ended_at IS NOT NULL;
@@ -38,7 +45,10 @@ CREATE INDEX IF NOT EXISTS idx_sessions_core_performance ON public.sessions
 CREATE INDEX IF NOT EXISTS idx_sessions_template_id ON public.sessions(template_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_verified ON public.sessions(verified);
 
--- Core comments
+-- =====================================================
+-- SCHEMA & TABLE DOCUMENTATION
+-- =====================================================
+
 COMMENT ON SCHEMA public IS 'Core schema for AI Form Coach application';
 COMMENT ON TABLE public.programs IS 'Structured workout programs and templates';
 COMMENT ON COLUMN public.sessions.template_id IS 'Reference to the program template used for this session';
@@ -47,7 +57,7 @@ COMMENT ON COLUMN public.sessions.verification_score IS 'Quality score for sessi
 COMMENT ON COLUMN public.sessions.verification_notes IS 'Notes about session verification';
 
 -- =====================================================
--- EMAIL UNIQUENESS & PROFILE INTEGRITY
+-- AUTHENTICATION FUNCTIONS
 -- =====================================================
 
 -- Function to check if user exists by email
@@ -81,6 +91,10 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 GRANT EXECUTE ON FUNCTION get_user_by_email(TEXT) TO authenticated;
+
+-- =====================================================
+-- PROFILE INTEGRITY TRIGGERS
+-- =====================================================
 
 -- Trigger to prevent duplicate profiles
 CREATE OR REPLACE FUNCTION prevent_duplicate_profiles()

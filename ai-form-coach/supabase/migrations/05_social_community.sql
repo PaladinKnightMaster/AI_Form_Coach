@@ -1,9 +1,12 @@
 -- =====================================================
--- MIGRATION 009: SOCIAL FEATURES
--- Activity feed, likes, comments, and sharing
+-- MIGRATION 05: SOCIAL & COMMUNITY FEATURES
+-- Activity feed, likes, comments, and social stats
 -- =====================================================
 
--- Activity Feed
+-- =====================================================
+-- ACTIVITY FEED
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS activity_feed (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -13,7 +16,10 @@ CREATE TABLE IF NOT EXISTS activity_feed (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Activity Likes
+-- =====================================================
+-- ACTIVITY LIKES
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS activity_likes (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     activity_id UUID NOT NULL REFERENCES activity_feed(id) ON DELETE CASCADE,
@@ -22,7 +28,10 @@ CREATE TABLE IF NOT EXISTS activity_likes (
     UNIQUE(activity_id, user_id)
 );
 
--- Activity Comments
+-- =====================================================
+-- ACTIVITY COMMENTS
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS activity_comments (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     activity_id UUID NOT NULL REFERENCES activity_feed(id) ON DELETE CASCADE,
@@ -32,7 +41,10 @@ CREATE TABLE IF NOT EXISTS activity_comments (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Activity Stats
+-- =====================================================
+-- ACTIVITY STATISTICS
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS activity_stats (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -45,7 +57,10 @@ CREATE TABLE IF NOT EXISTS activity_stats (
     UNIQUE(user_id)
 );
 
--- Indexes for performance
+-- =====================================================
+-- INDEXES FOR PERFORMANCE
+-- =====================================================
+
 CREATE INDEX IF NOT EXISTS idx_activity_feed_user_id ON activity_feed(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_feed_activity_type ON activity_feed(activity_type);
 CREATE INDEX IF NOT EXISTS idx_activity_feed_created_at ON activity_feed(created_at);
@@ -60,7 +75,10 @@ CREATE INDEX IF NOT EXISTS idx_activity_comments_created_at ON activity_comments
 
 CREATE INDEX IF NOT EXISTS idx_activity_stats_user_id ON activity_stats(user_id);
 
--- Add comments for documentation
+-- =====================================================
+-- DOCUMENTATION & COMMENTS
+-- =====================================================
+
 COMMENT ON TABLE activity_feed IS 'Social activity feed for community engagement';
 COMMENT ON TABLE activity_likes IS 'Like system for social activities';
 COMMENT ON TABLE activity_comments IS 'Comment system for social activities';

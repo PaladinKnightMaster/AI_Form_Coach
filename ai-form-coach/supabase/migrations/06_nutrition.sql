@@ -1,9 +1,12 @@
 -- =====================================================
--- MIGRATION 010: NUTRITION SYSTEM
--- Food tracking, meals, and nutrition management
+-- MIGRATION 06: NUTRITION SYSTEM
+-- Food tracking, meals, meal items, and nutrition goals
 -- =====================================================
 
--- Foods Table (with category)
+-- =====================================================
+-- FOODS DATABASE
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS foods (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name TEXT NOT NULL,
@@ -24,7 +27,10 @@ CREATE TABLE IF NOT EXISTS foods (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- User Meals
+-- =====================================================
+-- USER MEALS
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS user_meals (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -38,7 +44,10 @@ CREATE TABLE IF NOT EXISTS user_meals (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Meal Items
+-- =====================================================
+-- MEAL ITEMS
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS meal_items (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     meal_id UUID NOT NULL REFERENCES user_meals(id) ON DELETE CASCADE,
@@ -52,7 +61,10 @@ CREATE TABLE IF NOT EXISTS meal_items (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Nutrition Goals
+-- =====================================================
+-- NUTRITION GOALS
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS nutrition_goals (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -66,7 +78,10 @@ CREATE TABLE IF NOT EXISTS nutrition_goals (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Indexes for performance
+-- =====================================================
+-- INDEXES FOR PERFORMANCE
+-- =====================================================
+
 CREATE INDEX IF NOT EXISTS idx_foods_name ON foods(name);
 CREATE INDEX IF NOT EXISTS idx_foods_category ON foods(category);
 CREATE INDEX IF NOT EXISTS idx_foods_barcode ON foods(barcode);
@@ -83,7 +98,10 @@ CREATE INDEX IF NOT EXISTS idx_nutrition_goals_user_id ON nutrition_goals(user_i
 CREATE INDEX IF NOT EXISTS idx_nutrition_goals_goal_type ON nutrition_goals(goal_type);
 CREATE INDEX IF NOT EXISTS idx_nutrition_goals_goal_date ON nutrition_goals(goal_date);
 
--- Add comments for documentation
+-- =====================================================
+-- DOCUMENTATION & COMMENTS
+-- =====================================================
+
 COMMENT ON TABLE foods IS 'Food database with nutritional information and categories';
 COMMENT ON TABLE user_meals IS 'User meal tracking and daily nutrition intake';
 COMMENT ON TABLE meal_items IS 'Individual food items within user meals';

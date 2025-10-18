@@ -1,9 +1,12 @@
 -- =====================================================
--- MIGRATION 008: USER FEATURES
--- Plans, goals, health tracking, and progression
+-- MIGRATION 04: USER MANAGEMENT & PROGRESSION
+-- User plans, goals, health data, and exercise progression
 -- =====================================================
 
--- User Plans
+-- =====================================================
+-- USER PLANS
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS user_plans (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -15,7 +18,10 @@ CREATE TABLE IF NOT EXISTS user_plans (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Goals Schema
+-- =====================================================
+-- USER GOALS
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS goals (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -32,7 +38,10 @@ CREATE TABLE IF NOT EXISTS goals (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Health Data Schema
+-- =====================================================
+-- HEALTH DATA
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS health_data (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -45,7 +54,10 @@ CREATE TABLE IF NOT EXISTS health_data (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Progression Schema
+-- =====================================================
+-- EXERCISE PROGRESSION
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS progression (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -60,7 +72,10 @@ CREATE TABLE IF NOT EXISTS progression (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Indexes for performance
+-- =====================================================
+-- INDEXES FOR PERFORMANCE
+-- =====================================================
+
 CREATE INDEX IF NOT EXISTS idx_user_plans_user_id ON user_plans(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_plans_is_active ON user_plans(is_active);
 
@@ -78,7 +93,10 @@ CREATE INDEX IF NOT EXISTS idx_progression_exercise ON progression(exercise);
 CREATE INDEX IF NOT EXISTS idx_progression_progression_type ON progression(progression_type);
 CREATE INDEX IF NOT EXISTS idx_progression_progression_date ON progression(progression_date);
 
--- Add comments for documentation
+-- =====================================================
+-- DOCUMENTATION & COMMENTS
+-- =====================================================
+
 COMMENT ON TABLE user_plans IS 'User workout plans and program management';
 COMMENT ON TABLE goals IS 'User fitness goals and target tracking';
 COMMENT ON TABLE health_data IS 'User health metrics and body measurements';

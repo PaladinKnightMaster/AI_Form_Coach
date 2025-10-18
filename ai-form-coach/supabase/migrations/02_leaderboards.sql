@@ -1,6 +1,10 @@
 -- =====================================================
--- MIGRATION 004: LEADERBOARDS
--- Rankings, competition, and leaderboard functions
+-- MIGRATION 02: LEADERBOARDS & RANKINGS
+-- Global leaderboards, user rankings, achievements
+-- =====================================================
+
+-- =====================================================
+-- PERFORMANCE INDEXES
 -- =====================================================
 
 -- Optimized indexes for leaderboard performance
@@ -12,14 +16,18 @@ CREATE INDEX IF NOT EXISTS idx_sessions_user_performance ON public.sessions
   (user_id, exercise, verified, started_at DESC) 
   WHERE ended_at IS NOT NULL;
 
--- Enhanced leaderboard function with all sorting options
+-- =====================================================
+-- LEADERBOARD FUNCTIONS
+-- =====================================================
+
+-- Enhanced leaderboard function by exercise with all sorting options
 CREATE OR REPLACE FUNCTION get_leaderboard_by_exercise_paginated(
   p_exercise TEXT,
   p_time_filter TEXT,
   p_verified_only BOOLEAN DEFAULT true,
   p_limit INTEGER DEFAULT 50,
   p_offset INTEGER DEFAULT 0,
-  p_sort_by TEXT DEFAULT 'reps' -- 'reps', 'correct_rate', 'volume', 'integrity'
+  p_sort_by TEXT DEFAULT 'reps'
 )
 RETURNS TABLE (
   rank BIGINT,
@@ -119,7 +127,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Enhanced overall leaderboard function
+-- Overall leaderboard function
 CREATE OR REPLACE FUNCTION get_overall_leaderboard_paginated(
   p_time_filter TEXT,
   p_verified_only BOOLEAN DEFAULT true,
@@ -331,7 +339,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Add comprehensive comments for all functions
+-- =====================================================
+-- FUNCTION DOCUMENTATION
+-- =====================================================
+
 COMMENT ON FUNCTION get_leaderboard_by_exercise_paginated IS 'Enhanced leaderboard query with pagination, verified-first sorting, and multiple sort options';
 COMMENT ON FUNCTION get_overall_leaderboard_paginated IS 'Enhanced overall leaderboard query with pagination and verified-first sorting';
 COMMENT ON FUNCTION get_user_rank_with_context IS 'Get user rank with full context including total entries and pagination info';

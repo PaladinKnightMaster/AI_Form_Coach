@@ -1,6 +1,10 @@
 -- =====================================================
--- MIGRATION 002: POSE ANALYSIS & QUALITY METRICS
--- Form validation, rep tracking, and quality analytics
+-- MIGRATION 01: POSE QUALITY METRICS & COACHING
+-- Pose detection, quality tracking, coaching hints, skeleton events
+-- =====================================================
+
+-- =====================================================
+-- REP QUALITY ENHANCEMENTS
 -- =====================================================
 
 -- Add correctness and confidence columns to reps table
@@ -26,22 +30,11 @@ CREATE INDEX IF NOT EXISTS idx_reps_quality_score ON public.reps(quality_score);
 CREATE INDEX IF NOT EXISTS idx_sessions_correct_rate ON public.sessions(correct_rate);
 CREATE INDEX IF NOT EXISTS idx_sessions_calibration_quality ON public.sessions(calibration_quality);
 
--- Add comments for documentation
-COMMENT ON COLUMN public.reps.is_correct IS 'Whether this rep was performed correctly (≥80% valid frames + no critical errors)';
-COMMENT ON COLUMN public.reps.confidence IS 'Confidence score (0-1) based on error time vs rep time';
-COMMENT ON COLUMN public.reps.quality_score IS 'Overall quality score for this rep (0-1)';
-COMMENT ON COLUMN public.reps.tempo IS 'Tempo of the rep in seconds';
-COMMENT ON COLUMN public.reps.peak_depth IS 'Peak depth achieved during the rep';
-COMMENT ON COLUMN public.sessions.correct_rate IS 'Percentage of correct reps in this session (0-1)';
-COMMENT ON COLUMN public.sessions.device_calibration IS 'Device calibration data and settings';
-COMMENT ON COLUMN public.sessions.calibration_quality IS 'Quality of device calibration (0-1)';
-
 -- =====================================================
--- POSE QUALITY ANALYTICS
+-- POSE QUALITY METRICS TABLE
 -- Real-time pose quality tracking and performance
 -- =====================================================
 
--- Pose quality metrics table
 CREATE TABLE IF NOT EXISTS pose_quality_metrics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -76,6 +69,21 @@ CREATE TABLE IF NOT EXISTS pose_quality_metrics (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- =====================================================
+-- COACHING SYSTEM TABLES
+-- Coach cues and coaching hints
+-- =====================================================
+
+-- Create coach_cues table for mentor cue system
+CREATE TABLE IF NOT EXISTS public.coach_cues (
+    key TEXT PRIMARY KEY,
+    severity SMALLINT NOT NULL CHECK (severity >= 1 AND severity <= 5),
+    short TEXT NOT NULL,
+    long TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Coaching hints table
 CREATE TABLE IF NOT EXISTS coaching_hints (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -103,7 +111,11 @@ CREATE TABLE IF NOT EXISTS coaching_hints (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Skeleton events table
+-- =====================================================
+-- SKELETON RENDERING EVENTS
+-- Performance and visual quality tracking
+-- =====================================================
+
 CREATE TABLE IF NOT EXISTS skeleton_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -136,12 +148,14 @@ CREATE TABLE IF NOT EXISTS skeleton_events (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Enable RLS
+-- =====================================================
+-- ROW LEVEL SECURITY
+-- =====================================================
+
 ALTER TABLE pose_quality_metrics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE coaching_hints ENABLE ROW LEVEL SECURITY;
 ALTER TABLE skeleton_events ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies
 CREATE POLICY "Users can access own pose_quality_metrics" ON pose_quality_metrics
   FOR SELECT USING (user_id = auth.uid());
 CREATE POLICY "System can insert pose_quality_metrics" ON pose_quality_metrics
@@ -157,23 +171,32 @@ CREATE POLICY "Users can access own skeleton_events" ON skeleton_events
 CREATE POLICY "System can insert skeleton_events" ON skeleton_events
   FOR INSERT WITH CHECK (user_id = auth.uid());
 
--- Indexes for performance
+-- =====================================================
+-- PERFORMANCE INDEXES
+-- =====================================================
+
 CREATE INDEX idx_pose_quality_user ON pose_quality_metrics(user_id);
 CREATE INDEX idx_pose_quality_session ON pose_quality_metrics(session_id);
 CREATE INDEX idx_pose_quality_timestamp ON pose_quality_metrics(timestamp);
 CREATE INDEX idx_pose_quality_visibility ON pose_quality_metrics(visibility_score);
 CREATE INDEX idx_pose_quality_composite ON pose_quality_metrics(session_id, timestamp DESC);
 
-CREATE INDEX idx_coaching_hints_user ON coaching_hints(user_id);
-CREATE INDEX idx_coaching_hints_session ON coaching_hints(session_id);
-CREATE INDEX idx_coaching_hints_timestamp ON coaching_hints(timestamp);
-CREATE INDEX idx_coaching_hints_key ON coaching_hints(hint_key);
+CREATE INDEX idx_coach_cues_severity ON public.coach_cues(severity);
+CREATE INDEX idx_coach_cues_key ON public.coach_cues(key);
+
+CREATE INDEX IF NOT EXISTS idx_coaching_hints_user ON coaching_hints(user_id);
+CREATE INDEX IF NOT EXISTS idx_coaching_hints_session ON coaching_hints(session_id);
+CREATE INDEX IF NOT EXISTS idx_coaching_hints_timestamp ON coaching_hints(timestamp);
+CREATE INDEX IF NOT EXISTS idx_coaching_hints_key ON coaching_hints(hint_key);
 
 CREATE INDEX idx_skeleton_user ON skeleton_events(user_id);
 CREATE INDEX idx_skeleton_session ON skeleton_events(session_id);
 CREATE INDEX idx_skeleton_timestamp ON skeleton_events(timestamp);
 
--- Views
+-- =====================================================
+-- ANALYTICAL VIEWS
+-- =====================================================
+
 CREATE OR REPLACE VIEW session_quality_summary AS
 SELECT
   s.id as session_id,
@@ -209,7 +232,10 @@ SELECT
 FROM skeleton_events
 GROUP BY user_id;
 
--- Functions
+-- =====================================================
+-- UTILITY FUNCTIONS
+-- =====================================================
+
 CREATE OR REPLACE FUNCTION calculate_stability_score(
   p_session_id UUID
 )
@@ -260,10 +286,26 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Comments
+-- =====================================================
+-- DOCUMENTATION & COMMENTS
+-- =====================================================
+
 COMMENT ON TABLE pose_quality_metrics IS 'Frame-by-frame quality metrics for pose detection and analysis';
 COMMENT ON TABLE coaching_hints IS 'Coaching hint events with effectiveness tracking';
 COMMENT ON TABLE skeleton_events IS 'Skeleton rendering performance and quality events';
+COMMENT ON TABLE public.coach_cues IS 'Coach cues for mentor system with priority and cooldown management';
+COMMENT ON COLUMN public.coach_cues.key IS 'Unique cue identifier (e.g., knees_out, go_deeper)';
+COMMENT ON COLUMN public.coach_cues.severity IS 'Cue priority level (1=low, 5=critical)';
+COMMENT ON COLUMN public.coach_cues.short IS 'Short cue message for real-time display';
+COMMENT ON COLUMN public.coach_cues.long IS 'Detailed explanation for post-session review';
+COMMENT ON COLUMN public.reps.is_correct IS 'Whether this rep was performed correctly (≥80% valid frames + no critical errors)';
+COMMENT ON COLUMN public.reps.confidence IS 'Confidence score (0-1) based on error time vs rep time';
+COMMENT ON COLUMN public.reps.quality_score IS 'Overall quality score for this rep (0-1)';
+COMMENT ON COLUMN public.reps.tempo IS 'Tempo of the rep in seconds';
+COMMENT ON COLUMN public.reps.peak_depth IS 'Peak depth achieved during the rep';
+COMMENT ON COLUMN public.sessions.correct_rate IS 'Percentage of correct reps in this session (0-1)';
+COMMENT ON COLUMN public.sessions.device_calibration IS 'Device calibration data and settings';
+COMMENT ON COLUMN public.sessions.calibration_quality IS 'Quality of device calibration (0-1)';
 COMMENT ON VIEW session_quality_summary IS 'Aggregated quality metrics per session';
 COMMENT ON VIEW hint_effectiveness IS 'Analysis of coaching hint performance across all users';
 COMMENT ON VIEW skeleton_performance IS 'Skeleton rendering performance analysis';

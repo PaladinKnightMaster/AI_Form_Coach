@@ -199,17 +199,24 @@ A revolutionary fitness application that combines AI-powered form coaching with 
 
 5. **Set up the database**
    ```bash
-   # Run the nutrition schema setup (includes ingredient breakdown columns)
-   npm run seed:nutrition
+   # Run comprehensive database migrations
+   # All consolidated migrations are in: supabase/migrations/
+   # Migrations follow domain organization:
+   # - 00_auth_and_core.sql       (Auth & foundation)
+   # - 01_pose_quality_metrics.sql (Pose detection & coaching)
+   # - 02_leaderboards.sql         (Rankings & competition)
+   # - 03_organizations.sql        (B2B features)
+   # - 04_user_management.sql      (User plans & progression)
+   # - 05_social_community.sql     (Social features)
+   # - 06_nutrition.sql            (Nutrition system)
+   # - 07_ml_embeddings.sql        (ML & embeddings)
+   # - 08_analytics_monitoring.sql (Analytics & monetization)
    
-   # Run the comprehensive database migration
-   # Execute the SQL file in your Supabase dashboard:
-   # supabase/migrations/add_missing_data_structures.sql
+   # Deploy all migrations via Supabase CLI:
+   supabase db push
    
-   # Note: nutrition-schema.sql now includes:
-   # - ingredients (JSONB) - Structured ingredient breakdown
-   # - detailed_description (TEXT) - Comprehensive food descriptions
-   # - GIN index for efficient ingredient queries
+   # Or run manually in Supabase SQL Editor
+   # See: supabase/SQL_MIGRATIONS_INDEX.md for complete schema reference
    ```
 
 6. **Start the development server**
@@ -355,6 +362,12 @@ ai-form-coach/
 - **`health_baselines`** - Personal health baseline values for readiness calculations
 - **`readiness_assessments`** - Manual readiness inputs with computed scores
 
+### Pose Quality & Analytics
+- **`pose_quality_metrics`** - Frame-by-frame quality metrics for pose detection
+- **`coaching_hints`** - Real-time coaching feedback and effectiveness tracking
+- **`skeleton_events`** - Skeleton rendering performance and quality events
+- **`coach_cues`** - Mentor system cues with severity and cooldown management
+
 ### Database Features
 - **Row Level Security (RLS)** - Secure data access policies for all tables
 - **Materialized views** - Optimized nutrition and progress summaries
@@ -362,16 +375,76 @@ ai-form-coach/
 - **JSONB storage** - Flexible plan data and health metrics storage
 - **Custom functions** - Readiness scoring, goal calculations, and progression logic
 - **Comprehensive indexes** - Optimized query performance for all workflows
+- **99 Optimized Indexes** - Performance-tuned for all major queries
+- **10 Custom Functions** - Business logic and calculations
+- **7 Analytical Views** - Pre-built queries for dashboards
 
 ## 📚 Documentation
 
-Comprehensive documentation is available in the `docs/` directory:
+Comprehensive documentation is available in the organized `docs/` directory:
+
+### 🎯 Quick Navigation
+
+**Start Here:**
+- **[Documentation Index](docs/INDEX.md)** - Master documentation with navigation guide
+- **[CHANGELOG](docs/CHANGELOG.md)** - Complete version history and updates
+
+### System & Features Documentation
+
+**Pose Analysis System:**
+- **[3D Pose System Overview](docs/pose/README_3D_POSE_SYSTEM.md)** - Complete 3D pose analysis guide
+- **[Integrated Validator System](docs/pose/INTEGRATED_VALIDATOR_SYSTEM.md)** - 2D/3D validator integration
+- **[Pose Engine Comparison](docs/pose/POSE_ENGINE_COMPARISON.md)** - V1 vs V2 features
+- **[3D Integration Guide](docs/pose/pose3DIntegrationGuide.md)** - Implementation details
+
+**System Architecture:**
+- **[Verification System](docs/systems/VERIFICATION_SYSTEM.md)** - Session integrity system
+- **[Readiness System](docs/systems/READINESS_SYSTEM_IMPLEMENTATION.md)** - Health monitoring
+- **[Type Architecture](docs/systems/READINESS_TYPE_ARCHITECTURE.md)** - Type patterns
+
+**Development:**
+- **[Pose Engine Integration](docs/development/POSE_ENGINE2_INTEGRATION_STATUS.md)** - Integration status
+- **[Validation Checklist](docs/development/VALIDATION_CHECKLIST.md)** - Development procedures
+
+### Database Documentation
+
+**Schema Reference:**
+- **[SQL Migrations Index](supabase/SQL_MIGRATIONS_INDEX.md)** - Complete database schema with:
+  - All 38 tables documented
+  - 99 optimized indexes listed
+  - RLS policies explained
+  - Functions & views documented
+  - Deployment procedures
+
+**Structure:**
+```
+supabase/migrations/
+├── 00_auth_and_core.sql           # Auth & foundation
+├── 01_pose_quality_metrics.sql    # Pose detection & coaching
+├── 02_leaderboards.sql            # Rankings & competition
+├── 03_organizations.sql           # B2B features
+├── 04_user_management.sql         # User plans & progression
+├── 05_social_community.sql        # Social features
+├── 06_nutrition.sql               # Nutrition system
+├── 07_ml_embeddings.sql           # ML & embeddings
+└── 08_analytics_monitoring.sql    # Analytics & monetization
+```
+
+---
 
 ### 🎯 Pose Analysis System
 - **[3D Pose System Overview](docs/pose/README_3D_POSE_SYSTEM.md)** - Complete guide to the 3D pose analysis system
 - **[Integrated Validator System](docs/pose/INTEGRATED_VALIDATOR_SYSTEM.md)** - 2D/3D validator integration
 - **[Pose Engine Comparison](docs/pose/POSE_ENGINE_COMPARISON.md)** - V1 vs V2 feature comparison
 - **[3D Integration Guide](docs/pose/pose3DIntegrationGuide.md)** - Implementation guide for 3D features
+
+**All 6 Phases Implemented (A-F):**
+- ✅ **Phase A** - Stability & jitter elimination (EMA, median filter, outlier detection)
+- ✅ **Phase B** - Frame synchronization & latency (frame timing, drop detection)
+- ✅ **Phase C** - Web worker integration (off-thread processing, worker pool)
+- ✅ **Phase D** - Depth rendering verification (device-aware optimization, 99%+ coverage)
+- ✅ **Phase E** - Metrics dashboard & testing (real-time monitoring, regression tests)
+- ✅ **Phase F** - Full integration & adaptive frame dropping (device-based optimization)
 
 ### 🏗️ System Architecture
 - **[Verification System](docs/systems/VERIFICATION_SYSTEM.md)** - Session integrity checking system
@@ -592,5 +665,6 @@ For support, email support@aiformcoach.com or join our Discord community.
 - **Scalable Architecture** - Modular design with clear separation of concerns
 - **Security First** - Row Level Security, data validation, and privacy protection
 - **Code Quality** - Clean, maintainable code with proper TypeScript types and minimal technical debt
+- **All Phases Complete** - Pose detection system complete (Phases A-F) with analytics integration
 
 **Built with ❤️ for fitness enthusiasts who want to train smarter, not harder.**
