@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function GET() {
@@ -12,7 +12,7 @@ export async function GET() {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     // Simple test prompt
     const result = await model.generateContent("Say 'Hello, Gemini API is working!' in JSON format: {\"message\": \"your response here\"}");

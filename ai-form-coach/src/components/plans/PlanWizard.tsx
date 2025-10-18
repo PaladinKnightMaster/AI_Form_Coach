@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Container, Button, Icon, Badge } from '@/ui/DS';
+import { Button, Icon } from '@/ui/DS';
 import type { UserPreferences } from '@/lib/ai/planGenerator';
 
 interface PlanWizardProps {
@@ -97,7 +97,7 @@ export default function PlanWizard({ onComplete, onCancel, isGenerating = false 
     }
   ];
 
-  const handleOptionSelect = (value: any) => {
+  const handleOptionSelect = (value: string | number) => {
     const step = steps[currentStep];
     
     if (step.type === "single") {
@@ -108,9 +108,10 @@ export default function PlanWizard({ onComplete, onCancel, isGenerating = false 
     } else if (step.type === "multiple") {
       setPreferences(prev => {
         const currentArray = prev[step.title.toLowerCase().replace(' ', '_').replace('&', '') as keyof UserPreferences] as string[] || [];
-        const newArray = currentArray.includes(value)
-          ? currentArray.filter(item => item !== value)
-          : [...currentArray, value];
+        const stringValue = String(value);
+        const newArray = currentArray.includes(stringValue)
+          ? currentArray.filter(item => item !== stringValue)
+          : [...currentArray, stringValue];
         
         return {
           ...prev,
@@ -199,7 +200,7 @@ export default function PlanWizard({ onComplete, onCancel, isGenerating = false 
               {currentStepData.options.map((option) => {
                 const isSelected = currentStepData.type === "single"
                   ? preferences[currentStepData.title.toLowerCase().replace(' ', '_').replace('&', '') as keyof UserPreferences] === option.value
-                  : (preferences[currentStepData.title.toLowerCase().replace(' ', '_').replace('&', '') as keyof UserPreferences] as string[])?.includes(option.value);
+                  : (preferences[currentStepData.title.toLowerCase().replace(' ', '_').replace('&', '') as keyof UserPreferences] as string[])?.includes(String(option.value));
 
                 return (
                   <button

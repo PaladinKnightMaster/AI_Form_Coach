@@ -4,8 +4,8 @@ import type { ReadinessAssessment } from '@/lib/progression/engine';
 export interface PlanAdjustment {
   type: 'volume_reduction' | 'mobility_day' | 'finisher_sets' | 'none';
   reason: string;
-  originalPlan: any;
-  adjustedPlan: any;
+  originalPlan: UserPlan;
+  adjustedPlan: UserPlan;
   adjustments: string[];
 }
 
@@ -117,8 +117,16 @@ export class PlanAdjustmentService {
       };
     }
 
-    const readinessScore = readiness.overallScore;
-    const hasSoreness = readiness.soreness > 0.3; // Soreness scale 0-1, >0.3 is significant
+    // Calculate overall readiness score from individual metrics (0-1 scale)
+    const readinessScore = (
+      (10 - readiness.sorenessLevel) + // Lower soreness = higher readiness
+      (10 - readiness.fatigueLevel) + // Lower fatigue = higher readiness
+      readiness.sleepQuality + // Higher sleep = higher readiness
+      (10 - readiness.stressLevel) + // Lower stress = higher readiness
+      readiness.motivationLevel // Higher motivation = higher readiness
+    ) / 50; // Normalize to 0-1 scale
+    
+    const hasSoreness = readiness.sorenessLevel > 3; // Soreness scale 0-10, >3 is significant
 
     // Get today's session from the plan
     const todaySession = this.getTodaySession(plan, currentDay);
@@ -188,7 +196,7 @@ export class PlanAdjustmentService {
       }
 
       // Find session for current day
-      const session = planData.sessions.find((s: any) => s.day === currentDay || s.day_number === currentDay);
+      const session = planData.sessions.find((s: { day?: number; day_number?: number }) => s.day === currentDay || s.day_number === currentDay);
       if (!session) {
         return null;
       }
@@ -216,9 +224,9 @@ export class PlanAdjustmentService {
     const adjustedPlan = { ...plan };
     
     // Only adjust AI-generated plans (those with plan_data)
-    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions) {
+    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions && Array.isArray(adjustedPlan.plan_data.sessions)) {
       const sessionIndex = adjustedPlan.plan_data.sessions.findIndex(
-        (s: any) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
+        (s: { id?: string; day?: string }) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
       );
       
       if (sessionIndex !== -1) {
@@ -265,9 +273,9 @@ export class PlanAdjustmentService {
     const adjustedPlan = { ...plan };
     
     // Only adjust AI-generated plans (those with plan_data)
-    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions) {
+    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions && Array.isArray(adjustedPlan.plan_data.sessions)) {
       const sessionIndex = adjustedPlan.plan_data.sessions.findIndex(
-        (s: any) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
+        (s: { id?: string; day?: string }) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
       );
       
       if (sessionIndex !== -1) {
@@ -275,9 +283,9 @@ export class PlanAdjustmentService {
         
         // Reduce sets by 20% (minimum 1 set)
         if (session.exercises) {
-          session.exercises = session.exercises.map((exercise: any) => ({
+          session.exercises = session.exercises.map((exercise: { sets?: number; [key: string]: unknown }) => ({
             ...exercise,
-            sets: Math.max(1, Math.round(exercise.sets * 0.8))
+            sets: Math.max(1, Math.round((exercise.sets || 1) * 0.8))
           }));
         }
         
@@ -322,9 +330,9 @@ export class PlanAdjustmentService {
     const adjustedPlan = { ...plan };
     
     // Only adjust AI-generated plans (those with plan_data)
-    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions) {
+    if (adjustedPlan.plan_data && adjustedPlan.plan_data.sessions && Array.isArray(adjustedPlan.plan_data.sessions)) {
       const sessionIndex = adjustedPlan.plan_data.sessions.findIndex(
-        (s: any) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
+        (s: { id?: string; day?: string }) => s.id === originalSession.id || s.day === originalSession.id.split('-')[1]
       );
       
       if (sessionIndex !== -1) {

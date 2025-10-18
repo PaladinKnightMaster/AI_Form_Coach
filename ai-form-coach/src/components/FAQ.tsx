@@ -17,6 +17,18 @@ const faqData: FAQItem[] = [
 		answer: "Our form analysis uses proven computer vision technology, achieving 90%+ accuracy in good lighting. You'll get real-time tips for common issues like squat depth, pushup alignment, and movement tempo."
 	},
 	{
+		question: "What is session verification and why do I see a badge?",
+		answer: "Session verification ensures fair competition and data quality. When you complete a workout, our system automatically checks 4 things: ROM consistency (did you maintain depth?), tempo realism (were your reps at a natural speed?), progression naturalness (no unrealistic jumps), and outlier detection (statistical analysis). You'll see a ✅ verified badge if your session passes all checks, or a ⚠️ warning if something seems unusual. Only verified sessions count on leaderboards."
+	},
+	{
+		question: "What does the integrity score mean?",
+		answer: "Your integrity score (0-100%) shows the overall quality and consistency of your workout. Higher scores mean better form consistency, realistic tempo, and natural progression. Scores above 70% get verified automatically. If your score is lower, don't worry—it might just mean you're trying a new exercise or pushing your limits. Focus on consistent form to improve your score over time."
+	},
+	{
+		question: "Why was my session flagged?",
+		answer: "Sessions get flagged if they show unusual patterns: highly variable form, suspiciously fast tempo, unrealistic performance jumps, or statistical anomalies. This protects leaderboard integrity. If you believe your session was incorrectly flagged (maybe you're naturally very fast or had a breakthrough day), you can report it for review. Most flagged sessions are genuine—we just want to ensure fair competition."
+	},
+	{
 		question: "Does it work on phones?",
 		answer: "Yes! Works on modern smartphones and tablets with front cameras. For best results, use landscape mode and good lighting."
 	},

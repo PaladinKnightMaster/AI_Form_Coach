@@ -1,5 +1,43 @@
 @import "tailwindcss";
 
+/* Enhanced Mobile Touch Interactions */
+@layer utilities {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .safe-area-inset {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Improved Button Touch Targets */
+@layer components {
+  .btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px; /* iOS recommended touch target */
+    min-width: 44px;
+  }
+  
+  .btn-sm {
+    min-height: 36px;
+    min-width: 36px;
+  }
+  
+  .btn-lg {
+    min-height: 52px;
+    min-width: 52px;
+  }
+}
+
 /* Toast Animations */
 @keyframes progress {
   from {
@@ -51,16 +89,26 @@
 }
 
 :root {
-  --color-primary: #111827;
+  --color-primary: #1f2937;
+  --color-primary-light: #374151;
   --color-surface: #ffffff;
+  --color-surface-secondary: #f9fafb;
   --color-text: #111827;
-  --color-success: #16a34a;
-  --color-warning: #f59e0b;
-  --color-border: #e5e7eb;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+  --color-border: #d1d5db;
+  --color-border-light: #e5e7eb;
+  --color-accent: #7c3aed;
+  --color-accent-light: #8b5cf6;
   --radius-md: 12px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-  --shadow-lg: 0 12px 28px rgba(0,0,0,0.12);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
 
   /* Fluid type scale */
   --step--1: clamp(0.79rem, calc(0.75rem + 0.21vw), 0.89rem);
@@ -71,13 +119,23 @@
   --step-4: clamp(1.42rem, calc(1.30rem + 0.52vw), 1.60rem);
 }
 
-[data-theme="dark"] {
-  --color-primary: #e5e7eb;
-  --color-surface: #0b0b0b;
-  --color-text: #e5e7eb;
-  --color-success: #22c55e;
+[data-theme="dark"],
+.dark {
+  --color-primary: #f1f5f9;
+  --color-primary-light: #e2e8f0;
+  --color-surface: #0f172a;
+  --color-surface-secondary: #1e293b;
+  --color-text: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-success: #10b981;
   --color-warning: #f59e0b;
-  --color-border: #1f2937;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --color-border: #334155;
+  --color-border-light: #475569;
+  --color-accent: #8b5cf6;
+  --color-accent-light: #a78bfa;
 }
 
 html { color-scheme: light dark; }
@@ -87,7 +145,20 @@ body {
   color: var(--color-text);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial;
   font-size: var(--step-0);
-  line-height: 1.5;
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Beautiful gradient backgrounds for different themes */
+[data-theme="light"] body {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  min-height: 100vh;
+}
+
+[data-theme="dark"] body,
+.dark body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  min-height: 100vh;
 }
 
 h1 { font-size: var(--step-3); font-weight: 700; }
@@ -96,10 +167,53 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 .container { max-width: 1200px; margin: 0 auto; padding-inline: 1rem; }
 .section { padding-block: 2rem; }
 
-.card { background: color-mix(in oklab, var(--color-surface) 85%, transparent); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
-.btn { border-radius: 10px; padding: 0.5rem 0.75rem; box-shadow: var(--shadow-sm); }
-.btn-primary { background: var(--color-primary); color: white; }
-.btn-secondary { background: color-mix(in oklab, var(--color-primary) 10%, transparent); color: var(--color-text); }
+.card { 
+  background: color-mix(in oklab, var(--color-surface) 95%, transparent); 
+  border: 1px solid var(--color-border); 
+  border-radius: var(--radius-md); 
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.btn { 
+  border-radius: 12px; 
+  padding: 0.75rem 1.5rem; 
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary { 
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%); 
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+.btn-secondary { 
+  background: var(--color-surface-secondary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(10px);
+  font-weight: 500;
+}
+
+.btn-secondary:hover {
+  background: var(--color-border-light);
+  color: var(--color-text);
+}
 
 .badge { border-radius: 999px; padding: 0.125rem 0.5rem; font-size: 12px; }
 .badge-success { background: color-mix(in oklab, var(--color-success) 20%, transparent); color: var(--color-success); }
@@ -134,7 +248,8 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 
 /* Logo theming */
 .logo { filter: none; transition: filter 200ms ease; }
-[data-theme="dark"] .logo { filter: invert(1) brightness(1.2); }
+[data-theme="dark"] .logo,
+.dark .logo { filter: invert(1) brightness(1.2); }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
@@ -199,6 +314,16 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   100% { transform: scale(1); opacity: 1; }
 }
 
+@keyframes fade-out {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 .animate-fade-in { animation: fade-in 0.8s ease-out; }
 .animate-slide-in-left { animation: slide-in-left 0.6s ease-out; }
 .animate-slide-in-right { animation: slide-in-right 0.6s ease-out; }
@@ -208,3 +333,4 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 .animate-slide-up { animation: slide-up 0.6s ease-out; }
 .animate-bounce-in { animation: bounce-in 0.6s ease-out; }
+.animate-fade-out { animation: fade-out 2s ease-out forwards; }

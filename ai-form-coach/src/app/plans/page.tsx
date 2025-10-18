@@ -5,11 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Container, Button, Icon, Badge } from '@/ui/DS';
 import type { PlanTemplate, UserPlan } from '@/types/plans';
 import type { UserPreferences, GeneratedPlan } from '@/lib/ai/planGenerator';
+import type { CreatorPack } from '@/lib/creator-packs/types';
 import PlanWizard from '@/components/plans/PlanWizard';
 import AIGeneratedPlan from '@/components/plans/AIGeneratedPlan';
 import PlanManagementModal from '@/components/plans/PlanManagementModal';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import LoadingButton from '@/components/LoadingButton';
+import FeatureGate from '@/components/FeatureGate';
+import { creatorPacksService } from '@/lib/creator-packs/service';
 import { useToastContext } from '@/components/ToastProvider';
 import { getSupabaseClient, getCurrentUserId } from '@/lib/supabase/client';
 
@@ -19,7 +22,9 @@ export default function PlansPage() {
   const [activeView, setActiveView] = useState<'featured' | 'my-plans'>('featured');
   const [featuredPlans, setFeaturedPlans] = useState<PlanTemplate[]>([]);
   const [userPlans, setUserPlans] = useState<UserPlan[]>([]);
+  const [purchasedPacks, setPurchasedPacks] = useState<CreatorPack[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [selectingPlan, setSelectingPlan] = useState<string | null>(null); // Track which plan is being selected
   const [acceptingPlan, setAcceptingPlan] = useState(false); // Track if accepting AI plan
   
@@ -90,22 +95,63 @@ export default function PlansPage() {
     }
   }, [showError]);
 
-  // Load data on component mount
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      // Clear any previous errors
+  // Fetch purchased Creator Packs
+  const fetchPurchasedPacks = useCallback(async () => {
+    try {
+      const userId = await getCurrentUserId();
+      if (!userId) return;
       
-      await Promise.all([
-        fetchFeaturedPlans(),
-        fetchUserPlans()
-      ]);
-      
-      setLoading(false);
-    };
+      const packs = await creatorPacksService.getUserPurchasedPacks(userId);
+      setPurchasedPacks(packs);
+    } catch (err) {
+      console.error('Error fetching purchased packs:', err);
+      showError('Failed to load purchased packs', 'Unable to load your purchased packs. Please try again.');
+    }
+  }, [showError]);
 
-    loadData();
-  }, [fetchFeaturedPlans, fetchUserPlans]);
+  const checkAuthentication = useCallback(async () => {
+    try {
+      const supabase = getSupabaseClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setIsAuthenticated(false);
+        router.push('/signin?redirect=/plans');
+        return;
+      }
+      
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Error checking authentication:', error);
+      setIsAuthenticated(false);
+      router.push('/signin?redirect=/plans');
+    }
+  }, [router]);
+
+  // Check authentication on component mount
+  useEffect(() => {
+    checkAuthentication();
+  }, [checkAuthentication]);
+
+  // Load data after authentication
+  useEffect(() => {
+    if (isAuthenticated) {
+      const loadData = async () => {
+        setLoading(true);
+        // Clear any previous errors
+        
+        await Promise.all([
+          fetchFeaturedPlans(),
+          fetchUserPlans(),
+          fetchPurchasedPacks()
+        ]);
+        
+        setLoading(false);
+      };
+
+      loadData();
+    }
+  }, [isAuthenticated, fetchFeaturedPlans, fetchUserPlans, fetchPurchasedPacks]);
 
   // Fetch user plans when switching to my-plans view
   useEffect(() => {
@@ -363,17 +409,22 @@ export default function PlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" suppressHydrationWarning>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-purple-900/30 dark:to-indigo-900/30" suppressHydrationWarning>
       <Container>
         <div className="py-8 space-y-8">
           {/* Header */}
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-              Workout Plans
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Choose from our expertly crafted plans or create a personalized program
-            </p>
+          <div className="text-center space-y-6">
+            <div className="space-y-4">
+              <Badge tone="info" size="lg" className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
+                🚀 AI-Powered Planning
+              </Badge>
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Workout Plans
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Choose from our expertly crafted plans or create a personalized program with AI
+              </p>
+            </div>
           </div>
 
 
@@ -416,15 +467,17 @@ export default function PlansPage() {
             </div>
             
             {/* AI Plan Generation Button */}
-            <LoadingButton
-              onClick={() => setShowWizard(true)}
-              loading={isGenerating}
-              loadingText="Opening Wizard..."
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg shadow-lg"
-            >
-              <Icon name="zap" className="w-4 h-4 mr-2" />
-              Create AI Plan
-            </LoadingButton>
+            <FeatureGate feature="ai_plan_generation">
+              <LoadingButton
+                onClick={() => setShowWizard(true)}
+                loading={isGenerating}
+                loadingText="Opening Wizard..."
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg shadow-lg"
+              >
+                <Icon name="zap" className="w-4 h-4 mr-2" />
+                Create AI Plan
+              </LoadingButton>
+            </FeatureGate>
           </div>
 
           {/* Content */}
@@ -529,26 +582,28 @@ export default function PlansPage() {
           )}
 
           {!loading && activeView === 'my-plans' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
-                My Plans
-              </h2>
-              {userPlans.length === 0 ? (
-                <div className="text-center py-12">
-                  <Icon name="user" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    No plans yet
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Select a featured plan to get started.
-                  </p>
-                  <Button
-                    onClick={() => setActiveView('featured')}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    Browse Featured Plans
-                  </Button>
-                </div>
+            <div className="space-y-8">
+              {/* My Plans Section */}
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-6">
+                  My Plans
+                </h2>
+                {userPlans.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Icon name="user" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      No plans yet
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      Select a featured plan to get started.
+                    </p>
+                    <Button
+                      onClick={() => setActiveView('featured')}
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      Browse Featured Plans
+                    </Button>
+                  </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {userPlans.map((plan) => (
@@ -603,6 +658,89 @@ export default function PlansPage() {
                   ))}
                 </div>
               )}
+              </div>
+
+              {/* Creator Packs Section */}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    My Creator Packs
+                  </h2>
+                  <Button
+                    variant="outline"
+                    onClick={() => window.open('/creator-packs', '_blank')}
+                  >
+                    <Icon name="package" className="w-4 h-4 mr-2" />
+                    Browse Marketplace
+                  </Button>
+                </div>
+                
+                {purchasedPacks.length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <Icon name="package" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      No purchased packs yet
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      Discover premium workout programs created by fitness experts.
+                    </p>
+                    <Button
+                      onClick={() => window.open('/creator-packs', '_blank')}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                    >
+                      <Icon name="package" className="w-4 h-4 mr-2" />
+                      Browse Creator Packs
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {purchasedPacks.map((pack) => (
+                      <div
+                        key={pack.id}
+                        className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+                      >
+                        <div className="space-y-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                                {pack.title}
+                              </h3>
+                              <Badge tone="success" className="mt-1">
+                                Purchased
+                              </Badge>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                {pack.difficulty}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                {pack.duration} weeks
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            {pack.shortDescription}
+                          </p>
+
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              by {pack.creator?.name || 'Unknown Creator'}
+                            </div>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => window.open(`/creator-packs/${pack.id}`, '_blank')}
+                            >
+                              View Pack
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

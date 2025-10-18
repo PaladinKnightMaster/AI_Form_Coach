@@ -124,7 +124,9 @@ export function cacheFood(barcode: string, foodData: MappedFoodData): void {
   // Remove oldest entries if cache is full
   if (foodCache.size >= CACHE_SIZE_LIMIT) {
     const firstKey = foodCache.keys().next().value;
-    foodCache.delete(firstKey);
+    if (firstKey) {
+      foodCache.delete(firstKey);
+    }
   }
   
   foodCache.set(barcode, foodData);

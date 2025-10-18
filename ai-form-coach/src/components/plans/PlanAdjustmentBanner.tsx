@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Button, Icon, Badge } from '@/ui/DS';
+import { Button, Icon } from '@/ui/DS';
 import { PlanAdjustmentService, type PlanAdjustment } from '@/lib/plans/planAdjustments';
 import type { UserPlan } from '@/types/plans';
 import type { ReadinessAssessment } from '@/lib/progression/engine';
@@ -35,7 +35,7 @@ export default function PlanAdjustmentBanner({
   }
 
   const details = adjustmentService.getAdjustmentDetails(adjustment);
-  const summary = adjustmentService.getAdjustmentSummary(adjustment);
+  // const summary = adjustmentService.getAdjustmentSummary(adjustment);
 
   const handleApplyAdjustment = async () => {
     if (adjustment && adjustment.type !== 'none') {
@@ -134,8 +134,8 @@ export default function PlanAdjustmentBanner({
       </div>
       
       <div className="mt-2 text-xs opacity-75">
-        Readiness: {Math.round((readiness?.overallScore || 0) * 100)}% • 
-        Soreness: {Math.round((readiness?.soreness || 0) * 100)}%
+        Fatigue: {Math.round((readiness?.fatigueLevel || 0) * 10)}% • 
+        Soreness: {Math.round((readiness?.sorenessLevel || 0) * 10)}%
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Icon } from '@/ui/DS';
 
 export interface Toast {
@@ -26,6 +26,11 @@ function ToastComponent({ toast, onRemove }: ToastProps) {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleRemove = useCallback(() => {
+    setIsLeaving(true);
+    setTimeout(() => onRemove(toast.id), 300);
+  }, [onRemove, toast.id]);
+
   useEffect(() => {
     if (toast.duration) {
       const timer = setTimeout(() => {
@@ -33,12 +38,7 @@ function ToastComponent({ toast, onRemove }: ToastProps) {
       }, toast.duration);
       return () => clearTimeout(timer);
     }
-  }, [toast.duration]);
-
-  const handleRemove = () => {
-    setIsLeaving(true);
-    setTimeout(() => onRemove(toast.id), 300);
-  };
+  }, [toast.duration, handleRemove]);
 
   const getToastStyles = () => {
     const baseStyles = "relative overflow-hidden rounded-xl shadow-lg border backdrop-blur-sm transition-all duration-300 ease-out transform";
@@ -76,11 +76,11 @@ function ToastComponent({ toast, onRemove }: ToastProps) {
       case 'error':
         return 'alert-circle';
       case 'warning':
-        return 'alert-triangle';
+        return 'alert';
       case 'info':
-        return 'info';
+        return 'alert';
       default:
-        return 'info';
+        return 'alert';
     }
   };
 

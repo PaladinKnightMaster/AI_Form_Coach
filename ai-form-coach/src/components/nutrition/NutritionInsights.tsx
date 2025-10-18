@@ -1,159 +1,292 @@
 "use client";
 
-import React from 'react';
-import { Icon } from '@/ui/DS';
+import { useState, useEffect, useCallback } from 'react';
+import { Icon, Button } from '@/ui/DS';
 
-interface NutritionInsightsProps {
-  totals: {
-    total_calories: number;
-    total_protein: number;
-    total_carbs: number;
-    total_fat: number;
-  };
-  goals: {
-    calories: number;
+interface ProteinDistribution {
+  mealType: string;
+  protein: number;
+  percentage: number;
+  mealCount: number;
+  foods: Array<{
+    name: string;
     protein: number;
-    carbs: number;
-    fat: number;
-  };
+  }>;
 }
 
-export default function NutritionInsights({ totals, goals }: NutritionInsightsProps) {
-  const insights = generateInsights(totals, goals);
+interface TopFood {
+  name: string;
+  count: number;
+  totalProtein: number;
+  totalCalories: number;
+  category: string;
+  lastConsumed: string;
+  avgProtein: number;
+  avgCalories: number;
+}
 
-  if (insights.length === 0) {
-    return null;
+interface MealSwapSuggestion {
+  type: string;
+  priority: 'high' | 'medium' | 'low';
+  title: string;
+  message: string;
+  suggestion: string;
+  foods: Array<{
+    name: string;
+    protein: number;
+    reason: string;
+  }>;
+}
+
+interface NutritionInsightsData {
+  proteinDistribution: ProteinDistribution[];
+  topFoods: TopFood[];
+  mealSwaps: MealSwapSuggestion[];
+  goals: { protein_target?: number } | null;
+  date: string;
+}
+
+export default function NutritionInsights() {
+  const [data, setData] = useState<NutritionInsightsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  const fetchInsights = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/nutrition/insights?date=${selectedDate}`, {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch insights');
+      const insightsData = await response.json();
+      setData(insightsData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    fetchInsights();
+  }, [fetchInsights]);
+
+
+  const getMealTypeIcon = (mealType: string) => {
+    switch (mealType) {
+      case 'breakfast': return '🌅';
+      case 'lunch': return '☀️';
+      case 'dinner': return '🌙';
+      case 'snack': return '🍎';
+      default: return '🍽️';
+    }
+  };
+
+  const getMealTypeName = (mealType: string) => {
+    return mealType.charAt(0).toUpperCase() + mealType.slice(1);
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300';
+      case 'medium': return 'bg-yellow-100 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300';
+      case 'low': return 'bg-blue-100 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300';
+      default: return 'bg-gray-100 border-gray-200 text-gray-800 dark:bg-gray-900/20 dark:border-gray-800 dark:text-gray-300';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/6"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
+
+  if (error) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+        <div className="text-center text-red-600 dark:text-red-400">
+          <Icon name="alert-triangle" className="w-8 h-8 mx-auto mb-2" />
+          <p>Failed to load nutrition insights</p>
+          <Button onClick={fetchInsights} className="mt-2">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) return null;
 
   return (
-    <div className="card p-6">
-      <div className="flex items-center space-x-2 mb-4">
-        <Icon name="chart" className="text-blue-500" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Today's Insights
-        </h3>
-      </div>
-      
-      <div className="space-y-3">
-        {insights.map((insight, index) => (
-          <div
-            key={index}
-            className={`flex items-start space-x-3 p-3 rounded-lg ${
-              insight.type === 'success'
-                ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
-                : insight.type === 'warning'
-                ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800'
-                : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
-            }`}
-          >
-            <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-              insight.type === 'success'
-                ? 'bg-green-500'
-                : insight.type === 'warning'
-                ? 'bg-yellow-500'
-                : 'bg-blue-500'
-            }`}>
-              <Icon 
-                name={insight.type === 'success' ? 'check' : insight.type === 'warning' ? 'alert' : 'chart'} 
-                className="text-white w-4 h-4" 
-              />
-            </div>
-            <div className="flex-1">
-              <p className={`text-sm font-medium ${
-                insight.type === 'success'
-                  ? 'text-green-800 dark:text-green-200'
-                  : insight.type === 'warning'
-                  ? 'text-yellow-800 dark:text-yellow-200'
-                  : 'text-blue-800 dark:text-blue-200'
-              }`}>
-                {insight.title}
-              </p>
-              <p className={`text-sm ${
-                insight.type === 'success'
-                  ? 'text-green-700 dark:text-green-300'
-                  : insight.type === 'warning'
-                  ? 'text-yellow-700 dark:text-yellow-300'
-                  : 'text-blue-700 dark:text-blue-300'
-              }`}>
-                {insight.message}
-              </p>
-            </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+            <Icon name="chart" className="w-5 h-5 text-white" />
           </div>
-        ))}
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Nutrition Insights</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Smart analysis of your eating patterns
+            </p>
+          </div>
+        </div>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm"
+        />
       </div>
+
+      {/* Protein Distribution */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <Icon name="target" className="w-5 h-5 text-blue-500" />
+          Protein Distribution
+        </h3>
+        
+        {data.goals && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              <strong>Daily Target:</strong> {data.goals.protein_target}g protein
+            </p>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          {data.proteinDistribution.map((meal) => (
+            <div key={meal.mealType} className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div className="text-2xl">{getMealTypeIcon(meal.mealType)}</div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {getMealTypeName(meal.mealType)}
+                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {meal.protein}g ({meal.percentage}%)
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-blue-500 to-emerald-500 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${meal.percentage}%` }}
+                  ></div>
+                </div>
+                {meal.foods.length > 0 && (
+                  <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                    {meal.foods.map((food, idx) => (
+                      <span key={idx}>
+                        {food.name} ({food.protein}g)
+                        {idx < meal.foods.length - 1 ? ', ' : ''}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Top Foods */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <Icon name="star" className="w-5 h-5 text-yellow-500" />
+          Top Foods (Last 30 Days)
+        </h3>
+        
+        <div className="grid gap-3">
+          {data.topFoods.map((food, index) => (
+            <div key={food.name} className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
+                {index + 1}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-900 dark:text-white">{food.name}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {food.count} times
+                  </span>
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Avg: {food.avgProtein}g protein, {food.avgCalories} cal
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Meal Swap Suggestions */}
+      {data.mealSwaps.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Icon name="lightbulb" className="w-5 h-5 text-purple-500" />
+            Smart Suggestions
+          </h3>
+          
+          <div className="space-y-4">
+            {data.mealSwaps.map((suggestion, index) => (
+              <div key={index} className={`border rounded-lg p-4 ${getPriorityColor(suggestion.priority)}`}>
+                <div className="flex items-start gap-3">
+                  <div className="text-2xl">
+                    {suggestion.type === 'protein_boost' ? '💪' : 
+                     suggestion.type === 'missing_meal' ? '📅' : '🌈'}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold mb-1">{suggestion.title}</h4>
+                    <p className="text-sm mb-2">{suggestion.message}</p>
+                    <p className="text-sm font-medium mb-3">{suggestion.suggestion}</p>
+                    
+                    {suggestion.foods.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {suggestion.foods.map((food, foodIdx) => (
+                          <div key={foodIdx} className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-2 text-xs">
+                            <div className="font-medium">{food.name}</div>
+                            {food.protein > 0 && (
+                              <div className="text-gray-600 dark:text-gray-400">
+                                {food.protein}g protein
+                              </div>
+                            )}
+                            <div className="text-gray-500 dark:text-gray-500">
+                              {food.reason}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* No suggestions message */}
+      {data.mealSwaps.length === 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 text-center">
+          <div className="text-4xl mb-3">🎉</div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Great Job!
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Your nutrition looks balanced today. Keep up the good work!
+          </p>
+        </div>
+      )}
     </div>
   );
-}
-
-function generateInsights(totals: any, goals: any) {
-  const insights = [];
-  
-  // Calorie insights
-  const caloriePercentage = (totals.total_calories / goals.calories) * 100;
-  if (caloriePercentage >= 90 && caloriePercentage <= 110) {
-    insights.push({
-      type: 'success',
-      title: 'Great calorie balance!',
-      message: `You're right on track with ${Math.round(caloriePercentage)}% of your daily calorie goal.`
-    });
-  } else if (caloriePercentage < 70) {
-    insights.push({
-      type: 'warning',
-      title: 'Low calorie intake',
-      message: `You've only consumed ${Math.round(caloriePercentage)}% of your daily calories. Consider adding a healthy snack.`
-    });
-  } else if (caloriePercentage > 130) {
-    insights.push({
-      type: 'warning',
-      title: 'High calorie intake',
-      message: `You've consumed ${Math.round(caloriePercentage)}% of your daily calories. Consider lighter options for remaining meals.`
-    });
-  }
-
-  // Protein insights
-  const proteinPercentage = (totals.total_protein / goals.protein) * 100;
-  if (proteinPercentage >= 80) {
-    insights.push({
-      type: 'success',
-      title: 'Excellent protein intake!',
-      message: `You've met ${Math.round(proteinPercentage)}% of your protein goal. Great for muscle recovery and satiety.`
-    });
-  } else if (proteinPercentage < 50) {
-    insights.push({
-      type: 'warning',
-      title: 'Low protein intake',
-      message: `You've only consumed ${Math.round(proteinPercentage)}% of your protein goal. Consider adding lean protein sources.`
-    });
-  }
-
-  // Macro balance insights
-  const proteinCalories = totals.total_protein * 4;
-  const carbCalories = totals.total_carbs * 4;
-  const fatCalories = totals.total_fat * 9;
-  const totalMacroCalories = proteinCalories + carbCalories + fatCalories;
-  
-  if (totalMacroCalories > 0) {
-    const proteinRatio = (proteinCalories / totalMacroCalories) * 100;
-    const carbRatio = (carbCalories / totalMacroCalories) * 100;
-    const fatRatio = (fatCalories / totalMacroCalories) * 100;
-    
-    if (proteinRatio >= 20 && proteinRatio <= 35 && carbRatio >= 45 && carbRatio <= 65 && fatRatio >= 20 && fatRatio <= 35) {
-      insights.push({
-        type: 'success',
-        title: 'Balanced macronutrients!',
-        message: `Your macro distribution looks great: ${Math.round(proteinRatio)}% protein, ${Math.round(carbRatio)}% carbs, ${Math.round(fatRatio)}% fat.`
-      });
-    }
-  }
-
-  // Meal timing insights
-  if (totals.total_calories === 0) {
-    insights.push({
-      type: 'warning',
-      title: 'Start your day!',
-      message: "You haven't logged any food yet today. Remember to fuel your body with nutritious meals."
-    });
-  }
-
-  return insights;
 }

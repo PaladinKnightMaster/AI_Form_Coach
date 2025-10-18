@@ -161,7 +161,7 @@ export async function PATCH(request: NextRequest) {
     }
     
     // Update user plan
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (typeof is_active === 'boolean') updateData.is_active = is_active;
     if (current_week) updateData.current_week = current_week;
     if (current_day) updateData.current_day = current_day;
@@ -186,7 +186,7 @@ export async function PATCH(request: NextRequest) {
   } catch (error) {
     console.error('Error in PATCH /api/plans/user:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -236,7 +236,7 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Error in DELETE /api/plans/user:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

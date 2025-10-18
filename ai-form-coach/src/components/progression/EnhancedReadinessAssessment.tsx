@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button, Icon } from '@/ui/DS';
 import type { ReadinessAssessment } from '@/lib/progression/engine';
 import type { HealthData, HealthBaseline, HealthPermissions } from '@/lib/health/healthData';
 import { HealthDataManager } from '@/lib/health/healthData';
 import { useToastContext } from '@/components/ToastProvider';
+import { toAPIRequest } from '@/types/readiness';
 
 interface EnhancedReadinessAssessmentProps {
   isOpen: boolean;
@@ -22,13 +23,22 @@ export default function EnhancedReadinessAssessment({
 }: EnhancedReadinessAssessmentProps) {
   const [healthManager] = useState(() => new HealthDataManager());
   const [healthData, setHealthData] = useState<HealthData | null>(null);
-  const [baseline, setBaseline] = useState<HealthBaseline | null>(null);
   const [permissions, setPermissions] = useState<HealthPermissions>({
-    sleep: false,
+    sleepAnalysis: false,
+    sleepSessions: false,
     heartRate: false,
-    hrv: false,
+    heartRateVariability: false,
+    restingHeartRate: false,
     steps: false,
-    activity: false
+    activeMinutes: false,
+    distance: false,
+    workouts: false,
+    exerciseSessions: false,
+    nutrition: false,
+    waterIntake: false,
+    bodyMass: false,
+    bodyFatPercentage: false,
+    height: false
   });
   const [loading, setLoading] = useState(false);
   const [showBaselineSetup, setShowBaselineSetup] = useState(false);
@@ -46,15 +56,7 @@ export default function EnhancedReadinessAssessment({
 
   const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
 
-  useEffect(() => {
-    if (isOpen) {
-      loadHealthData();
-      loadBaseline();
-      checkPermissions();
-    }
-  }, [isOpen]);
-
-  const loadHealthData = async () => {
+  const loadHealthData = useCallback(async () => {
     setLoading(true);
     try {
       const today = new Date();
@@ -70,21 +72,28 @@ export default function EnhancedReadinessAssessment({
     } finally {
       setLoading(false);
     }
-  };
+  }, [healthManager]);
 
-  const loadBaseline = () => {
+  const loadBaseline = useCallback(() => {
     const baselineData = healthManager.getBaseline();
-    setBaseline(baselineData);
     
     if (!baselineData) {
       setShowBaselineSetup(true);
     }
-  };
+  }, [healthManager]);
 
-  const checkPermissions = () => {
+  const checkPermissions = useCallback(() => {
     const currentPermissions = healthManager.getPermissions();
     setPermissions(currentPermissions);
-  };
+  }, [healthManager]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadHealthData();
+      loadBaseline();
+      checkPermissions();
+    }
+  }, [isOpen, loadHealthData, loadBaseline, checkPermissions]);
 
   const requestHealthPermissions = async () => {
     setLoading(true);
@@ -92,7 +101,7 @@ export default function EnhancedReadinessAssessment({
       const newPermissions = await healthManager.requestPermissions();
       setPermissions(newPermissions);
       
-      if (newPermissions.sleep || newPermissions.heartRate || newPermissions.steps) {
+      if (newPermissions.sleepAnalysis || newPermissions.sleepSessions || newPermissions.heartRate || newPermissions.steps) {
         showSuccess('Permissions Granted', 'Health data access enabled');
         await loadHealthData();
       } else {
@@ -108,7 +117,6 @@ export default function EnhancedReadinessAssessment({
 
   const handleBaselineSubmit = (baselineData: HealthBaseline) => {
     healthManager.setBaseline(baselineData);
-    setBaseline(baselineData);
     setShowBaselineSetup(false);
     showSuccess('Baseline Set', 'Your health baseline has been saved');
     
@@ -126,28 +134,57 @@ export default function EnhancedReadinessAssessment({
     }));
   };
 
-  const handleSubmit = () => {
-    let finalAssessment: ReadinessAssessment;
-    
-    if (autoReadinessScore !== null && healthData) {
-      // Use health data-based assessment
-      finalAssessment = {
-        sorenessLevel: Math.round((1 - autoReadinessScore) * 10), // Convert score to soreness (inverted)
-        fatigueLevel: Math.round((1 - autoReadinessScore) * 10), // Convert score to fatigue (inverted)
-        sleepQuality: Math.round(healthData.sleepDuration * 2), // Convert hours to 0-10 scale
-        stressLevel: Math.round((1 - autoReadinessScore) * 10), // Convert score to stress (inverted)
-        motivationLevel: Math.round(autoReadinessScore * 10), // Convert score to motivation
-        assessmentDate: new Date()
-      };
-    } else {
-      // Use manual assessment
-      finalAssessment = {
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      
+      // Prepare the assessment data for the API using utility function
+      const assessmentData = toAPIRequest(manualAssessment, healthData ? {
+        sleepDuration: healthData.sleepDuration,
+        restingHeartRate: healthData.restingHeartRate,
+        hrv: healthData.hrv ?? undefined,
+        stepCount: healthData.stepCount,
+        trainingLoad: healthData.trainingLoad
+      } : undefined);
+
+      // Call the readiness API
+      const response = await fetch('/api/readiness', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(assessmentData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save readiness assessment');
+      }
+
+      const data = await response.json();
+      
+      // Create the final assessment (only core properties)
+      const finalAssessment: ReadinessAssessment = {
         ...manualAssessment,
         assessmentDate: new Date()
       };
+      
+      onSubmit(finalAssessment);
+      
+      // Show success message with computed readiness score from API
+      const readinessScore = data.readiness?.computed_readiness;
+      if (readinessScore !== undefined) {
+        showSuccess('Assessment Saved!', `Your readiness score: ${Math.round(readinessScore * 100)}%`);
+      } else {
+        showSuccess('Assessment Saved!', 'Your readiness assessment has been recorded');
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error submitting readiness assessment:', error);
+      showError('Submission Failed', 'Failed to submit readiness assessment');
+    } finally {
+      setLoading(false);
     }
-    
-    onSubmit(finalAssessment);
   };
 
   const getSliderColor = (color: string, value: number) => {
@@ -261,7 +298,7 @@ export default function EnhancedReadinessAssessment({
         {healthData && (
           <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-              Today's Health Metrics
+              Today&apos;s Health Metrics
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center">
@@ -421,14 +458,24 @@ function BaselineSetupModal({
 }) {
   const [baseline, setBaseline] = useState<HealthBaseline>({
     sleepBaseline: 8,
+    sleepEfficiencyBaseline: 85,
     restingHRBaseline: 60,
+    maxHRBaseline: 180,
     hrvBaseline: 30,
     stepBaseline: 10000,
-    lastUpdated: new Date()
+    activeMinutesBaseline: 30,
+    weeklyTrainingLoadBaseline: 100,
+    lastUpdated: new Date(),
+    dataQuality: 'medium'
   });
 
   const handleSubmit = () => {
-    onSubmit(baseline);
+    // Update timestamp and data quality before submitting
+    onSubmit({
+      ...baseline,
+      lastUpdated: new Date(),
+      dataQuality: 'medium' // User-provided baseline is considered medium quality
+    });
   };
 
   if (!isOpen) return null;

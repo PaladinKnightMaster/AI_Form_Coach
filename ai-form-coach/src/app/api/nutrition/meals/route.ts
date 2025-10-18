@@ -1,158 +1,146 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient, getSupabaseServiceClient } from '@/lib/supabase/server';
-import type { AddFoodRequest, NutritionDay } from '@/types/nutrition';
+import { getSupabaseServerClient } from '@/lib/supabase/server';
 
-export async function GET(req: NextRequest) {
-	try {
-		const { searchParams } = new URL(req.url);
-		const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-		// Get user ID from Authorization header
-		const authHeader = req.headers.get('authorization');
-		const userId = authHeader?.replace('Bearer ', '');
+    const { searchParams } = new URL(request.url);
+    const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
 
-		console.log('API Route - Auth check:', { userId, authHeader });
+    // Get meals for the date
+    const { data: meals, error: mealsError } = await supabase
+      .from('meals')
+      .select(`
+        *,
+        meal_items (
+          *,
+          foods (*)
+        )
+      `)
+      .eq('user_id', user.id)
+      .eq('date', date)
+      .order('meal_type');
 
-		if (!userId) {
-			console.log('API Route - No user ID found, returning 401');
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+    if (mealsError) {
+      console.error('Error fetching meals:', mealsError);
+      return NextResponse.json({ error: 'Failed to fetch meals' }, { status: 500 });
+    }
 
-		// Use service role client for database operations
-		const supabase = getSupabaseServiceClient();
+    // Get daily totals
+    const { data: dailyTotals, error: totalsError } = await supabase
+      .from('daily_totals')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('date', date)
+      .single();
 
-		// Get daily totals
-		const { data: totalsData } = await supabase
-			.from('daily_totals')
-			.select('*')
-			.eq('user_id', userId)
-			.eq('date', date)
-			.single();
+    if (totalsError && totalsError.code !== 'PGRST116') {
+      console.error('Error fetching daily totals:', totalsError);
+      return NextResponse.json({ error: 'Failed to fetch daily totals' }, { status: 500 });
+    }
 
-		// Get meals with items
-		const { data: mealsData, error: mealsError } = await supabase
-			.from('meals')
-			.select(`
-				*,
-				meal_items (
-					*,
-					food:foods (*)
-				)
-			`)
-			.eq('user_id', userId)
-			.eq('date', date)
-			.order('created_at');
+    return NextResponse.json({
+      meals: meals || [],
+      dailyTotals: dailyTotals || null,
+      date
+    });
 
-		if (mealsError) throw mealsError;
-
-		// Organize meals by type
-		const mealsByType = {
-			breakfast: null,
-			lunch: null,
-			dinner: null,
-			snack: null
-		};
-
-		if (mealsData) {
-			for (const meal of mealsData) {
-				mealsByType[meal.meal_type as keyof typeof mealsByType] = meal;
-			}
-		}
-
-		const nutritionDay: NutritionDay = {
-			date,
-			totals: totalsData || null,
-			meals: mealsByType
-		};
-
-		return NextResponse.json(nutritionDay);
-
-	} catch (err) {
-		console.error('Get meals error:', err);
-		return NextResponse.json(
-			{ error: 'Failed to fetch meals', details: process.env.NODE_ENV === 'development' ? String(err) : undefined },
-			{ status: 500 }
-		);
-	}
+  } catch (error) {
+    console.error('Meals API error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
-export async function POST(req: NextRequest) {
-	try {
-		// Get user ID from Authorization header
-		const authHeader = req.headers.get('authorization');
-		const userId = authHeader?.replace('Bearer ', '');
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = await getSupabaseServerClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-		if (!userId) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+    const body = await request.json();
+    const {
+      date,
+      meal_type,
+      food_id,
+      grams,
+      meal_name
+    } = body;
 
-		// Use service role client for database operations
-		const supabase = getSupabaseServiceClient();
+    // Validate required fields
+    if (!date || !meal_type || !food_id || !grams) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
 
-		const body = await req.json() as AddFoodRequest;
+    // Get or create meal
+    const { data: initialMeal, error: mealError } = await supabase
+      .from('meals')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('date', date)
+      .eq('meal_type', meal_type)
+      .eq('name', meal_name || null)
+      .single();
 
-		// Validate required fields
-		if (!body.meal_type || !body.food_id || typeof body.grams !== 'number') {
-			return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-		}
+    let meal = initialMeal;
+    
+    if (mealError && mealError.code === 'PGRST116') {
+      // Create new meal
+      const { data: newMeal, error: createError } = await supabase
+        .from('meals')
+        .insert({
+          user_id: user.id,
+          date,
+          meal_type,
+          name: meal_name || null
+        })
+        .select('id')
+        .single();
 
-		const date = body.date || new Date().toISOString().split('T')[0];
+      if (createError) {
+        console.error('Error creating meal:', createError);
+        return NextResponse.json({ error: 'Failed to create meal' }, { status: 500 });
+      }
+      meal = newMeal;
+    } else if (mealError) {
+      console.error('Error fetching meal:', mealError);
+      return NextResponse.json({ error: 'Failed to fetch meal' }, { status: 500 });
+    }
 
-		// Get or create meal for this date and meal type
-		let { data: meal, error: mealError } = await supabase
-			.from('meals')
-			.select('*')
-			.eq('user_id', userId)
-			.eq('date', date)
-			.eq('meal_type', body.meal_type)
-			.is('name', null) // Only get default meals, not custom named ones
-			.single();
+    // Add food item to meal
+    const { data: mealItem, error: itemError } = await supabase
+      .from('meal_items')
+      .insert({
+        meal_id: meal!.id,
+        food_id,
+        grams
+      })
+      .select(`
+        *,
+        foods (*)
+      `)
+      .single();
 
-		if (mealError && mealError.code === 'PGRST116') {
-			// Meal doesn't exist, create it
-			const { data: newMeal, error: createError } = await supabase
-				.from('meals')
-				.insert({
-					user_id: userId,
-					date,
-					meal_type: body.meal_type
-				})
-				.select()
-				.single();
+    if (itemError) {
+      console.error('Error adding meal item:', itemError);
+      return NextResponse.json({ error: 'Failed to add food to meal' }, { status: 500 });
+    }
 
-			if (createError) throw createError;
-			meal = newMeal;
-		} else if (mealError) {
-			throw mealError;
-		}
+    return NextResponse.json({
+      success: true,
+      mealItem
+    });
 
-		if (!meal) {
-			throw new Error('Failed to create or find meal');
-		}
-
-		// Add meal item
-		const { data: mealItem, error: itemError } = await supabase
-			.from('meal_items')
-			.insert({
-				meal_id: meal.id,
-				food_id: body.food_id,
-				grams: body.grams
-			})
-			.select(`
-				*,
-				food:foods (*)
-			`)
-			.single();
-
-		if (itemError) throw itemError;
-
-		return NextResponse.json(mealItem);
-
-	} catch (err) {
-		console.error('Add food to meal error:', err);
-		return NextResponse.json(
-			{ error: 'Failed to add food to meal', details: process.env.NODE_ENV === 'development' ? String(err) : undefined },
-			{ status: 500 }
-		);
-	}
+  } catch (error) {
+    console.error('Meals API error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

@@ -1,6 +1,14 @@
 import { FilesetResolver, PoseLandmarker, type PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { exponentialMovingAverage, type Point3 } from '../math/poseMath';
 
+// MediaPipe WasmFileset interface (not exported from the library)
+interface WasmFileset {
+  wasmLoaderPath: string;
+  wasmBinaryPath: string;
+  assetLoaderPath?: string;
+  assetBinaryPath?: string;
+}
+
 export type PoseModel = 'lite' | 'full';
 
 let landmarker: PoseLandmarker | null = null;
@@ -13,7 +21,7 @@ export async function initPose(model: PoseModel = 'lite') {
 		);
 	}
 	const fileset = await filesetReady;
-	landmarker = await PoseLandmarker.createFromOptions(fileset, {
+	landmarker = await PoseLandmarker.createFromOptions(fileset as WasmFileset, {
 		baseOptions: {
 			modelAssetPath:
 				model === 'full'
@@ -105,4 +113,19 @@ export class PoseEngine {
 	}
 
 	stop() { if (this.timerId != null) { clearTimeout(this.timerId); this.timerId = null; } }
-} 
+}
+
+export { PoseEngine2, createPoseEngine, isLandmarkVisible, getBestSideLandmarks } from './engine';
+export type { RunningMode, BestSide, Landmark3D, PoseEstimateResult, PoseEngineOptions, JitterMetrics } from './engine';
+export { getFrameTimingTracker, resetFrameTimingTracker, requestVideoFrameSync, cancelVideoFrameSync, FrameDropDetector } from './frameSync';
+export type { FrameTimingData, FrameSyncMetrics, AdaptiveQualityConfig } from './frameSync';
+export { getWorkerFilteringPool, terminateWorkerFilteringPool } from './workerFilteringPool';
+export type { FilterRequest, FilterResult, WorkerMessage } from './workerFilteringPool';
+export { detectDeviceCapabilities, getOptimalDepthConfig, getCurrentDepthConfig, getDeviceCapabilities, getDepthMetricsTracker, validateDepthRendering, getDepthDebugColor, logDepthStatus } from './depthOptimization';
+export type { DeviceCapabilities, DepthRenderingConfig, DepthMetrics, DepthValidation } from './depthOptimization';
+export { MetricsCollector, analyzeMetricsHealth, generateBenchmark, getGlobalMetricsCollector, getCurrentSessionMetrics, recordMetricsSnapshot, resetMetricsCollector, exportMetricsJSON, exportMetricsCSV, logMetricsSummary } from './metricsUtils';
+export type { MetricsSnapshot, MetricsSession, HealthStatus, BenchmarkResult } from './metricsUtils';
+export { AnalyticsLogger, getGlobalAnalyticsLogger, logAnalyticsMetric, logAnalyticsSessionCompletion, flushAnalytics, getSessionStats, getDeviceBenchmark, getRecentSessions, getHealthTrend } from './analyticsLogger';
+export type { PoseQualityMetric, SessionAnalytics, DevicePerformanceBenchmark } from './analyticsLogger';
+export { AdaptiveFrameDropping, getGlobalFrameDropping, shouldProcessFrame, recordFrameDropFps, getFrameDropMetrics, getFrameDropConfig, resetFrameDropping, validateFrameDropping, logFrameDropStatus } from './adaptiveFrameDropping';
+export type { FrameDropConfig, FrameDropMetrics, FrameDropValidation } from './adaptiveFrameDropping'; 

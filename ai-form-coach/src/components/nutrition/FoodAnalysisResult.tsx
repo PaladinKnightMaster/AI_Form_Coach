@@ -1,6 +1,7 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
 import { Icon } from '@/ui/DS';
 import type { FoodAnalysisResult } from '@/lib/ai/gemini';
 
@@ -25,6 +26,8 @@ export default function FoodAnalysisResult({
   foodImage,
   imageLoading = false
 }: FoodAnalysisResultProps) {
+  const [showDetailedDescription, setShowDetailedDescription] = useState(false);
+
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'text-green-600 dark:text-green-400';
     if (confidence >= 60) return 'text-yellow-600 dark:text-yellow-400';
@@ -36,6 +39,17 @@ export default function FoodAnalysisResult({
     if (confidence >= 60) return 'Medium Confidence';
     return 'Low Confidence';
   };
+
+  const ingredientCategoryConfig = {
+    vegetables: { emoji: '🥬', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300', label: 'Vegetables' },
+    fruits: { emoji: '🍎', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300', label: 'Fruits' },
+    proteins: { emoji: '🍗', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300', label: 'Proteins' },
+    grains: { emoji: '🌾', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300', label: 'Grains' },
+    dairy: { emoji: '🧀', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300', label: 'Dairy' },
+    other: { emoji: '🧂', color: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300', label: 'Other' }
+  };
+
+  const hasIngredients = result.ingredients && Object.values(result.ingredients).some(arr => arr && arr.length > 0);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -70,9 +84,11 @@ export default function FoodAnalysisResult({
                     <Icon name="camera" className="w-6 h-6 text-gray-400" />
                   </div>
                 ) : foodImage ? (
-                  <img 
+                  <Image 
                     src={foodImage.imageUrl} 
                     alt={foodImage.alt}
+                    width={64}
+                    height={64}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       // Fallback to placeholder if image fails to load
@@ -126,9 +142,11 @@ export default function FoodAnalysisResult({
                     </div>
                   </div>
                 ) : (
-                  <img 
+                  <Image 
                     src={foodImage.imageUrl} 
                     alt={foodImage.alt}
+                    width={200}
+                    height={200}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
@@ -150,7 +168,7 @@ export default function FoodAnalysisResult({
           {/* Estimated Weight */}
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <Icon name="scale" className="w-5 h-5 text-blue-600" />
+              <span className="text-lg">⚖️</span>
               <h4 className="font-medium text-blue-900 dark:text-blue-100">
                 Estimated Weight
               </h4>
@@ -222,6 +240,69 @@ export default function FoodAnalysisResult({
               </div>
             )}
           </div>
+
+          {/* Ingredient Breakdown */}
+          {hasIngredients && (
+            <div className="mb-6">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                🔍 Ingredient Breakdown
+                <span className="text-xs text-gray-500 font-normal">(AI identified)</span>
+              </h4>
+              <div className="space-y-3">
+                {Object.entries(result.ingredients || {}).map(([category, items]) => {
+                  if (!items || items.length === 0) return null;
+                  const config = ingredientCategoryConfig[category as keyof typeof ingredientCategoryConfig];
+                  if (!config) return null;
+                  
+                  return (
+                    <div key={category} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">{config.emoji}</span>
+                        <span className="font-medium text-gray-900 dark:text-white text-sm">
+                          {config.label} ({items.length})
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {items.map((item, idx) => (
+                          <span
+                            key={idx}
+                            className={`${config.color} px-2 py-1 rounded-md text-xs font-medium`}
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Detailed Description */}
+          {result.detailedDescription && (
+            <div className="mb-6">
+              <button
+                onClick={() => setShowDetailedDescription(!showDetailedDescription)}
+                className="w-full flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+              >
+                <span className="font-medium text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                  📝 Detailed Description
+                </span>
+                <Icon 
+                  name={showDetailedDescription ? "chevron-up" : "chevron-down"} 
+                  className="w-5 h-5 text-purple-600 dark:text-purple-400"
+                />
+              </button>
+              {showDetailedDescription && (
+                <div className="mt-2 p-4 bg-white dark:bg-gray-700 rounded-lg border border-purple-200 dark:border-purple-800">
+                  <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                    {result.detailedDescription}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Confidence Warning */}
           {result.confidence < 70 && (

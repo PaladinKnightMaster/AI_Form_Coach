@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@/ui/DS';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { useToastContext } from '@/components/ToastProvider';
 import LoadingButton from '@/components/LoadingButton';
-import type { UserGoals, CreateUserGoalsRequest, GoalType, ActivityLevel } from '@/types/nutrition';
+import type { CreateUserGoalsRequest, GoalType, ActivityLevel } from '@/types/nutrition';
 
 interface GoalsPanelProps {
   onClose: () => void;
@@ -14,7 +14,6 @@ interface GoalsPanelProps {
 
 export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps) {
   const { success: showSuccess, error: showError } = useToastContext();
-  const [goals, setGoals] = useState<UserGoals | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -31,11 +30,7 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
     activity_level: 'moderate'
   });
 
-  useEffect(() => {
-    fetchGoals();
-  }, []);
-
-  const fetchGoals = async () => {
+  const fetchGoals = useCallback(async () => {
     try {
       setLoading(true);
       const supabase = getSupabaseClient();
@@ -50,9 +45,9 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
 
       const response = await fetch('/api/nutrition/goals', {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
       
       if (!response.ok) {
@@ -65,7 +60,6 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
 
       const data = await response.json();
       if (data.goals) {
-        setGoals(data.goals);
         setFormData({
           calorie_target: data.goals.calorie_target,
           protein_target: data.goals.protein_target,
@@ -84,7 +78,11 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
+
+  useEffect(() => {
+    fetchGoals();
+  }, [fetchGoals]);
 
   const handleSave = async () => {
     try {
@@ -102,9 +100,9 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
       const response = await fetch('/api/nutrition/goals', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 
@@ -112,8 +110,7 @@ export default function GoalsPanel({ onClose, onGoalsUpdated }: GoalsPanelProps)
         throw new Error('Failed to save goals');
       }
 
-      const data = await response.json();
-      setGoals(data.goals);
+      await response.json();
       onGoalsUpdated?.();
       showSuccess('Goals Updated!', 'Your nutrition goals have been saved successfully');
       onClose();

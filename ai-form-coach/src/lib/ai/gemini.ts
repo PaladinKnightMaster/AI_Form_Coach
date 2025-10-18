@@ -19,6 +19,15 @@ export interface FoodAnalysisResult {
   };
   confidence: number; // 0-100
   description: string;
+  ingredients?: {
+    vegetables?: string[];
+    fruits?: string[];
+    proteins?: string[];
+    grains?: string[];
+    dairy?: string[];
+    other?: string[];
+  };
+  detailedDescription?: string;
 }
 
 export async function analyzeFoodImage(imageFile: File): Promise<FoodAnalysisResult> {
@@ -28,7 +37,7 @@ export async function analyzeFoodImage(imageFile: File): Promise<FoodAnalysisRes
       throw new Error('GEMINI_API_KEY is not configured');
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     // Convert image to base64
     console.log('Converting image to base64...', { fileName: imageFile.name, size: imageFile.size, type: imageFile.type });
@@ -36,13 +45,13 @@ export async function analyzeFoodImage(imageFile: File): Promise<FoodAnalysisRes
     console.log('Base64 conversion successful, length:', imageBase64.length);
 
     const prompt = `
-You are a nutrition expert AI. Analyze this food image and provide detailed nutritional information.
+You are a nutrition expert AI. Analyze this food image and provide detailed nutritional information with ingredient breakdown.
 
 Please respond with a JSON object containing:
 {
-  "name": "Food name (be specific, e.g., 'Grilled Chicken Breast' not just 'Chicken')",
+  "name": "Food name (be specific, e.g., 'Grilled Chicken Caesar Salad' not just 'Salad')",
   "brand": "Brand name if visible, otherwise null",
-  "category": "Food category (fruits, vegetables, protein, dairy, grains, snacks, beverages, etc.)",
+  "category": "Food category (fruits, vegetables, protein, dairy, grains, snacks, beverages, mixed, etc.)",
   "estimatedWeight": "Estimated weight in grams based on visual size",
   "nutritionalInfo": {
     "calories": "Calories per 100g",
@@ -54,17 +63,36 @@ Please respond with a JSON object containing:
     "sodium": "Sodium in mg per 100g (if applicable)"
   },
   "confidence": "Confidence level 0-100 based on image clarity and food identification",
-  "description": "Brief description of what you see in the image"
+  "description": "Brief description of what you see in the image",
+  "ingredients": {
+    "vegetables": ["List of vegetables you can identify, e.g., 'lettuce', 'tomatoes', 'cucumber'"],
+    "fruits": ["List of fruits you can identify, e.g., 'apple', 'banana', 'berries'"],
+    "proteins": ["List of protein sources, e.g., 'chicken breast', 'salmon', 'tofu', 'eggs'"],
+    "grains": ["List of grains/starches, e.g., 'brown rice', 'quinoa', 'whole wheat bread'"],
+    "dairy": ["List of dairy products, e.g., 'cheese', 'yogurt', 'milk'"],
+    "other": ["Other ingredients like sauces, oils, nuts, seeds, etc."]
+  },
+  "detailedDescription": "Detailed breakdown of the dish including ingredients, cooking method, and portion appearance"
 }
 
 Guidelines:
-- Be as specific as possible with food names
+- Be as specific as possible with food names and ingredients
+- Break down composite dishes into individual components
+- List ALL visible ingredients you can identify in appropriate categories
+- If exact food name is uncertain, describe what you see (e.g., "Mixed vegetable stir-fry with broccoli, carrots, and bell peppers")
 - Estimate weight based on common serving sizes and visual cues
 - Provide nutritional values per 100g (standard nutrition label format)
-- If you can't identify the food clearly, set confidence low
-- If multiple foods are visible, focus on the most prominent one
-- Consider cooking methods (grilled, fried, raw, etc.) in your analysis
+- If you can't identify specific ingredients, describe what's visible (e.g., "green leafy vegetables", "white protein")
+- Consider cooking methods (grilled, fried, steamed, raw, etc.) in your analysis
+- For mixed dishes, list all identifiable components
 - Be conservative with estimates if uncertain
+- Empty arrays for categories with no identifiable ingredients
+
+Examples:
+- For a salad: List all vegetables, proteins, toppings separately
+- For a sandwich: Break down bread, meat, vegetables, condiments
+- For a stir-fry: Identify each vegetable, protein, and sauce components
+- For a smoothie: List fruits, liquids, and any visible toppings
 
 IMPORTANT: Respond with ONLY valid JSON. Do not include any markdown formatting, code blocks, or additional text. Just the raw JSON object.
 `;
@@ -121,7 +149,32 @@ IMPORTANT: Respond with ONLY valid JSON. Do not include any markdown formatting,
   }
 }
 
-function validateAndCleanAnalysis(result: any): FoodAnalysisResult {
+function validateAndCleanAnalysis(result: {
+  name?: string;
+  brand?: string;
+  category?: string;
+  estimatedWeight?: number;
+  nutritionalInfo?: {
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+    fiber?: number;
+    sugar?: number;
+    sodium?: number;
+  };
+  confidence?: number;
+  description?: string;
+  ingredients?: {
+    vegetables?: string[];
+    fruits?: string[];
+    proteins?: string[];
+    grains?: string[];
+    dairy?: string[];
+    other?: string[];
+  };
+  detailedDescription?: string;
+}): FoodAnalysisResult {
   return {
     name: result.name || 'Unknown Food',
     brand: result.brand || undefined,
@@ -138,6 +191,15 @@ function validateAndCleanAnalysis(result: any): FoodAnalysisResult {
     },
     confidence: Math.max(0, Math.min(100, result.confidence || 0)),
     description: result.description || 'Food analysis completed',
+    ingredients: result.ingredients ? {
+      vegetables: result.ingredients.vegetables?.filter(v => v && v.trim().length > 0) || undefined,
+      fruits: result.ingredients.fruits?.filter(f => f && f.trim().length > 0) || undefined,
+      proteins: result.ingredients.proteins?.filter(p => p && p.trim().length > 0) || undefined,
+      grains: result.ingredients.grains?.filter(g => g && g.trim().length > 0) || undefined,
+      dairy: result.ingredients.dairy?.filter(d => d && d.trim().length > 0) || undefined,
+      other: result.ingredients.other?.filter(o => o && o.trim().length > 0) || undefined,
+    } : undefined,
+    detailedDescription: result.detailedDescription || undefined,
   };
 }
 
@@ -164,7 +226,7 @@ function fileToBase64(file: File): Promise<string> {
 
 export async function getFoodSuggestions(query: string): Promise<string[]> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     const prompt = `
 You are a nutrition expert. Given a food search query, provide 10 relevant food suggestions.
@@ -191,7 +253,7 @@ Respond ONLY with valid JSON array, no additional text.
     try {
       const suggestions = JSON.parse(text);
       return Array.isArray(suggestions) ? suggestions.slice(0, 10) : [];
-    } catch (parseError) {
+    } catch {
       const arrayMatch = text.match(/\[[\s\S]*\]/);
       if (arrayMatch) {
         return JSON.parse(arrayMatch[0]);

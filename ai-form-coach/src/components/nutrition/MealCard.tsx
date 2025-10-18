@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { Container, Button, Icon } from '@/ui/DS';
-import type { MealWithItems } from '@/types/nutrition';
+import { Button, Icon } from '@/ui/DS';
+import type { MealWithItems, FoodIngredients } from '@/types/nutrition';
 
 interface MealCardProps {
   meal: MealWithItems | null;
@@ -54,7 +54,7 @@ export default function MealCard({ meal, mealType, onAddFood }: MealCardProps) {
   }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
 
   return (
-    <div className={`card p-6 border-2 ${config.borderColor} ${config.bgColor} hover:shadow-xl transition-all duration-300 animate-bounce-in hover:scale-[1.02] group`}>
+    <div className={`card p-6 border-2 ${config.borderColor} ${config.bgColor} hover:shadow-xl transition-all duration-300 animate-bounce-in hover:scale-[1.02] group backdrop-blur-sm`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
@@ -134,14 +134,58 @@ export default function MealCard({ meal, mealType, onAddFood }: MealCardProps) {
   );
 }
 
-function FoodItemCard({ item }: { item: any }) {
+interface FoodItemWithFood {
+  id?: string;
+  grams: number;
+  calories: number;
+  protein: number;
+  food?: {
+    name?: string;
+    brand?: string;
+    ingredients?: FoodIngredients;
+  };
+}
+
+function FoodItemCard({ item }: { item: FoodItemWithFood }) {
   const food = item.food;
+  
+  // Ingredient emoji mapping
+  const ingredientEmojis: Record<string, string> = {
+    vegetables: '🥬',
+    fruits: '🍎',
+    proteins: '🍗',
+    grains: '🌾',
+    dairy: '🧀',
+    other: '🧂'
+  };
+
+  // Get top 2 ingredient categories for display
+  const getTopIngredients = () => {
+    if (!food?.ingredients) return [];
+    return Object.entries(food.ingredients)
+      .filter(([, items]) => items && Array.isArray(items) && items.length > 0)
+      .slice(0, 2)
+      .map(([category]) => category);
+  };
+
+  const topIngredients = getTopIngredients();
   
   return (
     <div className="flex items-center justify-between p-3 bg-white/70 dark:bg-gray-800/70 rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors">
       <div className="flex-1">
-        <div className="font-medium text-gray-900 dark:text-white">
-          {food?.name || 'Unknown Food'}
+        <div className="flex items-center gap-2 mb-1">
+          <div className="font-medium text-gray-900 dark:text-white">
+            {food?.name || 'Unknown Food'}
+          </div>
+          {topIngredients.length > 0 && (
+            <div className="flex gap-1">
+              {topIngredients.map((category) => (
+                <span key={category} className="text-sm" title={category}>
+                  {ingredientEmojis[category]}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         {food?.brand && (
           <div className="text-sm text-gray-500 dark:text-gray-400">

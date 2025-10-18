@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Button, Icon } from '@/ui/DS';
+import { Icon } from '@/ui/DS';
+import PrivacyBadge from '@/components/PrivacyBadge';
 import type { Food, FoodSearchResult } from '@/types/nutrition';
 
 interface FoodSearchProps {
@@ -21,12 +22,12 @@ const categories = [
 ];
 
 const quickAddItems = [
-  { name: 'Apple', calories: 95, protein: 0.5, carbs: 25, fat: 0.3, emoji: '🍎' },
-  { name: 'Banana', calories: 105, protein: 1.3, carbs: 27, fat: 0.4, emoji: '🍌' },
-  { name: 'Chicken Breast', calories: 165, protein: 31, carbs: 0, fat: 3.6, emoji: '🍗' },
-  { name: 'Rice (1 cup)', calories: 205, protein: 4.3, carbs: 45, fat: 0.4, emoji: '🍚' },
-  { name: 'Greek Yogurt', calories: 100, protein: 17, carbs: 6, fat: 0, emoji: '🥛' },
-  { name: 'Almonds (1 oz)', calories: 164, protein: 6, carbs: 6, fat: 14, emoji: '🥜' }
+  { id: 'quick-apple', name: 'Apple', calories_per_100g: 52, protein_per_100g: 0.3, carbs_per_100g: 14, fat_per_100g: 0.2, emoji: '🍎' },
+  { id: 'quick-banana', name: 'Banana', calories_per_100g: 89, protein_per_100g: 1.1, carbs_per_100g: 23, fat_per_100g: 0.3, emoji: '🍌' },
+  { id: 'quick-chicken', name: 'Chicken Breast', calories_per_100g: 165, protein_per_100g: 31, carbs_per_100g: 0, fat_per_100g: 3.6, emoji: '🍗' },
+  { id: 'quick-rice', name: 'Rice', calories_per_100g: 130, protein_per_100g: 2.7, carbs_per_100g: 28, fat_per_100g: 0.3, emoji: '🍚' },
+  { id: 'quick-yogurt', name: 'Greek Yogurt', calories_per_100g: 59, protein_per_100g: 10, carbs_per_100g: 3.6, fat_per_100g: 0.4, emoji: '🥛' },
+  { id: 'quick-almonds', name: 'Almonds', calories_per_100g: 579, protein_per_100g: 21, carbs_per_100g: 22, fat_per_100g: 50, emoji: '🥜' }
 ];
 
 export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
@@ -73,14 +74,14 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
     return () => clearTimeout(timeoutId);
   }, [searchFoods]);
 
-  const handleQuickAdd = (item: any) => {
+  const handleQuickAdd = (item: { id: string; name: string; calories_per_100g: number; protein_per_100g: number; carbs_per_100g: number; fat_per_100g: number }) => {
     const food: Food = {
       id: `quick_${Date.now()}`,
       name: item.name,
-      calories_per_100g: (item.calories / 100) * 100,
-      protein_per_100g: (item.protein / 100) * 100,
-      carbs_per_100g: (item.carbs / 100) * 100,
-      fat_per_100g: (item.fat / 100) * 100,
+      calories_per_100g: item.calories_per_100g,
+      protein_per_100g: item.protein_per_100g,
+      carbs_per_100g: item.carbs_per_100g,
+      fat_per_100g: item.fat_per_100g,
       fiber_per_100g: 0,
       sugar_per_100g: 0,
       sodium_per_100g: 0,
@@ -109,7 +110,7 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
 
         {/* Search Bar */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="relative">
+          <div className="relative mb-3">
             <Icon name="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -118,6 +119,12 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
+          </div>
+          <div className="flex items-center justify-between">
+            <PrivacyBadge type="anonymous" size="sm" showLink={true} />
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Powered by Open Food Facts
+            </span>
           </div>
         </div>
 
@@ -168,7 +175,7 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
                         {item.name}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {item.calories} cal • {item.protein}g protein
+                        {item.calories_per_100g} cal • {item.protein_per_100g}g protein
                       </div>
                     </div>
                   </button>
@@ -208,18 +215,52 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
 }
 
 function FoodSearchResult({ food, onSelect }: { food: Food; onSelect: () => void }) {
+  // Ingredient emoji mapping
+  const ingredientEmojis: Record<string, string> = {
+    vegetables: '🥬',
+    fruits: '🍎',
+    proteins: '🍗',
+    grains: '🌾',
+    dairy: '🧀',
+    other: '🧂'
+  };
+
+  // Get top 2 ingredient categories
+  const topIngredients = food.ingredients 
+    ? Object.entries(food.ingredients)
+        .filter(([, items]) => items && items.length > 0)
+        .slice(0, 2)
+        .map(([category]) => category)
+    : [];
+
   return (
     <button
       onClick={onSelect}
       className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
     >
       <div className="flex-1">
-        <div className="font-medium text-gray-900 dark:text-white">
-          {food.name}
+        <div className="flex items-center gap-2 mb-1">
+          <div className="font-medium text-gray-900 dark:text-white">
+            {food.name}
+          </div>
+          {topIngredients.length > 0 && (
+            <div className="flex gap-1">
+              {topIngredients.map((category) => (
+                <span key={category} className="text-sm" title={category}>
+                  {ingredientEmojis[category]}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         {food.brand && (
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {food.brand}
+          </div>
+        )}
+        {food.category && (
+          <div className="text-xs text-gray-500 dark:text-gray-500 capitalize">
+            {food.category}
           </div>
         )}
         <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">

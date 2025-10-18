@@ -7,7 +7,7 @@ import { useToastContext } from '@/components/ToastProvider';
 import LoadingButton from '@/components/LoadingButton';
 
 export default function SignIn() {
-	const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
+	const { success: showSuccess, error: showError } = useToastContext();
 	const [mode, setMode] = useState<'signin'|'signup'|'reset-request'|'magic-link'>('signin');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -32,12 +32,38 @@ export default function SignIn() {
 	async function ensureProfile(userId: string) {
 		try {
 			const supabase = getSupabaseClient();
-			const { error } = await supabase.from('profiles').upsert({ id: userId }, { onConflict: 'id' });
+			
+			// Check if profile already exists
+			const { data: existingProfile } = await supabase
+				.from('profiles')
+				.select('id')
+				.eq('id', userId)
+				.single();
+			
+			if (existingProfile) {
+				// Profile already exists, no need to create
+				return;
+			}
+			
+			// Create new profile
+			const { error } = await supabase
+				.from('profiles')
+				.insert({ id: userId });
+			
 			if (error) {
-				console.error('Profile creation error:', error);
+				console.error('Profile creation error:', {
+					error: error.message,
+					code: error.code,
+					details: error.details,
+					hint: error.hint,
+					userId
+				});
 			}
 		} catch (err) {
-			console.error('Unexpected profile error:', err);
+			console.error('Unexpected profile error:', {
+				error: err,
+				userId
+			});
 		}
 	}
 
@@ -89,19 +115,96 @@ export default function SignIn() {
 				if (!email || !password) { showError('Validation Error', 'Enter email and password'); return; }
 				if (password.length < 6) { showError('Password Too Short', 'Password must be at least 6 characters'); return; }
 				if (password !== confirm) { showError('Password Mismatch', 'Passwords do not match'); return; }
-				const { data, error } = await supabase.auth.signUp({ email, password });
+				
+				// Check if user already exists before attempting signup
+				try {
+					// First check if user is already signed in
+					const { data: existingUser } = await supabase.auth.getUser();
+					if (existingUser.user && existingUser.user.email === email) {
+						showError('Account Already Exists', 'You are already signed in with this email address.');
+						return;
+					}
+					
+					// Then check if any user exists with this email in the database
+					const { data: userExists } = await supabase.rpc('check_user_exists', { p_email: email });
+					if (userExists) {
+						showError('Account Already Exists', 'An account with this email address already exists. Please sign in instead or use a different email address.');
+						setMode('signin');
+						return;
+					}
+				} catch (error) {
+					// If RPC function doesn't exist yet, continue with signup
+					console.log('RPC function not available, continuing with signup:', error);
+				}
+				const { data, error } = await supabase.auth.signUp({ 
+					email, 
+					password,
+					options: {
+						emailRedirectTo: `${window.location.origin}/auth/callback`
+					}
+				});
+				
+				// Debug: Log the response to understand the structure
+				console.log('Signup response:', { data, error });
+				
 				if (error) {
 					const msg = error.message.toLowerCase();
-					if (error.status === 422 || msg.includes('registered') || msg.includes('already')) {
-						showError('Account Exists', 'An account with this email already exists. Please sign in.');
+					const errorCode = error.code || '';
+					
+					// Check for various "account already exists" scenarios
+					if (error.status === 422 || 
+						errorCode === 'user_already_registered' ||
+						msg.includes('registered') || 
+						msg.includes('already') ||
+						msg.includes('exists') ||
+						msg.includes('duplicate') ||
+						msg.includes('taken')) {
+						showError('Account Already Exists', 'An account with this email address already exists. Please sign in instead or use a different email address.');
 						setMode('signin');
+					} else if (msg.includes('invalid') && msg.includes('email')) {
+						showError('Invalid Email', 'Please enter a valid email address.');
+					} else if (msg.includes('password') && msg.includes('weak')) {
+						showError('Weak Password', 'Please choose a stronger password with at least 6 characters.');
+					} else if (msg.includes('rate limit') || msg.includes('too many')) {
+						showError('Too Many Attempts', 'Please wait a moment before trying again.');
 					} else {
-						showError('Signup Failed', error.message);
+						showError('Signup Failed', `Unable to create account: ${error.message}`);
 					}
 					return;
 				}
-				if (data.user) await ensureProfile(data.user.id);
-				showSuccess('Account Created!', 'Check your email to confirm your account');
+				
+				// Check if signup was successful but user already exists
+				// For existing users, Supabase might return the user but with different properties
+				if (data.user) {
+					// Check if this is a new user or existing user
+					// If user already exists, Supabase might not send a confirmation email
+					// We can detect this by checking if the user was created recently
+					const userCreatedAt = new Date(data.user.created_at);
+					const now = new Date();
+					const timeDiff = now.getTime() - userCreatedAt.getTime();
+					const isRecentSignup = timeDiff < 5000; // Less than 5 seconds ago
+					
+					if (!isRecentSignup) {
+						// User already exists (created more than 5 seconds ago)
+						showError('Account Already Exists', 'An account with this email address already exists. Please sign in instead or use a different email address.');
+						setMode('signin');
+						return;
+					}
+					
+					// Check if email confirmation is required
+					if (!data.user.email_confirmed_at) {
+						showSuccess('Account Created!', 'Please check your email and click the confirmation link to activate your account. Check your spam folder if you don\'t see it.');
+						// Profile will be created after email confirmation
+					} else {
+						// User is already confirmed (shouldn't happen for new signups)
+						showSuccess('Account Created!', 'Your account has been created successfully!');
+						await ensureProfile(data.user.id);
+						router.push('/coach');
+					}
+				} else {
+					// No user returned (shouldn't happen with successful signup)
+					showError('Signup Failed', 'Unable to create account. Please try again.');
+				}
 				return;
 			}
 			
@@ -118,15 +221,25 @@ export default function SignIn() {
 			const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 			if (error) {
 				const msg = error.message.toLowerCase();
-				if (msg.includes('invalid') || msg.includes('wrong')) {
-					showError('Invalid Credentials', 'Invalid email or password');
+				
+				if (msg.includes('invalid') || msg.includes('wrong') || msg.includes('credentials')) {
+					showError('Invalid Credentials', 'Invalid email or password. Please check your credentials and try again.');
+				} else if (msg.includes('email not confirmed') || msg.includes('confirm')) {
+					showError('Email Not Confirmed', 'Please check your email and click the confirmation link before signing in.');
+				} else if (msg.includes('user not found') || msg.includes('does not exist')) {
+					showError('Account Not Found', 'No account found with this email address. Please sign up first.');
+					setMode('signup');
+				} else if (msg.includes('rate limit') || msg.includes('too many')) {
+					showError('Too Many Attempts', 'Please wait a moment before trying again.');
 				} else {
-					showError('Sign In Failed', error.message);
+					showError('Sign In Failed', `Unable to sign in: ${error.message}`);
 				}
 				return;
 			}
-			if (data.user) await ensureProfile(data.user.id);
-			router.push('/coach?welcome=true');
+			if (data.user) {
+				await ensureProfile(data.user.id);
+				router.push('/coach?welcome=true');
+			}
 		} finally {
 			setLoading(false);
 		}

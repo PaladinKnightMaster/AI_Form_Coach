@@ -2,16 +2,25 @@ import type { Exercise, Validator } from './types';
 import { createSquatValidator } from './squat';
 import { createPushupValidator } from './pushup';
 import { createPlankValidator } from './plank';
+import { withMentorCues } from '../coach/mentorIntegration';
 
 export function createValidator(exercise: Exercise): Validator {
+	let baseValidator: Validator;
+	
 	switch (exercise) {
 		case 'squat':
-			return createSquatValidator();
+			baseValidator = createSquatValidator();
+			break;
 		case 'pushup':
-			return createPushupValidator();
+			baseValidator = createPushupValidator();
+			break;
 		case 'plank':
-			return createPlankValidator();
+			baseValidator = createPlankValidator();
+			break;
 		default:
-			return createSquatValidator();
+			baseValidator = createSquatValidator();
 	}
+	
+	// Wrap with mentor cue system
+	return withMentorCues(baseValidator);
 } 

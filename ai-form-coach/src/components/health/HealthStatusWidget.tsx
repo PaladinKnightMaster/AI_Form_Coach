@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button, Icon, Badge } from '@/ui/DS';
 import { HealthDataManager } from '@/lib/health/healthData';
 import type { HealthData, HealthBaseline } from '@/lib/health/healthData';
@@ -14,15 +14,9 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
   const [healthManager] = useState(() => new HealthDataManager());
   const [healthData, setHealthData] = useState<HealthData | null>(null);
   const [baseline, setBaseline] = useState<HealthBaseline | null>(null);
-  const [loading, setLoading] = useState(false);
   const { info: showInfo } = useToastContext();
 
-  useEffect(() => {
-    loadHealthData();
-    loadBaseline();
-  }, []);
-
-  const loadHealthData = async () => {
+  const loadHealthData = useCallback(async () => {
     try {
       const today = new Date();
       const data = await healthManager.fetchHealthData(today);
@@ -30,12 +24,17 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
     } catch (error) {
       console.error('Error loading health data:', error);
     }
-  };
+  }, [healthManager]);
 
-  const loadBaseline = () => {
+  const loadBaseline = useCallback(() => {
     const baselineData = healthManager.getBaseline();
     setBaseline(baselineData);
-  };
+  }, [healthManager]);
+
+  useEffect(() => {
+    loadHealthData();
+    loadBaseline();
+  }, [loadHealthData, loadBaseline]);
 
   const getReadinessScore = (): number => {
     if (!healthData || !baseline) return 0.5;
@@ -67,15 +66,6 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
     return 'poor';
   };
 
-  const getReadinessColor = (category: string) => {
-    switch (category) {
-      case 'excellent': return 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400';
-      case 'good': return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400';
-      case 'fair': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'poor': return 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400';
-    }
-  };
 
   const hasHealthData = healthManager.hasHealthData();
 

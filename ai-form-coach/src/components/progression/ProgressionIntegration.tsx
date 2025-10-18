@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button, Icon, Badge } from '@/ui/DS';
 import { ProgressionEngine, type SessionMetrics, type ReadinessAssessment, type WorkoutTarget } from '@/lib/progression/engine';
 import EnhancedReadinessAssessment from './EnhancedReadinessAssessment';
@@ -10,16 +10,12 @@ interface ProgressionIntegrationProps {
   exercise: 'squat' | 'pushup' | 'plank';
   onTargetUpdate: (target: WorkoutTarget) => void;
   onReadinessUpdate: (readiness: ReadinessAssessment | null) => void;
-  currentGoalType: 'none' | 'reps' | 'time';
-  currentGoalValue: number;
 }
 
 export default function ProgressionIntegration({
   exercise,
   onTargetUpdate,
-  onReadinessUpdate,
-  currentGoalType,
-  currentGoalValue
+  onReadinessUpdate
 }: ProgressionIntegrationProps) {
   const [engine] = useState(() => new ProgressionEngine());
   const [sessionHistory, setSessionHistory] = useState<SessionMetrics[]>([]);
@@ -29,14 +25,10 @@ export default function ProgressionIntegration({
   const [showReadinessModal, setShowReadinessModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { success: showSuccess, error: showError, info: showInfo } = useToastContext();
+  const { success: showSuccess, error: showError } = useToastContext();
 
   // Load progression data
-  useEffect(() => {
-    loadProgressionData();
-  }, [exercise]);
-
-  const loadProgressionData = async () => {
+  const loadProgressionData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/progression?exercise=${exercise}`, {
@@ -60,7 +52,11 @@ export default function ProgressionIntegration({
     } finally {
       setLoading(false);
     }
-  };
+  }, [exercise, engine]);
+
+  useEffect(() => {
+    loadProgressionData();
+  }, [loadProgressionData]);
 
   const handleReadinessSubmit = async (assessment: ReadinessAssessment) => {
     setIsSubmitting(true);
@@ -229,7 +225,7 @@ export default function ProgressionIntegration({
           </div>
         ) : (
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            No readiness assessment yet. Click "Assess" to get personalized recommendations.
+            No readiness assessment yet. Click &ldquo;Assess&rdquo; to get personalized recommendations.
           </div>
         )}
       </div>
@@ -263,7 +259,7 @@ export default function ProgressionIntegration({
             </div>
             {nextTarget.notes && (
               <div className="text-sm text-yellow-800 dark:text-yellow-300">
-                <Icon name="info" className="w-4 h-4 inline mr-1" />
+                <Icon name="alert-circle" className="w-4 h-4 inline mr-1" />
                 {nextTarget.notes}
               </div>
             )}

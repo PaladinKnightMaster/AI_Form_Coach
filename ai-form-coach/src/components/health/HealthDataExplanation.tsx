@@ -42,10 +42,10 @@ export default function HealthDataExplanation({
 
       <div className="space-y-4">
         <div className="flex items-start gap-3">
-          <Icon name="info" className="w-5 h-5 text-blue-500 mt-0.5" />
+          <Icon name="alert" className="w-5 h-5 text-blue-500 mt-0.5" />
           <div>
             <p className="text-gray-700 dark:text-gray-300">
-              The "Connect Health Data" button requests permission to access your device's built-in health data, 
+              The &ldquo;Connect Health Data&rdquo; button requests permission to access your device&apos;s built-in health data, 
               not external Bluetooth devices.
             </p>
           </div>
@@ -60,7 +60,7 @@ export default function HealthDataExplanation({
               <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                 <li>• <strong>iOS:</strong> Connects to Apple Health (HealthKit)</li>
                 <li>• <strong>Android:</strong> Connects to Health Connect or Google Fit</li>
-                <li>• Accesses data from your phone's built-in sensors</li>
+                <li>• Accesses data from your phone&apos;s built-in sensors</li>
                 <li>• Includes data from connected fitness apps and wearables</li>
                 <li>• No Bluetooth pairing required - uses existing health data</li>
               </ul>
