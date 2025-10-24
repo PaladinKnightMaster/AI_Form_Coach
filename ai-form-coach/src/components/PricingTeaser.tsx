@@ -9,7 +9,6 @@ export default function PricingTeaser() {
 	const [cycle, setCycle] = useState<'monthly'|'yearly'>('monthly');
 	const [loading, setLoading] = useState(false);
 	const [userTier, setUserTier] = useState<'free' | 'pro' | 'founder' | null>(null);
-	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 	const proPrice = cycle === 'monthly' ? '$8/mo' : '$79/yr';
 
 	// Check user subscription status
@@ -20,12 +19,9 @@ export default function PricingTeaser() {
 				const { data: { user } } = await supabase.auth.getUser();
 				
 				if (!user) {
-					setIsAuthenticated(false);
 					setUserTier('free');
 					return;
 				}
-
-				setIsAuthenticated(true);
 				const tier = await subscriptionService.getUserTier(user.id);
 				setUserTier(tier);
 			} catch (error) {
@@ -94,7 +90,7 @@ export default function PricingTeaser() {
 						</div>
 						<div className="text-2xl font-extrabold mb-1">{proPrice}</div>
 						{userTier === 'pro' ? (
-							<p className="text-xs opacity-70 mb-3">You're currently on the Pro plan!</p>
+        <p className="text-xs opacity-70 mb-3">You&apos;re currently on the Pro plan!</p>
 						) : (
 							<p className="text-xs opacity-70 mb-3">No charge yet — sign up to get notified.</p>
 						)}
@@ -130,7 +126,7 @@ export default function PricingTeaser() {
 						<h3 className="font-semibold mb-1">Founder</h3>
 						<div className="text-2xl font-extrabold mb-1">$199</div>
 						{userTier === 'founder' ? (
-							<p className="text-xs opacity-70 mb-3">You're a Founder! Lifetime access unlocked.</p>
+        <p className="text-xs opacity-70 mb-3">You&apos;re a Founder! Lifetime access unlocked.</p>
 						) : (
 							<p className="text-xs opacity-70 mb-3">One-time payment • Lifetime access</p>
 						)}

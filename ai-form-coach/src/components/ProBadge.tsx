@@ -10,7 +10,6 @@ interface ProBadgeProps {
 
 export default function ProBadge({ className = '', showText = true }: ProBadgeProps) {
   const [userTier, setUserTier] = useState<'free' | 'pro' | 'founder' | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkSubscription = async () => {
@@ -19,12 +18,9 @@ export default function ProBadge({ className = '', showText = true }: ProBadgePr
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
-          setIsAuthenticated(false);
           setUserTier('free');
           return;
         }
-
-        setIsAuthenticated(true);
         const tier = await subscriptionService.getUserTier(user.id);
         setUserTier(tier);
       } catch (error) {

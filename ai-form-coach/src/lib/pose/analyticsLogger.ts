@@ -171,7 +171,7 @@ export class AnalyticsLogger {
   /**
    * Validate metric data
    */
-  private validateMetric(metric: any): boolean {
+  private validateMetric(metric: Record<string, unknown>): boolean {
     return (
       typeof metric.timestamp === 'number' &&
       typeof metric.fps === 'number' &&

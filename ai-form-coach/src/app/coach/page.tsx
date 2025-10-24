@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PoseEngine2, type PoseEstimateResult, type Landmark3D } from '@/lib/pose/engine';
-import { shouldProcessFrame, recordFrameDropFps, getGlobalAnalyticsLogger, logAnalyticsMetric } from '@/lib/pose';
+import { shouldProcessFrame, recordFrameDropFps, logAnalyticsMetric } from '@/lib/pose';
 import { createValidator } from '@/lib/validators';
 import type { Exercise, RepMetric, ValidatorConfig } from '@/lib/validators/types';
 import { speak, setMuted, ensureSpeechReady } from '@/lib/voice/coachVoice';
