@@ -30,11 +30,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate and sanitize metrics
-    const validatedMetrics: any[] = [];
+    // Validate metrics
     for (let i = 0; i < metrics.length; i++) {
       const metric = metrics[i];
-      
+
       if (!metric.timestamp || typeof metric.fps !== 'number') {
         return NextResponse.json(
           { error: `Invalid metric at index ${i}: missing timestamp or fps` },
@@ -59,34 +58,34 @@ export async function POST(request: NextRequest) {
     }
 
     // Transform metrics for database insertion
-    const metricsToInsert = metrics.map((metric: any) => ({
+    const metricsToInsert = metrics.map((metric: Record<string, unknown>) => ({
       user_id: user.id,
       session_id: metric.sessionId || 'unknown',
-      timestamp: new Date(metric.timestamp).toISOString(),
-      visibility_score: Math.max(0, Math.min(1, metric.visibility || 0)),
+      timestamp: new Date(metric.timestamp as number).toISOString(),
+      visibility_score: Math.max(0, Math.min(1, (metric.visibility as number) || 0)),
       stability_score: 0.85, // Placeholder
-      tracking_confidence: Math.max(0, Math.min(1, metric.visibility || 0)),
-      fps: Math.round(Math.max(0, Math.min(120, metric.fps || 0))),
-      dropped_frames: Math.round(Math.max(0, (metric.frameDropRate || 0) * 10)),
-      low_visibility_frames: (metric.visibility || 0) < 0.55 ? 1 : 0,
-      average_landmark_visibility: Math.max(0, Math.min(1, metric.visibility || 0)),
+      tracking_confidence: Math.max(0, Math.min(1, (metric.visibility as number) || 0)),
+      fps: Math.round(Math.max(0, Math.min(120, (metric.fps as number) || 0))),
+      dropped_frames: Math.round(Math.max(0, ((metric.frameDropRate as number) || 0) * 10)),
+      low_visibility_frames: ((metric.visibility as number) || 0) < 0.55 ? 1 : 0,
+      average_landmark_visibility: Math.max(0, Math.min(1, (metric.visibility as number) || 0)),
       best_side: 'right',
       median_filter_applied: true,
       outlier_rejections: 0,
       kalman_filter_applied: false,
       exercise: metric.exercise || 'unknown',
       model: 'lite',
-      device_info: {
-        deviceType: metric.deviceType || 'unknown',
-        cacheHitRate: Math.max(0, Math.min(1, metric.cacheHitRate || 0)),
-        sortTime: Math.max(0, metric.sortTime || 0),
-        latency: Math.max(0, metric.latency || 0)
-      }
+        device_info: {
+          deviceType: (metric.deviceType as string) || 'unknown',
+          cacheHitRate: Math.max(0, Math.min(1, (metric.cacheHitRate as number) || 0)),
+          sortTime: Math.max(0, (metric.sortTime as number) || 0),
+          latency: Math.max(0, (metric.latency as number) || 0)
+        }
     }));
 
     // Batch insert with retry logic
-    let insertError: any = null;
-    let data: any = null;
+    let insertError: unknown = null;
+    let data: unknown = null;
     let retries = 0;
     const maxRetries = 3;
 
@@ -118,14 +117,14 @@ export async function POST(request: NextRequest) {
     if (insertError && retries >= maxRetries) {
       console.error('Batch pose metrics insert failed after retries:', insertError);
       return NextResponse.json(
-        { error: 'Failed to insert batch metrics', details: insertError?.message },
+        { error: 'Failed to insert batch metrics', details: (insertError as Error)?.message || 'Unknown error' },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      inserted: data?.length || metricsToInsert.length,
+      inserted: (data as unknown[])?.length || metricsToInsert.length,
       total: metrics.length
     });
   } catch (error) {

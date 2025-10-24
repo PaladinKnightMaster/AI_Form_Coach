@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
       timestamp,
       fps,
       latency,
-      jitter,
       visibility,
       cacheHitRate,
       sortTime,
@@ -95,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      id: data?.[0]?.id || null
+      id: (data as unknown as Record<string, unknown>[])?.[0]?.id || null
     });
   } catch (error) {
     console.error('Pose metrics API error:', error);

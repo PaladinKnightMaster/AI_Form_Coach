@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PoseEngine2, type PoseEstimateResult, type Landmark3D } from '@/lib/pose/engine';
-import { shouldProcessFrame, recordFrameDropFps, getGlobalAnalyticsLogger, logAnalyticsMetric } from '@/lib/pose';
+import { shouldProcessFrame, recordFrameDropFps, logAnalyticsMetric } from '@/lib/pose';
 import { createValidator } from '@/lib/validators';
 import type { Exercise, RepMetric, ValidatorConfig } from '@/lib/validators/types';
 import { speak, setMuted, ensureSpeechReady } from '@/lib/voice/coachVoice';
@@ -29,6 +29,7 @@ import { initializeQualityScorer } from '@/lib/microModel/qualityIntegration';
 import QualityOverlay from '@/components/QualityOverlay';
 import Top10Toast from '@/components/leaderboards/Top10Toast';
 import PacingBar from '@/components/ghost/PacingBar';
+import DraggableDebugPanel from '@/components/DraggableDebugPanel';
 import { MetricsDashboard } from '@/components/MetricsDashboard';
 
 function CoachContent() {
@@ -1043,17 +1044,31 @@ function CoachContent() {
 		{/* M1: Top 10 Toast */}
 		<Top10Toast exercise={exercise} />
 		
-		{/* M2: Ghost Pacing Bar */}
-		{pacingBarEnabled && (
-			<PacingBar 
-				exercise={exercise}
-				currentReps={correctRepsCount}
-				sessionStartTime={sessionStartTime}
-				isRunning={running}
-				reducedMotion={reducedMotion}
-				className="absolute top-4 right-4 z-10 max-w-sm"
+		{/* M2: Ghost Pacing Bar with Debug Panel */}
+		<div className="absolute top-4 right-4 z-10 max-w-sm">
+			{pacingBarEnabled && (
+				<PacingBar 
+					exercise={exercise}
+					currentReps={correctRepsCount}
+					sessionStartTime={sessionStartTime}
+					isRunning={running}
+					reducedMotion={reducedMotion}
+				/>
+			)}
+			
+			{/* Debug Panel positioned below PacingBar */}
+			<DraggableDebugPanel
+				isVisible={debug}
+				onClose={() => setDebug(false)}
+				onShow={() => setDebug(true)}
+				engineReady={!!engineRef.current}
+				videoDimensions={videoRef.current ? `${videoRef.current.videoWidth}x${videoRef.current.videoHeight}` : 'Not Ready'}
+				landmarkCount={landmarksRef.current ? landmarksRef.current.length : 0}
+				visibilityScore={visibilityScore}
+				fps={fps || 0}
+				running={running}
 			/>
-		)}
+		</div>
 					<HUD 
 						repCount={repCount} 
 						cue={pausedByQuality ? 'Step back into frame' : cue} 
@@ -1074,37 +1089,6 @@ function CoachContent() {
 						wakeLockActive={wakeLockActive}
 						enhancedPhaseDetection={enhancedPhaseDetection}
 					/>
-					
-					{/* Pose Detection Status */}
-					{debug && (
-						<div className="absolute top-4 left-4 z-30 bg-black bg-opacity-75 text-white p-2 rounded text-sm">
-							<div className="flex items-center gap-2 mb-2">
-								<span className="font-bold">Debug Mode</span>
-								<button 
-									onClick={() => setDebug(false)}
-									className="text-xs bg-red-600 px-2 py-1 rounded hover:bg-red-700"
-								>
-									Hide
-								</button>
-							</div>
-							<div>Pose Engine: {engineRef.current ? 'Ready' : 'Not Ready'}</div>
-							<div>Video: {videoRef.current ? `${videoRef.current.videoWidth}x${videoRef.current.videoHeight}` : 'Not Ready'}</div>
-							<div>Landmarks: {landmarksRef.current ? landmarksRef.current.length : 0}</div>
-							<div>Visibility: {visibilityScore.toFixed(2)}</div>
-							<div>FPS: {fps || 0}</div>
-							<div>Running: {running ? 'Yes' : 'No'}</div>
-						</div>
-					)}
-					
-					{/* Debug Toggle Button */}
-					{!debug && (
-						<button 
-							onClick={() => setDebug(true)}
-							className="absolute top-4 left-4 z-30 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
-						>
-							Debug
-						</button>
-					)}
 					
 					{/* Visibility Warning */}
 					{running && visibilityScore < 0.6 && (
