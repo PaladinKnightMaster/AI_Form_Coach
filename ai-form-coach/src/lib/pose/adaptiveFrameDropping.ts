@@ -5,7 +5,7 @@
  * Maintains smooth visual experience while reducing CPU load on low-end devices
  */
 
-import { getDeviceCapabilities, getCurrentDepthConfig } from './depthOptimization';
+import { getDeviceCapabilities } from './depthOptimization';
 
 // ============================================
 // Frame Drop Configuration
@@ -52,7 +52,6 @@ export class AdaptiveFrameDropping {
   constructor(config?: Partial<FrameDropConfig>) {
     // Detect device capability
     const deviceCapabilities = getDeviceCapabilities();
-    const depthConfig = getCurrentDepthConfig();
 
     // Default config based on device
     const defaultConfig: FrameDropConfig = {

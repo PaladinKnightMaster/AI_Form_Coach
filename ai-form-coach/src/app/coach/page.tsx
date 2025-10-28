@@ -721,7 +721,7 @@ function CoachContent() {
 		};
 		
 		loop();
-	}, [running, onPose]);
+	}, [running, onPose, exercise]);
 
 	useEffect(() => {
 		let active = true; let stream: MediaStream | null = null;

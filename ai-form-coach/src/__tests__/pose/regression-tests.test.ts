@@ -9,7 +9,7 @@
  * - Cache hit rate decrease > 5%
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { MetricsCollector, generateBenchmark } from '@/lib/pose/metricsUtils';
 
 // ============================================

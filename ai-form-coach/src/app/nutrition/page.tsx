@@ -97,7 +97,20 @@ export default function NutritionPage() {
 				throw new Error(`Failed to fetch nutrition data: ${response.status} ${response.statusText}`);
 			}
 			const data = await response.json();
-			setNutritionDay(data);
+			
+			// Transform the data to match the expected structure
+			const transformedData = {
+				meals: data.meals || [],
+				totals: data.dailyTotals || {
+					total_calories: 0,
+					total_protein: 0,
+					total_carbs: 0,
+					total_fat: 0
+				},
+				date: data.date
+			};
+			
+			setNutritionDay(transformedData);
 		} catch (err) {
 			console.error('Failed to fetch nutrition day:', err);
 		} finally {
