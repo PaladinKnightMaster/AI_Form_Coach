@@ -48,7 +48,7 @@ export async function GET() {
       
       challenges = result.data;
       challengesError = result.error;
-    } catch (error) {
+    } catch {
       // Fallback: try with 'completed' column if 'is_completed' doesn't exist
       try {
         const result = await supabase
@@ -118,7 +118,7 @@ export async function GET() {
       weeklyGoal,
       weeklyProgress,
       achievements: achievements?.length || 0,
-      challengesCompleted: challenges?.filter((c: any) => {
+              challengesCompleted: challenges?.filter((c: { is_completed?: boolean; completed?: boolean }) => {
         // Handle both possible column names for backward compatibility
         return c.is_completed === true || c.completed === true;
       }).length || 0

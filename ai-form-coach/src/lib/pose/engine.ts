@@ -17,7 +17,7 @@
 import { PoseLandmarker, PoseLandmarkerResult, FilesetResolver } from '@mediapipe/tasks-vision';
 import { Point3 } from '../math/poseMath';
 import { SmoothingPipeline, SmoothingPipelineConfig, TemporalDebouncer } from './filters';
-import { getWorkerFilteringPool, type FilterRequest } from './workerFilteringPool';
+import { getWorkerFilteringPool } from './workerFilteringPool';
 
 // MediaPipe WasmFileset interface (not exported from the library)
 interface WasmFileset {

@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+// Define types for meal data
+interface MealItem {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+}
+
+interface Meal {
+  meal_items: MealItem[];
+}
 
 // Helper function to calculate daily totals from meals
-async function calculateDailyTotals(supabase: any, userId: string, date: string) {
+async function calculateDailyTotals(supabase: SupabaseClient, userId: string, date: string) {
   try {
     const { data: meals, error: mealsError } = await supabase
       .from('meals')
@@ -27,7 +43,7 @@ async function calculateDailyTotals(supabase: any, userId: string, date: string)
     }
 
     // Calculate totals from meal items
-    let totals = {
+    const totals = {
       total_calories: 0,
       total_protein: 0,
       total_carbs: 0,
@@ -37,8 +53,8 @@ async function calculateDailyTotals(supabase: any, userId: string, date: string)
       total_sodium: 0
     };
 
-    meals?.forEach((meal: any) => {
-      meal.meal_items?.forEach((item: any) => {
+    (meals as Meal[])?.forEach((meal: Meal) => {
+      meal.meal_items?.forEach((item: MealItem) => {
         totals.total_calories += item.calories || 0;
         totals.total_protein += item.protein || 0;
         totals.total_carbs += item.carbs || 0;

@@ -2,6 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { ActivityFeedItem } from '@/types/activity';
 
+// Define types for session and achievement objects
+interface SessionWithProfiles {
+  id: string;
+  exercise: string;
+  started_at: string;
+  ended_at: string;
+  total_reps: number;
+  total_time_seconds: number;
+  quality_score: number;
+  user_id: string;
+  profiles?: Array<{ username: string }> | { username: string };
+}
+
+interface AchievementWithProfiles {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  earned_at: string;
+  user_id: string;
+  profiles?: Array<{ username: string }> | { username: string };
+}
+
 export async function GET(req: NextRequest) {
   try {
     const supabase = await getSupabaseServerClient();
@@ -45,7 +68,7 @@ export async function GET(req: NextRequest) {
       
       sessions = result.data;
       sessionsError = result.error;
-    } catch (error) {
+    } catch {
       // Fallback: get sessions without profiles join
       const result = await supabase
         .from('sessions')
@@ -84,7 +107,7 @@ export async function GET(req: NextRequest) {
     const likedActivityIds = new Set(likedActivities?.map(like => like.activity_id) || []);
 
     // Transform sessions into activity feed items
-    const activities: ActivityFeedItem[] = await Promise.all((sessions || []).map(async session => {
+    const activities: ActivityFeedItem[] = await Promise.all((sessions || []).map(async (session: SessionWithProfiles) => {
       const duration = session.total_time_seconds ? 
         Math.floor(session.total_time_seconds / 60) : 0;
       
@@ -100,7 +123,7 @@ export async function GET(req: NextRequest) {
       let userName = 'Anonymous';
       if (session.profiles && Array.isArray(session.profiles) && session.profiles.length > 0) {
         userName = session.profiles[0].username || 'Anonymous';
-      } else if (session.profiles && typeof session.profiles === 'object' && session.profiles.username) {
+      } else if (session.profiles && typeof session.profiles === 'object' && !Array.isArray(session.profiles) && 'username' in session.profiles) {
         userName = session.profiles.username;
       }
       
@@ -148,7 +171,7 @@ export async function GET(req: NextRequest) {
       
       achievements = result.data;
       achievementsError = result.error;
-    } catch (error) {
+    } catch {
       // Fallback: get achievements without profiles join
       const result = await supabase
         .from('achievements')
@@ -172,7 +195,7 @@ export async function GET(req: NextRequest) {
       console.error('Error fetching achievements:', achievementsError);
     } else {
       // Add achievements to activities
-      const achievementActivities: ActivityFeedItem[] = await Promise.all((achievements || []).map(async achievement => {
+      const achievementActivities: ActivityFeedItem[] = await Promise.all((achievements || []).map(async (achievement: AchievementWithProfiles) => {
         const activityId = `achievement-${achievement.id}`;
         
         // Get like and comment counts
@@ -185,7 +208,7 @@ export async function GET(req: NextRequest) {
         let userName = 'Anonymous';
         if (achievement.profiles && Array.isArray(achievement.profiles) && achievement.profiles.length > 0) {
           userName = achievement.profiles[0].username || 'Anonymous';
-        } else if (achievement.profiles && typeof achievement.profiles === 'object' && achievement.profiles.username) {
+        } else if (achievement.profiles && typeof achievement.profiles === 'object' && !Array.isArray(achievement.profiles) && 'username' in achievement.profiles) {
           userName = achievement.profiles.username;
         }
         
