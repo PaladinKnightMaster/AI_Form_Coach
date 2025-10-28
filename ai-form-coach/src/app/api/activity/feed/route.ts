@@ -2,6 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase/server';
 import type { ActivityFeedItem } from '@/types/activity';
 
+// Define types for session and achievement objects
+interface SessionWithProfiles {
+  id: string;
+  exercise: string;
+  started_at: string;
+  ended_at: string;
+  total_reps: number;
+  total_time_seconds: number;
+  quality_score: number;
+  user_id: string;
+  profiles?: Array<{ username: string }> | { username: string };
+}
+
+interface AchievementWithProfiles {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  earned_at: string;
+  user_id: string;
+  profiles?: Array<{ username: string }> | { username: string };
+}
+
 export async function GET(req: NextRequest) {
   try {
     const supabase = await getSupabaseServerClient();
@@ -18,26 +41,54 @@ export async function GET(req: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Get recent activities from sessions and achievements
-    const { data: sessions, error: sessionsError } = await supabase
-      .from('sessions')
-      .select(`
-        id,
-        exercise,
-        started_at,
-        ended_at,
-        total_reps,
-        total_time_seconds,
-        quality_score,
-        user_id,
-        profiles!inner(
+    // First try with profiles join, fallback to sessions only if profiles table doesn't exist
+    let sessions, sessionsError;
+    
+    try {
+      const result = await supabase
+        .from('sessions')
+        .select(`
           id,
-          username,
-          avatar_url
-        )
-      `)
-      .eq('is_public', true)
-      .order('started_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+          exercise,
+          started_at,
+          ended_at,
+          total_reps,
+          total_time_seconds,
+          quality_score,
+          user_id,
+          profiles!inner(
+            id,
+            username,
+            avatar_url
+          )
+        `)
+        .eq('is_public', true)
+        .order('started_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+      
+      sessions = result.data;
+      sessionsError = result.error;
+    } catch {
+      // Fallback: get sessions without profiles join
+      const result = await supabase
+        .from('sessions')
+        .select(`
+          id,
+          exercise,
+          started_at,
+          ended_at,
+          total_reps,
+          total_time_seconds,
+          quality_score,
+          user_id
+        `)
+        .eq('is_public', true)
+        .order('started_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+      
+      sessions = result.data;
+      sessionsError = result.error;
+    }
 
     if (sessionsError) {
       console.error('Error fetching sessions:', sessionsError);
@@ -56,7 +107,7 @@ export async function GET(req: NextRequest) {
     const likedActivityIds = new Set(likedActivities?.map(like => like.activity_id) || []);
 
     // Transform sessions into activity feed items
-    const activities: ActivityFeedItem[] = await Promise.all((sessions || []).map(async session => {
+    const activities: ActivityFeedItem[] = await Promise.all((sessions || []).map(async (session: SessionWithProfiles) => {
       const duration = session.total_time_seconds ? 
         Math.floor(session.total_time_seconds / 60) : 0;
       
@@ -68,10 +119,18 @@ export async function GET(req: NextRequest) {
         supabase.rpc('get_activity_comment_count', { activity_id_param: activityId })
       ]);
       
+      // Handle profile data - check if profiles exists in session data
+      let userName = 'Anonymous';
+      if (session.profiles && Array.isArray(session.profiles) && session.profiles.length > 0) {
+        userName = session.profiles[0].username || 'Anonymous';
+      } else if (session.profiles && typeof session.profiles === 'object' && !Array.isArray(session.profiles) && 'username' in session.profiles) {
+        userName = session.profiles.username;
+      }
+      
       return {
         id: activityId,
         userId: session.user_id,
-        userName: (session.profiles as { username: string }[])?.[0]?.username || 'Anonymous',
+        userName: userName,
         type: 'workout',
         description: `Completed ${session.total_reps || 0} ${session.exercise} reps in ${duration} minutes`,
         timestamp: session.started_at,
@@ -87,31 +146,56 @@ export async function GET(req: NextRequest) {
       };
     }));
 
-    // Get achievements
-    const { data: achievements, error: achievementsError } = await supabase
-      .from('achievements')
-      .select(`
-        id,
-        type,
-        title,
-        description,
-        earned_at,
-        user_id,
-        profiles!inner(
+    // Get achievements - try with profiles join first, fallback if needed
+    let achievements, achievementsError;
+    
+    try {
+      const result = await supabase
+        .from('achievements')
+        .select(`
           id,
-          username,
-          avatar_url
-        )
-      `)
-      .eq('is_public', true)
-      .order('earned_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+          type,
+          title,
+          description,
+          earned_at,
+          user_id,
+          profiles!inner(
+            id,
+            username,
+            avatar_url
+          )
+        `)
+        .eq('is_public', true)
+        .order('earned_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+      
+      achievements = result.data;
+      achievementsError = result.error;
+    } catch {
+      // Fallback: get achievements without profiles join
+      const result = await supabase
+        .from('achievements')
+        .select(`
+          id,
+          type,
+          title,
+          description,
+          earned_at,
+          user_id
+        `)
+        .eq('is_public', true)
+        .order('earned_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+      
+      achievements = result.data;
+      achievementsError = result.error;
+    }
 
     if (achievementsError) {
       console.error('Error fetching achievements:', achievementsError);
     } else {
       // Add achievements to activities
-      const achievementActivities: ActivityFeedItem[] = await Promise.all((achievements || []).map(async achievement => {
+      const achievementActivities: ActivityFeedItem[] = await Promise.all((achievements || []).map(async (achievement: AchievementWithProfiles) => {
         const activityId = `achievement-${achievement.id}`;
         
         // Get like and comment counts
@@ -120,10 +204,18 @@ export async function GET(req: NextRequest) {
           supabase.rpc('get_activity_comment_count', { activity_id_param: activityId })
         ]);
         
+        // Handle profile data - check if profiles exists in achievement data
+        let userName = 'Anonymous';
+        if (achievement.profiles && Array.isArray(achievement.profiles) && achievement.profiles.length > 0) {
+          userName = achievement.profiles[0].username || 'Anonymous';
+        } else if (achievement.profiles && typeof achievement.profiles === 'object' && !Array.isArray(achievement.profiles) && 'username' in achievement.profiles) {
+          userName = achievement.profiles.username;
+        }
+        
         return {
           id: activityId,
           userId: achievement.user_id,
-          userName: (achievement.profiles as { username: string }[])?.[0]?.username || 'Anonymous',
+          userName: userName,
           type: 'achievement',
           description: `Earned "${achievement.title}" - ${achievement.description}`,
           timestamp: achievement.earned_at,

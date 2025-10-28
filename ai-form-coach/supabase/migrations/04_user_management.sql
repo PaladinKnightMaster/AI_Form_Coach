@@ -19,7 +19,27 @@ CREATE TABLE IF NOT EXISTS user_plans (
 );
 
 -- =====================================================
--- USER GOALS
+-- USER GOALS (Nutrition Goals)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS public.user_goals (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    calorie_target REAL DEFAULT 2000,
+    protein_target REAL DEFAULT 150,
+    carbs_target REAL DEFAULT 250,
+    fat_target REAL DEFAULT 65,
+    fiber_target REAL DEFAULT 25,
+    sugar_target REAL DEFAULT 50,
+    sodium_target REAL DEFAULT 2300,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, date)
+);
+
+-- =====================================================
+-- USER GOALS (Exercise Goals)
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS goals (

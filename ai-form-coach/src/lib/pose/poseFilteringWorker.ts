@@ -7,7 +7,6 @@
  */
 
 import type { FilterRequest, FilterResult, WorkerMessage } from './workerFilteringPool';
-import type { Landmark3D } from './engine';
 import { MedianFilter, OutlierDetector } from './filters';
 
 // ============================================

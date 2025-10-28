@@ -38,10 +38,32 @@ export async function GET() {
     }
 
     // Get user's challenge participations
-    const { data: challenges, error: challengesError } = await supabase
-      .from('challenge_participations')
-      .select('challenge_id, completed')
-      .eq('user_id', user.id);
+    let challenges, challengesError;
+    
+    try {
+      const result = await supabase
+        .from('challenge_participations')
+        .select('challenge_id, is_completed')
+        .eq('user_id', user.id);
+      
+      challenges = result.data;
+      challengesError = result.error;
+    } catch {
+      // Fallback: try with 'completed' column if 'is_completed' doesn't exist
+      try {
+        const result = await supabase
+          .from('challenge_participations')
+          .select('challenge_id, completed')
+          .eq('user_id', user.id);
+        
+        challenges = result.data;
+        challengesError = result.error;
+      } catch (fallbackError) {
+        console.error('Error fetching challenges:', fallbackError);
+        challenges = [];
+        challengesError = fallbackError;
+      }
+    }
 
     if (challengesError) {
       console.error('Error fetching challenges:', challengesError);
@@ -96,7 +118,10 @@ export async function GET() {
       weeklyGoal,
       weeklyProgress,
       achievements: achievements?.length || 0,
-      challengesCompleted: challenges?.filter(c => c.completed).length || 0
+              challengesCompleted: challenges?.filter((c: { is_completed?: boolean; completed?: boolean }) => {
+        // Handle both possible column names for backward compatibility
+        return c.is_completed === true || c.completed === true;
+      }).length || 0
     };
 
     return NextResponse.json({ stats });

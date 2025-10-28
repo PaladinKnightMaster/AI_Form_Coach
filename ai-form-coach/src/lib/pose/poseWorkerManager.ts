@@ -72,6 +72,13 @@ export class PoseWorkerManager {
         // Note: In Next.js, we need to use a different approach for worker creation
         // This is a simplified version - in production, use next-worker or similar
         
+        // Log configuration options for debugging
+        console.log('[PoseWorkerManager] Initializing with options:', {
+          model: options.model || 'lite',
+          smoothingAlpha: options.smoothingAlpha || 0.65,
+          enableWorkerFiltering: options.enableWorkerFiltering || false
+        });
+        
         // For now, we'll mark this as "unsupported" and fall back to main thread
         console.warn('[PoseWorkerManager] Web Workers for pose processing not yet fully supported');
         console.warn('[PoseWorkerManager] Falling back to main thread processing');
@@ -142,6 +149,12 @@ export class PoseWorkerManager {
 
     this.totalRequests++;
 
+    // Validate video element
+    if (!videoElement || videoElement.readyState < 2) {
+      console.warn('[PoseWorkerManager] Video element not ready, skipping frame');
+      return null;
+    }
+
     // FALLBACK: Process on main thread
     // In practice, the PoseEngine2 is already optimized
     // The worker would mainly help with filtering/smoothing
@@ -200,7 +213,7 @@ export class PoseWorkerManager {
     }
 
     // Reject all pending requests
-    for (const [id, pending] of this.pendingRequests) {
+    for (const pending of this.pendingRequests.values()) {
       pending.reject(new Error('Worker disposed'));
     }
     this.pendingRequests.clear();

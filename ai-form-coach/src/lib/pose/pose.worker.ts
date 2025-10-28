@@ -23,10 +23,6 @@ interface WorkerMessage {
   payload?: unknown;
 }
 
-interface InitMessage extends WorkerMessage {
-  type: 'init';
-  payload: PoseEngineOptions;
-}
 
 interface EstimateMessage extends WorkerMessage {
   type: 'estimate';

@@ -201,14 +201,14 @@ A revolutionary fitness application that combines AI-powered form coaching with 
    ```bash
    # Run comprehensive database migrations
    # All consolidated migrations are in: supabase/migrations/
-   # Migrations follow domain organization:
-   # - 00_auth_and_core.sql       (Auth & foundation)
-   # - 01_pose_quality_metrics.sql (Pose detection & coaching)
-   # - 02_leaderboards.sql         (Rankings & competition)
-   # - 03_organizations.sql        (B2B features)
-   # - 04_user_management.sql      (User plans & progression)
-   # - 05_social_community.sql     (Social features)
-   # - 06_nutrition.sql            (Nutrition system)
+   # Migrations follow perfect domain organization:
+   # - 00_auth_and_core.sql       (Core tables: profiles, sessions, reps, programs)
+   # - 01_pose_quality_metrics.sql (Pose detection & device calibration)
+   # - 02_leaderboards.sql         (Leaderboard functions & views)
+   # - 03_organizations.sql        (Organization features)
+   # - 04_user_management.sql      (User plans, goals, health data)
+   # - 05_social_community.sql     (Social features, challenges, achievements)
+   # - 06_nutrition.sql            (Nutrition system: foods, meals, meal_items, goal_achievements)
    # - 07_ml_embeddings.sql        (ML & embeddings)
    # - 08_analytics_monitoring.sql (Analytics & monetization)
    
@@ -419,13 +419,13 @@ Comprehensive documentation is available in the organized `docs/` directory:
 **Structure:**
 ```
 supabase/migrations/
-├── 00_auth_and_core.sql           # Auth & foundation
-├── 01_pose_quality_metrics.sql    # Pose detection & coaching
-├── 02_leaderboards.sql            # Rankings & competition
-├── 03_organizations.sql           # B2B features
-├── 04_user_management.sql         # User plans & progression
-├── 05_social_community.sql        # Social features
-├── 06_nutrition.sql               # Nutrition system
+├── 00_auth_and_core.sql           # Core tables (profiles, sessions, reps, programs)
+├── 01_pose_quality_metrics.sql    # Pose detection & device calibration
+├── 02_leaderboards.sql            # Leaderboard functions & views
+├── 03_organizations.sql           # Organization features
+├── 04_user_management.sql         # User plans, goals, health data
+├── 05_social_community.sql        # Social features, challenges, achievements
+├── 06_nutrition.sql               # Nutrition system (foods, meals, meal_items, goal_achievements)
 ├── 07_ml_embeddings.sql           # ML & embeddings
 └── 08_analytics_monitoring.sql    # Analytics & monetization
 ```

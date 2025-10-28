@@ -11,6 +11,88 @@
 ALTER TABLE public.foods ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'manual';
 COMMENT ON COLUMN public.foods.source IS 'Source of food data: manual, barcode, openfoodfacts, usda, etc.';
 
+-- Create profiles table (if it doesn't exist)
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    username TEXT UNIQUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    plan TEXT DEFAULT 'free',
+    plan_renews_at TIMESTAMPTZ,
+    stripe_customer_id TEXT,
+    ai_credits_used INTEGER DEFAULT 0,
+    ai_credits_reset_at TIMESTAMPTZ,
+    avatar_url TEXT
+);
+
+-- Add missing avatar_url column to profiles table (fixes activity feed error)
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+COMMENT ON COLUMN public.profiles.avatar_url IS 'URL to the user''s avatar image.';
+
+-- Create sessions table (core workout sessions)
+CREATE TABLE IF NOT EXISTS public.sessions (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    exercise TEXT NOT NULL,
+    started_at TIMESTAMPTZ DEFAULT NOW(),
+    ended_at TIMESTAMPTZ,
+    total_reps INTEGER DEFAULT 0,
+    total_time_seconds INTEGER DEFAULT 0,
+    avg_tempo_ms INTEGER,
+    avg_rom_score REAL,
+    notes TEXT,
+    goal_type TEXT,
+    goal_value INTEGER,
+    rpe INTEGER,
+    device_info JSONB,
+    avg_pose_quality REAL,
+    quality_score REAL DEFAULT 0,
+    is_public BOOLEAN DEFAULT false,
+    verified BOOLEAN DEFAULT false,
+    integrity_score REAL,
+    flagged BOOLEAN DEFAULT false,
+    flag_reason TEXT,
+    verified_at TIMESTAMPTZ,
+    verified_by UUID,
+    avg_quality_score REAL,
+    quality_distribution JSONB DEFAULT '{"excellent": 0, "good": 0, "fair": 0, "poor": 0}',
+    total_errors INTEGER DEFAULT 0,
+    error_rate REAL DEFAULT 0,
+    consistency_score REAL,
+    improvement_trend REAL,
+    form_progression TEXT,
+    correct_rate REAL DEFAULT 0,
+    template_id UUID,
+    verification_score REAL DEFAULT 0,
+    verification_notes TEXT,
+    device_calibration JSONB DEFAULT '{}'::jsonb,
+    calibration_quality REAL DEFAULT 0
+);
+
+-- Create reps table (individual rep data)
+CREATE TABLE IF NOT EXISTS public.reps (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    session_id UUID NOT NULL REFERENCES public.sessions(id) ON DELETE CASCADE,
+    idx INTEGER NOT NULL,
+    start_ms INTEGER NOT NULL,
+    end_ms INTEGER,
+    peak_depth REAL,
+    avg_tempo_ms INTEGER,
+    rom_score REAL,
+    cues TEXT[],
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    valid BOOLEAN DEFAULT true,
+    duration_ms INTEGER,
+    tempo TEXT,
+    quality TEXT,
+    quality_score REAL,
+    errors JSONB DEFAULT '[]',
+    error_count INTEGER DEFAULT 0,
+    error_types JSONB DEFAULT '{}',
+    exercise_metrics JSONB DEFAULT '{}',
+    is_correct BOOLEAN,
+    confidence REAL
+);
+
 -- Create programs table for structured plan storage
 CREATE TABLE IF NOT EXISTS public.programs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -26,13 +108,9 @@ CREATE TABLE IF NOT EXISTS public.programs (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Add template_id column to sessions table
-ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS template_id UUID REFERENCES public.programs(id);
-
--- Add session verification columns
-ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS verified BOOLEAN DEFAULT false;
-ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS verification_score REAL DEFAULT 0;
-ALTER TABLE public.sessions ADD COLUMN IF NOT EXISTS verification_notes TEXT;
+-- Add foreign key constraint for programs.created_by
+ALTER TABLE public.programs ADD CONSTRAINT fk_programs_created_by 
+    FOREIGN KEY (created_by) REFERENCES public.profiles(id) ON DELETE SET NULL;
 
 -- =====================================================
 -- CORE INDEXES FOR PERFORMANCE

@@ -4,6 +4,23 @@
 -- =====================================================
 
 -- =====================================================
+-- DEVICE CALIBRATION TABLE
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS public.device_calibration (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    device_id TEXT NOT NULL,
+    exercise TEXT NOT NULL,
+    calibration_data JSONB NOT NULL DEFAULT '{}',
+    quality_score REAL DEFAULT 0 CHECK (quality_score >= 0 AND quality_score <= 1),
+    is_valid BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, device_id, exercise)
+);
+
+-- =====================================================
 -- REP QUALITY ENHANCEMENTS
 -- =====================================================
 
