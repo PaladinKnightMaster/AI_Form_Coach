@@ -572,6 +572,6 @@ Automated alerts trigger when metrics fall below thresholds:
 ---
 
 **Document Version**: 1.0  
-**Last Updated**: January 2025  
+**Last Updated**: November 2025  
 **Next Review**: Monthly or upon metric changes
 

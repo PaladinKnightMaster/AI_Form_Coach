@@ -439,7 +439,7 @@ Organization-level pricing for teams, gyms, corporate wellness programs, and hea
 ---
 
 **Document Version**: 1.0  
-**Last Updated**: January 2025  
+**Last Updated**: November 2025  
 **Next Review**: Quarterly or upon pricing changes
 
 **Note**: 
