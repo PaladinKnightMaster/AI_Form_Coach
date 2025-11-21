@@ -8,7 +8,9 @@
 
 | Document | Purpose |
 |----------|---------|
-| **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** | Complete system reference (Phases A-F) |
+| **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** | Complete system reference (Phases A-G) |
+| **[PERFORMANCE_PHASE_G.md](./PERFORMANCE_PHASE_G.md)** | Phase G: Quick Performance Wins (40.5% faster) |
+| **[QUICK_PERFORMANCE_TEST.md](./QUICK_PERFORMANCE_TEST.md)** | Testing guide for performance optimizations |
 | **[README_3D_POSE_SYSTEM.md](./README_3D_POSE_SYSTEM.md)** | 3D depth rendering and visualization |
 | **[pose3DIntegrationGuide.md](./pose3DIntegrationGuide.md)** | Integration guide for 3D features |
 | **[INDEX.md](./INDEX.md)** | Documentation index and navigation |
@@ -33,13 +35,15 @@
 
 ## 🔑 Key Features
 
-✅ **Real-Time Skeleton Overlay** - Live pose detection with visual skeleton  
-✅ **Form Analysis** - Exercise form validation and correctness scoring  
-✅ **Coaching Hints** - AI-powered form coaching with visual cues  
-✅ **3D Depth Rendering** - Z-coordinate-based depth perception  
-✅ **Performance Optimized** - 82% latency reduction, 60+ FPS  
-✅ **Mobile Ready** - Works on mobile browsers with fallback modes  
-✅ **Analytics Dashboard** - Real-time metrics and database logging  
+✅ **Real-Time Skeleton Overlay** - Live pose detection with visual skeleton
+✅ **Form Analysis** - Exercise form validation and correctness scoring
+✅ **Coaching Hints** - AI-powered form coaching with visual cues
+✅ **3D Depth Rendering** - Z-coordinate-based depth perception
+✅ **Performance Optimized** - 40.5% faster detection, 61+ FPS (Phase G)
+✅ **SIMD Acceleration** - 2-4x faster on modern browsers
+✅ **Mobile Ready** - Works on mobile browsers with fallback modes
+✅ **Memory Efficient** - 90% object pooling, rare GC pauses
+✅ **Analytics Dashboard** - Real-time metrics and database logging
 ✅ **Production Grade** - Clinical-quality tracking and stability  
 
 ---
