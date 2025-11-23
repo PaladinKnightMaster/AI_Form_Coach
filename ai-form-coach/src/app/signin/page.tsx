@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import AuthCard from '@/components/AuthCard';
 import { useToastContext } from '@/components/ToastProvider';
 import LoadingButton from '@/components/LoadingButton';
 
-export default function SignIn() {
+function SignInContent() {
 	const { success: showSuccess, error: showError } = useToastContext();
 	const searchParams = useSearchParams();
 	const initialMode = searchParams.get('mode');
@@ -411,5 +411,13 @@ export default function SignIn() {
 			</AuthCard>
 
 		</>
+	);
+}
+
+export default function SignIn() {
+	return (
+		<Suspense fallback={<AuthCard title="Sign in"><div className="p-8 text-center opacity-50">Loading...</div></AuthCard>}>
+			<SignInContent />
+		</Suspense>
 	);
 } 
