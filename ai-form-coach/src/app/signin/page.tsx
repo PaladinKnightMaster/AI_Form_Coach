@@ -1,14 +1,18 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import AuthCard from '@/components/AuthCard';
 import { useToastContext } from '@/components/ToastProvider';
 import LoadingButton from '@/components/LoadingButton';
 
 export default function SignIn() {
 	const { success: showSuccess, error: showError } = useToastContext();
-	const [mode, setMode] = useState<'signin'|'signup'|'reset-request'|'magic-link'>('signin');
+	const searchParams = useSearchParams();
+	const initialMode = searchParams.get('mode');
+	const [mode, setMode] = useState<'signin'|'signup'|'reset-request'|'magic-link'>(
+		(initialMode === 'signup' || initialMode === 'reset-request' || initialMode === 'magic-link') ? initialMode : 'signin'
+	);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirm, setConfirm] = useState('');
