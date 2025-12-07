@@ -231,13 +231,16 @@ describe('Adaptive Frame Dropping', () => {
 
   describe('Validation', () => {
     it('should validate healthy frame dropping', () => {
-      const metrics = {
+      const metrics: FrameDropMetrics = {
         totalFrames: 100,
         droppedFrames: 10,
         keptFrames: 90,
         dropRate: 10,
         currentFrameSkip: 1,
-        adaptationLevel: 20
+        adaptationLevel: 20,
+        motionMagnitude: 0.01,
+        isStatic: false,
+        motionSkippedFrames: 0
       };
 
       const validation = validateFrameDropping(35, metrics);
@@ -246,13 +249,16 @@ describe('Adaptive Frame Dropping', () => {
     });
 
     it('should flag aggressive frame dropping', () => {
-      const metrics = {
+      const metrics: FrameDropMetrics = {
         totalFrames: 100,
         droppedFrames: 60,
         keptFrames: 40,
         dropRate: 60,
         currentFrameSkip: 3,
-        adaptationLevel: 80
+        adaptationLevel: 80,
+        motionMagnitude: 0.005,
+        isStatic: true,
+        motionSkippedFrames: 30
       };
 
       const validation = validateFrameDropping(20, metrics);
@@ -261,13 +267,16 @@ describe('Adaptive Frame Dropping', () => {
     });
 
     it('should warn on low estimated FPS', () => {
-      const metrics = {
+      const metrics: FrameDropMetrics = {
         totalFrames: 100,
         droppedFrames: 30,
         keptFrames: 70,
         dropRate: 30,
         currentFrameSkip: 4,
-        adaptationLevel: 60
+        adaptationLevel: 60,
+        motionMagnitude: 0.012,
+        isStatic: false,
+        motionSkippedFrames: 10
       };
 
       const validation = validateFrameDropping(22, metrics);
@@ -275,13 +284,16 @@ describe('Adaptive Frame Dropping', () => {
     });
 
     it('should provide recommendations for stressed devices', () => {
-      const metrics = {
+      const metrics: FrameDropMetrics = {
         totalFrames: 100,
         droppedFrames: 50,
         keptFrames: 50,
         dropRate: 50,
         currentFrameSkip: 5,
-        adaptationLevel: 90
+        adaptationLevel: 90,
+        motionMagnitude: 0.003,
+        isStatic: true,
+        motionSkippedFrames: 25
       };
 
       const validation = validateFrameDropping(15, metrics);
