@@ -65,7 +65,7 @@ export default function Home() {
 									</p>
 								</div>
 								<div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mb-8">
-									<Link href="/coach">
+									<Link href={user ? "/coach" : "/signin?mode=signup"}>
 										<Button variant="primary" size="xl" className="w-full sm:w-auto transform hover:scale-105 transition-all duration-300">
 											{user ? 'Continue Workout' : 'Start Free Workout'} <Icon name="chevron-right" className="ml-2" />
 										</Button>
@@ -419,7 +419,7 @@ export default function Home() {
 							Begin your fitness journey completely free. Upgrade for advanced features.
 						</p>
 						<div className="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
-							<Link href="/coach">
+							<Link href={user ? "/coach" : "/signin?mode=signup"}>
 								<Button variant="primary" className="w-full sm:w-auto bg-white text-purple-600 hover:bg-gray-100 px-8 py-4 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
 									{user ? 'Continue Workout' : 'Start Free Now'} <Icon name="chevron-right" className="ml-2" />
 								</Button>

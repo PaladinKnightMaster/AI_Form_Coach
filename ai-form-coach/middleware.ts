@@ -35,6 +35,13 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user && request.nextUrl.pathname.startsWith('/coach')) {
+    const redirectUrl = new URL('/signin', request.url);
+    // Optionally pass the original URL to redirect back after login
+    // redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
+    return NextResponse.redirect(redirectUrl);
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:

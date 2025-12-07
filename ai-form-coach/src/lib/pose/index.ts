@@ -127,5 +127,10 @@ export { MetricsCollector, analyzeMetricsHealth, generateBenchmark, getGlobalMet
 export type { MetricsSnapshot, MetricsSession, HealthStatus, BenchmarkResult } from './metricsUtils';
 export { AnalyticsLogger, getGlobalAnalyticsLogger, logAnalyticsMetric, logAnalyticsSessionCompletion, flushAnalytics, getSessionStats, getDeviceBenchmark, getRecentSessions, getHealthTrend } from './analyticsLogger';
 export type { PoseQualityMetric, SessionAnalytics, DevicePerformanceBenchmark } from './analyticsLogger';
-export { AdaptiveFrameDropping, getGlobalFrameDropping, shouldProcessFrame, recordFrameDropFps, getFrameDropMetrics, getFrameDropConfig, resetFrameDropping, validateFrameDropping, logFrameDropStatus } from './adaptiveFrameDropping';
-export type { FrameDropConfig, FrameDropMetrics, FrameDropValidation } from './adaptiveFrameDropping'; 
+export { AdaptiveFrameDropping, getGlobalFrameDropping, shouldProcessFrame, updateFrameDropLandmarks, recordFrameDropFps, getFrameDropMetrics, getFrameDropConfig, resetFrameDropping, validateFrameDropping, logFrameDropStatus } from './adaptiveFrameDropping';
+export type { FrameDropConfig, FrameDropMetrics, FrameDropValidation } from './adaptiveFrameDropping';
+export { LandmarkPool, getGlobalLandmarkPool, resetGlobalLandmarkPool } from './landmarkPool';
+export { checkSIMDSupport, getOptimalWasmPath, getSIMDInfo } from './simdDetection';
+export type { SIMDInfo } from './simdDetection';
+export { PerformanceBenchmark, getGlobalBenchmark, recordPerformanceSnapshot, getPerformanceSummary, logPerformanceReport, resetPerformanceBenchmark } from './performanceBenchmark';
+export type { PerformanceSnapshot, BenchmarkSummary } from './performanceBenchmark'; 
