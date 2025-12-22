@@ -15,8 +15,9 @@
 - **[pose3DIntegrationGuide.md](./pose3DIntegrationGuide.md)** - Integration guide for 3D features
 
 ### ⚡ Performance & Optimization
-- **[PERFORMANCE_PHASE_G.md](./PERFORMANCE_PHASE_G.md)** - Phase G optimization deep dive
-- **[QUICK_PERFORMANCE_TEST.md](./QUICK_PERFORMANCE_TEST.md)** - Performance testing procedures
+- **[performance/README.md](./performance/README.md)** - Performance overview (all phases A-G)
+- **[performance/optimizations.md](./performance/optimizations.md)** - Detailed optimization guide
+- **[performance/testing-guide.md](./performance/testing-guide.md)** - Performance testing procedures
 
 ### ✅ Testing & Validation
 - **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - All testing procedures
@@ -80,8 +81,9 @@ All migrations organized in `supabase/migrations/`:
 |------|----------|
 | Learn about the system | [README.md](./README.md) |
 | Get quick answers | [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) |
-| Understand performance optimizations | [PERFORMANCE_PHASE_G.md](./PERFORMANCE_PHASE_G.md) |
-| Test performance | [QUICK_PERFORMANCE_TEST.md](./QUICK_PERFORMANCE_TEST.md) |
+| Understand performance optimizations | [performance/README.md](./performance/README.md) |
+| Deep dive into optimizations | [performance/optimizations.md](./performance/optimizations.md) |
+| Test performance | [performance/testing-guide.md](./performance/testing-guide.md) |
 | Understand 3D rendering | [README_3D_POSE_SYSTEM.md](./README_3D_POSE_SYSTEM.md) |
 | Integrate 3D features | [pose3DIntegrationGuide.md](./pose3DIntegrationGuide.md) |
 

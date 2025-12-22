@@ -15,8 +15,10 @@ docs/
 ├── pose/                            # Pose Detection & Coaching System
 │   ├── README.md                   # Pose system overview
 │   ├── QUICK_REFERENCE.md          # Quick reference guide (7 phases A-G)
-│   ├── PERFORMANCE_PHASE_G.md      # Phase G performance optimization details
-│   ├── QUICK_PERFORMANCE_TEST.md   # Phase G testing procedures
+│   ├── performance/                # Performance optimization docs
+│   │   ├── README.md               # Performance overview (all phases)
+│   │   ├── optimizations.md        # Detailed optimization guide
+│   │   └── testing-guide.md        # Testing procedures
 │   ├── README_3D_POSE_SYSTEM.md    # 3D system design & components
 │   ├── pose3DIntegrationGuide.md   # 3D integration guide
 │   ├── INDEX.md                    # Pose documentation index
@@ -67,8 +69,9 @@ docs/
 ### **Pose Detection System**
 - **Overview** → `pose/README.md`
 - **Quick Reference** → `pose/QUICK_REFERENCE.md` (All 7 phases: A-G)
-- **Performance Optimization** → `pose/PERFORMANCE_PHASE_G.md` (Phase G details)
-- **Performance Testing** → `pose/QUICK_PERFORMANCE_TEST.md` (Phase G testing)
+- **Performance Overview** → `pose/performance/README.md` (All phases A-G)
+- **Performance Optimization** → `pose/performance/optimizations.md` (Detailed guide)
+- **Performance Testing** → `pose/performance/testing-guide.md` (Testing procedures)
 - **3D Rendering** → `pose/README_3D_POSE_SYSTEM.md`
 - **Integration Guide** → `pose/pose3DIntegrationGuide.md`
 
@@ -108,8 +111,9 @@ docs/
 #### **Understand pose detection (Phases A-G)**
 1. Read `pose/README.md` - Overview
 2. Study `pose/QUICK_REFERENCE.md` - All phases summary (A-G)
-3. Review `pose/PERFORMANCE_PHASE_G.md` - Performance optimization details
-4. Review `pose/README_3D_POSE_SYSTEM.md` - 3D implementation
+3. Review `pose/performance/README.md` - Performance overview (all phases)
+4. Review `pose/performance/optimizations.md` - Detailed optimization guide
+5. Review `pose/README_3D_POSE_SYSTEM.md` - 3D implementation
 
 #### **Integrate 3D features**
 1. Check `pose/README_3D_POSE_SYSTEM.md` - 3D system
@@ -289,9 +293,10 @@ Database schema is organized by:
 ### **Path 1: Understand Pose Detection (2-3 hours)**
 1. `pose/README.md` (30 min)
 2. `pose/QUICK_REFERENCE.md` (1 hour - all phases A-G)
-3. `pose/PERFORMANCE_PHASE_G.md` (30 min - optimization deep dive)
-4. `pose/README_3D_POSE_SYSTEM.md` (30 min)
-5. `technical/MICRO_MODEL.md` (optional, 30 min)
+3. `pose/performance/README.md` (20 min - performance overview)
+4. `pose/performance/optimizations.md` (30 min - optimization deep dive)
+5. `pose/README_3D_POSE_SYSTEM.md` (30 min)
+6. `technical/MICRO_MODEL.md` (optional, 30 min)
 
 ### **Path 2: Implement 3D Features (2-3 hours)**
 1. `pose/README_3D_POSE_SYSTEM.md` (1 hour)

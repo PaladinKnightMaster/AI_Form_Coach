@@ -88,7 +88,7 @@
   - Performance benchmark utilities
 - **Performance**: 40.5% latency reduction, 53% FPS increase
 - **Result**: Detection 25ms → 14.87ms, FPS 40 → 61.2
-- **Documentation**: See [PERFORMANCE_PHASE_G.md](./PERFORMANCE_PHASE_G.md)
+- **Documentation**: See [performance/optimizations.md](./performance/optimizations.md)
 
 ---
 
@@ -126,16 +126,21 @@
 User Movement
     ↓
 [MediaPipe Pose Landmarker] (async)
+  └─ Phase G: SIMD Acceleration (2-4x faster on modern browsers)
     ↓
 [PoseEngine2 Core Processing]
+  ├─ Phase G: Object Pooling
+  │   └─ Landmark Pool (90.4% hit rate)
   ├─ Phase A: Smoothing Pipeline
-  │   ├─ EMA Smoothing
+  │   ├─ EMA Smoothing (optimized for-loops)
   │   ├─ Median Filter
   │   └─ Outlier Detection
   ├─ Phase C: Worker Processing (optional)
   │   └─ Off-thread Filtering
   ├─ Phase B: Frame Timing
   │   └─ Latency Measurement
+  ├─ Phase G: Motion Detection
+  │   └─ Motion-aware Frame Skipping (20-30% CPU savings)
   └─ Phase F: Adaptive Frame Dropping
       └─ Device-based optimization
     ↓
@@ -146,6 +151,7 @@ User Movement
     ↓
 [Phase E: Metrics Collection]
   ├─ Real-time Dashboard
+  ├─ Performance Benchmarks (Phase G)
   └─ Analytics Logging
     ↓
 [PoseOverlay Rendering]
@@ -154,7 +160,7 @@ User Movement
   ├─ Edge Rendering
   └─ Visual Effects
     ↓
-Smooth, Stable, Low-Latency Skeleton
+Smooth, Stable, Low-Latency Skeleton (14.87ms, 61+ FPS)
 ```
 
 ---
@@ -162,10 +168,16 @@ Smooth, Stable, Low-Latency Skeleton
 ## 📁 Key Files
 
 ### Core Engine
-- `src/lib/pose/engine.ts` - PoseEngine2 (1000+ lines)
+- `src/lib/pose/engine.ts` - PoseEngine2 (1000+ lines, Phase G optimized)
 - `src/lib/pose/workerFilteringPool.ts` - Worker management
 - `src/lib/pose/poseFilteringWorker.ts` - Worker script
 - `src/lib/pose/depthOptimization.ts` - Device optimization
+
+### Performance Optimization (Phase G)
+- `src/lib/pose/landmarkPool.ts` - Object pooling for landmarks (90.4% hit rate)
+- `src/lib/pose/simdDetection.ts` - SIMD support detection (2-4x faster)
+- `src/lib/pose/performanceBenchmark.ts` - Performance benchmarking utilities
+- `src/lib/pose/adaptiveFrameDropping.ts` - Motion-aware frame skipping
 
 ### Rendering
 - `src/components/PoseOverlay.tsx` - Skeleton renderer

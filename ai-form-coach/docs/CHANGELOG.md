@@ -131,8 +131,9 @@ Delivered massive performance improvements with minimal code changes:
 - `src/lib/pose/landmarkPool.ts` - Object pooling implementation
 - `src/lib/pose/simdDetection.ts` - SIMD capability detection
 - `src/lib/pose/performanceBenchmark.ts` - Performance benchmarking utilities
-- `docs/pose/PERFORMANCE_PHASE_G.md` - Comprehensive Phase G documentation
-- `docs/pose/QUICK_PERFORMANCE_TEST.md` - Testing procedures
+- `docs/pose/performance/README.md` - Performance overview (all phases)
+- `docs/pose/performance/optimizations.md` - Detailed optimization guide
+- `docs/pose/performance/testing-guide.md` - Testing procedures
 
 #### Documentation
 - Complete Phase G documentation with implementation details
@@ -141,7 +142,7 @@ Delivered massive performance improvements with minimal code changes:
 - Updated all pose system references to include Phase G
 
 **Status**: ✅ Complete & Production Ready
-**Documentation**: [PERFORMANCE_PHASE_G.md](./pose/PERFORMANCE_PHASE_G.md)
+**Documentation**: [performance/README.md](./pose/performance/README.md)
 
 ---
 
