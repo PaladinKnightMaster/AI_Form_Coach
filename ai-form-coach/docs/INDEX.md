@@ -14,7 +14,9 @@ docs/
 │
 ├── pose/                            # Pose Detection & Coaching System
 │   ├── README.md                   # Pose system overview
-│   ├── QUICK_REFERENCE.md          # Quick reference guide (6 phases A-F)
+│   ├── QUICK_REFERENCE.md          # Quick reference guide (7 phases A-G)
+│   ├── PERFORMANCE_PHASE_G.md      # Phase G performance optimization details
+│   ├── QUICK_PERFORMANCE_TEST.md   # Phase G testing procedures
 │   ├── README_3D_POSE_SYSTEM.md    # 3D system design & components
 │   ├── pose3DIntegrationGuide.md   # 3D integration guide
 │   ├── INDEX.md                    # Pose documentation index
@@ -64,7 +66,9 @@ docs/
 
 ### **Pose Detection System**
 - **Overview** → `pose/README.md`
-- **Quick Reference** → `pose/QUICK_REFERENCE.md` (All 6 phases: A-F)
+- **Quick Reference** → `pose/QUICK_REFERENCE.md` (All 7 phases: A-G)
+- **Performance Optimization** → `pose/PERFORMANCE_PHASE_G.md` (Phase G details)
+- **Performance Testing** → `pose/QUICK_PERFORMANCE_TEST.md` (Phase G testing)
 - **3D Rendering** → `pose/README_3D_POSE_SYSTEM.md`
 - **Integration Guide** → `pose/pose3DIntegrationGuide.md`
 
@@ -101,10 +105,11 @@ docs/
 
 ### **I want to...**
 
-#### **Understand pose detection (Phases A-F)**
+#### **Understand pose detection (Phases A-G)**
 1. Read `pose/README.md` - Overview
-2. Study `pose/QUICK_REFERENCE.md` - All phases summary
-3. Review `pose/README_3D_POSE_SYSTEM.md` - 3D implementation
+2. Study `pose/QUICK_REFERENCE.md` - All phases summary (A-G)
+3. Review `pose/PERFORMANCE_PHASE_G.md` - Performance optimization details
+4. Review `pose/README_3D_POSE_SYSTEM.md` - 3D implementation
 
 #### **Integrate 3D features**
 1. Check `pose/README_3D_POSE_SYSTEM.md` - 3D system
@@ -283,9 +288,10 @@ Database schema is organized by:
 
 ### **Path 1: Understand Pose Detection (2-3 hours)**
 1. `pose/README.md` (30 min)
-2. `pose/QUICK_REFERENCE.md` (1 hour - all phases A-F)
-3. `pose/README_3D_POSE_SYSTEM.md` (30 min)
-4. `technical/MICRO_MODEL.md` (optional, 30 min)
+2. `pose/QUICK_REFERENCE.md` (1 hour - all phases A-G)
+3. `pose/PERFORMANCE_PHASE_G.md` (30 min - optimization deep dive)
+4. `pose/README_3D_POSE_SYSTEM.md` (30 min)
+5. `technical/MICRO_MODEL.md` (optional, 30 min)
 
 ### **Path 2: Implement 3D Features (2-3 hours)**
 1. `pose/README_3D_POSE_SYSTEM.md` (1 hour)
@@ -321,6 +327,6 @@ All documentation changes are tracked in `CHANGELOG.md`
 
 ---
 
-**Last Updated**: October 18, 2025  
-**Next Review**: As new features are added  
+**Last Updated**: December 22, 2025
+**Next Review**: As new features are added
 **Maintained By**: Development Team
