@@ -1,6 +1,47 @@
 # Changelog
 ## Project Updates & Release History
 
+### December 23, 2025 - Database Security Hardening 🔒
+
+**Critical Security Fixes & RLS Implementation**
+
+#### Security Vulnerabilities Resolved
+- ✅ **Fixed 3 SECURITY DEFINER view errors** - All analytical views now use `SECURITY INVOKER`
+  - `session_quality_summary` - Now respects user RLS policies
+  - `hint_effectiveness` - Now respects user RLS policies
+  - `skeleton_performance` - Now respects user RLS policies
+- ✅ **Added comprehensive RLS policies** - Core tables now properly secured
+  - `sessions` table - 4 policies (SELECT, INSERT, UPDATE, DELETE)
+  - `reps` table - 4 policies (SELECT, INSERT, UPDATE, DELETE)
+
+#### Security Improvements
+- **SECURITY INVOKER Views**: All analytical views execute with querying user's permissions
+- **Data Privacy**: Users can only access their own private sessions and reps
+- **Public Sharing**: Respects `is_public` flag for legitimate data sharing
+- **Defense in Depth**: Multiple layers of security (table RLS + view invoker)
+- **Audit Compliance**: All data access properly scoped to authenticated users
+
+#### Migration Files Updated
+- `00_auth_and_core.sql`:
+  - Added RLS enablement for `sessions` and `reps` tables
+  - Added 8 security policies with `DROP POLICY IF EXISTS` for idempotency
+  - Made migration safe to run multiple times
+- `01_pose_quality_metrics.sql`:
+  - Updated views with `WITH (security_invoker = true)`
+  - Maintained all existing functionality and comments
+
+#### Deployment Artifacts
+- ✅ **security-fix.sql** - One-click SQL script for existing databases
+- ✅ **verify-security-settings.sql** - Comprehensive security verification script
+- ✅ **Migration files** - Updated for fresh database initialization
+
+#### Verification
+- ✅ **Supabase DB Lint**: Zero security errors
+- ✅ **Build Pipeline**: All tests passing
+- ✅ **Production Ready**: Safe for immediate deployment
+
+---
+
 ### October 27, 2025 - Database Schema Reorganization & Migration Optimization 🎯
 
 **Major Database Architecture Improvements**

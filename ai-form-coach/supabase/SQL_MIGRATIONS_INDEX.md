@@ -1,6 +1,6 @@
 # SQL Migrations Master Index
 ## Complete Database Schema Reference & Guide
-**Last Updated**: October 18, 2025 | **Status**: ✅ PRODUCTION READY
+**Last Updated**: December 23, 2025 | **Status**: ✅ PRODUCTION READY | **Security**: 🔒 HARDENED
 
 ---
 
@@ -27,10 +27,11 @@ supabase/migrations/
 ## 🔑 Migration File Details
 
 ### **00_auth_and_core.sql**
-**Scope**: Authentication & Core Foundation  
+**Scope**: Authentication & Core Foundation
 **Key Tables**:
 - `programs` - Workout templates with difficulty levels
 - `sessions` - Enhanced with verification, template_id, calibration fields
+- `reps` - Individual rep data with quality metrics
 - `foods` - Added source column for tracking data origin
 
 **Key Functions**:
@@ -38,31 +39,45 @@ supabase/migrations/
 - `get_user_by_email(email)` - User lookup by email
 - `prevent_duplicate_profiles()` - Trigger to prevent duplicate profiles
 
-**Indexes**: 3 core performance indexes  
-**RLS Policies**: Inherited from base tables  
+**Security Features** 🔒:
+- **RLS Enabled**: `sessions`, `reps` tables
+- **8 Security Policies**:
+  - Sessions: 4 policies (SELECT, INSERT, UPDATE, DELETE)
+  - Reps: 4 policies (SELECT, INSERT, UPDATE, DELETE)
+- **Public Sharing**: Respects `is_public` flag for data sharing
+- **Idempotent**: Safe to run multiple times
+
+**Indexes**: 3 core performance indexes
+**RLS Policies**: 8 comprehensive policies
 **Triggers**: 1 (prevent_duplicate_profiles)
 
 ---
 
 ### **01_pose_quality_metrics.sql**
-**Scope**: Pose Detection & Coaching System  
+**Scope**: Pose Detection & Coaching System
 **Key Tables**:
 - `pose_quality_metrics` - Frame-by-frame quality tracking (visibility, stability, confidence)
 - `coaching_hints` - Coaching hint events with effectiveness tracking
 - `skeleton_events` - Skeleton rendering performance metrics
 - `coach_cues` - Mentor cue system with priority levels
+- `device_calibration` - Device calibration data per user/exercise
 - Enhanced columns on `reps` & `sessions` for quality tracking
 
-**Key Views**:
-- `session_quality_summary` - Aggregated quality metrics per session
-- `hint_effectiveness` - Analysis of coaching hint performance
-- `skeleton_performance` - Rendering performance analysis
+**Key Views** 🔒:
+- `session_quality_summary` - Aggregated quality metrics per session (SECURITY INVOKER)
+- `hint_effectiveness` - Analysis of coaching hint performance (SECURITY INVOKER)
+- `skeleton_performance` - Rendering performance analysis (SECURITY INVOKER)
+
+**Security Features** 🔒:
+- **All views use SECURITY INVOKER** - Respects RLS policies
+- **RLS Enabled**: `pose_quality_metrics`, `coaching_hints`, `skeleton_events`
+- **6 Security Policies**: Users can only access their own data
 
 **Key Functions**:
 - `calculate_stability_score(session_id)` - Compute stability from visibility & outliers
 - `get_user_coaching_insights(user_id)` - Comprehensive coaching analytics
 
-**Indexes**: 9 for pose metrics, hints, skeleton events  
+**Indexes**: 9 for pose metrics, hints, skeleton events
 **RLS Policies**: 6 (pose_quality_metrics, coaching_hints, skeleton_events)
 
 ---
@@ -171,13 +186,15 @@ supabase/migrations/
 
 | Metric | Count |
 |--------|-------|
-| Total SQL Lines | ~1,750 |
+| Total SQL Lines | ~1,850 |
 | Tables Defined | 38 |
 | Indexes Created | 99 |
 | Functions/Procedures | 10 |
 | Views Created | 7 |
-| RLS Policies | 6 |
+| RLS Policies | **14** ✅ |
+| Security Invoker Views | **3** ✅ |
 | Comments | 71+ |
+| Supabase Lint Errors | **0** ✅ |
 
 ---
 
@@ -218,7 +235,9 @@ supabase migration list        # Verify deployment
 ## 🔒 Security & RLS Policies
 
 ### Row Level Security (RLS)
-Enabled on:
+Enabled on **10 tables**:
+- `sessions` - Users see own sessions + public sessions ✅ NEW
+- `reps` - Users see reps for accessible sessions ✅ NEW
 - `pose_quality_metrics` - Users can only see own metrics
 - `coaching_hints` - Users can only see own hints
 - `skeleton_events` - Users can only see own events
@@ -226,11 +245,35 @@ Enabled on:
 - `user_retention_metrics` - Cohort data isolation
 - `session_quality_metrics` - Session isolation by user
 
+### Security Invoker Views
+All analytical views use **SECURITY INVOKER** to respect RLS policies:
+- `session_quality_summary` - WITH (security_invoker = true) ✅ NEW
+- `hint_effectiveness` - WITH (security_invoker = true) ✅ NEW
+- `skeleton_performance` - WITH (security_invoker = true) ✅ NEW
+
+### Total Security Policies: **14**
+- Sessions: 4 policies (SELECT, INSERT, UPDATE, DELETE)
+- Reps: 4 policies (SELECT, INSERT, UPDATE, DELETE)
+- Pose metrics: 2 policies (SELECT, INSERT)
+- Coaching hints: 2 policies (SELECT, INSERT)
+- Skeleton events: 2 policies (SELECT, INSERT)
+
 ### Data Access Patterns
 ```sql
--- Users can SELECT and INSERT only their own data
-FOR SELECT USING (user_id = auth.uid())
+-- Core tables: Users see own data + public data
+FOR SELECT USING (user_id = auth.uid() OR is_public = true)
 FOR INSERT WITH CHECK (user_id = auth.uid())
+FOR UPDATE USING (user_id = auth.uid())
+FOR DELETE USING (user_id = auth.uid())
+
+-- Related tables: Access through parent table ownership
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM sessions
+    WHERE sessions.id = reps.session_id
+    AND (sessions.user_id = auth.uid() OR sessions.is_public = true)
+  )
+)
 ```
 
 ---
@@ -268,15 +311,39 @@ FOR INSERT WITH CHECK (user_id = auth.uid())
 
 ---
 
+## 🔒 Security Hardening (December 2025)
+
+### Critical Fixes Applied
+✅ **Fixed 3 SECURITY DEFINER view vulnerabilities**
+- All analytical views now use `SECURITY INVOKER`
+- Views respect RLS policies instead of bypassing them
+
+✅ **Added 8 RLS policies for core tables**
+- `sessions` table: 4 comprehensive policies
+- `reps` table: 4 comprehensive policies
+
+✅ **Zero Supabase linter errors**
+- All security vulnerabilities resolved
+- Production-ready security posture
+
+### Security Resources
+- `SECURITY.md` - Comprehensive security documentation
+- `security-fix.sql` - One-click fix for existing databases
+- `verify-security-settings.sql` - Security verification script
+
+---
+
 ## 📝 Notes
 
 - This consolidation is **non-breaking** - no application code changes required
 - All relationships and constraints are **preserved**
 - Database functionality remains **identical**
 - Performance should **improve** with optimized indexes
+- **Security**: All RLS policies and secure views are production-ready
 - Archive folder can be deleted **1 week after successful production operation**
 
 ---
 
-**Master Reference**: This document is the definitive guide for the consolidated SQL migration structure.  
+**Master Reference**: This document is the definitive guide for the consolidated SQL migration structure.
+**Security**: See `SECURITY.md` for comprehensive security documentation.
 **Support**: Refer to individual .sql files in `migrations/` folder for specific table/function definitions.
