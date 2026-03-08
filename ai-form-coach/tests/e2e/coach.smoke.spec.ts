@@ -19,3 +19,16 @@ test("coach beta stage boots with camera shell and overlay", async ({ page }) =>
   await expect(page.getByTestId("coach-live-cue")).toBeVisible();
   await expect(page.getByTestId("coach-tracking-status")).not.toContainText("Camera access failed");
 });
+
+test("coach keeps controls reachable on a phone-sized viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/coach");
+
+  const action = page.getByTestId("coach-primary-action").first();
+  await expect(action).toBeEnabled({ timeout: 60_000 });
+  await action.click();
+
+  await expect(page.getByTestId("coach-mobile-tray")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("coach-mobile-primary-action")).toContainText("Pause", { timeout: 15_000 });
+  await expect(page.getByTestId("coach-live-cue")).toBeVisible();
+});

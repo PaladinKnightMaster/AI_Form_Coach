@@ -34,6 +34,36 @@ function getRenderableVisibility(value: number | undefined) {
   return Math.max(0.18, Math.min(1, value ?? 1));
 }
 
+function getEdgeStyle(edgeVisibility: number, highlighted: boolean) {
+  if (highlighted) {
+    return {
+      stroke: "rgba(239, 68, 68, 0.98)",
+      underlay: "rgba(69, 10, 10, 0.9)",
+      dash: [] as number[],
+      width: 5,
+      underlayWidth: 8,
+    };
+  }
+
+  if (edgeVisibility < 0.45) {
+    return {
+      stroke: "rgba(251, 191, 36, 0.96)",
+      underlay: "rgba(120, 53, 15, 0.75)",
+      dash: [8, 7],
+      width: 4,
+      underlayWidth: 7,
+    };
+  }
+
+  return {
+    stroke: `rgba(56, 189, 248, ${Math.max(0.72, edgeVisibility)})`,
+    underlay: `rgba(15, 23, 42, ${Math.max(0.42, edgeVisibility * 0.65)})`,
+    dash: [] as number[],
+    width: 4,
+    underlayWidth: 7,
+  };
+}
+
 function projectPoint(
   x: number,
   y: number,
@@ -59,13 +89,20 @@ function drawJoint(
   const highlighted = isJointHighlighted(joint, highlightJoints);
   const visibility = getRenderableVisibility(joint.visibility);
   const radius = highlighted ? 8 : joint.id === "head_center" ? 4.5 : 6;
+  const fillColor = highlighted ? "rgba(239, 68, 68, 0.98)" : visibility < 0.45 ? "rgba(251, 191, 36, 0.98)" : `rgba(224, 242, 254, ${Math.max(0.78, visibility)})`;
+  const strokeColor = highlighted ? "rgba(127, 29, 29, 0.95)" : visibility < 0.45 ? "rgba(120, 53, 15, 0.95)" : `rgba(14, 165, 233, ${Math.max(0.76, visibility)})`;
+
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, radius + 2, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(15, 23, 42, 0.72)";
+  ctx.fill();
 
   ctx.beginPath();
   ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-  ctx.fillStyle = highlighted ? "rgba(239, 68, 68, 0.98)" : `rgba(224, 242, 254, ${Math.max(0.7, visibility)})`;
+  ctx.fillStyle = fillColor;
   ctx.fill();
   ctx.lineWidth = 2;
-  ctx.strokeStyle = highlighted ? "rgba(127, 29, 29, 0.95)" : `rgba(14, 165, 233, ${Math.max(0.72, visibility)})`;
+  ctx.strokeStyle = strokeColor;
   ctx.stroke();
 
   if (showConfidence && joint.visibility < 0.7) {
@@ -150,13 +187,24 @@ function PoseOverlayComponent({
         const edgeVisibility = (getRenderableVisibility(from.visibility) + getRenderableVisibility(to.visibility)) / 2;
         const fromPoint = projectPoint(from.x, from.y, bounds, mirror);
         const toPoint = projectPoint(to.x, to.y, bounds, mirror);
+        const edgeStyle = getEdgeStyle(edgeVisibility, highlighted);
 
         ctx.beginPath();
+        ctx.setLineDash([]);
         ctx.moveTo(fromPoint.x, fromPoint.y);
         ctx.lineTo(toPoint.x, toPoint.y);
-        ctx.strokeStyle = highlighted ? "rgba(239, 68, 68, 0.98)" : `rgba(56, 189, 248, ${Math.max(0.66, edgeVisibility)})`;
-        ctx.lineWidth = highlighted ? 5 : 4;
+        ctx.strokeStyle = edgeStyle.underlay;
+        ctx.lineWidth = edgeStyle.underlayWidth;
         ctx.stroke();
+
+        ctx.beginPath();
+        ctx.setLineDash(edgeStyle.dash);
+        ctx.moveTo(fromPoint.x, fromPoint.y);
+        ctx.lineTo(toPoint.x, toPoint.y);
+        ctx.strokeStyle = edgeStyle.stroke;
+        ctx.lineWidth = edgeStyle.width;
+        ctx.stroke();
+        ctx.setLineDash([]);
       }
 
       for (const joint of renderedJoints) {

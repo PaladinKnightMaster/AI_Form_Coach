@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CoachExperienceView from "@/components/coach/CoachExperienceView";
+import { createCueCadenceState, resolveCueCadence } from "@/lib/coach/cueCadence";
 import { getFramingGuidance } from "@/lib/coach/framing";
 import { PoseEngine2, type Landmark3D, type PoseEstimateResult } from "@/lib/pose/engine";
 import { recordFrameDropFps, shouldProcessFrame } from "@/lib/pose";
@@ -103,6 +104,7 @@ export default function CoachPage() {
   const repMetricsRef = useRef<RepMetric[]>([]);
   const visibilityAccumulatorRef = useRef({ sum: 0, count: 0 });
   const countdownValueRef = useRef<number | null>(null);
+  const cueCadenceRef = useRef(createCueCadenceState(EXERCISE_COPY.squat.starterCue, EXERCISE_COPY.squat.secondaryCue));
 
   const [overlayVideo, setOverlayVideo] = useState<HTMLVideoElement | null>(null);
   const [exercise, setExercise] = useState<Exercise>("squat");
@@ -182,6 +184,23 @@ export default function CoachPage() {
     speak(text);
   }, []);
 
+  const setImmediateCue = useCallback((primary: string, secondary: string) => {
+    cueCadenceRef.current = createCueCadenceState(primary, secondary, performance.now());
+    setCue(primary);
+    setSecondaryCue(secondary);
+  }, []);
+
+  const setCadencedCue = useCallback((primary: string, secondary: string, shouldSpeak = false) => {
+    const previousPrimary = cueCadenceRef.current.activePrimary;
+    const resolved = resolveCueCadence(cueCadenceRef.current, primary, secondary, performance.now());
+    cueCadenceRef.current = resolved.state;
+    setCue(resolved.primary);
+    setSecondaryCue(resolved.secondary);
+    if (shouldSpeak && resolved.primaryChanged && resolved.primary !== previousPrimary) {
+      maybeSpeak(resolved.primary);
+    }
+  }, [maybeSpeak]);
+
   const cancelCountdown = useCallback((message?: string) => {
     if (countdownTimerRef.current !== null) {
       window.clearTimeout(countdownTimerRef.current);
@@ -189,10 +208,9 @@ export default function CoachPage() {
     }
     countdownValueRef.current = null;
     setCountdownValue(null);
-    setCue(copy.starterCue);
-    setSecondaryCue(copy.secondaryCue);
+    setImmediateCue(copy.starterCue, copy.secondaryCue);
     setTrackingStatus(message ?? `${framing.label}. ${framing.detail}`);
-  }, [copy.secondaryCue, copy.starterCue, framing.detail, framing.label]);
+  }, [copy.secondaryCue, copy.starterCue, framing.detail, framing.label, setImmediateCue]);
 
   const activateSession = useCallback(() => {
     validatorRef.current = createValidator(exercise);
@@ -202,11 +220,10 @@ export default function CoachPage() {
     ensureSpeechReady();
     countdownValueRef.current = null;
     setCountdownValue(null);
-    setCue("Hold steady while we lock your first posture read.");
-    setSecondaryCue(copy.secondaryCue);
+    setImmediateCue("Hold steady while we lock your first posture read.", copy.secondaryCue);
     setTrackingStatus("Searching for a full-body pose...");
     setSessionState("active");
-  }, [copy.secondaryCue, exercise, resetSession]);
+  }, [copy.secondaryCue, exercise, resetSession, setImmediateCue]);
 
   const onPose = useCallback(async (result: PoseEstimateResult | null) => {
     const currentState = sessionStateRef.current;
@@ -251,8 +268,7 @@ export default function CoachPage() {
 
     if (result.visibilityScore < VISIBILITY_THRESHOLD) {
       setTrackingStatus("Move back until shoulders, hips, knees, and ankles stay in frame.");
-      setCue("Hold still while the camera regains a full-body read.");
-      setSecondaryCue(copy.secondaryCue);
+      setImmediateCue("Hold still while the camera regains a full-body read.", copy.secondaryCue);
       return;
     }
 
@@ -264,10 +280,8 @@ export default function CoachPage() {
     setPhase(state.phase);
     const primaryCue = state.mentorCue?.text || state.cues[0] || copy.liveCue;
     const alternateCue = state.cues[1] || copy.secondaryCue;
-    setCue(primaryCue);
-    setSecondaryCue(alternateCue);
-    maybeSpeak(primaryCue);
-  }, [copy.liveCue, copy.secondaryCue, maybeSpeak]);
+    setCadencedCue(primaryCue, alternateCue, true);
+  }, [copy.liveCue, copy.secondaryCue, setCadencedCue, setImmediateCue]);
 
   const queueSessionStart = useCallback(() => {
     if (!cameraReady || cameraError || detectorError) return;
@@ -278,8 +292,8 @@ export default function CoachPage() {
     ensureSpeechReady();
     countdownValueRef.current = COUNTDOWN_SECONDS;
     setCountdownValue(COUNTDOWN_SECONDS);
-    setCue(`Hold steady. ${copy.label} starts in ${COUNTDOWN_SECONDS}.`);
-    setSecondaryCue(
+    setImmediateCue(
+      `Hold steady. ${copy.label} starts in ${COUNTDOWN_SECONDS}.`,
       framing.state === "ready"
         ? "Stay inside the guide until the countdown clears."
         : "Keep your whole body inside the guide before the first live read.",
@@ -289,7 +303,7 @@ export default function CoachPage() {
         ? "Full body locked. Hold steady for the countdown."
         : "Starting the countdown. Keep shoulders, hips, knees, and ankles visible.",
     );
-  }, [cameraError, cameraReady, cancelCountdown, copy.label, detectorError, framing.state]);
+  }, [cameraError, cameraReady, cancelCountdown, copy.label, detectorError, framing.state, setImmediateCue]);
 
   const pause = useCallback(() => {
     if (activeStartPerfRef.current !== null) {
@@ -381,12 +395,11 @@ export default function CoachPage() {
   useEffect(() => {
     if (sessionState === "idle" || sessionState === "completed") {
       validatorRef.current = createValidator(exercise);
-      setCue(copy.starterCue);
-      setSecondaryCue(copy.secondaryCue);
+      setImmediateCue(copy.starterCue, copy.secondaryCue);
       setPhase("idle");
       setTrackingStatus(cameraReady ? framing.detail : "Preparing the camera stage.");
     }
-  }, [cameraReady, copy.secondaryCue, copy.starterCue, exercise, framing.detail, sessionState]);
+  }, [cameraReady, copy.secondaryCue, copy.starterCue, exercise, framing.detail, sessionState, setImmediateCue]);
   useEffect(() => { void syncPending(); }, [syncPending]);
 
   useEffect(() => {
@@ -487,8 +500,8 @@ export default function CoachPage() {
       return;
     }
 
-    setCue(`Hold steady. ${copy.label} starts in ${countdownValue}.`);
-    setSecondaryCue(
+    setImmediateCue(
+      `Hold steady. ${copy.label} starts in ${countdownValue}.`,
       framing.state === "ready"
         ? "Stay inside the guide until the countdown clears."
         : "Keep your whole body inside the guide before the first live read.",
@@ -504,7 +517,7 @@ export default function CoachPage() {
         countdownTimerRef.current = null;
       }
     };
-  }, [activateSession, copy.label, countdownValue, framing.state]);
+  }, [activateSession, copy.label, countdownValue, framing.state, setImmediateCue]);
 
   useEffect(() => {
     if (!cameraReady || cameraError || detectorError) {
