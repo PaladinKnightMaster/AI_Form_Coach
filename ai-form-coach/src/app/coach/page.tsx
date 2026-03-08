@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import CoachCameraChrome from "@/components/coach/CoachCameraChrome";
-import { Badge, Button, Card, Icon } from "@/ui/DS";
+import CoachExperienceView from "@/components/coach/CoachExperienceView";
 import { PoseEngine2, type Landmark3D, type PoseEstimateResult } from "@/lib/pose/engine";
 import { recordFrameDropFps, shouldProcessFrame } from "@/lib/pose";
 import { createValidator } from "@/lib/validators";
@@ -11,7 +9,6 @@ import type { Exercise, Phase, RepMetric } from "@/lib/validators/types";
 import { ensureSpeechReady, setMuted as setVoiceMuted, speak } from "@/lib/voice/coachVoice";
 import { enqueueWrite, flushWrites, getPendingCount } from "@/lib/storage/offlineQueue";
 import { getCurrentUserId } from "@/lib/supabase/client";
-
 const VISIBILITY_THRESHOLD = 0.55;
 const FLUSH_INTERVAL_MS = 10000;
 const TRACKING_TIMEOUT_MS = 1600;
@@ -469,149 +466,45 @@ export default function CoachPage() {
   const qualityTone: "success" | "warning" | "error" = quality === "good" ? "success" : quality === "warn" ? "warning" : "error";
   const qualityLabel = quality === "good" ? "Locked in" : quality === "warn" ? "Needs cleanup" : "Reframe";
   const phaseLabel = phase === "idle" ? "Ready" : phase.charAt(0).toUpperCase() + phase.slice(1);
+  const primaryActionLabel = sessionState === "paused" ? "Resume session" : sessionState === "completed" ? "Start another session" : "Start session";
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.18),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.2),_transparent_30%),linear-gradient(180deg,_#ecfeff_0%,_#f8fafc_42%,_#ffffff_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.18),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.18),_transparent_30%),linear-gradient(180deg,_#020617_0%,_#0f172a_45%,_#020617_100%)]">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <section className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_24rem] lg:items-start">
-          <div className="space-y-4">
-            <div className="flex flex-col gap-4 rounded-[2rem] border border-white/60 bg-white/80 p-5 shadow-[0_32px_120px_-48px_rgba(15,23,42,0.7)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70 sm:p-6">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div className="space-y-3">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-teal-700 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-teal-200">
-                    <Icon name="lock" className="h-4 w-4" /> Private motion coaching beta
-                  </div>
-                  <div className="space-y-2">
-                    <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">Live form coaching for squat, pushup, and plank.</h1>
-                    <p className="max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">The MVP is intentionally narrow: on-device pose tracking, fast corrective cues, and truthful session history. No nutrition AI, no plan builder, and no hidden demo data in the public beta.</p>
-                  </div>
-                </div>
-                <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-1">
-                  <ActionLink href="/history" icon="chart" label="History" description="Review real saved sessions only." />
-                  <ActionLink href="/pricing" icon="package" label="Beta access" description="Free beta. No paid gate today." />
-                  <ActionLink href="/privacy" icon="lock" label="Privacy" description="Motion analysis stays in the browser loop." />
-                </div>
-              </div>
-              <div className="grid gap-3 rounded-[1.5rem] border border-slate-200/80 bg-slate-50/90 p-4 dark:border-slate-800/80 dark:bg-slate-900/70 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto] lg:items-end">
-                <label className="space-y-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-                  <span>Exercise</span>
-                  <select data-testid="coach-exercise-select" value={exercise} onChange={(event) => setExercise(event.target.value as Exercise)} disabled={sessionState === "active" || sessionState === "paused"} className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 shadow-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-                    <option value="squat">Squat</option>
-                    <option value="pushup">Pushup</option>
-                    <option value="plank">Plank</option>
-                  </select>
-                </label>
-                <ToggleChip label="Mirror video" checked={mirrorVideo} onChange={setMirrorVideo} />
-                <ToggleChip label="Mute cues" checked={muted} onChange={setMuted} />
-                <div className="flex flex-wrap gap-2">
-                  {sessionState === "active" ? (
-                    <Button data-testid="coach-primary-action" size="lg" onClick={pause} className="min-w-[9.5rem]"><Icon name="pause" className="h-4 w-4" />Pause</Button>
-                  ) : (
-                    <Button data-testid="coach-primary-action" size="lg" onClick={sessionState === "paused" ? resume : startNew} disabled={!cameraReady || Boolean(cameraError) || Boolean(detectorError)} className="min-w-[9.5rem]"><Icon name="play" className="h-4 w-4" />{sessionState === "paused" ? "Resume" : sessionState === "completed" ? "Start new" : "Start session"}</Button>
-                  )}
-                  <Button data-testid="coach-session-save" variant="secondary" size="lg" onClick={() => { void endAndSave(); }} disabled={(sessionState !== "active" && sessionState !== "paused") || saving} className="min-w-[9.5rem]"><Icon name="save" className="h-4 w-4" />{saving ? "Saving..." : "End & save"}</Button>
-                </div>
-              </div>
-            </div>
-
-            <div data-testid="coach-stage" className="relative overflow-hidden rounded-[2rem] border border-slate-200/70 bg-slate-950 shadow-[0_40px_120px_-52px_rgba(15,23,42,0.9)] ring-1 ring-white/10 dark:border-slate-800/80">
-              <div className="aspect-[4/5] w-full md:aspect-[16/10] xl:aspect-[16/9]">
-                <CoachCameraChrome videoRef={videoRef} canvasRef={canvasRef} overlayVideo={overlayVideo} landmarks={null} landmarksRef={landmarksRef} mirrorVideo={mirrorVideo} debug={false} />
-              </div>
-              <div className="pointer-events-none absolute inset-x-4 bottom-4 z-30 flex flex-col gap-3 sm:inset-x-6 sm:bottom-6">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone={qualityTone} size="md" className="bg-slate-950/72 text-white backdrop-blur dark:bg-slate-950/72 dark:text-white">{qualityLabel}</Badge>
-                  <Badge tone="info" size="md" className="bg-slate-950/72 text-white backdrop-blur dark:bg-slate-950/72 dark:text-white">{copy.label}</Badge>
-                  <Badge tone="neutral" size="md" className="bg-slate-950/72 text-white backdrop-blur dark:bg-slate-950/72 dark:text-white">{phaseLabel}</Badge>
-                </div>
-                <div className="max-w-2xl rounded-[1.5rem] border border-white/15 bg-slate-950/72 px-4 py-4 text-white backdrop-blur-sm sm:px-5">
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">Live coach</div>
-                  <div data-testid="coach-live-cue" className="mt-2 text-lg font-semibold leading-7 sm:text-xl">{cue}</div>
-                  <div className="mt-2 text-sm leading-6 text-slate-300">{secondaryCue}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_120px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-200">Current session</div>
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h2 className="text-2xl font-black text-slate-950 dark:text-white">{copy.label}</h2>
-                      <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{copy.subtitle}</p>
-                    </div>
-                    <Badge tone={qualityTone}>{qualityLabel}</Badge>
-                  </div>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {[
-                    { label: exercise === "plank" ? "Holds" : "Reps", value: String(repCount), icon: "target" as const },
-                    { label: "Elapsed", value: formatDuration(elapsedMs), icon: "clock" as const },
-                    { label: "Visibility", value: formatPercent(visibilityScore), icon: "camera" as const },
-                    { label: "FPS", value: fps > 0 ? `${fps}` : "-", icon: "activity" as const },
-                  ].map((item) => (
-                    <div key={item.label} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/70">
-                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400"><Icon name={item.icon} className="h-4 w-4" />{item.label}</div>
-                      <div className="mt-3 text-2xl font-black text-slate-950 dark:text-white">{item.value}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/70">
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Tracking status</div>
-                  <div data-testid="coach-tracking-status" className="mt-2 text-base font-semibold text-slate-950 dark:text-white">{stageAlert}</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{offline ? `Offline mode active. ${pendingWrites} write${pendingWrites === 1 ? "" : "s"} waiting to sync.` : pendingWrites > 0 ? `${pendingWrites} buffered write${pendingWrites === 1 ? " is" : "s are"} waiting to flush.` : "No buffered writes. The beta surface is currently clean."}</p>
-                  {saveNotice ? <p className="mt-2 text-sm leading-6 text-teal-700 dark:text-teal-300">{saveNotice}</p> : null}
-                </div>
-              </div>
-            </Card>
-
-            <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_120px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
-              <div className="space-y-4">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Setup checklist</div>
-                  <h2 className="mt-2 text-xl font-black text-slate-950 dark:text-white">Make the detector easy on itself.</h2>
-                </div>
-                <ul className="space-y-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
-                  {copy.checklist.map((item) => (
-                    <li key={item} className="flex gap-3 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70"><span className="mt-1 text-teal-600 dark:text-teal-300"><Icon name="check-circle" className="h-4 w-4" /></span><span>{item}</span></li>
-                  ))}
-                </ul>
-              </div>
-            </Card>
-
-            <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_120px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
-              <div className="space-y-4">
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Beta boundaries</div>
-                <ul className="space-y-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
-                  <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="cpu" className="h-4 w-4" /></span><span>Live coaching uses the in-browser pose stack only. No LLM or cloud AI sits in the live loop.</span></li>
-                  <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="message" className="h-4 w-4" /></span><span>Voice cues are human-authored, with browser speech as fallback when audio is enabled.</span></li>
-                  <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="chart" className="h-4 w-4" /></span><span>History should only show real sessions saved from this coach flow. Demo sessions are out of the public path.</span></li>
-                </ul>
-              </div>
-            </Card>
-          </div>
-        </section>
-      </div>
-    </div>
-  );
-}
-
-function ToggleChip({ checked, label, onChange }: { checked: boolean; label: string; onChange: (next: boolean) => void; }) {
-  return (
-    <button type="button" onClick={() => onChange(!checked)} className={`inline-flex min-h-[3.25rem] items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition ${checked ? "border-sky-500 bg-sky-50 text-sky-700 shadow-sm dark:border-sky-500/70 dark:bg-sky-950/30 dark:text-sky-200" : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"}`}>
-      <span>{label}</span>
-      <span className={`relative h-6 w-11 rounded-full transition ${checked ? "bg-sky-500" : "bg-slate-300 dark:bg-slate-700"}`} aria-hidden="true"><span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${checked ? "left-[1.45rem]" : "left-0.5"}`} /></span>
-    </button>
-  );
-}
-
-function ActionLink({ href, icon, label, description }: { href: string; icon: "chart" | "package" | "lock"; label: string; description: string; }) {
-  return (
-    <Link href={href} className="group flex items-start gap-3 rounded-[1.25rem] border border-slate-200 bg-slate-50/90 px-4 py-3 text-left transition hover:border-sky-300 hover:bg-sky-50 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-sky-800/80 dark:hover:bg-slate-900">
-      <span className="mt-0.5 rounded-full border border-slate-200 bg-white p-2 text-sky-600 transition group-hover:border-sky-200 group-hover:bg-sky-100 dark:border-slate-700 dark:bg-slate-950 dark:text-sky-300 dark:group-hover:border-sky-800/80 dark:group-hover:bg-sky-950/40"><Icon name={icon} className="h-4 w-4" /></span>
-      <span className="min-w-0"><span className="block text-sm font-semibold text-slate-950 dark:text-white">{label}</span><span className="mt-1 block text-xs leading-5 text-slate-600 dark:text-slate-400">{description}</span></span>
-    </Link>
+    <CoachExperienceView
+      exercise={exercise}
+      exerciseLabel={copy.label}
+      subtitle={copy.subtitle}
+      checklist={copy.checklist}
+      sessionState={sessionState}
+      stageAlert={stageAlert}
+      cue={cue}
+      secondaryCue={secondaryCue}
+      repCount={repCount}
+      elapsedLabel={formatDuration(elapsedMs)}
+      visibilityLabel={formatPercent(visibilityScore)}
+      fpsLabel={fps > 0 ? `${fps}` : "-"}
+      qualityTone={qualityTone}
+      qualityLabel={qualityLabel}
+      phaseLabel={phaseLabel}
+      cameraReady={cameraReady}
+      hasStageError={Boolean(cameraError) || Boolean(detectorError)}
+      muted={muted}
+      mirrorVideo={mirrorVideo}
+      saving={saving}
+      offline={offline}
+      pendingWrites={pendingWrites}
+      saveNotice={saveNotice}
+      primaryActionLabel={primaryActionLabel}
+      videoRef={videoRef}
+      canvasRef={canvasRef}
+      overlayVideo={overlayVideo}
+      landmarksRef={landmarksRef}
+      onExerciseChange={setExercise}
+      onMutedChange={setMuted}
+      onMirrorChange={setMirrorVideo}
+      onPrimaryAction={sessionState === "active" ? pause : sessionState === "paused" ? resume : startNew}
+      onEndAndSave={() => {
+        void endAndSave();
+      }}
+    />
   );
 }
