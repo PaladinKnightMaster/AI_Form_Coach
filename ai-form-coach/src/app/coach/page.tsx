@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import CoachExperienceView from "@/components/coach/CoachExperienceView";
 import { createCueCadenceState, resolveCueCadence } from "@/lib/coach/cueCadence";
 import { getFramingGuidance } from "@/lib/coach/framing";
@@ -13,6 +12,18 @@ import type { Exercise, Phase, RepMetric } from "@/lib/validators/types";
 import { ensureSpeechReady, setMuted as setVoiceMuted, speak } from "@/lib/voice/coachVoice";
 import { enqueueWrite, flushWrites, getPendingCount } from "@/lib/storage/offlineQueue";
 import { getCurrentUserId } from "@/lib/supabase/client";
+import {
+  trackCoachCueFeedback,
+  trackCoachExerciseChange,
+  trackCoachPageVisit,
+  trackCoachSessionComplete,
+  trackCoachSessionPause,
+  trackCoachSessionResume,
+  trackCoachSessionStart,
+  trackCoachSettingToggle,
+  type CoachCueFeedback,
+  type CoachSaveOutcome,
+} from "@/lib/coach/telemetry";
 
 const VISIBILITY_THRESHOLD = 0.55;
 const FLUSH_INTERVAL_MS = 10000;
@@ -111,6 +122,8 @@ export default function CoachPage() {
   const scriptedPoseFramesRef = useRef<PoseEstimateResult[] | null>(null);
   const scriptedFrameIndexRef = useRef(0);
   const scriptedTimestampRef = useRef(0);
+  const pauseCountRef = useRef(0);
+  const hasTrackedPageVisitRef = useRef(false);
 
   const [overlayVideo, setOverlayVideo] = useState<HTMLVideoElement | null>(null);
   const [exercise, setExercise] = useState<Exercise>("squat");
@@ -134,6 +147,7 @@ export default function CoachPage() {
   const [pendingWrites, setPendingWrites] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
+  const [cueFeedback, setCueFeedback] = useState<CoachCueFeedback | null>(null);
   const [countdownValue, setCountdownValue] = useState<number | null>(null);
   const [hasPose, setHasPose] = useState(false);
   const poseScriptQuery = typeof window !== "undefined"
@@ -178,6 +192,8 @@ export default function CoachPage() {
     setPhase("idle");
     setElapsedMs(0);
     setSaveNotice(null);
+    setCueFeedback(null);
+    pauseCountRef.current = 0;
   }, []);
 
   const syncPending = useCallback(async () => {
@@ -214,6 +230,28 @@ export default function CoachPage() {
     }
   }, [maybeSpeak]);
 
+  const handleExerciseChange = useCallback((nextExercise: Exercise) => {
+    if (nextExercise === exercise) return;
+    trackCoachExerciseChange(exercise, nextExercise, sessionState);
+    setExercise(nextExercise);
+    setCueFeedback(null);
+  }, [exercise, sessionState]);
+
+  const handleMutedChange = useCallback((nextMuted: boolean) => {
+    setMuted(nextMuted);
+    trackCoachSettingToggle("voice", !nextMuted, exercise, sessionState);
+  }, [exercise, sessionState]);
+
+  const handleMirrorChange = useCallback((nextMirrorVideo: boolean) => {
+    setMirrorVideo(nextMirrorVideo);
+    trackCoachSettingToggle("mirror", nextMirrorVideo, exercise, sessionState);
+  }, [exercise, sessionState]);
+
+  const handleCueFeedback = useCallback((feedback: CoachCueFeedback) => {
+    setCueFeedback(feedback);
+    trackCoachCueFeedback(exercise, feedback, repCount, elapsedMs, pauseCountRef.current);
+  }, [elapsedMs, exercise, repCount]);
+
   const cancelCountdown = useCallback((message?: string) => {
     if (countdownTimerRef.current !== null) {
       window.clearTimeout(countdownTimerRef.current);
@@ -236,6 +274,7 @@ export default function CoachPage() {
     setImmediateCue("Hold steady while we lock your first posture read.", copy.secondaryCue);
     setTrackingStatus("Searching for a full-body pose...");
     setSessionState("active");
+    trackCoachSessionStart(exercise, Boolean(scriptedPoseFramesRef.current));
   }, [copy.secondaryCue, exercise, resetSession, setImmediateCue]);
 
   const onPose = useCallback(async (result: PoseEstimateResult | null, frameTs?: number) => {
@@ -321,25 +360,35 @@ export default function CoachPage() {
   }, [cameraError, cameraReady, cancelCountdown, copy.label, detectorError, framing.state, setImmediateCue]);
 
   const pause = useCallback(() => {
+    const nextElapsedMs = activeStartPerfRef.current !== null
+      ? performance.now() - activeStartPerfRef.current
+      : elapsedMs;
     if (activeStartPerfRef.current !== null) {
-      setElapsedMs(performance.now() - activeStartPerfRef.current);
       activeStartPerfRef.current = null;
     }
+    pauseCountRef.current += 1;
+    setElapsedMs(nextElapsedMs);
+    trackCoachSessionPause(exercise, nextElapsedMs, repCount, pauseCountRef.current);
     setTrackingStatus("Session paused. Reframe if needed, then resume.");
     setSessionState("paused");
-  }, []);
+  }, [elapsedMs, exercise, repCount]);
 
   const resume = useCallback(() => {
     activeStartPerfRef.current = performance.now() - elapsedMs;
     ensureSpeechReady();
+    trackCoachSessionResume(exercise, elapsedMs, repCount, pauseCountRef.current);
     setTrackingStatus("Searching for a full-body pose...");
     setSessionState("active");
-  }, [elapsedMs]);
+  }, [elapsedMs, exercise, repCount]);
 
   const endAndSave = useCallback(async () => {
     const finalElapsedMs = sessionStateRef.current === "active" && activeStartPerfRef.current !== null
       ? performance.now() - activeStartPerfRef.current
       : elapsedMs;
+    const averageVisibility = visibilityAccumulatorRef.current.count
+      ? visibilityAccumulatorRef.current.sum / visibilityAccumulatorRef.current.count
+      : null;
+    let saveOutcome: CoachSaveOutcome = "saved";
     if (activeStartPerfRef.current !== null) activeStartPerfRef.current = null;
     if (countdownValueRef.current !== null) {
       cancelCountdown();
@@ -351,13 +400,11 @@ export default function CoachPage() {
     try {
       const userId = await getCurrentUserId();
       if (!userId) {
+        saveOutcome = "signin_required";
         setSaveNotice("Session complete. Sign in to save it to history.");
         return;
       }
       const sessionId = crypto.randomUUID();
-      const averageVisibility = visibilityAccumulatorRef.current.count
-        ? visibilityAccumulatorRef.current.sum / visibilityAccumulatorRef.current.count
-        : null;
       await enqueueWrite({
         table: "sessions",
         payload: {
@@ -393,13 +440,24 @@ export default function CoachPage() {
       }
       await flushWrites();
       const remainingWrites = await getPendingCount();
+      saveOutcome = remainingWrites > 0 ? "sync_pending" : "saved";
       setPendingWrites(remainingWrites);
       setSaveNotice(getFlushNotice(remainingWrites));
     } catch (error) {
       console.error("Failed to save coaching session", error);
+      saveOutcome = "sync_retry";
       setSaveNotice("Session captured locally, but sync failed. We will retry when the connection is healthy.");
       await syncPending();
     } finally {
+      trackCoachSessionComplete(
+        exercise,
+        finalElapsedMs,
+        repCount,
+        averageVisibility,
+        pauseCountRef.current,
+        saveOutcome,
+        Boolean(scriptedPoseFramesRef.current),
+      );
       setSaving(false);
     }
   }, [cancelCountdown, elapsedMs, exercise, repCount, syncPending]);
@@ -407,6 +465,11 @@ export default function CoachPage() {
   useEffect(() => { sessionStateRef.current = sessionState; }, [sessionState]);
   useEffect(() => { countdownValueRef.current = countdownValue; }, [countdownValue]);
   useEffect(() => { setVoiceMuted(muted); }, [muted]);
+  useEffect(() => {
+    if (hasTrackedPageVisitRef.current) return;
+    trackCoachPageVisit(Boolean(scriptedPoseFrames));
+    hasTrackedPageVisitRef.current = true;
+  }, [scriptedPoseFrames]);
   useEffect(() => {
     scriptedPoseFramesRef.current = scriptedPoseFrames;
     scriptedFrameIndexRef.current = 0;
@@ -670,14 +733,16 @@ export default function CoachPage() {
       offline={offline}
       pendingWrites={pendingWrites}
       saveNotice={saveNotice}
+      cueFeedback={cueFeedback}
       primaryActionLabel={primaryActionLabel}
       videoRef={videoRef}
       canvasRef={canvasRef}
       overlayVideo={overlayVideo}
       landmarksRef={landmarksRef}
-      onExerciseChange={setExercise}
-      onMutedChange={setMuted}
-      onMirrorChange={setMirrorVideo}
+      onExerciseChange={handleExerciseChange}
+      onMutedChange={handleMutedChange}
+      onMirrorChange={handleMirrorChange}
+      onCueFeedback={handleCueFeedback}
       onPrimaryAction={sessionState === "active" ? pause : sessionState === "paused" ? resume : queueSessionStart}
       onEndAndSave={() => {
         void endAndSave();
@@ -685,6 +750,7 @@ export default function CoachPage() {
     />
   );
 }
+
 
 
 

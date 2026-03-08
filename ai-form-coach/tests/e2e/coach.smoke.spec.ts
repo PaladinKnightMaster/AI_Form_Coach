@@ -44,3 +44,28 @@ test("coach scripted pose mode can count a deterministic squat rep", async ({ pa
   await expect(page.getByTestId("coach-rep-count").first()).toContainText("1", { timeout: 20_000 });
   await expect(page.getByTestId("coach-live-cue")).toBeVisible();
 });
+
+
+test("coach can pause, resume, save, and capture cue feedback", async ({ page }) => {
+  await page.goto("/coach?pose-script=squat-single-rep");
+
+  const action = page.getByTestId("coach-primary-action").first();
+  await expect(action).toBeEnabled({ timeout: 60_000 });
+  await action.click();
+
+  const activePause = page.getByTestId("coach-primary-action").first();
+  await expect(activePause).toContainText("Pause", { timeout: 15_000 });
+  await activePause.click();
+
+  const resumeAction = page.getByTestId("coach-primary-action").first();
+  await expect(resumeAction).toContainText("Resume session");
+  await resumeAction.click();
+
+  await expect(page.getByTestId("coach-rep-count").first()).toContainText("1", { timeout: 20_000 });
+  await page.getByTestId("coach-session-save").first().click();
+
+  const feedbackButton = page.getByTestId("coach-feedback-clear");
+  await expect(feedbackButton).toBeVisible({ timeout: 15_000 });
+  await feedbackButton.click();
+  await expect(feedbackButton).toHaveAttribute("data-selected", "true");
+});

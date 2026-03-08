@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React from "react";
+import type { CoachCueFeedback } from "@/lib/coach/telemetry";
 import type { Landmark3D } from "@/lib/pose/engine";
 import type { Exercise } from "@/lib/validators/types";
 import CoachCameraChrome from "@/components/coach/CoachCameraChrome";
@@ -38,6 +39,7 @@ interface CoachExperienceViewProps {
   offline: boolean;
   pendingWrites: number;
   saveNotice: string | null;
+  cueFeedback: CoachCueFeedback | null;
   primaryActionLabel: string;
   videoRef: React.RefObject<HTMLVideoElement | null>;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -46,6 +48,7 @@ interface CoachExperienceViewProps {
   onExerciseChange: (exercise: Exercise) => void;
   onMutedChange: (next: boolean) => void;
   onMirrorChange: (next: boolean) => void;
+  onCueFeedback: (feedback: CoachCueFeedback) => void;
   onPrimaryAction: () => void;
   onEndAndSave: () => void;
 }
@@ -78,6 +81,7 @@ export default function CoachExperienceView({
   offline,
   pendingWrites,
   saveNotice,
+  cueFeedback,
   primaryActionLabel,
   videoRef,
   canvasRef,
@@ -86,6 +90,7 @@ export default function CoachExperienceView({
   onExerciseChange,
   onMutedChange,
   onMirrorChange,
+  onCueFeedback,
   onPrimaryAction,
   onEndAndSave,
 }: CoachExperienceViewProps) {
@@ -233,6 +238,22 @@ export default function CoachExperienceView({
                           </Link>
                         ) : null}
                       </div>
+
+                      {sessionState === "completed" ? (
+                        <div className="rounded-[1.4rem] border border-white/14 bg-white/6 px-4 py-4 sm:rounded-[1.6rem] sm:px-5 sm:py-5">
+                          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">Coach feedback</div>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                            <FeedbackChoice testId="coach-feedback-clear" label="Clear" selected={cueFeedback === "clear"} onClick={() => onCueFeedback("clear")} />
+                            <FeedbackChoice testId="coach-feedback-calmer" label="Calmer" selected={cueFeedback === "calmer"} onClick={() => onCueFeedback("calmer")} />
+                            <FeedbackChoice testId="coach-feedback-clearer" label="Clearer" selected={cueFeedback === "clearer"} onClick={() => onCueFeedback("clearer")} />
+                          </div>
+                          <p className="mt-3 text-sm leading-6 text-slate-300">
+                            {cueFeedback
+                              ? "Feedback captured for beta tuning."
+                              : "Tell us how the live guidance felt so the next build can tune it."}
+                          </p>
+                        </div>
+                      ) : null}
                     </div>
                   )}
                 </div>
@@ -390,6 +411,23 @@ function SummaryChip({ label, value, icon, compact = false, testId }: { label: s
   );
 }
 
+function FeedbackChoice({ testId, label, selected, onClick }: { testId: string; label: string; selected: boolean; onClick: () => void }) {
+  return (
+    <Button
+      data-testid={testId}
+      type="button"
+      size="sm"
+      variant={selected ? "primary" : "secondary"}
+      aria-pressed={selected}
+      data-selected={selected ? "true" : "false"}
+      onClick={onClick}
+      className={selected ? "justify-center" : "justify-center border-white/14 bg-white/6 text-white hover:bg-white/10 dark:border-white/14 dark:bg-white/6 dark:text-white dark:hover:bg-white/10"}
+    >
+      {label}
+    </Button>
+  );
+}
+
 function CountdownMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[1.15rem] border border-white/12 bg-slate-950/54 px-4 py-3">
@@ -407,4 +445,5 @@ function ActionLink({ href, icon, label }: { href: string; icon: "chart" | "pack
     </Link>
   );
 }
+
 
