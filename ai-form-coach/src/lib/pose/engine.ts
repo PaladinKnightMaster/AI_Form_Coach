@@ -257,7 +257,7 @@ export class PoseEngine2 {
       rawLandmarks[i].x = lm.x;
       rawLandmarks[i].y = lm.y;
       rawLandmarks[i].z = lm.z;
-      rawLandmarks[i].visibility = lm.visibility || 0;
+      rawLandmarks[i].visibility = lm.visibility ?? 1;
     }
 
     // Calculate visibility score

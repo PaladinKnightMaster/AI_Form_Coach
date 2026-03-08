@@ -1,81 +1,77 @@
-import Link from 'next/link';
-import { Container, Section, Button, Badge } from '@/ui/DS';
-import PricingTeaser from '@/components/PricingTeaser';
+﻿import Link from "next/link";
+
+const included = [
+  "Live coaching for squat, pushup, and plank",
+  "Private browser-based pose analysis during live sessions",
+  "Session summaries and history for signed-in users",
+  "Human-authored cue pack for the core coaching flow",
+];
+
+const excluded = [
+  "Nutrition tracking",
+  "Food scan",
+  "AI-generated workout plans",
+  "Health integrations and readiness scoring",
+  "Paid subscription gate on day one",
+];
 
 export default function PricingPage() {
-	return (
-		<div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 dark:from-slate-900 dark:via-orange-900/30 dark:to-pink-900/30">
-			<Container>
-				<Section>
-					<div className="text-center space-y-6 mb-12">
-						<div className="space-y-4">
-							<Badge tone="warning" size="lg" className="bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800 animate-pulse">
-								💰 Simple Pricing
-							</Badge>
-							<h1 className="text-5xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 bg-clip-text text-transparent">
-								Choose Your Plan
-							</h1>
-							<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-								Start free and upgrade when you&apos;re ready for advanced features. 
-								All plans include our core AI coaching and nutrition tracking.
-							</p>
-						</div>
-					</div>
-					
-					<PricingTeaser />
-					
-					<div className="text-center mt-12">
-						<div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 max-w-2xl mx-auto">
-							<h3 className="text-lg font-semibold mb-3">🎯 What&apos;s Included in All Plans</h3>
-							<div className="grid md:grid-cols-2 gap-4 text-sm text-left">
-								<div className="flex items-center gap-2">
-									<span className="text-green-500">✅</span>
-									<span>AI Form Coaching (Squats, Push-ups, Planks)</span>
-								</div>
-								<div className="flex items-center gap-2">
-									<span className="text-green-500">✅</span>
-									<span>Real-time Rep Counting</span>
-								</div>
-								<div className="flex items-center gap-2">
-									<span className="text-green-500">✅</span>
-									<span>Nutrition Tracking & Macro Counting</span>
-								</div>
-								<div className="flex items-center gap-2">
-									<span className="text-green-500">✅</span>
-									<span>Progress History & Charts</span>
-								</div>
-								<div className="flex items-center gap-2">
-									<span className="text-green-500">✅</span>
-									<span>Featured Workout Plans</span>
-								</div>
-								<div className="flex items-center gap-2">
-									<span className="text-green-500">✅</span>
-									<span>Health Monitoring & Readiness</span>
-								</div>
-								<div className="flex items-center gap-2">
-									<span className="text-green-500">✅</span>
-									<span>Privacy-First Design</span>
-								</div>
-								<div className="flex items-center gap-2">
-									<span className="text-green-500">✅</span>
-									<span>Works Offline</span>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<div className="text-center mt-8">
-						<Link href="/signin">
-							<Button variant="primary" size="lg">
-								Get Started Free
-							</Button>
-						</Link>
-						<p className="text-sm opacity-80 mt-4">
-							No credit card required • Cancel anytime
-						</p>
-					</div>
-				</Section>
-			</Container>
-		</div>
-	);
+  return (
+    <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="container py-20">
+        <div className="mx-auto max-w-4xl space-y-10">
+          <div className="space-y-4 text-center">
+            <div className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
+              Free public beta
+            </div>
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">No paid plans at launch.</h1>
+            <p className="mx-auto max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
+              The MVP is being shipped as a focused beta for motion coaching. We are not charging for nutrition, plans, or wider wellness features because they are not part of the release surface.
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <section className="rounded-3xl border border-slate-200 bg-slate-50 p-8 dark:border-slate-800 dark:bg-slate-900">
+              <h2 className="text-2xl font-bold">Included today</h2>
+              <ul className="mt-6 space-y-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                {included.map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-800 dark:bg-slate-900">
+              <h2 className="text-2xl font-bold">Not part of the beta</h2>
+              <ul className="mt-6 space-y-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                {excluded.map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-rose-500" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200 p-8 text-center dark:border-slate-800">
+            <h2 className="text-2xl font-bold">Join the beta</h2>
+            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+              Use the coach on supported devices, save real sessions, and help tune the motion quality. Pricing will only be revisited after the beta proves activation and retention.
+            </p>
+            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link href="/signin?mode=signup" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+                Create account
+              </Link>
+              <Link href="/coach" className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white">
+                Open coach
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
