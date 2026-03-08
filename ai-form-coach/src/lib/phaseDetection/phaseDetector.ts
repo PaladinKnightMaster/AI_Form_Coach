@@ -287,12 +287,12 @@ export function normalizeAngleForPhaseDetection(
   // Normalize angle to 0-1 range based on exercise type
   switch (exercise) {
     case 'squat':
-      // Knee angle: 0° (straight) to 90° (deep squat)
-      return Math.max(0, Math.min(1, angle / 90));
+      // Knee angle: 180 degrees (standing) to 90 degrees (deep squat)
+      return Math.max(0, Math.min(1, (180 - angle) / 90));
     
     case 'pushup':
-      // Elbow angle: 0° (straight) to 90° (deep pushup)
-      return Math.max(0, Math.min(1, angle / 90));
+      // Elbow angle: 180 degrees (top) to 90 degrees (bottom)
+      return Math.max(0, Math.min(1, (180 - angle) / 90));
     
     case 'plank':
       // Body line angle: 0° (perfect) to 30° (poor form)
@@ -327,3 +327,4 @@ export function extractPhaseDetectionValue(
       return 0;
   }
 }
+

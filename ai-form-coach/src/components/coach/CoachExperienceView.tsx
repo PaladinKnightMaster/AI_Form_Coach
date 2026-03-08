@@ -252,7 +252,7 @@ export default function CoachExperienceView({
 
                 <div className="hidden pointer-events-auto flex-col gap-3 lg:flex xl:min-w-[28rem]">
                   <div className="grid gap-2 sm:grid-cols-4">
-                    <SummaryChip label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" />
+                    <SummaryChip testId="coach-rep-count" label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" />
                     <SummaryChip label="Elapsed" value={elapsedLabel} icon="clock" />
                     <SummaryChip label="Visibility" value={visibilityLabel} icon="camera" />
                     <SummaryChip label="FPS" value={fpsLabel} icon="activity" />
@@ -272,7 +272,7 @@ export default function CoachExperienceView({
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-2 lg:hidden">
-                  <SummaryChip label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" compact />
+                  <SummaryChip testId="coach-rep-count" label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" compact />
                   <SummaryChip label="Elapsed" value={elapsedLabel} icon="clock" compact />
                   <SummaryChip label="Visibility" value={visibilityLabel} icon="camera" compact />
                   <SummaryChip label="FPS" value={fpsLabel} icon="activity" compact />
@@ -297,7 +297,7 @@ export default function CoachExperienceView({
                   </Button>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <SummaryChip label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" compact />
+                  <SummaryChip testId="coach-rep-count" label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" compact />
                   <SummaryChip label="Elapsed" value={elapsedLabel} icon="clock" compact />
                 </div>
               </div>
@@ -381,9 +381,9 @@ function StageToggle({ label, active, onClick }: { label: string; active: boolea
   );
 }
 
-function SummaryChip({ label, value, icon, compact = false }: { label: string; value: string; icon: "target" | "clock" | "camera" | "activity"; compact?: boolean }) {
+function SummaryChip({ label, value, icon, compact = false, testId }: { label: string; value: string; icon: "target" | "clock" | "camera" | "activity"; compact?: boolean; testId?: string }) {
   return (
-    <div className={`rounded-[1.2rem] border border-white/14 bg-slate-950/68 text-white backdrop-blur ${compact ? "px-3 py-3" : "px-4 py-3"}`}>
+    <div data-testid={testId} className={`rounded-[1.2rem] border border-white/14 bg-slate-950/68 text-white backdrop-blur ${compact ? "px-3 py-3" : "px-4 py-3"}`}>
       <div className={`flex items-center gap-2 font-semibold uppercase tracking-[0.18em] text-slate-300 ${compact ? "text-[10px]" : "text-[11px]"}`}><Icon name={icon} className="h-4 w-4" />{label}</div>
       <div className={`mt-2 font-black ${compact ? "text-lg" : "text-xl"}`}>{value}</div>
     </div>
@@ -407,3 +407,4 @@ function ActionLink({ href, icon, label }: { href: string; icon: "chart" | "pack
     </Link>
   );
 }
+

@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import CoachExperienceView from "@/components/coach/CoachExperienceView";
 import { createCueCadenceState, resolveCueCadence } from "@/lib/coach/cueCadence";
 import { getFramingGuidance } from "@/lib/coach/framing";
+import { getCoachTestPoseScript } from "@/lib/coach/testPoseScripts";
 import { PoseEngine2, type Landmark3D, type PoseEstimateResult } from "@/lib/pose/engine";
 import { recordFrameDropFps, shouldProcessFrame } from "@/lib/pose";
 import { createValidator } from "@/lib/validators";
@@ -17,6 +19,7 @@ const FLUSH_INTERVAL_MS = 10000;
 const TRACKING_TIMEOUT_MS = 1600;
 const COUNTDOWN_SECONDS = 3;
 const PREVIEW_STALE_FRAME_LIMIT = 10;
+const SCRIPTED_FRAME_INTERVAL_MS = 16;
 
 type SessionState = "idle" | "active" | "paused" | "completed";
 type QualityState = "good" | "warn" | "bad";
@@ -105,6 +108,9 @@ export default function CoachPage() {
   const visibilityAccumulatorRef = useRef({ sum: 0, count: 0 });
   const countdownValueRef = useRef<number | null>(null);
   const cueCadenceRef = useRef(createCueCadenceState(EXERCISE_COPY.squat.starterCue, EXERCISE_COPY.squat.secondaryCue));
+  const scriptedPoseFramesRef = useRef<PoseEstimateResult[] | null>(null);
+  const scriptedFrameIndexRef = useRef(0);
+  const scriptedTimestampRef = useRef(0);
 
   const [overlayVideo, setOverlayVideo] = useState<HTMLVideoElement | null>(null);
   const [exercise, setExercise] = useState<Exercise>("squat");
@@ -130,6 +136,13 @@ export default function CoachPage() {
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [countdownValue, setCountdownValue] = useState<number | null>(null);
   const [hasPose, setHasPose] = useState(false);
+  const poseScriptQuery = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("pose-script")
+    : null;
+  const scriptedPoseFrames = useMemo(() => {
+    if (process.env.NODE_ENV === "production") return null;
+    return getCoachTestPoseScript(poseScriptQuery);
+  }, [poseScriptQuery]);
 
   const running = sessionState === "active";
   const copy = EXERCISE_COPY[exercise];
@@ -225,8 +238,10 @@ export default function CoachPage() {
     setSessionState("active");
   }, [copy.secondaryCue, exercise, resetSession, setImmediateCue]);
 
-  const onPose = useCallback(async (result: PoseEstimateResult | null) => {
+  const onPose = useCallback(async (result: PoseEstimateResult | null, frameTs?: number) => {
     const currentState = sessionStateRef.current;
+    const frameNow = performance.now();
+    const measurementTs = frameTs ?? frameNow;
 
     if (!result) {
       staleFrameCountRef.current += 1;
@@ -272,9 +287,9 @@ export default function CoachPage() {
       return;
     }
 
-    lastPoseAtRef.current = performance.now();
+    lastPoseAtRef.current = frameNow;
     setTrackingStatus("Tracking live posture.");
-    const state = await validatorRef.current(result, performance.now(), { debounceFrames: 2, bestSide: result.bestSide });
+    const state = await validatorRef.current(result, measurementTs, { debounceFrames: 2, bestSide: result.bestSide });
     repMetricsRef.current = state.metrics;
     setRepCount(state.repCount);
     setPhase(state.phase);
@@ -392,6 +407,21 @@ export default function CoachPage() {
   useEffect(() => { sessionStateRef.current = sessionState; }, [sessionState]);
   useEffect(() => { countdownValueRef.current = countdownValue; }, [countdownValue]);
   useEffect(() => { setVoiceMuted(muted); }, [muted]);
+  useEffect(() => {
+    scriptedPoseFramesRef.current = scriptedPoseFrames;
+    scriptedFrameIndexRef.current = 0;
+    scriptedTimestampRef.current = 0;
+  }, [scriptedPoseFrames]);
+  useEffect(() => {
+    if (!scriptedPoseFramesRef.current) return;
+    if (sessionState === "active") {
+      scriptedFrameIndexRef.current = 0;
+      scriptedTimestampRef.current = performance.now();
+      return;
+    }
+    scriptedFrameIndexRef.current = 0;
+    scriptedTimestampRef.current = 0;
+  }, [sessionState]);
   useEffect(() => {
     if (sessionState === "idle" || sessionState === "completed") {
       validatorRef.current = createValidator(exercise);
@@ -532,7 +562,18 @@ export default function CoachPage() {
       const engine = engineRef.current;
       if (video && engine && video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
         try {
-          if (shouldProcessFrame()) {
+          const scriptedFrames = scriptedPoseFramesRef.current;
+          if (scriptedFrames && sessionStateRef.current === "active" && scriptedFrames.length > 0) {
+            const index = Math.min(scriptedFrameIndexRef.current, scriptedFrames.length - 1);
+            const scriptedTs = scriptedTimestampRef.current === 0
+              ? performance.now()
+              : scriptedTimestampRef.current + SCRIPTED_FRAME_INTERVAL_MS;
+            scriptedTimestampRef.current = scriptedTs;
+            if (scriptedFrameIndexRef.current < scriptedFrames.length - 1) {
+              scriptedFrameIndexRef.current += 1;
+            }
+            await onPose(scriptedFrames[index], scriptedTs);
+          } else if (shouldProcessFrame()) {
             const result = await engine.estimate(video);
             await onPose(result);
           }
@@ -644,3 +685,7 @@ export default function CoachPage() {
     />
   );
 }
+
+
+
+

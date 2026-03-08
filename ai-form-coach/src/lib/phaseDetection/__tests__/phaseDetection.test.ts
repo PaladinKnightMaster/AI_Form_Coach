@@ -126,9 +126,11 @@ describe('HMM Phase Detector', () => {
   });
   
   it('should reset correctly', () => {
-    hmmDetector.detectPhase(0, 0.8, 0.8);
+    [0.8, 0.8, 0.8].forEach((value, index) => {
+      hmmDetector.detectPhase(index * 100, value, value);
+    });
     expect(hmmDetector.getCurrentState()).toBe('down');
-    
+
     hmmDetector.reset();
     expect(hmmDetector.getCurrentState()).toBe('idle');
     expect(hmmDetector.getStateHistory()).toHaveLength(0);
@@ -271,15 +273,15 @@ describe('Validator Integration', () => {
 
 describe('Angle Normalization', () => {
   it('should normalize squat angles correctly', () => {
-    expect(normalizeAngleForPhaseDetection(0, 'squat')).toBe(0);
-    expect(normalizeAngleForPhaseDetection(45, 'squat')).toBe(0.5);
+    expect(normalizeAngleForPhaseDetection(180, 'squat')).toBe(0);
+    expect(normalizeAngleForPhaseDetection(135, 'squat')).toBe(0.5);
     expect(normalizeAngleForPhaseDetection(90, 'squat')).toBe(1);
-    expect(normalizeAngleForPhaseDetection(180, 'squat')).toBe(1); // Clamped
+    expect(normalizeAngleForPhaseDetection(45, 'squat')).toBe(1); // Clamped
   });
   
   it('should normalize pushup angles correctly', () => {
-    expect(normalizeAngleForPhaseDetection(0, 'pushup')).toBe(0);
-    expect(normalizeAngleForPhaseDetection(45, 'pushup')).toBe(0.5);
+    expect(normalizeAngleForPhaseDetection(180, 'pushup')).toBe(0);
+    expect(normalizeAngleForPhaseDetection(135, 'pushup')).toBe(0.5);
     expect(normalizeAngleForPhaseDetection(90, 'pushup')).toBe(1);
   });
   
@@ -395,3 +397,6 @@ describe('Performance Tests', () => {
     expect(stdDev).toBeLessThan(avgTime * 0.5);
   });
 });
+
+
+

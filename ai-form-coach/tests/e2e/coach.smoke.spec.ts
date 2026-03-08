@@ -32,3 +32,15 @@ test("coach keeps controls reachable on a phone-sized viewport", async ({ page }
   await expect(page.getByTestId("coach-mobile-primary-action")).toContainText("Pause", { timeout: 15_000 });
   await expect(page.getByTestId("coach-live-cue")).toBeVisible();
 });
+
+test("coach scripted pose mode can count a deterministic squat rep", async ({ page }) => {
+  await page.goto("/coach?pose-script=squat-single-rep");
+
+  const action = page.getByTestId("coach-primary-action").first();
+  await expect(action).toBeEnabled({ timeout: 60_000 });
+  await action.click();
+
+  await expect(page.getByTestId("coach-primary-action").last()).toContainText("Pause", { timeout: 15_000 });
+  await expect(page.getByTestId("coach-rep-count").first()).toContainText("1", { timeout: 20_000 });
+  await expect(page.getByTestId("coach-live-cue")).toBeVisible();
+});

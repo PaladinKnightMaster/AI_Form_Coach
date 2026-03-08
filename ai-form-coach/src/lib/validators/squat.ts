@@ -216,8 +216,8 @@ export function createSquatValidator(): Validator {
 			}
 		}
 
-		// Complete rep when returning to idle
-		if (state.phase === 'up' && depth < upDepth && state.currentRep) {
+		// Complete rep when returning to the top position
+		if (state.currentRep && depth < upDepth && (state.phase === 'up' || state.phase === 'idle')) {
 			const repDuration = ts - state.currentRep.startTs;
 			const tempo = calculateTempo(repDuration);
 			
@@ -333,3 +333,4 @@ export function createSquatValidator(): Validator {
 		return state;
 	};
 } 
+
