@@ -8,6 +8,7 @@ describe("coach MVP shell", () => {
 
     expect(html).toContain("Private motion coaching beta");
     expect(html).toContain("Start session");
+    expect(html).toContain("Framing check");
     expect(html).toContain("Live coach");
     expect(html).not.toContain("Ã");
   });

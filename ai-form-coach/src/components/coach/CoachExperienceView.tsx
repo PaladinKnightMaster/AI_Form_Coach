@@ -26,6 +26,10 @@ interface CoachExperienceViewProps {
   qualityTone: StatusTone;
   qualityLabel: string;
   phaseLabel: string;
+  framingTone: StatusTone;
+  framingLabel: string;
+  framingDetail: string;
+  countdownValue: number | null;
   cameraReady: boolean;
   hasStageError: boolean;
   muted: boolean;
@@ -62,6 +66,10 @@ export default function CoachExperienceView({
   qualityTone,
   qualityLabel,
   phaseLabel,
+  framingTone,
+  framingLabel,
+  framingDetail,
+  countdownValue,
   cameraReady,
   hasStageError,
   muted,
@@ -84,6 +92,7 @@ export default function CoachExperienceView({
   const showCenterPanel = sessionState !== "active";
   const canPrimaryAction = cameraReady && !hasStageError;
   const canEndSession = sessionState === "active" || sessionState === "paused";
+  const isCountingDown = countdownValue !== null;
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.2),_transparent_28%),linear-gradient(180deg,_#ecfeff_0%,_#f8fafc_36%,_#ffffff_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.18),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.18),_transparent_28%),linear-gradient(180deg,_#020617_0%,_#0f172a_42%,_#020617_100%)]">
@@ -95,8 +104,8 @@ export default function CoachExperienceView({
               Private motion coaching beta
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">Camera-first coaching, not dashboard-first coaching.</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">The live stage is the product. Everything around it now exists to help framing, reduce hesitation, and keep the cue loop readable while you move.</p>
+              <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">A cleaner camera ritual before the first rep.</h1>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">The coach now frames first, counts you in, and keeps the live loop calmer once movement starts. The stage should feel like a product surface, not a diagnostic screen.</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -112,9 +121,14 @@ export default function CoachExperienceView({
               <CoachCameraChrome videoRef={videoRef} canvasRef={canvasRef} overlayVideo={overlayVideo} landmarks={null} landmarksRef={landmarksRef} mirrorVideo={mirrorVideo} debug={false} />
             </div>
 
+            {showCenterPanel ? (
+              <FramingGuide tone={framingTone} label={framingLabel} detail={framingDetail} countdownValue={countdownValue} />
+            ) : null}
+
             <div className="pointer-events-none absolute inset-x-4 top-4 z-30 flex flex-wrap items-start justify-between gap-3 sm:inset-x-6 sm:top-6">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tone={qualityTone} size="md" className="bg-slate-950/72 text-white backdrop-blur dark:bg-slate-950/72 dark:text-white">{qualityLabel}</Badge>
+                <Badge tone={framingTone} size="md" className="bg-slate-950/72 text-white backdrop-blur dark:bg-slate-950/72 dark:text-white">{framingLabel}</Badge>
                 <Badge tone="info" size="md" className="bg-slate-950/72 text-white backdrop-blur dark:bg-slate-950/72 dark:text-white">{exerciseLabel}</Badge>
                 <Badge tone="neutral" size="md" className="bg-slate-950/72 text-white backdrop-blur dark:bg-slate-950/72 dark:text-white">{phaseLabel}</Badge>
               </div>
@@ -129,48 +143,97 @@ export default function CoachExperienceView({
                 {stageAlert}
               </div>
             </div>
+
             {showCenterPanel ? (
               <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center p-4 sm:p-6">
-                <div className="pointer-events-auto w-full max-w-xl rounded-[2rem] border border-white/14 bg-slate-950/76 p-5 text-white shadow-2xl backdrop-blur sm:p-6">
-                  <div className="flex flex-col gap-5">
-                    <div className="space-y-2">
-                      <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">{sessionState === "completed" ? "Session complete" : sessionState === "paused" ? "Session paused" : "Pre-session framing"}</div>
-                      <h2 className="text-2xl font-black tracking-tight sm:text-3xl">{exerciseLabel} live coach</h2>
-                      <p className="text-sm leading-7 text-slate-300">{subtitle}</p>
+                <div className="pointer-events-auto w-full max-w-2xl rounded-[2rem] border border-white/14 bg-slate-950/78 p-5 text-white shadow-2xl backdrop-blur sm:p-6">
+                  {isCountingDown ? (
+                    <div className="space-y-5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge tone={framingTone} size="md">{framingLabel}</Badge>
+                        <Badge tone="info" size="md">Countdown live</Badge>
+                      </div>
+                      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                        <div className="rounded-[1.6rem] border border-white/14 bg-white/6 px-5 py-5">
+                          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">Starting now</div>
+                          <div data-testid="coach-countdown" className="mt-3 text-7xl font-black tracking-tight sm:text-8xl">{countdownValue}</div>
+                          <div className="mt-3 text-xl font-semibold">Hold your setup. The live coach begins as soon as the number clears.</div>
+                          <p className="mt-2 text-sm leading-7 text-slate-300">Stay still, keep the full body inside the guide, and let the first posture read happen cleanly.</p>
+                        </div>
+                        <div className="rounded-[1.6rem] border border-white/14 bg-white/6 px-5 py-5">
+                          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">Startup checks</div>
+                          <div className="mt-4 grid gap-3">
+                            <CountdownMetric label="Visibility" value={visibilityLabel} />
+                            <CountdownMetric label="FPS" value={fpsLabel} />
+                            <CountdownMetric label="Pose state" value={framingLabel} />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                        <Button data-testid="coach-primary-action" size="lg" onClick={onPrimaryAction} disabled={!canPrimaryAction} className="min-w-[13rem]">
+                          <Icon name="clock" className="h-4 w-4" />
+                          {primaryActionLabel}
+                        </Button>
+                      </div>
                     </div>
+                  ) : (
+                    <div className="flex flex-col gap-5">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge tone={framingTone} size="md">{framingLabel}</Badge>
+                          <Badge tone="info" size="md">{sessionState === "completed" ? "Session complete" : sessionState === "paused" ? "Session paused" : "Pre-session framing"}</Badge>
+                        </div>
+                        <h2 className="text-2xl font-black tracking-tight sm:text-3xl">{exerciseLabel} live coach</h2>
+                        <p className="text-sm leading-7 text-slate-300">{subtitle}</p>
+                      </div>
 
-                    <label className="space-y-2 text-sm font-medium text-slate-200">
-                      <span>Exercise</span>
-                      <select data-testid="coach-exercise-select" value={exercise} onChange={(event) => onExerciseChange(event.target.value as Exercise)} disabled={sessionState === "paused"} className="w-full rounded-2xl border border-white/14 bg-slate-900/90 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/30 disabled:cursor-not-allowed disabled:opacity-60">
-                        <option value="squat">Squat</option>
-                        <option value="pushup">Pushup</option>
-                        <option value="plank">Plank</option>
-                      </select>
-                    </label>
+                      <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                        <div className="rounded-[1.6rem] border border-white/14 bg-white/6 px-5 py-5">
+                          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">Framing check</div>
+                          <div className="mt-3 text-2xl font-black">{framingLabel}</div>
+                          <p className="mt-2 text-sm leading-7 text-slate-300">{framingDetail}</p>
+                          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                            <CountdownMetric label="Visibility" value={visibilityLabel} />
+                            <CountdownMetric label="FPS" value={fpsLabel} />
+                          </div>
+                        </div>
 
-                    <div className="grid gap-2 sm:grid-cols-3">
-                      {checklist.map((item) => (
-                        <div key={item} className="rounded-[1.25rem] border border-white/12 bg-white/5 px-4 py-3 text-sm leading-6 text-slate-200">{item}</div>
-                      ))}
+                        <div className="space-y-4">
+                          <label className="space-y-2 text-sm font-medium text-slate-200">
+                            <span>Exercise</span>
+                            <select data-testid="coach-exercise-select" value={exercise} onChange={(event) => onExerciseChange(event.target.value as Exercise)} disabled={sessionState === "paused"} className="w-full rounded-2xl border border-white/14 bg-slate-900/90 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/30 disabled:cursor-not-allowed disabled:opacity-60">
+                              <option value="squat">Squat</option>
+                              <option value="pushup">Pushup</option>
+                              <option value="plank">Plank</option>
+                            </select>
+                          </label>
+
+                          <div className="grid gap-2">
+                            {checklist.map((item) => (
+                              <div key={item} className="rounded-[1.1rem] border border-white/12 bg-white/5 px-4 py-3 text-sm leading-6 text-slate-200">{item}</div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-3">
+                        <Button data-testid="coach-primary-action" size="lg" onClick={onPrimaryAction} disabled={!canPrimaryAction} className="min-w-[12rem]">
+                          <Icon name={sessionState === "paused" ? "play" : "target"} className="h-4 w-4" />
+                          {primaryActionLabel}
+                        </Button>
+                        <Button variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="min-w-[12rem] border-white/14 bg-white/6 text-white hover:bg-white/10 dark:border-white/14 dark:bg-white/6 dark:text-white dark:hover:bg-white/10">
+                          <Icon name="save" className="h-4 w-4" />
+                          {saving ? "Saving..." : "End & save"}
+                        </Button>
+                        {sessionState === "completed" ? (
+                          <Link href="/history" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/14 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+                            <Icon name="chart" className="h-4 w-4" />
+                            Open history
+                          </Link>
+                        ) : null}
+                      </div>
                     </div>
-
-                    <div className="flex flex-wrap gap-3">
-                      <Button data-testid="coach-primary-action" size="lg" onClick={onPrimaryAction} disabled={!canPrimaryAction} className="min-w-[12rem]">
-                        <Icon name={sessionState === "paused" ? "play" : "target"} className="h-4 w-4" />
-                        {primaryActionLabel}
-                      </Button>
-                      <Button variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="min-w-[12rem] border-white/14 bg-white/6 text-white hover:bg-white/10 dark:border-white/14 dark:bg-white/6 dark:text-white dark:hover:bg-white/10">
-                        <Icon name="save" className="h-4 w-4" />
-                        {saving ? "Saving..." : "End & save"}
-                      </Button>
-                      {sessionState === "completed" ? (
-                        <Link href="/history" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/14 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-                          <Icon name="chart" className="h-4 w-4" />
-                          Open history
-                        </Link>
-                      ) : null}
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             ) : null}
@@ -212,14 +275,16 @@ export default function CoachExperienceView({
           <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_90px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
             <div className="space-y-3">
               <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Session pulse</div>
-              <div className="text-xl font-black text-slate-950 dark:text-white">{exerciseLabel} is the only thing on screen that should demand attention.</div>
+              <div className="text-xl font-black text-slate-950 dark:text-white">The coach should feel calm before motion starts and nearly invisible once motion is locked.</div>
               <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{offline ? `Offline mode active. ${pendingWrites} write${pendingWrites === 1 ? "" : "s"} waiting to sync.` : pendingWrites > 0 ? `${pendingWrites} buffered write${pendingWrites === 1 ? " is" : "s are"} waiting to flush.` : "No buffered writes. The coach path is clean right now."}</p>
               {saveNotice ? <p className="text-sm leading-7 text-teal-700 dark:text-teal-300">{saveNotice}</p> : null}
             </div>
-          </Card>          <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_90px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
+          </Card>
+
+          <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_90px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
             <div className="space-y-3">
-              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Setup notes</div>
-              <div className="text-xl font-black text-slate-950 dark:text-white">Frame first, then perform.</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Framing notes</div>
+              <div className="text-xl font-black text-slate-950 dark:text-white">Let the camera lock the body before the first cue loop starts.</div>
               <ul className="space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                 {checklist.map((item) => (
                   <li key={item} className="flex gap-3"><span className="mt-1 text-teal-600 dark:text-teal-300"><Icon name="check-circle" className="h-4 w-4" /></span><span>{item}</span></li>
@@ -245,6 +310,35 @@ export default function CoachExperienceView({
   );
 }
 
+function FramingGuide({ tone, label, detail, countdownValue }: { tone: StatusTone; label: string; detail: string; countdownValue: number | null }) {
+  const ringClass = tone === "success"
+    ? "border-emerald-300/70 bg-emerald-400/6"
+    : tone === "warning"
+      ? "border-amber-300/70 bg-amber-400/6"
+      : "border-white/16 bg-white/0";
+
+  return (
+    <div data-testid="coach-framing-guide" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-6">
+      <div className={`relative h-[74%] w-[min(24rem,78vw)] max-w-[24rem] rounded-[2.4rem] border ${ringClass} shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]`}>
+        <div className="absolute left-5 top-5 h-12 w-12 rounded-tl-[1.4rem] border-l-2 border-t-2 border-white/70" />
+        <div className="absolute right-5 top-5 h-12 w-12 rounded-tr-[1.4rem] border-r-2 border-t-2 border-white/70" />
+        <div className="absolute bottom-5 left-5 h-12 w-12 rounded-bl-[1.4rem] border-b-2 border-l-2 border-white/70" />
+        <div className="absolute bottom-5 right-5 h-12 w-12 rounded-br-[1.4rem] border-b-2 border-r-2 border-white/70" />
+        <div className="absolute inset-x-10 top-7 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent" />
+        <div className="absolute inset-x-10 bottom-7 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+        <div className="absolute bottom-16 left-1/2 top-16 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+        <div className="absolute inset-x-6 bottom-8">
+          <div className="rounded-[1.4rem] border border-white/16 bg-slate-950/66 px-4 py-4 text-center text-white backdrop-blur">
+            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">{countdownValue !== null ? "Countdown" : "Framing guide"}</div>
+            <div className="mt-2 text-base font-black sm:text-lg">{countdownValue !== null ? `Starting in ${countdownValue}` : label}</div>
+            <div className="mt-1 text-xs leading-5 text-slate-300 sm:text-sm">{countdownValue !== null ? "Keep the whole body centered until the count clears." : detail}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StageToggle({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button type="button" onClick={onClick} className={`rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${active ? "border-sky-400 bg-sky-500/18 text-sky-100" : "border-white/14 bg-slate-950/68 text-slate-200 hover:bg-slate-900"}`}>
@@ -258,6 +352,15 @@ function SummaryChip({ label, value, icon }: { label: string; value: string; ico
     <div className="rounded-[1.35rem] border border-white/14 bg-slate-950/68 px-4 py-3 text-white backdrop-blur">
       <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300"><Icon name={icon} className="h-4 w-4" />{label}</div>
       <div className="mt-2 text-xl font-black">{value}</div>
+    </div>
+  );
+}
+
+function CountdownMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[1.15rem] border border-white/12 bg-slate-950/54 px-4 py-3">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">{label}</div>
+      <div className="mt-2 text-lg font-black text-white">{value}</div>
     </div>
   );
 }
