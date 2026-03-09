@@ -295,8 +295,8 @@ export function normalizeAngleForPhaseDetection(
       return Math.max(0, Math.min(1, (180 - angle) / 90));
     
     case 'plank':
-      // Body line angle: 0° (perfect) to 30° (poor form)
-      return Math.max(0, Math.min(1, angle / 30));
+      // Shoulder-hip-ankle body line: 120 degrees (broken line) to 180 degrees (straight line)
+      return Math.max(0, Math.min(1, (angle - 120) / 60));
     
     default:
       return Math.max(0, Math.min(1, angle / 90));

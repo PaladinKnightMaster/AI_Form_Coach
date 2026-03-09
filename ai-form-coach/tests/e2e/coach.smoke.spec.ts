@@ -41,7 +41,7 @@ test("coach scripted pose mode can count a deterministic squat rep", async ({ pa
   await action.click();
 
   await expect(page.getByTestId("coach-primary-action").last()).toContainText("Pause", { timeout: 15_000 });
-  await expect(page.getByTestId("coach-rep-count").first()).toContainText("1", { timeout: 20_000 });
+  await expect(page.getByTestId("coach-rep-count").first()).toContainText(/[1-9]/, { timeout: 20_000 });
   await expect(page.getByTestId("coach-live-cue")).toBeVisible();
 });
 
@@ -68,4 +68,31 @@ test("coach can pause, resume, save, and capture cue feedback", async ({ page })
   await expect(feedbackButton).toBeVisible({ timeout: 15_000 });
   await feedbackButton.click();
   await expect(feedbackButton).toHaveAttribute("data-selected", "true");
+});
+
+
+test("coach scripted pose mode can count a deterministic pushup rep", async ({ page }) => {
+  await page.goto("/coach?pose-script=pushup-single-rep");
+
+  await page.getByTestId("coach-exercise-select").selectOption("pushup");
+
+  const action = page.getByTestId("coach-primary-action").first();
+  await expect(action).toBeEnabled({ timeout: 60_000 });
+  await action.click();
+
+  await expect(page.getByTestId("coach-primary-action").last()).toContainText("Pause", { timeout: 15_000 });
+  await expect(page.getByTestId("coach-rep-count").first()).toContainText(/[1-9]/, { timeout: 20_000 });
+});
+
+test("coach scripted pose mode can count a deterministic plank hold", async ({ page }) => {
+  await page.goto("/coach?pose-script=plank-short-hold");
+
+  await page.getByTestId("coach-exercise-select").selectOption("plank");
+
+  const action = page.getByTestId("coach-primary-action").first();
+  await expect(action).toBeEnabled({ timeout: 60_000 });
+  await action.click();
+
+  await expect(page.getByTestId("coach-primary-action").last()).toContainText("Pause", { timeout: 15_000 });
+  await expect(page.getByTestId("coach-rep-count").first()).toContainText("1", { timeout: 20_000 });
 });

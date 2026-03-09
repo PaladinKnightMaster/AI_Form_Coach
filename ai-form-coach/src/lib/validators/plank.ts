@@ -31,6 +31,60 @@ export function createPlankValidator(): Validator {
 		hipSag: { startTime: null as number | null, threshold: 0 }
 	};
 
+	const completeHold = async (ts: number, bodyLineThreshold: number) => {
+		if (!state.currentRep) return;
+
+		const holdDuration = ts - state.currentRep.startTs;
+		const avgBodyLine = state.currentRep.measurements.bodyLines.reduce((a, b) => a + b, 0) / state.currentRep.measurements.bodyLines.length;
+		const goodBodyLineCount = state.currentRep.measurements.bodyLines.filter(angle => angle >= bodyLineThreshold).length;
+		const bodyLinePercentage = (goodBodyLineCount / state.currentRep.measurements.bodyLines.length) * 100;
+		const hipSagDuration = state.currentRep.errorHistory
+			.filter(e => e.type === 'hip_sag')
+			.reduce((total, e) => total + e.duration, 0);
+
+		const sessionContext = {
+			totalReps: state.repCount + 1,
+			currentRepIndex: state.repCount,
+			recentReps: state.metrics.slice(-5),
+			sessionDuration: ts - (state.sessionStartTs || ts),
+			exercise: 'plank' as const
+		};
+
+		const { score, quality } = await calculateHybridRepQuality(
+			state.currentRep.errorHistory,
+			holdDuration,
+			'plank',
+			{
+				bodyLine: avgBodyLine,
+				bodyLinePercentage,
+				hipSagDuration
+			},
+			sessionContext
+		);
+
+		const repMetric: RepMetric = {
+			startTs: state.currentRep.startTs,
+			endTs: ts,
+			duration: holdDuration,
+			tempo: 'normal',
+			errors: [...state.currentRep.errorHistory],
+			quality,
+			score,
+			peakAngle: avgBodyLine,
+			plank: {
+				bodyLine: avgBodyLine,
+				bodyLinePercentage,
+				hipSagDuration
+			}
+		};
+
+		state.repCount += 1;
+		state.metrics.push(repMetric);
+		state.currentRep = undefined;
+		state.phase = 'idle';
+		errorStates.hipSag.startTime = null;
+	};
+
 	return async (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => {
 		state.cues = [];
 		if (!result || !result.landmarks || result.landmarks.length < 27) return state;
@@ -57,10 +111,30 @@ export function createPlankValidator(): Validator {
 		const bodyLineThreshold = config.plank.idealHipAngle; // Use calibrated body line target
 		const debounce = cfg?.debounceFrames ?? 3;
 		const hipSagThreshold = cfg?.errorThresholds?.errorDurationThresholds?.hipSag ?? 300; // ms
+		const holdReleaseThreshold = Math.min(bodyLineThreshold - 18, 155);
 
 		// Initialize enhanced phase detector if not already done
 		if (!phaseDetector) {
-			phaseDetector = new ValidatorPhaseDetector('plank', cfg);
+			phaseDetector = new ValidatorPhaseDetector('plank', {
+				...cfg,
+				enhancedPhaseDetection: {
+					enabled: false,
+					smoothing: {
+						enabled: false,
+						windowSize: cfg?.enhancedPhaseDetection?.smoothing?.windowSize ?? 5,
+						polynomialOrder: cfg?.enhancedPhaseDetection?.smoothing?.polynomialOrder ?? 2,
+					},
+					hmm: {
+						enabled: false,
+						transitionSmoothing: cfg?.enhancedPhaseDetection?.hmm?.transitionSmoothing ?? 0.1,
+						observationNoise: cfg?.enhancedPhaseDetection?.hmm?.observationNoise ?? 0.05,
+					},
+					debounce: {
+						enabled: cfg?.enhancedPhaseDetection?.debounce?.enabled ?? true,
+						frames: cfg?.enhancedPhaseDetection?.debounce?.frames ?? 3,
+					},
+				},
+			});
 		}
 		
 		// Enhanced phase detection with Savitzky-Golay smoothing and HMM
@@ -98,64 +172,10 @@ export function createPlankValidator(): Validator {
 						state.cues.push('Maintain straight line');
 					}
 				} else {
-					// Complete the hold if we were in hold phase
 					if (state.phase === 'hold' && state.currentRep) {
-						const holdDuration = ts - state.currentRep.startTs;
-						
-						// Calculate rep metrics
-						const avgBodyLine = state.currentRep.measurements.bodyLines.reduce((a, b) => a + b, 0) / state.currentRep.measurements.bodyLines.length;
-						const goodBodyLineCount = state.currentRep.measurements.bodyLines.filter(angle => angle >= bodyLineThreshold).length;
-						const bodyLinePercentage = (goodBodyLineCount / state.currentRep.measurements.bodyLines.length) * 100;
-						
-						// Calculate rep quality using hybrid scorer
-						const sessionContext = {
-							totalReps: state.repCount + 1, // Current rep + 1
-							currentRepIndex: state.repCount,
-							recentReps: state.metrics.slice(-5), // Last 5 reps for context
-							sessionDuration: ts - (state.sessionStartTs || ts),
-							exercise: 'plank' as const
-						};
-						
-						const { score, quality } = await calculateHybridRepQuality(
-							state.currentRep.errorHistory,
-							holdDuration,
-							'plank',
-							{
-								bodyLine: avgBodyLine,
-								bodyLinePercentage,
-								hipSagDuration: state.currentRep.errorHistory
-									.filter(e => e.type === 'hip_sag')
-									.reduce((total, e) => total + e.duration, 0)
-							},
-							sessionContext
-						);
-						
-						// Create enhanced rep metric
-						const repMetric: RepMetric = { 
-							startTs: state.currentRep.startTs, 
-							endTs: ts,
-							duration: holdDuration,
-							tempo: 'normal', // Plank doesn't have tempo variations
-							errors: [...state.currentRep.errorHistory],
-							quality,
-							score,
-							peakAngle: avgBodyLine,
-							plank: {
-								bodyLine: avgBodyLine,
-								bodyLinePercentage,
-								hipSagDuration: state.currentRep.errorHistory
-									.filter(e => e.type === 'hip_sag')
-									.reduce((total, e) => total + e.duration, 0)
-							}
-						};
-						
-						state.repCount += 1;
-						state.metrics.push(repMetric);
-						
-						// Reset for next rep
-						state.currentRep = undefined;
+						await completeHold(ts, bodyLineThreshold);
 					}
-					
+
 					state.phase = 'idle';
 					state.cues.push('Hips down, squeeze glutes');
 				}
@@ -192,6 +212,11 @@ export function createPlankValidator(): Validator {
 				}
 			} else {
 				errorStates.hipSag.startTime = null;
+			}
+
+			if (bodyLineAngle <= holdReleaseThreshold) {
+				await completeHold(ts, bodyLineThreshold);
+				state.cues.push('Reset your line before the next hold');
 			}
 		}
 		
