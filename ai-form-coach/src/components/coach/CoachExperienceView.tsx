@@ -39,6 +39,9 @@ interface CoachExperienceViewProps {
   offline: boolean;
   pendingWrites: number;
   saveNotice: string | null;
+  deviceSummary: string;
+  recoveryTitle: string | null;
+  recoverySteps: readonly string[];
   cueFeedback: CoachCueFeedback | null;
   primaryActionLabel: string;
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -49,6 +52,7 @@ interface CoachExperienceViewProps {
   onMutedChange: (next: boolean) => void;
   onMirrorChange: (next: boolean) => void;
   onCueFeedback: (feedback: CoachCueFeedback) => void;
+  onRetryCamera: () => void;
   onPrimaryAction: () => void;
   onEndAndSave: () => void;
 }
@@ -81,6 +85,9 @@ export default function CoachExperienceView({
   offline,
   pendingWrites,
   saveNotice,
+  deviceSummary,
+  recoveryTitle,
+  recoverySteps,
   cueFeedback,
   primaryActionLabel,
   videoRef,
@@ -91,6 +98,7 @@ export default function CoachExperienceView({
   onMutedChange,
   onMirrorChange,
   onCueFeedback,
+  onRetryCamera,
   onPrimaryAction,
   onEndAndSave,
 }: CoachExperienceViewProps) {
@@ -99,11 +107,43 @@ export default function CoachExperienceView({
   const canEndSession = sessionState === "active" || sessionState === "paused";
   const isCountingDown = countdownValue !== null;
   const showMobileTray = sessionState === "active";
+  const mobileSessionFocus = sessionState !== "idle";
+  const showRecoveryGuide = Boolean(recoveryTitle);
+  const pageShellStyle: React.CSSProperties = { paddingTop: "env(safe-area-inset-top)" };
+  const pagePaddingClass = showMobileTray
+    ? "pb-[calc(8.75rem+env(safe-area-inset-bottom))] lg:pb-8"
+    : "pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-8";
+  const contentShellClass = mobileSessionFocus
+    ? "mx-auto max-w-7xl px-4 pt-4 sm:px-6 sm:pt-5 lg:px-8 lg:pt-8"
+    : "mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8";
+  const heroHeaderClass = mobileSessionFocus
+    ? "mb-4 hidden flex-col gap-4 lg:mb-5 lg:flex lg:flex-row lg:items-end lg:justify-between"
+    : "mb-4 flex flex-col gap-4 lg:mb-5 lg:flex-row lg:items-end lg:justify-between";
+  const stageShellPaddingClass = mobileSessionFocus ? "p-1.5 sm:p-3 sm:pb-3 lg:p-4" : "p-2 sm:p-3 sm:pb-3 lg:p-4";
+  const stageAspectClass = mobileSessionFocus
+    ? "aspect-[9/12.6] w-full sm:aspect-[10/15.4] md:aspect-[16/10] xl:aspect-[16/8.8]"
+    : "aspect-[9/14.2] w-full sm:aspect-[10/16] md:aspect-[16/10] xl:aspect-[16/8.8]";
+  const supportRailsClass = mobileSessionFocus
+    ? "mt-4 hidden gap-3 lg:grid lg:grid-cols-[1.05fr_1fr_1fr]"
+    : "mt-4 grid gap-3 lg:grid-cols-[1.05fr_1fr_1fr]";
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.2),_transparent_28%),linear-gradient(180deg,_#ecfeff_0%,_#f8fafc_36%,_#ffffff_100%)] pb-[calc(5rem+env(safe-area-inset-bottom))] dark:bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.18),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.18),_transparent_28%),linear-gradient(180deg,_#020617_0%,_#0f172a_42%,_#020617_100%)] lg:pb-8">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
-        <div className="mb-4 flex flex-col gap-4 lg:mb-5 lg:flex-row lg:items-end lg:justify-between">
+    <div data-testid="coach-page-shell" style={pageShellStyle} className={`min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.2),_transparent_28%),linear-gradient(180deg,_#ecfeff_0%,_#f8fafc_36%,_#ffffff_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.18),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.18),_transparent_28%),linear-gradient(180deg,_#020617_0%,_#0f172a_42%,_#020617_100%)] ${pagePaddingClass}`}>
+      <div className={contentShellClass}>
+        {mobileSessionFocus ? (
+          <div data-testid="coach-mobile-session-header" className="mb-3 flex items-center justify-between gap-3 lg:hidden">
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Live coach</div>
+              <h1 className="truncate text-lg font-black tracking-tight text-slate-950 dark:text-white">{exerciseLabel} session</h1>
+            </div>
+            <div className="flex flex-wrap justify-end gap-2">
+              <Badge tone={qualityTone} size="md" className="bg-white/80 backdrop-blur dark:bg-slate-950/72">{qualityLabel}</Badge>
+              <Badge tone={framingTone} size="md" className="bg-white/80 backdrop-blur dark:bg-slate-950/72">{framingLabel}</Badge>
+            </div>
+          </div>
+        ) : null}
+
+        <div className={heroHeaderClass}>
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-teal-700 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-teal-200 sm:text-xs">
               <Icon name="lock" className="h-4 w-4" />
@@ -121,9 +161,9 @@ export default function CoachExperienceView({
           </div>
         </div>
 
-        <div className="rounded-[2.2rem] border border-white/60 bg-white/80 p-2 shadow-[0_40px_140px_-60px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/72 sm:rounded-[2.5rem] sm:p-3 sm:pb-3 lg:p-4">
+        <div data-testid="coach-stage-shell" className={`rounded-[2.2rem] border border-white/60 bg-white/80 shadow-[0_40px_140px_-60px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/72 sm:rounded-[2.5rem] ${stageShellPaddingClass}`}>
           <div className="relative overflow-hidden rounded-[1.75rem] bg-slate-950 ring-1 ring-white/10 sm:rounded-[2rem]">
-            <div className="aspect-[9/14.2] w-full sm:aspect-[10/16] md:aspect-[16/10] xl:aspect-[16/8.8]">
+            <div className={stageAspectClass}>
               <CoachCameraChrome videoRef={videoRef} canvasRef={canvasRef} overlayVideo={overlayVideo} landmarks={null} landmarksRef={landmarksRef} mirrorVideo={mirrorVideo} debug={false} />
             </div>
 
@@ -175,6 +215,28 @@ export default function CoachExperienceView({
                           </div>
                         </div>
                       </div>
+                      {showRecoveryGuide ? (
+                        <div data-testid="coach-recovery-guide" className="rounded-[1.4rem] border border-amber-300/40 bg-amber-400/10 px-4 py-4 text-white sm:rounded-[1.6rem] sm:px-5 sm:py-5">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge tone="warning" size="md">Camera recovery</Badge>
+                            <div data-testid="coach-device-summary" className="rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">{deviceSummary}</div>
+                          </div>
+                          <div className="mt-3 text-xl font-black">{recoveryTitle}</div>
+                          <p className="mt-2 text-sm leading-6 text-slate-300 sm:leading-7">{stageAlert}</p>
+                          <div className="mt-4 grid gap-2">
+                            {recoverySteps.map((step) => (
+                              <div key={step} className="rounded-[1.05rem] border border-white/12 bg-white/5 px-4 py-3 text-sm leading-6 text-slate-200">{step}</div>
+                            ))}
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-3">
+                            <Button data-testid="coach-retry-camera" size="sm" onClick={onRetryCamera} className="min-w-[10rem]">
+                              <Icon name="camera" className="h-4 w-4" />
+                              Retry camera
+                            </Button>
+                          </div>
+                        </div>
+                      ) : null}
+
                       <div className="flex flex-wrap gap-3">
                         <Button data-testid="coach-primary-action" size="lg" onClick={onPrimaryAction} disabled={!canPrimaryAction} className="min-w-[13rem]">
                           <Icon name="clock" className="h-4 w-4" />
@@ -221,6 +283,28 @@ export default function CoachExperienceView({
                           </div>
                         </div>
                       </div>
+
+                      {showRecoveryGuide ? (
+                        <div data-testid="coach-recovery-guide" className="rounded-[1.4rem] border border-amber-300/40 bg-amber-400/10 px-4 py-4 text-white sm:rounded-[1.6rem] sm:px-5 sm:py-5">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge tone="warning" size="md">Camera recovery</Badge>
+                            <div data-testid="coach-device-summary" className="rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">{deviceSummary}</div>
+                          </div>
+                          <div className="mt-3 text-xl font-black">{recoveryTitle}</div>
+                          <p className="mt-2 text-sm leading-6 text-slate-300 sm:leading-7">{stageAlert}</p>
+                          <div className="mt-4 grid gap-2">
+                            {recoverySteps.map((step) => (
+                              <div key={step} className="rounded-[1.05rem] border border-white/12 bg-white/5 px-4 py-3 text-sm leading-6 text-slate-200">{step}</div>
+                            ))}
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-3">
+                            <Button data-testid="coach-retry-camera" size="sm" onClick={onRetryCamera} className="min-w-[10rem]">
+                              <Icon name="camera" className="h-4 w-4" />
+                              Retry camera
+                            </Button>
+                          </div>
+                        </div>
+                      ) : null}
 
                       <div className="flex flex-wrap gap-3">
                         <Button data-testid="coach-primary-action" size="lg" onClick={onPrimaryAction} disabled={!canPrimaryAction} className="min-w-[12rem]">
@@ -304,29 +388,30 @@ export default function CoachExperienceView({
         </div>
 
         {showMobileTray ? (
-          <div data-testid="coach-mobile-tray" className="sticky bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 mt-3 grid gap-3 lg:hidden">
-            <Card className="rounded-[1.7rem] border border-white/60 bg-white/92 shadow-[0_24px_80px_-50px_rgba(15,23,42,0.7)] backdrop-blur dark:border-white/10 dark:bg-slate-950/86" padding="sm">
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <Button data-testid="coach-mobile-primary-action" size="lg" onClick={onPrimaryAction} className="w-full">
-                    <Icon name="pause" className="h-4 w-4" />
-                    Pause
-                  </Button>
-                  <Button data-testid="coach-session-save" variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="w-full">
-                    <Icon name="save" className="h-4 w-4" />
-                    {saving ? "Saving..." : "End & save"}
-                  </Button>
+          <div data-testid="coach-mobile-tray" className="fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 px-4 lg:hidden">
+            <div className="mx-auto max-w-md">
+              <Card className="rounded-[1.7rem] border border-white/60 bg-white/92 shadow-[0_24px_80px_-50px_rgba(15,23,42,0.7)] backdrop-blur dark:border-white/10 dark:bg-slate-950/86" padding="sm">
+                <div className="flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button data-testid="coach-mobile-primary-action" size="lg" onClick={onPrimaryAction} className="w-full">
+                      <Icon name="pause" className="h-4 w-4" />
+                      Pause
+                    </Button>
+                    <Button data-testid="coach-mobile-session-save" variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="w-full">
+                      <Icon name="save" className="h-4 w-4" />
+                      {saving ? "Saving..." : "End & save"}
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <SummaryChip testId="coach-rep-count" label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" compact />
+                    <SummaryChip label="Elapsed" value={elapsedLabel} icon="clock" compact />
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <SummaryChip testId="coach-rep-count" label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" compact />
-                  <SummaryChip label="Elapsed" value={elapsedLabel} icon="clock" compact />
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         ) : null}
-
-        <div className="mt-4 grid gap-3 lg:grid-cols-[1.05fr_1fr_1fr]">
+        <div data-testid="coach-support-rails" className={supportRailsClass}>
           <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_90px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
             <div className="space-y-3">
               <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Session pulse</div>
@@ -356,6 +441,7 @@ export default function CoachExperienceView({
                 <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="cpu" className="h-4 w-4" /></span><span>Browser pose tracking only. No LLM is sitting inside the live coaching path.</span></li>
                 <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="message" className="h-4 w-4" /></span><span>Voice is human-authored guidance with browser speech fallback.</span></li>
                 <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="chart" className="h-4 w-4" /></span><span>History should only reflect real sessions from this coach surface.</span></li>
+                <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="camera" className="h-4 w-4" /></span><span>Device check: {deviceSummary}</span></li>
               </ul>
             </div>
           </Card>
@@ -445,5 +531,6 @@ function ActionLink({ href, icon, label }: { href: string; icon: "chart" | "pack
     </Link>
   );
 }
+
 
 

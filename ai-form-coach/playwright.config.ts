@@ -1,4 +1,6 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
+
+const fakeCameraArgs = ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"];
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -12,7 +14,6 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:3100",
     trace: "on-first-retry",
-    permissions: ["camera"],
   },
   webServer: {
     command: "npm run dev -- --hostname 127.0.0.1 --port 3100",
@@ -25,9 +26,28 @@ export default defineConfig({
       name: "chromium",
       use: {
         browserName: "chromium",
+        permissions: ["camera"],
         launchOptions: {
-          args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
+          args: fakeCameraArgs,
         },
+      },
+    },
+    {
+      name: "android-chrome",
+      use: {
+        ...devices["Pixel 7"],
+        browserName: "chromium",
+        permissions: ["camera"],
+        launchOptions: {
+          args: fakeCameraArgs,
+        },
+      },
+    },
+    {
+      name: "iphone-safari",
+      use: {
+        ...devices["iPhone 13"],
+        browserName: "webkit",
       },
     },
   ],

@@ -12,6 +12,7 @@
     "test:automation": "vitest run src/__tests__/mvp",
     "test:e2e": "playwright test",
     "test:e2e:coach": "playwright test tests/e2e/coach.smoke.spec.ts",
+    "test:e2e:coach:iphone": "playwright test tests/e2e/coach.smoke.spec.ts --project=iphone-safari",
     "test:extended": "vitest run src/__tests__/integration src/__tests__/performance src/__tests__/pose src/__tests__/workflows src/lib",
     "test:pose-smoke": "vitest run src/__tests__/mvp/poseContracts.test.ts",
     "test:watch": "vitest",
@@ -23,7 +24,8 @@
     "seed": "tsx scripts/seed.ts",
     "seed:nutrition": "tsx scripts/seed-nutrition.ts",
     "screenshots": "node scripts/screenshot-mobile.js",
-    "demo": "echo 'Component demo available at http://localhost:3000/demo'"
+    "demo": "echo 'Component demo available at http://localhost:3000/demo'",
+    "test:e2e:coach:android": "playwright test tests/e2e/coach.smoke.spec.ts --project=android-chrome"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
