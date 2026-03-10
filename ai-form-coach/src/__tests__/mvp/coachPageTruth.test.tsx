@@ -10,6 +10,6 @@ describe("coach MVP shell", () => {
     expect(html).toContain("Start session");
     expect(html).toContain("Framing check");
     expect(html).toContain("Live coach");
-    expect(html).not.toContain("Ã");
+    expect(html).not.toContain("Ãƒ");
   });
 });

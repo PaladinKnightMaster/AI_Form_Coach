@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -124,9 +124,12 @@ export default function HistoryPage() {
     return (
       <div className="container py-20">
         <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 p-10 text-center dark:border-slate-800">
-          <h1 className="text-3xl font-bold">Sign in to view your history</h1>
+          <div className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sm font-medium text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">
+            Signed-in beta history
+          </div>
+          <h1 className="mt-4 text-3xl font-bold">Sign in to view your history</h1>
           <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-            History is part of the coaching MVP for signed-in beta users. Demo sessions have been removed from the public product.
+            History is part of the motion coaching MVP for signed-in beta users. Only real sessions saved from the coach should appear here.
           </p>
           <div className="mt-6 flex justify-center">
             <Link href="/signin" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
@@ -143,10 +146,12 @@ export default function HistoryPage() {
       <div className="container py-16">
         <div className="mx-auto max-w-5xl space-y-10">
           <div className="space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">History</p>
+            <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+              Coach history
+            </div>
             <h1 className="text-4xl font-extrabold tracking-tight">Saved coaching sessions</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-              This view only shows real saved sessions from the coaching MVP. Demo history and synthetic trends are not part of the public beta.
+              This page is limited to real sessions saved from the public coach. Demo history and synthetic trends are intentionally excluded from the MVP release.
             </p>
           </div>
 
@@ -159,7 +164,7 @@ export default function HistoryPage() {
 
           {loading ? (
             <div className="rounded-3xl border border-slate-200 p-8 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-300">
-              Loading session history...
+              Loading saved session history...
             </div>
           ) : error ? (
             <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
@@ -169,7 +174,7 @@ export default function HistoryPage() {
             <div className="rounded-3xl border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
               <h2 className="text-2xl font-bold">No saved sessions yet</h2>
               <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Start a coaching session to create your first real history entry.
+                Start a coaching session, finish the save flow, and your first real history entry will show up here.
               </p>
               <div className="mt-6">
                 <Link href="/coach" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">

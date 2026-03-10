@@ -150,8 +150,8 @@ export default function CoachExperienceView({
               Private motion coaching beta
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-950 dark:text-white sm:text-3xl lg:text-4xl">A cleaner camera ritual before the first rep.</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300 sm:leading-7 sm:text-base">The coach now frames first, counts you in, and keeps the live loop calmer once movement starts. The stage should feel like a product surface, not a diagnostic screen.</p>
+              <h1 className="text-2xl font-black tracking-tight text-slate-950 dark:text-white sm:text-3xl lg:text-4xl">Set the frame, count down, then move.</h1>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300 sm:leading-7 sm:text-base">The beta coach frames first, counts you in, and keeps the live loop calmer once movement starts. The stage should feel like the product, not a diagnostic screen.</p>
             </div>
           </div>
           <div className="hidden flex-wrap gap-2 sm:flex">
@@ -415,7 +415,7 @@ export default function CoachExperienceView({
           <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_90px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
             <div className="space-y-3">
               <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Session pulse</div>
-              <div className="text-xl font-black text-slate-950 dark:text-white">The coach should feel calm before motion starts and nearly invisible once motion is locked.</div>
+              <div className="text-xl font-black text-slate-950 dark:text-white">The coach should feel calm before motion starts and quiet once tracking locks.</div>
               <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{offline ? `Offline mode active. ${pendingWrites} write${pendingWrites === 1 ? "" : "s"} waiting to sync.` : pendingWrites > 0 ? `${pendingWrites} buffered write${pendingWrites === 1 ? " is" : "s are"} waiting to flush.` : "No buffered writes. The coach path is clean right now."}</p>
               {saveNotice ? <p className="text-sm leading-7 text-teal-700 dark:text-teal-300">{saveNotice}</p> : null}
             </div>
@@ -424,7 +424,7 @@ export default function CoachExperienceView({
           <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_90px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
             <div className="space-y-3">
               <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Framing notes</div>
-              <div className="text-xl font-black text-slate-950 dark:text-white">Let the camera lock the body before the first cue loop starts.</div>
+              <div className="text-xl font-black text-slate-950 dark:text-white">Give the camera one clean full-body read before the first cue loop starts.</div>
               <ul className="space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                 {checklist.map((item) => (
                   <li key={item} className="flex gap-3"><span className="mt-1 text-teal-600 dark:text-teal-300"><Icon name="check-circle" className="h-4 w-4" /></span><span>{item}</span></li>
@@ -436,10 +436,10 @@ export default function CoachExperienceView({
           <Card className="rounded-[2rem] border border-white/60 bg-white/80 shadow-[0_28px_90px_-58px_rgba(15,23,42,0.8)] backdrop-blur dark:border-white/10 dark:bg-slate-950/70" padding="lg">
             <div className="space-y-3">
               <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Beta boundaries</div>
-              <div className="text-xl font-black text-slate-950 dark:text-white">No extra platform noise in the live loop.</div>
+              <div className="text-xl font-black text-slate-950 dark:text-white">This beta only does one job in the live loop.</div>
               <ul className="space-y-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="cpu" className="h-4 w-4" /></span><span>Browser pose tracking only. No LLM is sitting inside the live coaching path.</span></li>
-                <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="message" className="h-4 w-4" /></span><span>Voice is human-authored guidance with browser speech fallback.</span></li>
+                <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="cpu" className="h-4 w-4" /></span><span>Browser pose tracking only. No cloud LLM is sitting inside the live coaching path.</span></li>
+                <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="message" className="h-4 w-4" /></span><span>Voice uses human-authored guidance with browser speech fallback.</span></li>
                 <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="chart" className="h-4 w-4" /></span><span>History should only reflect real sessions from this coach surface.</span></li>
                 <li className="flex gap-3"><span className="mt-1 text-sky-600 dark:text-sky-300"><Icon name="camera" className="h-4 w-4" /></span><span>Device check: {deviceSummary}</span></li>
               </ul>

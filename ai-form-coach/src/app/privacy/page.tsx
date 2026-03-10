@@ -1,298 +1,152 @@
 import type { Metadata } from "next";
-import { Container } from '@/ui/DS';
-import Link from 'next/link';
+import Link from "next/link";
+import { Badge, Card, Container } from "@/ui/DS";
+
+const UPDATED_AT = "March 10, 2026";
+
+const principles = [
+  {
+    label: "Camera frames",
+    value: "Stay on your device",
+    detail: "The beta coach processes pose locally in the browser and does not upload workout video for live feedback.",
+  },
+  {
+    label: "Saved data",
+    value: "Session summaries only",
+    detail: "If you sign in, we save exercise, rep count, duration, and quality summaries so history can reflect real sessions.",
+  },
+  {
+    label: "Beta scope",
+    value: "Motion coaching only",
+    detail: "Nutrition, food scan, workout plans, and health integrations are outside the current public release surface.",
+  },
+] as const;
+
+const sections = [
+  {
+    id: "on-device",
+    title: "1. Camera processing stays local",
+    paragraphs: [
+      "AI Form Coach uses in-browser pose detection for the live coaching loop. The camera stream is analyzed on your device so the motion overlay and live cues can react quickly.",
+      "We do not need to upload workout video to provide the current beta coaching experience. If camera permission is denied, the coach simply cannot start until you allow access.",
+    ],
+  },
+  {
+    id: "saved-data",
+    title: "2. What we save if you sign in",
+    paragraphs: [
+      "The public beta can save session summaries such as exercise type, rep count or hold count, total duration, and pose-quality metrics. This is the data used to populate history.",
+      "We do not seed fake demo sessions into the public history page. If you have not completed a saved session, history should stay empty.",
+    ],
+  },
+  {
+    id: "offline",
+    title: "3. Offline buffering and sync retry",
+    paragraphs: [
+      "If your network drops during a session, the app may keep pending writes in local browser storage and retry sync later. This helps preserve real coaching sessions instead of discarding them immediately.",
+      "Until a retry succeeds, your session may show as pending sync rather than fully saved. The camera feed itself is not stored as part of that retry path.",
+    ],
+  },
+  {
+    id: "analytics",
+    title: "4. Product telemetry in the beta",
+    paragraphs: [
+      "We may record product events such as coach page visits, stage readiness, retries, session start and completion, and cue feedback. These events help tune the beta experience.",
+      "This telemetry is about product behavior, not raw video capture. We use it to improve session completion, cue clarity, and recovery flows.",
+    ],
+  },
+  {
+    id: "choices",
+    title: "5. Your choices and controls",
+    paragraphs: [
+      "You can stop using the coach at any time, revoke camera permission in your browser, and choose whether to sign in for history. Without sign-in, the app cannot attach saved sessions to your account.",
+      "You can request account and stored-session deletion through support. During the beta, support channels are the practical path for deletion and export requests.",
+    ],
+  },
+  {
+    id: "safety",
+    title: "6. Safety and limits",
+    paragraphs: [
+      "AI Form Coach is fitness software, not medical care. The live cues are intended to support general exercise form awareness for squat, pushup, and plank in this beta.",
+      "Stop immediately if you feel pain, dizziness, or discomfort. If you have health concerns or injury history, consult a qualified professional before exercising.",
+    ],
+  },
+] as const;
 
 export const metadata: Metadata = {
-	title: 'Privacy Policy',
-	description: 'Learn how AI Form Coach protects your privacy. All video processing happens in your browser - no uploads, complete privacy.',
-	openGraph: {
-		title: 'Privacy Policy - AI Form Coach',
-		description: 'Learn how AI Form Coach protects your privacy. All video processing happens in your browser - no uploads, complete privacy.',
-		images: ['/og-image?title=Privacy Policy&subtitle=Your video never leaves your device']
-	}
+  title: "Privacy Policy",
+  description: "How the AI Form Coach motion beta handles camera access, saved sessions, and product telemetry.",
+  openGraph: {
+    title: "Privacy Policy - AI Form Coach",
+    description: "How the motion coaching beta handles camera access, saved sessions, and product telemetry.",
+    images: ["/og-image?title=Privacy Policy&subtitle=Camera frames stay on your device"],
+  },
 };
 
-export default function Privacy() {
-	return (
-		<Container>
-			<div className="section max-w-4xl mx-auto space-y-8">
-				<div className="text-center">
-					<h1 className="font-bold mb-2">Privacy Policy</h1>
-					<p className="opacity-80">Last updated: {new Date().toLocaleDateString()}</p>
-					<p className="text-sm opacity-70 mt-2">
-						We believe your workout data should stay private. Here&apos;s exactly how we protect it.
-					</p>
-				</div>
+export default function PrivacyPage() {
+  return (
+    <div className="min-h-screen bg-white dark:bg-slate-950">
+      <Container className="py-16 sm:py-20">
+        <div className="mx-auto max-w-5xl space-y-10">
+          <div className="space-y-4 text-center">
+            <Badge tone="info" className="mx-auto uppercase tracking-[0.2em]">
+              Private motion coaching beta
+            </Badge>
+            <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+              Privacy policy
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Last updated: {UPDATED_AT}</p>
+            <p className="mx-auto max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300">
+              The current MVP is intentionally narrow: live pose coaching for squat, pushup, and plank. This page explains what stays on your device, what can be saved if you sign in, and what is deliberately outside the beta scope.
+            </p>
+          </div>
 
-				<div className="prose prose-sm max-w-none space-y-6">
-					<section id="data-collection">
-						<h2 className="font-semibold mb-3">What We Collect</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Video frames:</strong> Your camera feed is processed entirely in your browser using MediaPipe technology. 
-								These frames never leave your device and are not stored anywhere.
-							</p>
-							<p>
-								<strong>Session summaries:</strong> We store basic workout metrics like rep counts, exercise duration, 
-								and form quality scores to help you track progress over time.
-							</p>
-							<p>
-								<strong>Account data:</strong> Your email address and any profile information you choose to provide.
-							</p>
-							<p>
-								<strong>Usage analytics:</strong> Basic app usage patterns to improve the service (if you consent).
-							</p>
-						</div>
-					</section>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {principles.map((item) => (
+              <Card key={item.label} className="h-full rounded-[1.8rem] border border-slate-200 bg-slate-50/80 shadow-sm dark:border-slate-800 dark:bg-slate-900/70" padding="lg">
+                <div className="space-y-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{item.label}</div>
+                  <div className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">{item.value}</div>
+                  <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{item.detail}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
 
-					<section id="video-privacy">
-						<h2 className="font-semibold mb-3">On-Device by Default</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>No video uploads:</strong> Your camera feed is processed locally using WebAssembly and MediaPipe Pose Landmarker. 
-								Video frames are analyzed in real-time but never transmitted to our servers.
-							</p>
-							<p>
-								<strong>On-device processing:</strong> All pose detection, form analysis, and rep counting happens 
-								directly in your browser using Google&apos;s MediaPipe technology. This means faster responses and complete privacy.
-							</p>
-							<p>
-								<strong>MediaPipe Pose Landmarker:</strong> We use Google&apos;s MediaPipe Pose Landmarker, which is specifically designed 
-								for on-device pose detection. Your video never leaves your device.
-							</p>
-							<p>
-								<strong>What we receive:</strong> Only numerical summaries like &ldquo;completed 12 squats with 85% average form score&rdquo; 
-								— never images or video data.
-							</p>
-						</div>
-					</section>
+          <div className="grid gap-4">
+            {sections.map((section) => (
+              <Card key={section.id} className="rounded-[1.9rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/70" padding="lg">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">{section.title}</h2>
+                  <div className="space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                    {section.paragraphs.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
 
-					<section id="verification-transparency">
-						<h2 className="font-semibold mb-3">What &ldquo;Verified&rdquo; Means</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Verified sessions:</strong> Sessions where your camera was properly positioned, lighting was adequate, 
-								and our AI could clearly see your full body throughout the workout. These sessions provide the most accurate form analysis.
-							</p>
-							<p>
-								<strong>Verification criteria:</strong> We check for consistent pose visibility (≥80% of frames), 
-								proper camera angle (side view for squats/push-ups, front view for planks), and adequate lighting conditions.
-							</p>
-							<p>
-								<strong>Unverified sessions:</strong> Sessions where visibility was limited, camera angle was suboptimal, 
-								or lighting was poor. These sessions are still tracked but may have less accurate form analysis.
-							</p>
-							<p>
-								<strong>Leaderboard inclusion:</strong> By default, leaderboards show only verified sessions to ensure fair comparison. 
-								You can toggle to include unverified sessions if desired.
-							</p>
-						</div>
-					</section>
-
-					<section id="scoring-transparency">
-						<h2 className="font-semibold mb-3">How We Judge a Correct Rep</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Form analysis:</strong> Our AI analyzes 33 key body landmarks in real-time, tracking joint angles, 
-								movement patterns, and exercise-specific criteria for each rep.
-							</p>
-							<p>
-								<strong>Exercise-specific criteria:</strong>
-							</p>
-							<ul className="ml-4 space-y-2">
-								<li><strong>Squats:</strong> Hip crease below knee level, knees tracking over toes, chest up, full return to standing</li>
-								<li><strong>Push-ups:</strong> Chest to ground, straight body line, full arm extension, controlled tempo</li>
-								<li><strong>Planks:</strong> Straight body line, engaged core, no sagging hips or raised buttocks</li>
-							</ul>
-							<p>
-								<strong>Quality scoring:</strong> Each rep receives a score from 0-100% based on form accuracy, 
-								range of motion, and movement control. Scores above 70% are considered &ldquo;correct.&rdquo;
-							</p>
-							<p>
-								<strong>Integrity score:</strong> Measures how consistently you maintain good form throughout the session, 
-								calculated as the percentage of reps that meet quality standards.
-							</p>
-						</div>
-					</section>
-
-					<section id="calibration-notes">
-						<h2 className="font-semibold mb-3">Calibration & Setup</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Initial calibration:</strong> Before your first workout, we guide you through proper camera positioning 
-								and lighting setup to ensure accurate form analysis.
-							</p>
-							<p>
-								<strong>Camera positioning:</strong> For squats and push-ups, position your device 6-8 feet away at hip height, 
-								showing your full body in profile. For planks, position directly in front at chest height.
-							</p>
-							<p>
-								<strong>Lighting requirements:</strong> Ensure even lighting without harsh shadows. Avoid backlighting 
-								from windows or bright lights behind you.
-							</p>
-							<p>
-								<strong>Continuous monitoring:</strong> Our AI continuously monitors visibility and will alert you 
-								if camera position or lighting conditions deteriorate during your workout.
-							</p>
-						</div>
-					</section>
-
-					<section id="nutrition-privacy">
-						<h2 className="font-semibold mb-3">Nutrition Data Privacy</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Anonymous product lookups:</strong> When you scan barcodes or search for foods, we use Open Food Facts, 
-								an open-source database that&apos;s free to use. Your searches are anonymous and cached locally for faster access.
-							</p>
-							<p>
-								<strong>Open Food Facts:</strong> We use the Open Food Facts API for product information. This is open data 
-								that&apos;s freely available and doesn&apos;t require personal information.
-							</p>
-							<p>
-								<strong>Local caching:</strong> Food data is cached in your browser to reduce API calls and improve performance. 
-								This cache is stored locally and never shared.
-							</p>
-							<p>
-								<strong>No tracking:</strong> We don&apos;t track what foods you search for or consume. Your nutrition data 
-								is only stored if you choose to log meals.
-							</p>
-						</div>
-					</section>
-
-					<section id="health-data-privacy">
-						<h2 className="font-semibold mb-3">Health Data Privacy</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Opt-in only:</strong> Health data integration is completely optional. You can use the app 
-								without connecting any health devices or services.
-							</p>
-							<p>
-								<strong>Per-type permissions:</strong> You can choose exactly which health data types to share, 
-								with clear toggles for each category (sleep, heart rate, steps, etc.).
-							</p>
-							<p>
-								<strong>Platform transparency:</strong> We link to official Apple HealthKit and Google Health Connect 
-								developer pages so you know exactly what data we access and why.
-							</p>
-							<p>
-								<strong>Local processing:</strong> Health data is processed locally when possible, and only 
-								aggregated metrics are stored on our servers.
-							</p>
-						</div>
-					</section>
-
-					<section id="data-storage">
-						<h2 className="font-semibold mb-3">How We Store Your Data</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Secure hosting:</strong> Session data is stored on Supabase with industry-standard encryption 
-								and security practices.
-							</p>
-							<p>
-								<strong>Data retention:</strong> Free accounts keep 10 recent sessions. Pro accounts have unlimited history. 
-								You can delete sessions anytime.
-							</p>
-							<p>
-								<strong>Account deletion:</strong> Contact us to permanently delete your account and all associated data.
-							</p>
-						</div>
-					</section>
-
-					<section id="data-sharing">
-						<h2 className="font-semibold mb-3">Data Sharing</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>We don&apos;t sell your data.</strong> Your workout information is never sold to third parties or used for advertising.
-							</p>
-							<p>
-								<strong>Aggregate insights:</strong> We may share anonymized, aggregate statistics (like &ldquo;users improved form by 15% on average&rdquo;) 
-								for research or marketing purposes.
-							</p>
-							<p>
-								<strong>Service providers:</strong> We use trusted services like Supabase for data storage and Stripe for payments. 
-								These providers have their own privacy policies.
-							</p>
-						</div>
-					</section>
-
-					<section id="your-rights">
-						<h2 className="font-semibold mb-3">Your Rights</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Access:</strong> View all your stored session data in the History section.
-							</p>
-							<p>
-								<strong>Export:</strong> Download your data as CSV files anytime.
-							</p>
-							<p>
-								<strong>Delete:</strong> Remove individual sessions or your entire account.
-							</p>
-							<p>
-								<strong>Opt-out:</strong> Disable analytics tracking in your account settings.
-							</p>
-						</div>
-					</section>
-
-					<section id="safety-notice">
-						<h2 className="font-semibold mb-3">Safety & Health Notice</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Not medical advice:</strong> AI Form Coach provides fitness guidance but is not a substitute 
-								for professional training or medical advice.
-							</p>
-							<p>
-								<strong>Warm up properly:</strong> Always warm up before exercising and cool down afterward.
-							</p>
-							<p>
-								<strong>Listen to your body:</strong> Stop immediately if you feel pain, dizziness, or discomfort. 
-								Consult a healthcare professional if you have concerns.
-							</p>
-							<p>
-								<strong>Use at your own risk:</strong> You are responsible for exercising safely within your abilities.
-							</p>
-						</div>
-					</section>
-
-					<section id="cookies">
-						<h2 className="font-semibold mb-3">Cookies & Local Storage</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								We use local browser storage to remember your preferences (like theme settings) and cache session data 
-								for offline use. No tracking cookies are used without your consent.
-							</p>
-						</div>
-					</section>
-
-					<section id="updates">
-						<h2 className="font-semibold mb-3">Policy Updates</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								We may update this policy occasionally. Significant changes will be announced in the app 
-								and via email. Continued use means you accept the updated terms.
-							</p>
-						</div>
-					</section>
-
-					<section id="contact">
-						<h2 className="font-semibold mb-3">Contact Us</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								Questions about privacy or want to exercise your data rights?
-							</p>
-							<p>
-								<strong>Email:</strong> privacy@aiformcoach.com<br />
-								<strong>Response time:</strong> We aim to respond within 48 hours
-							</p>
-						</div>
-					</section>
-				</div>
-
-				<div className="text-center pt-8 border-t">
-					<Link href="/" className="btn btn-secondary">
-						Back to Home
-					</Link>
-				</div>
-			</div>
-		</Container>
-	);
-} 
+          <Card className="rounded-[1.9rem] border border-slate-200 bg-slate-50/80 shadow-sm dark:border-slate-800 dark:bg-slate-900/70" padding="lg">
+            <div className="space-y-3 text-center sm:text-left">
+              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Questions or deletion requests</div>
+              <div className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">Contact the beta team</div>
+              <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
+                For privacy questions, data export requests, or account deletion, contact <a className="font-semibold text-slate-950 underline decoration-slate-300 underline-offset-4 dark:text-white dark:decoration-slate-700" href="mailto:privacy@aiformcoach.com">privacy@aiformcoach.com</a>.
+              </p>
+              <div className="flex flex-col justify-center gap-3 pt-2 sm:flex-row sm:justify-start">
+                <Link href="/coach" className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+                  Open coach
+                </Link>
+                <Link href="/terms" className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white">
+                  Read terms
+                </Link>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </Container>
+    </div>
+  );
+}

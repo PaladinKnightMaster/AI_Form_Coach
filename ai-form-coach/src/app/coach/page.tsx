@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CoachExperienceView from "@/components/coach/CoachExperienceView";
@@ -54,7 +54,7 @@ type QualityState = "good" | "warn" | "bad";
 const EXERCISE_COPY = {
   squat: {
     label: "Squat",
-    subtitle: "Depth, knee path, and torso stability coaching.",
+    subtitle: "Depth, knee path, and torso control in one live camera pass.",
     starterCue: "Stand tall and let the camera see your full body.",
     liveCue: "Sit back and keep your chest proud.",
     secondaryCue: "Keep knees tracking over toes.",
@@ -62,7 +62,7 @@ const EXERCISE_COPY = {
   },
   pushup: {
     label: "Pushup",
-    subtitle: "Body line, elbow bend, and rep timing coaching.",
+    subtitle: "Body line, elbow depth, and press-back timing coaching.",
     starterCue: "Set a straight line before the first rep.",
     liveCue: "Keep your core tight and press through the floor.",
     secondaryCue: "Let the camera see shoulders, hips, and heels.",
@@ -70,7 +70,7 @@ const EXERCISE_COPY = {
   },
   plank: {
     label: "Plank",
-    subtitle: "Body-line stability and hold quality coaching.",
+    subtitle: "Body-line stability and hold quality with quieter live cues.",
     starterCue: "Set up long through the spine before the hold.",
     liveCue: "Squeeze glutes and stay long through the crown.",
     secondaryCue: "Keep hips level and your whole body visible.",
@@ -164,7 +164,7 @@ export default function CoachPage() {
   const [cameraBootNonce, setCameraBootNonce] = useState(0);
   const [cue, setCue] = useState<string>(EXERCISE_COPY.squat.starterCue);
   const [secondaryCue, setSecondaryCue] = useState<string>(EXERCISE_COPY.squat.secondaryCue);
-  const [trackingStatus, setTrackingStatus] = useState("Preparing the camera stage.");
+  const [trackingStatus, setTrackingStatus] = useState("Preparing your camera stage.");
   const [repCount, setRepCount] = useState(0);
   const [phase, setPhase] = useState<Phase>("idle");
   const [visibilityScore, setVisibilityScore] = useState(0);
@@ -323,7 +323,7 @@ export default function CoachPage() {
     setCameraError(null);
     setDetectorError(null);
     setCameraStatus("Retrying camera access...");
-    setTrackingStatus("Retrying the camera stage...");
+    setTrackingStatus("Retrying camera access...");
     setHasPose(false);
     setVisibilityScore(0);
     setFps(0);
@@ -573,7 +573,7 @@ export default function CoachPage() {
       validatorRef.current = createValidator(exercise);
       setImmediateCue(copy.starterCue, copy.secondaryCue);
       setPhase("idle");
-      setTrackingStatus(cameraReady ? framing.detail : "Preparing the camera stage.");
+      setTrackingStatus(cameraReady ? framing.detail : "Preparing your camera stage.");
     }
   }, [cameraReady, copy.secondaryCue, copy.starterCue, exercise, framing.detail, sessionState, setImmediateCue]);
 
@@ -663,7 +663,7 @@ export default function CoachPage() {
         setOverlayVideo(video);
         setCameraReady(true);
         setCameraStatus("Camera ready.");
-        setTrackingStatus("Looking for a full-body camera read...");
+        setTrackingStatus("Looking for your full-body frame...");
       } catch (error) {
         console.error("Failed to initialize camera", error);
         if (!cancelled && enableScriptedStage("Scripted motion stage ready. Camera fallback was skipped for this QA run.")) return;

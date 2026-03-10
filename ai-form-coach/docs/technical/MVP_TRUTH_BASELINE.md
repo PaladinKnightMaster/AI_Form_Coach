@@ -43,3 +43,4 @@ Auth is required for `/coach`, `/history`, and `/session/*`.
 - Docs, product copy, and route exposure must match the actual beta surface.
 - Public pages must not claim unsupported scale, uptime, ratings, or health/device integrations.
 - Live coaching must use the fitness skeleton with `neck` and `pelvis_center`, not facial chains.
+

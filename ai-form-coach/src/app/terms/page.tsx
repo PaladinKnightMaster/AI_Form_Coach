@@ -1,221 +1,176 @@
 import type { Metadata } from "next";
-import { Container } from '@/ui/DS';
-import Link from 'next/link';
+import Link from "next/link";
+import { Badge, Card, Container } from "@/ui/DS";
+
+const UPDATED_AT = "March 10, 2026";
+
+const summaryCards = [
+  {
+    label: "Service",
+    value: "Motion coaching beta",
+    detail: "The public release is limited to browser-based coaching for squat, pushup, and plank.",
+  },
+  {
+    label: "Payments",
+    value: "No paid plan at launch",
+    detail: "The current beta does not require a subscription or payment method to use the core coach.",
+  },
+  {
+    label: "Safety",
+    value: "Fitness guidance only",
+    detail: "The product is not medical advice or supervised care, and it cannot replace a qualified professional.",
+  },
+] as const;
+
+const sections = [
+  {
+    id: "service",
+    title: "1. What this beta is",
+    paragraphs: [
+      "AI Form Coach currently provides browser-based motion coaching for squat, pushup, and plank. The service is intentionally narrow while the MVP is being tuned for real session quality.",
+      "Features outside that launch surface, including nutrition, food scan, workout plans, and health integrations, are not part of the current public beta promise.",
+    ],
+  },
+  {
+    id: "accounts",
+    title: "2. Accounts and saved history",
+    paragraphs: [
+      "You can browse the public product without an account, but sign-in is required to attach saved sessions to your history. If you do not sign in, your completed coaching sessions cannot be stored as account history.",
+      "You are responsible for keeping your login credentials secure and for the activity that occurs under your account.",
+    ],
+  },
+  {
+    id: "acceptable-use",
+    title: "3. Acceptable use",
+    paragraphs: [
+      "Use the service for lawful personal fitness purposes. Do not attempt to abuse, disrupt, reverse engineer, resell, or scrape the product, and do not interfere with other users or the beta infrastructure.",
+      "If we believe an account or client is harming the service, we may suspend or limit access while we investigate.",
+    ],
+  },
+  {
+    id: "privacy",
+    title: "4. Privacy and data",
+    paragraphs: [
+      "The live coaching loop processes pose locally in the browser. Session summaries and product telemetry may be stored as described in the privacy policy.",
+      "By using the beta, you agree to the data practices described in the Privacy Policy. If you do not agree, do not use the service.",
+    ],
+  },
+  {
+    id: "safety",
+    title: "5. Safety and health disclaimer",
+    paragraphs: [
+      "AI Form Coach provides general fitness guidance only. It is not medical advice, physical therapy, diagnosis, treatment, or emergency support.",
+      "Stop exercising if you feel pain, dizziness, or discomfort. You are responsible for using the coach safely, warming up appropriately, and choosing movements that fit your own condition and ability.",
+    ],
+  },
+  {
+    id: "payments",
+    title: "6. Beta access and pricing",
+    paragraphs: [
+      "No paid subscription is required for the current beta. We are not promising paid tiers, Stripe-backed plans, or premium feature bundles as part of this release.",
+      "If pricing changes after the beta, those terms will be presented separately before any purchase is required.",
+    ],
+  },
+  {
+    id: "availability",
+    title: "7. Availability and product changes",
+    paragraphs: [
+      "Because this is a beta, features may change, be interrupted, or be removed. We may also update the product to improve motion quality, session reliability, and safety messaging.",
+      "We do not guarantee uninterrupted availability, and we may perform maintenance or issue fixes without prior notice.",
+    ],
+  },
+  {
+    id: "ip",
+    title: "8. Intellectual property",
+    paragraphs: [
+      "The product, software, brand, design system, and related content remain the property of AI Form Coach or its licensors. Your use of the beta does not transfer ownership of the product to you.",
+      "Your saved session summaries remain associated with your account, subject to the product's storage and deletion processes.",
+    ],
+  },
+  {
+    id: "liability",
+    title: "9. Warranty and liability limits",
+    paragraphs: [
+      "The beta is provided on an as-is and as-available basis. To the extent allowed by law, we disclaim warranties and are not liable for indirect, incidental, or consequential damages arising from use of the service.",
+      "If applicable law does not allow some of these limitations, then they apply only to the maximum extent permitted.",
+    ],
+  },
+] as const;
 
 export const metadata: Metadata = {
-	title: 'Terms of Service',
-	description: 'Terms of Service for AI Form Coach. The legal stuff, explained in plain English. Fair terms for privacy-first fitness coaching.',
-	openGraph: {
-		title: 'Terms of Service - AI Form Coach',
-		description: 'Terms of Service for AI Form Coach. The legal stuff, explained in plain English. Fair terms for privacy-first fitness coaching.',
-		images: ['/og-image?title=Terms of Service&subtitle=The legal stuff, explained in plain English']
-	}
+  title: "Terms of Service",
+  description: "Terms for the AI Form Coach motion beta, including safety, privacy, and beta access conditions.",
+  openGraph: {
+    title: "Terms of Service - AI Form Coach",
+    description: "Terms for the motion coaching beta, including safety, privacy, and beta access conditions.",
+    images: ["/og-image?title=Terms of Service&subtitle=Motion coaching beta terms"],
+  },
 };
 
-export default function Terms() {
-	return (
-		<Container>
-			<div className="section max-w-4xl mx-auto space-y-8">
-				<div className="text-center">
-					<h1 className="font-bold mb-2">Terms of Service</h1>
-					<p className="opacity-80">Last updated: {new Date().toLocaleDateString()}</p>
-					<p className="text-sm opacity-70 mt-2">
-						The legal stuff, explained in plain English.
-					</p>
-				</div>
+export default function TermsPage() {
+  return (
+    <div className="min-h-screen bg-white dark:bg-slate-950">
+      <Container className="py-16 sm:py-20">
+        <div className="mx-auto max-w-5xl space-y-10">
+          <div className="space-y-4 text-center">
+            <Badge tone="neutral" className="mx-auto uppercase tracking-[0.2em]">
+              Motion coaching beta terms
+            </Badge>
+            <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+              Terms of service
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Last updated: {UPDATED_AT}</p>
+            <p className="mx-auto max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300">
+              These terms are written for the current MVP release, not a broader platform that has not shipped. They describe the coach as it exists today: a browser-based motion beta with optional sign-in for saved history.
+            </p>
+          </div>
 
-				<div className="prose prose-sm max-w-none space-y-6">
-					<section id="acceptance">
-						<h2 className="font-semibold mb-3">1. Acceptance of Terms</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								By using AI Form Coach, you agree to these terms. If you don&apos;t agree, please don&apos;t use our service.
-							</p>
-							<p>
-								These terms may change occasionally. We&apos;ll notify you of significant changes via email or in-app notifications.
-							</p>
-						</div>
-					</section>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {summaryCards.map((item) => (
+              <Card key={item.label} className="h-full rounded-[1.8rem] border border-slate-200 bg-slate-50/80 shadow-sm dark:border-slate-800 dark:bg-slate-900/70" padding="lg">
+                <div className="space-y-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{item.label}</div>
+                  <div className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">{item.value}</div>
+                  <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{item.detail}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
 
-					<section id="service-description">
-						<h2 className="font-semibold mb-3">2. What We Provide</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>AI Form Coach</strong> is a fitness application that provides real-time form coaching using computer vision technology. 
-								All processing happens in your browser for privacy and speed.
-							</p>
-							<p>
-								<strong>Free features:</strong> Basic coaching, rep counting, 10 recent sessions, and form analysis.
-							</p>
-							<p>
-								<strong>Pro features:</strong> Unlimited history, advanced analytics, custom plans, and priority support.
-							</p>
-						</div>
-					</section>
+          <div className="grid gap-4">
+            {sections.map((section) => (
+              <Card key={section.id} className="rounded-[1.9rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/70" padding="lg">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">{section.title}</h2>
+                  <div className="space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                    {section.paragraphs.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
 
-					<section id="acceptable-use">
-						<h2 className="font-semibold mb-3">3. How You Can Use Our Service</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Personal use:</strong> Use AI Form Coach for your own fitness and wellness goals.
-							</p>
-							<p>
-								<strong>Commercial use:</strong> Trainers and fitness professionals may use Pro accounts with clients, 
-								but may not resell or redistribute our technology.
-							</p>
-							<p>
-								<strong>What&apos;s not allowed:</strong> Don&apos;t reverse engineer, copy, or misuse our service. 
-								Don&apos;t share your account credentials.
-							</p>
-						</div>
-					</section>
-
-					<section id="privacy-commitment">
-						<h2 className="font-semibold mb-3">4. Privacy & Your Data</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Video privacy:</strong> Your camera feed is processed entirely in your browser. 
-								Video never leaves your device or gets stored on our servers.
-							</p>
-							<p>
-								<strong>Session data:</strong> We store workout summaries (reps, duration, form scores) 
-								to help track your progress. You can export or delete this data anytime.
-							</p>
-							<p>
-								<strong>Full details:</strong> See our <Link href="/privacy" className="underline">Privacy Policy</Link> for complete information.
-							</p>
-						</div>
-					</section>
-
-					<section id="health-disclaimer">
-						<h2 className="font-semibold mb-3">5. Health & Safety Disclaimer</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Not medical advice:</strong> AI Form Coach provides fitness guidance but is not a substitute 
-								for professional training, medical advice, or healthcare services.
-							</p>
-							<p>
-								<strong>Exercise at your own risk:</strong> You are responsible for exercising safely within your abilities. 
-								Consult a healthcare professional before starting any new exercise program.
-							</p>
-							<p>
-								<strong>Listen to your body:</strong> Stop immediately if you experience pain, dizziness, or discomfort. 
-								Always warm up properly and stay hydrated.
-							</p>
-							<p>
-								<strong>Equipment safety:</strong> Ensure you have adequate space and proper equipment. 
-								We are not responsible for injuries that occur during your workouts.
-							</p>
-						</div>
-					</section>
-
-					<section id="payments">
-						<h2 className="font-semibold mb-3">6. Payments & Subscriptions</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>Free tier:</strong> Always available with basic features and recent session history.
-							</p>
-							<p>
-								<strong>Pro subscriptions:</strong> Billed monthly or yearly through Stripe. 
-								Cancel anytime from your account settings.
-							</p>
-							<p>
-								<strong>Refunds:</strong> Contact us within 14 days if you&apos;re not satisfied. 
-								We&apos;ll work with you to make it right.
-							</p>
-							<p>
-								<strong>Price changes:</strong> We&apos;ll give 30 days notice before changing subscription prices.
-							</p>
-						</div>
-					</section>
-
-					<section id="service-availability">
-						<h2 className="font-semibold mb-3">7. Service Availability</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								We strive for 99.9% uptime but can&apos;t guarantee the service will always be available. 
-								We may need to perform maintenance or updates occasionally.
-							</p>
-							<p>
-								Your data is backed up regularly, but we recommend exporting important sessions periodically.
-							</p>
-						</div>
-					</section>
-
-					<section id="intellectual-property">
-						<h2 className="font-semibold mb-3">8. Intellectual Property</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								AI Form Coach&apos;s code, design, and content are our intellectual property. 
-								You can use our service but can&apos;t copy or redistribute our technology.
-							</p>
-							<p>
-								Your workout data belongs to you. We don&apos;t claim ownership of your session summaries or progress data.
-							</p>
-						</div>
-					</section>
-
-					<section id="limitation-of-liability">
-						<h2 className="font-semibold mb-3">9. Limitation of Liability</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								AI Form Coach is provided &ldquo;as is&rdquo; without warranties. We&apos;re not liable for injuries, 
-								data loss, or other damages that may occur from using our service.
-							</p>
-							<p>
-								Our maximum liability is limited to the amount you&apos;ve paid us in the past 12 months.
-							</p>
-						</div>
-					</section>
-
-					<section id="termination">
-						<h2 className="font-semibold mb-3">10. Account Termination</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								<strong>You can leave anytime:</strong> Delete your account from the settings page. 
-								Your data will be permanently removed within 30 days.
-							</p>
-							<p>
-								<strong>We may suspend accounts:</strong> If terms are violated or for security reasons. 
-								We&apos;ll try to contact you first when possible.
-							</p>
-						</div>
-					</section>
-
-					<section id="governing-law">
-						<h2 className="font-semibold mb-3">11. Legal Stuff</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								These terms are governed by the laws where our company is incorporated. 
-								Any disputes will be resolved through binding arbitration.
-							</p>
-							<p>
-								If any part of these terms is found invalid, the rest still applies.
-							</p>
-						</div>
-					</section>
-
-					<section id="contact-terms">
-						<h2 className="font-semibold mb-3">12. Contact Us</h2>
-						<div className="space-y-3 opacity-80">
-							<p>
-								Questions about these terms or need to report an issue?
-							</p>
-							<p>
-								<strong>Email:</strong> legal@aiformcoach.com<br />
-								<strong>Support:</strong> support@aiformcoach.com<br />
-								<strong>Response time:</strong> We aim to respond within 2 business days
-							</p>
-						</div>
-					</section>
-				</div>
-
-				<div className="text-center pt-8 border-t">
-					<Link href="/" className="btn btn-secondary">
-						Back to Home
-					</Link>
-				</div>
-			</div>
-		</Container>
-	);
-} 
+          <Card className="rounded-[1.9rem] border border-slate-200 bg-slate-50/80 shadow-sm dark:border-slate-800 dark:bg-slate-900/70" padding="lg">
+            <div className="space-y-3 text-center sm:text-left">
+              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Need help?</div>
+              <div className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">Contact support or review privacy details</div>
+              <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
+                Terms questions can be sent to <a className="font-semibold text-slate-950 underline decoration-slate-300 underline-offset-4 dark:text-white dark:decoration-slate-700" href="mailto:legal@aiformcoach.com">legal@aiformcoach.com</a>. For privacy details, review the privacy policy or contact the beta team directly.
+              </p>
+              <div className="flex flex-col justify-center gap-3 pt-2 sm:flex-row sm:justify-start">
+                <Link href="/privacy" className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+                  Read privacy policy
+                </Link>
+                <Link href="/coach" className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white">
+                  Open coach
+                </Link>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </Container>
+    </div>
+  );
+}
