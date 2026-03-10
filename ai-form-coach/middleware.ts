@@ -31,13 +31,15 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+  const isCoachAutomationBypass =
+    process.env.COACH_E2E_BYPASS === "1" && request.nextUrl.searchParams.get("e2e-access") === "1";
 
   if (isMvpDisabledPage(pathname)) {
     const redirectUrl = new URL(getMvpDisabledRedirect(pathname, Boolean(user)), request.url);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (!user && isMvpAuthOnlyPath(pathname)) {
+  if (!user && isMvpAuthOnlyPath(pathname) && !isCoachAutomationBypass) {
     const redirectUrl = new URL("/signin", request.url);
     return NextResponse.redirect(redirectUrl);
   }
@@ -48,3 +50,4 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|api/public|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
+

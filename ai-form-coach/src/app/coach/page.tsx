@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CoachExperienceView from "@/components/coach/CoachExperienceView";
@@ -179,12 +179,17 @@ export default function CoachPage() {
   const [countdownValue, setCountdownValue] = useState<number | null>(null);
   const [hasPose, setHasPose] = useState(false);
 
-  const poseScriptQuery = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("pose-script") : null;
-  const stageSimulationQuery = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("stage-sim") : null;
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const poseScriptQuery = searchParams?.get("pose-script") ?? null;
+  const stageSimulationQuery = searchParams?.get("stage-sim") ?? null;
+  const e2eAccessQuery = searchParams?.get("e2e-access") ?? null;
   const scriptedPoseFrames = useMemo(() => {
-    if (process.env.NODE_ENV === "production") return null;
+    const isLoopbackHost = typeof window !== "undefined"
+      && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost");
+    const allowLoopbackAutomation = e2eAccessQuery === "1" && isLoopbackHost;
+    if (process.env.NODE_ENV === "production" && !allowLoopbackAutomation) return null;
     return getCoachTestPoseScript(poseScriptQuery);
-  }, [poseScriptQuery]);
+  }, [e2eAccessQuery, poseScriptQuery]);
   const deviceProfile = useMemo(() => getCoachDeviceProfile(), []);
   const deviceSummary = useMemo(() => formatCoachDeviceSummary(deviceProfile), [deviceProfile]);
   const recoveryGuide = useMemo(() => getCoachRecoveryGuide({ cameraError, detectorError, deviceProfile }), [cameraError, detectorError, deviceProfile]);
@@ -841,3 +846,4 @@ export default function CoachPage() {
     />
   );
 }
+

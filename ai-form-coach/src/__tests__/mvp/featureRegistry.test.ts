@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   MVP_FEATURE_FLAGS,
   getHeaderRoutes,
@@ -29,7 +29,15 @@ describe("featureRegistry", () => {
     expect(isMvpDisabledPage("/nutrition")).toBe(true);
     expect(isMvpDisabledPage("/coach-packs/custom")).toBe(true);
     expect(isMvpDisabledPage("/demo")).toBe(true);
+    expect(isMvpDisabledPage("/pricing/success")).toBe(true);
     expect(isMvpDisabledPage("/privacy")).toBe(false);
+  });
+
+  it("keeps disabled-prefix coverage on legacy surfaces", () => {
+    expect(isMvpDisabledPage("/plans/builder")).toBe(true);
+    expect(isMvpDisabledPage("/creator-packs/upload")).toBe(true);
+    expect(isMvpDisabledPage("/internal/analytics")).toBe(true);
+    expect(isMvpDisabledPage("/faq")).toBe(true);
   });
 
   it("redirects disabled pricing subroutes to pricing", () => {

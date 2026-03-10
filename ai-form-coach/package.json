@@ -26,7 +26,8 @@
     "screenshots": "node scripts/screenshot-mobile.js",
     "demo": "echo 'Component demo available at http://localhost:3000/demo'",
     "test:e2e:coach:android": "playwright test tests/e2e/coach.smoke.spec.ts --project=android-chrome",
-    "test:release": "npm run lint && npm run test && npm run build && npm run test:e2e:coach"
+    "test:release": "npm run lint && npm run test && npm run build && npm run test:e2e:coach",
+    "test:e2e:coach:android:device": "node scripts/run-android-device-coach-smoke.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

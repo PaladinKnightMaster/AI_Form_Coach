@@ -58,6 +58,51 @@ test("coach shows detector recovery guidance for a simulated detector failure", 
   await expect(page.getByText("Pose detector needs a clean reload")).toBeVisible();
   await expect(page.getByTestId("coach-tracking-status")).toContainText("Pose detector could not start");
 });
+
+test("public MVP gate redirects disabled legacy routes", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium", "Route-gating regression runs once in chromium");
+
+  const cases = [
+    {
+      path: "/nutrition",
+      allowedTargets: [/\/$/, /\/signin\?redirect=\/nutrition$/],
+      allowedText: ["Public beta: motion coaching only", "Sign in"],
+    },
+    {
+      path: "/demo",
+      allowedTargets: [/\/$/, /\/signin\?redirect=\/demo$/],
+      allowedText: ["Private form coaching in your browser.", "Sign in"],
+    },
+    {
+      path: "/plans",
+      allowedTargets: [/\/$/, /\/signin\?redirect=\/plans$/],
+      allowedText: ["The MVP is a motion product, not a broad wellness bundle.", "Sign in"],
+    },
+    {
+      path: "/pricing/success",
+      allowedTargets: [/\/pricing$/],
+      requiredText: "No paid plans at launch.",
+    },
+  ] as const;
+
+  for (const routeCase of cases) {
+    await page.goto(routeCase.path);
+    await page.waitForLoadState("networkidle");
+
+    const finalUrl = page.url();
+    expect(routeCase.allowedTargets.some((pattern) => pattern.test(finalUrl))).toBe(true);
+    expect(new URL(finalUrl).pathname).not.toBe(routeCase.path);
+
+    if ("requiredText" in routeCase) {
+      await expect(page.locator("body")).toContainText(routeCase.requiredText);
+    }
+
+    if ("allowedText" in routeCase) {
+      const bodyText = await page.locator("body").textContent();
+      expect(routeCase.allowedText.some((text) => bodyText?.includes(text))).toBe(true);
+    }
+  }
+});
 test("coach scripted pose mode can count a deterministic squat rep", async ({ page }) => {
   await page.goto("/coach?pose-script=squat-single-rep");
 

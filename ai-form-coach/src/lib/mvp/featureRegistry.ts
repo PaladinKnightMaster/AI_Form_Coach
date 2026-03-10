@@ -1,4 +1,4 @@
-﻿export const MVP_EXERCISES = ["squat", "pushup", "plank"] as const;
+export const MVP_EXERCISES = ["squat", "pushup", "plank"] as const;
 
 export type MvpExercise = (typeof MVP_EXERCISES)[number];
 
@@ -97,7 +97,7 @@ export function getFooterRouteGroups(isAuthenticated: boolean): Array<{ title: s
 
 const MVP_AUTH_ONLY_PREFIXES = ["/coach", "/history", "/session"];
 
-const MVP_DISABLED_EXACT_PATHS = new Set([
+export const MVP_DISABLED_EXACT_PATHS = [
   "/account",
   "/calibrate",
   "/debug-subscription",
@@ -115,9 +115,11 @@ const MVP_DISABLED_EXACT_PATHS = new Set([
   "/test-auth",
   "/test-monetization",
   "/nutrition",
-]);
+];
 
-const MVP_DISABLED_PREFIXES = [
+const MVP_DISABLED_EXACT_PATH_SET = new Set(MVP_DISABLED_EXACT_PATHS);
+
+export const MVP_DISABLED_PREFIXES = [
   "/challenges",
   "/coach-packs",
   "/creator-packs",
@@ -135,7 +137,7 @@ export function isMvpAuthOnlyPath(pathname: string): boolean {
 }
 
 export function isMvpDisabledPage(pathname: string): boolean {
-  if (MVP_DISABLED_EXACT_PATHS.has(pathname)) {
+  if (MVP_DISABLED_EXACT_PATH_SET.has(pathname)) {
     return true;
   }
   return MVP_DISABLED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
@@ -167,7 +169,7 @@ export function getRobotsDisallowPaths(): string[] {
     "/reset-password",
     "/_next/",
     "/admin/",
-    ...Array.from(MVP_DISABLED_EXACT_PATHS),
+    ...MVP_DISABLED_EXACT_PATHS,
     ...MVP_DISABLED_PREFIXES.map((prefix) => `${prefix}/`),
   ];
 }
