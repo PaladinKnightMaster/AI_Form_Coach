@@ -1,7 +1,18 @@
-import { expect, test } from "@playwright/test";
+﻿import { expect, test, type Page } from "@playwright/test";
+
+const isMobileProject = (projectName: string) => projectName === "android-chrome" || projectName === "iphone-safari";
+
+function getCoachLiveCue(page: Page, projectName: string) {
+  return isMobileProject(projectName) ? page.getByTestId("coach-mobile-live-cue") : page.getByTestId("coach-live-cue");
+}
+
+function getCoachRepCounter(page: Page, projectName: string) {
+  return isMobileProject(projectName) ? page.getByTestId("coach-mobile-rep-count") : page.getByTestId("coach-rep-count").first();
+}
 
 test("coach beta stage boots with camera shell and overlay", async ({ page }, testInfo) => {
   const isIphoneSafari = testInfo.project.name === "iphone-safari";
+  const isMobile = isMobileProject(testInfo.project.name);
   await page.goto(isIphoneSafari ? "/coach?pose-script=squat-single-rep" : "/coach");
 
   await expect(page.getByText("Private motion coaching beta")).toBeVisible();
@@ -17,14 +28,18 @@ test("coach beta stage boots with camera shell and overlay", async ({ page }, te
   await expect(page.getByTestId("coach-countdown")).toBeVisible();
   await expect(page.getByTestId("coach-primary-action").first()).toContainText("Cancel countdown");
   await expect(page.getByTestId("coach-primary-action").last()).toContainText("Pause", { timeout: 15_000 });
-  await expect(page.getByTestId("coach-live-cue")).toBeVisible();
+  await expect(getCoachLiveCue(page, testInfo.project.name)).toBeVisible();
+  if (isMobile) {
+    await expect(page.getByTestId("coach-mobile-live-pill")).toBeVisible();
+    await expect(page.getByTestId("coach-stage-rich-footer")).not.toBeVisible();
+  }
   await expect(page.getByTestId("coach-tracking-status")).not.toContainText("Camera access failed");
 });
 
 test("coach keeps controls reachable on a phone-sized viewport", async ({ page }, testInfo) => {
-  const isMobileProject = testInfo.project.name === "android-chrome" || testInfo.project.name === "iphone-safari";
+  const mobileProject = isMobileProject(testInfo.project.name);
   const isIphoneSafari = testInfo.project.name === "iphone-safari";
-  if (!isMobileProject) {
+  if (!mobileProject) {
     await page.setViewportSize({ width: 390, height: 844 });
   }
   await page.goto(isIphoneSafari ? "/coach?pose-script=squat-single-rep" : "/coach");
@@ -35,7 +50,8 @@ test("coach keeps controls reachable on a phone-sized viewport", async ({ page }
 
   await expect(page.getByTestId("coach-mobile-tray")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId("coach-mobile-primary-action")).toContainText("Pause", { timeout: 15_000 });
-  await expect(page.getByTestId("coach-live-cue")).toBeVisible();
+  await expect(page.getByTestId("coach-mobile-live-pill")).toBeVisible();
+  await expect(page.getByTestId("coach-stage-rich-footer")).not.toBeVisible();
 });
 
 test("coach recovery guide can recover from a simulated blocked camera", async ({ page }) => {
@@ -103,7 +119,7 @@ test("public MVP gate redirects disabled legacy routes", async ({ page }, testIn
     }
   }
 });
-test("coach scripted pose mode can count a deterministic squat rep", async ({ page }) => {
+test("coach scripted pose mode can count a deterministic squat rep", async ({ page }, testInfo) => {
   await page.goto("/coach?pose-script=squat-single-rep");
 
   const action = page.getByTestId("coach-primary-action").first();
@@ -111,8 +127,8 @@ test("coach scripted pose mode can count a deterministic squat rep", async ({ pa
   await action.click();
 
   await expect(page.getByTestId("coach-primary-action").last()).toContainText("Pause", { timeout: 15_000 });
-  await expect(page.getByTestId("coach-rep-count").first()).toContainText(/[1-9]/, { timeout: 20_000 });
-  await expect(page.getByTestId("coach-live-cue")).toBeVisible();
+  await expect(getCoachRepCounter(page, testInfo.project.name)).toContainText(/[1-9]/, { timeout: 20_000 });
+  await expect(getCoachLiveCue(page, testInfo.project.name)).toBeVisible();
 });
 
 test("coach can pause, resume, save, and capture cue feedback", async ({ page }, testInfo) => {
@@ -122,23 +138,33 @@ test("coach can pause, resume, save, and capture cue feedback", async ({ page },
   await expect(action).toBeEnabled({ timeout: 60_000 });
   await action.click();
 
-  const isCompactSession = testInfo.project.name === "android-chrome" || testInfo.project.name === "iphone-safari";
+  const isCompactSession = isMobileProject(testInfo.project.name);
   const activePause = isCompactSession
     ? page.getByTestId("coach-mobile-primary-action")
     : page.getByTestId("coach-primary-action").first();
   await expect(activePause).toContainText("Pause", { timeout: 15_000 });
-  await activePause.click();
+  if (isCompactSession) {
+    await activePause.evaluate((element: HTMLButtonElement) => element.click());
+  } else {
+    await activePause.click();
+  }
 
-  const resumeAction = page.getByTestId("coach-primary-action").first();
+  const resumeAction = isCompactSession
+    ? page.getByRole("button", { name: "Resume session" })
+    : page.getByTestId("coach-primary-action").first();
   await expect(resumeAction).toContainText("Resume session");
   await resumeAction.click();
 
-  await expect(page.getByTestId("coach-rep-count").first()).toContainText("1", { timeout: 20_000 });
+  await expect(getCoachRepCounter(page, testInfo.project.name)).toContainText("1", { timeout: 20_000 });
 
   const saveAction = isCompactSession
     ? page.getByTestId("coach-mobile-session-save")
     : page.getByTestId("coach-session-save").first();
-  await saveAction.click();
+  if (isCompactSession) {
+    await saveAction.evaluate((element: HTMLButtonElement) => element.click());
+  } else {
+    await saveAction.click();
+  }
 
   const feedbackButton = page.getByTestId("coach-feedback-clear");
   await expect(feedbackButton).toBeVisible({ timeout: 15_000 });
@@ -146,7 +172,7 @@ test("coach can pause, resume, save, and capture cue feedback", async ({ page },
   await expect(feedbackButton).toHaveAttribute("data-selected", "true");
 });
 
-test("coach scripted pose mode can count a deterministic pushup rep", async ({ page }) => {
+test("coach scripted pose mode can count a deterministic pushup rep", async ({ page }, testInfo) => {
   await page.goto("/coach?pose-script=pushup-single-rep&exercise=pushup");
 
   const action = page.getByTestId("coach-primary-action").first();
@@ -154,10 +180,10 @@ test("coach scripted pose mode can count a deterministic pushup rep", async ({ p
   await action.click();
 
   await expect(page.getByTestId("coach-primary-action").last()).toContainText("Pause", { timeout: 15_000 });
-  await expect(page.getByTestId("coach-rep-count").first()).toContainText(/[1-9]/, { timeout: 20_000 });
+  await expect(getCoachRepCounter(page, testInfo.project.name)).toContainText(/[1-9]/, { timeout: 20_000 });
 });
 
-test("coach scripted pose mode can count a deterministic plank hold", async ({ page }) => {
+test("coach scripted pose mode can count a deterministic plank hold", async ({ page }, testInfo) => {
   await page.goto("/coach?pose-script=plank-short-hold&exercise=plank");
 
   const action = page.getByTestId("coach-primary-action").first();
@@ -165,7 +191,7 @@ test("coach scripted pose mode can count a deterministic plank hold", async ({ p
   await action.click();
 
   await expect(page.getByTestId("coach-primary-action").last()).toContainText("Pause", { timeout: 15_000 });
-  await expect(page.getByTestId("coach-rep-count").first()).toContainText("1", { timeout: 20_000 });
+  await expect(getCoachRepCounter(page, testInfo.project.name)).toContainText("1", { timeout: 20_000 });
 });
 
 test("coach keeps the active stage inside the Android Chrome viewport", async ({ page }, testInfo) => {
@@ -179,19 +205,24 @@ test("coach keeps the active stage inside the Android Chrome viewport", async ({
 
   await expect(page.getByTestId("coach-mobile-session-header")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId("coach-mobile-tray")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("coach-mobile-live-pill")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("coach-stage-rich-footer")).not.toBeVisible();
   await expect(page.getByText("Session pulse")).toBeHidden();
-  await expect(page.getByTestId("coach-live-cue")).toBeVisible();
+  await expect(page.getByTestId("coach-mobile-live-cue")).toBeVisible();
   await expect(page.getByTestId("coach-tracking-status")).toBeVisible();
 
   const viewport = page.viewportSize();
   const trayBox = await page.getByTestId("coach-mobile-tray").boundingBox();
   const stageBox = await page.getByTestId("coach-stage-shell").boundingBox();
+  const cueBox = await page.getByTestId("coach-mobile-live-pill").boundingBox();
 
   expect(viewport).not.toBeNull();
   expect(trayBox).not.toBeNull();
   expect(stageBox).not.toBeNull();
+  expect(cueBox).not.toBeNull();
   expect(Math.round((trayBox?.y ?? 0) + (trayBox?.height ?? 0))).toBeLessThanOrEqual((viewport?.height ?? 0) + 2);
   expect(Math.round(stageBox?.y ?? 9999)).toBeLessThan(Math.round((viewport?.height ?? 0) * 0.2));
+  expect(Math.round(cueBox?.y ?? 9999)).toBeLessThan(Math.round((stageBox?.y ?? 0) + (stageBox?.height ?? 0) * 0.45));
 });
 
 test("coach respects safe-area tray placement on iPhone Safari", async ({ page }, testInfo) => {
@@ -205,17 +236,26 @@ test("coach respects safe-area tray placement on iPhone Safari", async ({ page }
 
   await expect(page.getByTestId("coach-mobile-session-header")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId("coach-mobile-tray")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("coach-mobile-live-pill")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("coach-stage-rich-footer")).not.toBeVisible();
   await expect(page.getByText("Session pulse")).toBeHidden();
-  await expect(page.getByTestId("coach-live-cue")).toBeVisible();
+  await expect(page.getByTestId("coach-mobile-live-cue")).toBeVisible();
   await expect(page.getByTestId("coach-tracking-status")).toBeVisible();
 
   const viewport = page.viewportSize();
   const trayBox = await page.getByTestId("coach-mobile-tray").boundingBox();
   const stageBox = await page.getByTestId("coach-stage-shell").boundingBox();
+  const cueBox = await page.getByTestId("coach-mobile-live-pill").boundingBox();
 
   expect(viewport).not.toBeNull();
   expect(trayBox).not.toBeNull();
   expect(stageBox).not.toBeNull();
+  expect(cueBox).not.toBeNull();
   expect(Math.round((trayBox?.y ?? 0) + (trayBox?.height ?? 0))).toBeLessThanOrEqual((viewport?.height ?? 0) + 2);
   expect(Math.round(stageBox?.y ?? 9999)).toBeLessThan(Math.round((viewport?.height ?? 0) * 0.18));
+  expect(Math.round(cueBox?.y ?? 9999)).toBeLessThan(Math.round((stageBox?.y ?? 0) + (stageBox?.height ?? 0) * 0.45));
 });
+
+
+
+

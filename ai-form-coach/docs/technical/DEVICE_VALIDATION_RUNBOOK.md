@@ -1,4 +1,4 @@
-# Device Validation Runbook
+﻿# Device Validation Runbook
 
 ## Scope
 - Public MVP surface: `/coach` only
@@ -14,15 +14,15 @@
 ## Android Chrome Pass
 1. Open `/coach` and allow camera access.
 2. Confirm the framing guide appears before session start.
-3. Start a squat session and verify the mobile tray stays reachable.
+3. Start a squat session and verify the mobile tray stays reachable without the HUD covering shoulders, knees, ankles, or floor reference.
 4. Pause, resume, end, and save the session.
 5. Repeat for pushup and plank.
 6. If the camera fails, use the retry button and capture the exact browser permission state.
 
 ## iPhone Safari Pass
 1. Open `/coach` in Safari and grant camera access for the page.
-2. Confirm the top safe area, stage, and bottom tray all remain visible.
-3. Start a squat session and verify cue text remains readable during movement.
+2. Confirm the top safe area, stage, and bottom tray all remain visible without covering the full-body camera read.
+3. Start a squat session and verify cue text remains readable during movement without covering the lower-body pose area.
 4. Pause, resume, end, and save the session.
 5. Repeat for pushup and plank.
 6. If the camera fails, use the retry button and note whether Safari page settings changed the outcome.
@@ -32,7 +32,7 @@
 - Browser version and OS version
 - Whether camera permission was granted, denied, or blocked by another app
 - First-session completion result
-- Any cue jitter, unreadable text, or stage clipping
+- Any cue jitter, unreadable text, stage clipping, or HUD overlap on the body silhouette
 - Whether retry camera recovered the stage without reloading
 
 ## Telemetry Events To Watch
@@ -47,7 +47,7 @@
 ## Exit Criteria
 - Camera permission recovery is understandable on both phone lanes
 - A first session can be started, paused, resumed, and saved on both phone lanes
-- The stage and bottom tray remain visible for the full session
+- The full body remains visible above all HUD layers for the full session
 - No blocker is reproducible across both devices without a documented mitigation
 
 ## Browser Rehearsal URLs
@@ -56,3 +56,4 @@
 - `/coach?pose-script=squat-single-rep` validates the normal scripted squat flow without a live camera.
 - `/coach?pose-script=pushup-single-rep&exercise=pushup` validates the pushup scripted flow.
 - `/coach?pose-script=plank-short-hold&exercise=plank` validates the plank scripted flow.
+

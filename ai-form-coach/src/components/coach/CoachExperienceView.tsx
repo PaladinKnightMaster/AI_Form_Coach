@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import React from "react";
@@ -107,11 +107,12 @@ export default function CoachExperienceView({
   const canEndSession = sessionState === "active" || sessionState === "paused";
   const isCountingDown = countdownValue !== null;
   const showMobileTray = sessionState === "active";
+  const showMobileLivePill = sessionState === "active";
   const mobileSessionFocus = sessionState !== "idle";
   const showRecoveryGuide = Boolean(recoveryTitle);
   const pageShellStyle: React.CSSProperties = { paddingTop: "env(safe-area-inset-top)" };
   const pagePaddingClass = showMobileTray
-    ? "pb-[calc(8.75rem+env(safe-area-inset-bottom))] lg:pb-8"
+    ? "pb-[calc(6.75rem+env(safe-area-inset-bottom))] lg:pb-8"
     : "pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-8";
   const contentShellClass = mobileSessionFocus
     ? "mx-auto max-w-7xl px-4 pt-4 sm:px-6 sm:pt-5 lg:px-8 lg:pt-8"
@@ -121,8 +122,11 @@ export default function CoachExperienceView({
     : "mb-4 flex flex-col gap-4 lg:mb-5 lg:flex-row lg:items-end lg:justify-between";
   const stageShellPaddingClass = mobileSessionFocus ? "p-1.5 sm:p-3 sm:pb-3 lg:p-4" : "p-2 sm:p-3 sm:pb-3 lg:p-4";
   const stageAspectClass = mobileSessionFocus
-    ? "aspect-[9/12.6] w-full sm:aspect-[10/15.4] md:aspect-[16/10] xl:aspect-[16/8.8]"
+    ? "aspect-[9/15] w-full sm:aspect-[10/16] md:aspect-[16/10] xl:aspect-[16/8.8]"
     : "aspect-[9/14.2] w-full sm:aspect-[10/16] md:aspect-[16/10] xl:aspect-[16/8.8]";
+  const richStageFooterClass = sessionState === "active"
+    ? "pointer-events-none absolute inset-x-0 bottom-0 z-30 hidden bg-gradient-to-t from-slate-950 via-slate-950/84 to-transparent px-3 pb-3 pt-24 sm:px-6 sm:pb-6 lg:block"
+    : "pointer-events-none absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-slate-950 via-slate-950/84 to-transparent px-3 pb-3 pt-24 sm:px-6 sm:pb-6";
   const supportRailsClass = mobileSessionFocus
     ? "mt-4 hidden gap-3 lg:grid lg:grid-cols-[1.05fr_1fr_1fr]"
     : "mt-4 grid gap-3 lg:grid-cols-[1.05fr_1fr_1fr]";
@@ -344,7 +348,25 @@ export default function CoachExperienceView({
               </div>
             ) : null}
 
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-slate-950 via-slate-950/84 to-transparent px-3 pb-3 pt-24 sm:px-6 sm:pb-6">
+            {showMobileLivePill ? (
+              <div data-testid="coach-mobile-live-pill" className="pointer-events-none absolute inset-x-3 top-32 z-30 lg:hidden sm:inset-x-6 sm:top-36">
+                <div className="mx-auto max-w-sm rounded-[1.35rem] border border-white/14 bg-slate-950/72 px-4 py-3 text-white backdrop-blur">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">Live cue</div>
+                      <div data-testid="coach-mobile-live-cue" className="mt-1 text-sm font-semibold leading-5">{cue}</div>
+                    </div>
+                    <div className="grid shrink-0 grid-cols-2 gap-2">
+                      <MiniStat testId="coach-mobile-rep-count" label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} />
+                      <MiniStat label="Elapsed" value={elapsedLabel} />
+                    </div>
+                  </div>
+                  <div className="mt-2 text-xs leading-5 text-slate-300">{secondaryCue}</div>
+                </div>
+              </div>
+            ) : null}
+
+            <div data-testid="coach-stage-rich-footer" className={richStageFooterClass}>
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between lg:gap-4">
                 <div className="max-w-3xl rounded-[1.5rem] border border-white/14 bg-slate-950/72 px-4 py-4 text-white backdrop-blur sm:rounded-[1.7rem] sm:px-5 sm:py-5">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">
@@ -375,13 +397,6 @@ export default function CoachExperienceView({
                     </Button>
                   </div>
                 </div>
-
-                <div className="grid gap-2 sm:grid-cols-2 lg:hidden">
-                  <SummaryChip testId="coach-rep-count" label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" compact />
-                  <SummaryChip label="Elapsed" value={elapsedLabel} icon="clock" compact />
-                  <SummaryChip label="Visibility" value={visibilityLabel} icon="camera" compact />
-                  <SummaryChip label="FPS" value={fpsLabel} icon="activity" compact />
-                </div>
               </div>
             </div>
           </div>
@@ -390,22 +405,16 @@ export default function CoachExperienceView({
         {showMobileTray ? (
           <div data-testid="coach-mobile-tray" className="fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 px-4 lg:hidden">
             <div className="mx-auto max-w-md">
-              <Card className="rounded-[1.7rem] border border-white/60 bg-white/92 shadow-[0_24px_80px_-50px_rgba(15,23,42,0.7)] backdrop-blur dark:border-white/10 dark:bg-slate-950/86" padding="sm">
-                <div className="flex flex-col gap-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button data-testid="coach-mobile-primary-action" size="lg" onClick={onPrimaryAction} className="w-full">
-                      <Icon name="pause" className="h-4 w-4" />
-                      Pause
-                    </Button>
-                    <Button data-testid="coach-mobile-session-save" variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="w-full">
-                      <Icon name="save" className="h-4 w-4" />
-                      {saving ? "Saving..." : "End & save"}
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <SummaryChip testId="coach-rep-count" label={exercise === "plank" ? "Holds" : "Reps"} value={`${repCount}`} icon="target" compact />
-                    <SummaryChip label="Elapsed" value={elapsedLabel} icon="clock" compact />
-                  </div>
+              <Card className="rounded-[1.45rem] border border-white/60 bg-white/92 shadow-[0_24px_80px_-50px_rgba(15,23,42,0.7)] backdrop-blur dark:border-white/10 dark:bg-slate-950/86" padding="sm">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button data-testid="coach-mobile-primary-action" size="lg" onClick={onPrimaryAction} className="w-full">
+                    <Icon name="pause" className="h-4 w-4" />
+                    Pause
+                  </Button>
+                  <Button data-testid="coach-mobile-session-save" variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="w-full">
+                    <Icon name="save" className="h-4 w-4" />
+                    {saving ? "Saving..." : "End & save"}
+                  </Button>
                 </div>
               </Card>
             </div>
@@ -497,6 +506,15 @@ function SummaryChip({ label, value, icon, compact = false, testId }: { label: s
   );
 }
 
+function MiniStat({ label, value, testId }: { label: string; value: string; testId?: string }) {
+  return (
+    <div data-testid={testId} className="min-w-[4.5rem] rounded-2xl border border-white/12 bg-white/6 px-2.5 py-2 text-center">
+      <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-300">{label}</div>
+      <div className="mt-1 text-sm font-black text-white">{value}</div>
+    </div>
+  );
+}
+
 function FeedbackChoice({ testId, label, selected, onClick }: { testId: string; label: string; selected: boolean; onClick: () => void }) {
   return (
     <Button
@@ -531,6 +549,7 @@ function ActionLink({ href, icon, label }: { href: string; icon: "chart" | "pack
     </Link>
   );
 }
+
 
 
 
