@@ -14,7 +14,7 @@
  * - Prevents FSM jitter from transient bad frames
  */
 
-import { PoseLandmarker, PoseLandmarkerResult, FilesetResolver } from '@mediapipe/tasks-vision';
+import type { PoseLandmarker, PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { Point3 } from '../math/poseMath';
 import { SmoothingPipeline, SmoothingPipelineConfig, TemporalDebouncer } from './filters';
 import { getWorkerFilteringPool } from './workerFilteringPool';
@@ -27,6 +27,17 @@ interface WasmFileset {
   wasmBinaryPath: string;
   assetLoaderPath?: string;
   assetBinaryPath?: string;
+}
+
+type MediaPipeVisionModule = typeof import('@mediapipe/tasks-vision');
+
+let visionModulePromise: Promise<MediaPipeVisionModule> | null = null;
+
+function loadVisionModule(): Promise<MediaPipeVisionModule> {
+  if (!visionModulePromise) {
+    visionModulePromise = import('@mediapipe/tasks-vision');
+  }
+  return visionModulePromise;
 }
 
 // ============================================
@@ -50,7 +61,7 @@ export interface PoseEstimateResult {
   rightVisibility: number;
 }
 
-// 🏥 PHASE A: Jitter detection metrics
+// ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE A: Jitter detection metrics
 export interface JitterMetrics {
   avgPixelJitter: number;        // Average pixel displacement on static pose
   maxPixelJitter: number;        // Maximum jitter spike
@@ -68,7 +79,7 @@ export interface PoseEngineOptions {
   enableAdvancedSmoothing?: boolean; // Enable median + outlier detection
   smoothingConfig?: Partial<SmoothingPipelineConfig>;
   enableMetrics?: boolean; // Enable jitter/latency tracking
-  enableWorkerFiltering?: boolean; // 🏥 PHASE C: Enable Web Worker filtering
+  enableWorkerFiltering?: boolean; // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE C: Enable Web Worker filtering
 }
 
 // ============================================
@@ -99,12 +110,12 @@ export class PoseEngine2 {
   private validFrameCount: number = 0;
   private lastValidFrame: PoseEstimateResult | null = null;
 
-  // 🏥 SWORD HEALTH: Advanced smoothing
+  // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ SWORD HEALTH: Advanced smoothing
   private enableAdvancedSmoothing: boolean;
   private smoothingPipeline: SmoothingPipeline;
   private temporalDebouncer: TemporalDebouncer;
 
-  // 🏥 PHASE A: Telemetry and Jitter Detection
+  // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE A: Telemetry and Jitter Detection
   private enableMetrics: boolean;
   private jitterBuffer: Array<{ x: number; y: number; z: number }> = []; // Last N landmark positions
   private jitterBufferSize: number = 30; // Track last 1 second at 30fps
@@ -116,7 +127,7 @@ export class PoseEngine2 {
   private lastMetricsLog: number = 0;
   private confidenceBasedAlpha: boolean = true; // Adjust alpha based on confidence
 
-  // 🏥 PHASE C: Web Worker Filtering
+  // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE C: Web Worker Filtering
   private enableWorkerFiltering: boolean;
   private workerPool: ReturnType<typeof getWorkerFilteringPool> | null = null;
   private mainThreadFallbackCount: number = 0;
@@ -124,15 +135,15 @@ export class PoseEngine2 {
   constructor(options: PoseEngineOptions = {}) {
     this.model = options.model || 'lite';
     this.runningMode = options.runningMode || 'VIDEO';
-    this.smoothingAlpha = options.smoothingAlpha || 0.65; // 🏥 Increased for responsiveness
+    this.smoothingAlpha = options.smoothingAlpha || 0.65; // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ Increased for responsiveness
     this.visibilityThreshold = options.visibilityThreshold || 0.55;
-    this.debounceFrames = options.debounceFrames || 2; // 🏥 Reduced for faster response
+    this.debounceFrames = options.debounceFrames || 2; // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ Reduced for faster response
     this.enableAdvancedSmoothing = options.enableAdvancedSmoothing ?? true;
-    this.enableMetrics = options.enableMetrics ?? true; // 🏥 PHASE A: Enable metrics by default
-    this.enableWorkerFiltering = options.enableWorkerFiltering ?? true; // 🏥 PHASE C: Enable worker filtering
+    this.enableMetrics = options.enableMetrics ?? true; // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE A: Enable metrics by default
+    this.enableWorkerFiltering = options.enableWorkerFiltering ?? true; // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE C: Enable worker filtering
 
-    // 🏥 SWORD HEALTH: Initialize advanced smoothing pipeline (only if enabled)
-    // 🔧 PERFORMANCE: Conditional initialization to avoid unnecessary memory allocation
+    // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ SWORD HEALTH: Initialize advanced smoothing pipeline (only if enabled)
+    // ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â§ PERFORMANCE: Conditional initialization to avoid unnecessary memory allocation
     if (this.enableAdvancedSmoothing) {
       this.smoothingPipeline = new SmoothingPipeline(options.smoothingConfig);
       this.temporalDebouncer = new TemporalDebouncer();
@@ -142,7 +153,7 @@ export class PoseEngine2 {
       this.temporalDebouncer = null as unknown as TemporalDebouncer;
     }
 
-    // 🏥 PHASE C: Initialize worker pool if enabled
+    // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE C: Initialize worker pool if enabled
     if (this.enableWorkerFiltering && typeof Worker !== 'undefined') {
       try {
         this.workerPool = getWorkerFilteringPool();
@@ -155,7 +166,7 @@ export class PoseEngine2 {
 
   /**
    * Initialize MediaPipe Pose Landmarker
-   * 🚀 OPTIMIZED: SIMD detection for 2-4x faster pose detection
+   * ÃƒÂ°Ã…Â¸Ã…Â¡Ã¢â€šÂ¬ OPTIMIZED: SIMD detection for 2-4x faster pose detection
    */
   async init(options?: { model?: PoseModel; runningMode?: RunningMode }): Promise<void> {
     if (this.isInitialized && this.landmarker) {
@@ -165,15 +176,17 @@ export class PoseEngine2 {
     if (options?.model) this.model = options.model;
     if (options?.runningMode) this.runningMode = options.runningMode;
 
-    // 🚀 Check SIMD support for performance optimization
+    // ÃƒÂ°Ã…Â¸Ã…Â¡Ã¢â€šÂ¬ Check SIMD support for performance optimization
     const simdSupported = await checkSIMDSupport();
     if (simdSupported) {
-      console.log('[PoseEngine2] 🚀 SIMD acceleration enabled - expect 2-4x faster detection');
+      console.log('[PoseEngine2] ÃƒÂ°Ã…Â¸Ã…Â¡Ã¢â€šÂ¬ SIMD acceleration enabled - expect 2-4x faster detection');
     }
+
+    const vision = await loadVisionModule();
 
     // Initialize fileset resolver
     if (!this.filesetReady) {
-      this.filesetReady = FilesetResolver.forVisionTasks(
+      this.filesetReady = vision.FilesetResolver.forVisionTasks(
         process.env.NEXT_PUBLIC_MEDIAPIPE_WASM_URL ||
         'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm'
       );
@@ -186,7 +199,7 @@ export class PoseEngine2 {
       ? 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task'
       : 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task';
 
-    this.landmarker = await PoseLandmarker.createFromOptions(fileset as WasmFileset, {
+    this.landmarker = await vision.PoseLandmarker.createFromOptions(fileset as WasmFileset, {
       baseOptions: {
         modelAssetPath: modelPath,
       },
@@ -223,7 +236,7 @@ export class PoseEngine2 {
       return null;
     }
 
-    // 🏥 PHASE A: Track detection latency
+    // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE A: Track detection latency
     const estimateStartTime = performance.now();
     const timestamp = estimateStartTime;
 
@@ -277,7 +290,7 @@ export class PoseEngine2 {
       };
     }
 
-    // 🏥 SWORD HEALTH: Apply multi-stage smoothing pipeline
+    // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ SWORD HEALTH: Apply multi-stage smoothing pipeline
     let smoothedLandmarks: Landmark3D[];
     
     if (this.enableAdvancedSmoothing) {
@@ -287,7 +300,7 @@ export class PoseEngine2 {
         : this.smoothingAlpha;
       const emaSmoothed = this.applySmoothing(rawLandmarks, this.lastLandmarks, alpha);
       
-      // 🏥 PHASE C: Try worker-based filtering first
+      // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE C: Try worker-based filtering first
       if (this.workerPool?.isAvailable()) {
         try {
           const workerFiltered = await this.workerPool.filterLandmarks(emaSmoothed, {
@@ -321,7 +334,7 @@ export class PoseEngine2 {
     
     this.lastLandmarks = smoothedLandmarks;
 
-    // 🏥 PHASE A: Track jitter metrics (every 30 frames)
+    // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE A: Track jitter metrics (every 30 frames)
     if (this.enableMetrics) {
       this.trackJitter(smoothedLandmarks);
       this.frameCount++;
@@ -591,7 +604,7 @@ export class PoseEngine2 {
   }
 
   // ============================================
-  // 🏥 PHASE A: Jitter Detection & Metrics
+  // ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â¥ PHASE A: Jitter Detection & Metrics
   // ============================================
 
   /**

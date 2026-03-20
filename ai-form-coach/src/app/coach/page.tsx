@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CoachExperienceView from "@/components/coach/CoachExperienceView";
 import { createCueCadenceState, resolveCueCadence } from "@/lib/coach/cueCadence";
 import {
@@ -9,6 +9,10 @@ import {
   getCoachRecoveryGuide,
 } from "@/lib/coach/deviceReadiness";
 import { getFramingGuidance } from "@/lib/coach/framing";
+import {
+  shouldCommitCoachLiveUi,
+  type CoachLiveUiSnapshot,
+} from "@/lib/coach/liveUi";
 import {
   getCoachStageSimulationIssue,
   getCoachStageSimulationMode,
@@ -151,6 +155,8 @@ export default function CoachPage() {
   const lastStageIssueKeyRef = useRef("");
   const retryCountRef = useRef(0);
   const stageSimulationAttemptRef = useRef(0);
+  const liveUiCommitAtRef = useRef(0);
+  const liveUiSnapshotRef = useRef<CoachLiveUiSnapshot | null>(null);
 
   const [overlayVideo, setOverlayVideo] = useState<HTMLVideoElement | null>(null);
   const [exercise, setExercise] = useState<Exercise>(getInitialExercise);
@@ -196,7 +202,7 @@ export default function CoachPage() {
   const stageSimulationMode = useMemo(() => getCoachStageSimulationMode(stageSimulationQuery), [stageSimulationQuery]);
   const running = sessionState === "active";
   const copy = EXERCISE_COPY[exercise];
-  const framing = useMemo(() => getFramingGuidance({ cameraReady, visibilityScore, fps, hasPose }), [cameraReady, fps, hasPose, visibilityScore]);
+  const framing = useMemo(() => getFramingGuidance({ exercise, cameraReady, visibilityScore, fps, hasPose }), [cameraReady, exercise, fps, hasPose, visibilityScore]);
   const stageAlert = detectorError ?? cameraError ?? (countdownValue !== null
     ? `Hold your setup. ${copy.label} starts in ${countdownValue}.`
     : !cameraReady
@@ -219,12 +225,32 @@ export default function CoachPage() {
     lastCueTextRef.current = "";
     activeStartPerfRef.current = null;
     sessionStartIsoRef.current = null;
+    liveUiSnapshotRef.current = null;
+    liveUiCommitAtRef.current = 0;
     setRepCount(0);
     setPhase("idle");
     setElapsedMs(0);
     setSaveNotice(null);
     setCueFeedback(null);
     pauseCountRef.current = 0;
+  }, []);
+
+  const commitLiveUiFrame = useCallback((next: CoachLiveUiSnapshot, now: number, force = false) => {
+    if (!force && !shouldCommitCoachLiveUi(liveUiSnapshotRef.current, next, now, liveUiCommitAtRef.current)) {
+      return;
+    }
+
+    liveUiSnapshotRef.current = next;
+    liveUiCommitAtRef.current = now;
+    startTransition(() => {
+      setHasPose(next.hasPose);
+      setVisibilityScore(next.visibilityScore);
+      setFps(next.fps);
+      setQuality(next.quality);
+      setTrackingStatus(next.trackingStatus);
+      setRepCount(next.repCount);
+      setPhase(next.phase);
+    });
   }, []);
 
   const syncPending = useCallback(async () => {
@@ -369,31 +395,42 @@ export default function CoachPage() {
     const currentState = sessionStateRef.current;
     const frameNow = performance.now();
     const measurementTs = frameTs ?? frameNow;
+    const currentSnapshot = liveUiSnapshotRef.current;
 
     if (!result) {
       staleFrameCountRef.current += 1;
       if (staleFrameCountRef.current >= PREVIEW_STALE_FRAME_LIMIT) {
-        setHasPose(false);
-        setVisibilityScore(0);
-        setQuality("bad");
-        setTrackingStatus(currentState === "active"
-          ? "No full-body pose detected yet. Step back and keep your frame visible."
-          : "Step back until shoulders, hips, knees, and ankles stay inside the guide.");
+        commitLiveUiFrame({
+          hasPose: false,
+          visibilityScore: 0,
+          fps: currentSnapshot?.fps ?? 0,
+          quality: "bad",
+          trackingStatus: currentState === "active"
+            ? "No full-body pose detected yet. Step back and keep your frame visible."
+            : "Step back until shoulders, hips, knees, and ankles stay inside the guide.",
+          repCount: currentState === "active" ? (currentSnapshot?.repCount ?? 0) : 0,
+          phase: currentState === "active" ? (currentSnapshot?.phase ?? "idle") : "idle",
+        }, frameNow, true);
       }
       return;
     }
 
     staleFrameCountRef.current = 0;
-    setHasPose(true);
     landmarksRef.current = result.landmarks;
-    setVisibilityScore(result.visibilityScore);
-    setFps(result.fps);
-    setQuality(getQualityState(result.visibilityScore, result.fps));
+    const nextQuality = getQualityState(result.visibilityScore, result.fps);
     recordFrameDropFps(result.fps);
 
     if (currentState !== "active") {
-      const previewFraming = getFramingGuidance({ cameraReady: true, visibilityScore: result.visibilityScore, fps: result.fps, hasPose: true });
-      setTrackingStatus(previewFraming.detail);
+      const previewFraming = getFramingGuidance({ exercise, cameraReady: true, visibilityScore: result.visibilityScore, fps: result.fps, hasPose: true });
+      commitLiveUiFrame({
+        hasPose: true,
+        visibilityScore: result.visibilityScore,
+        fps: result.fps,
+        quality: nextQuality,
+        trackingStatus: previewFraming.detail,
+        repCount: 0,
+        phase: "idle",
+      }, frameNow);
       return;
     }
 
@@ -401,21 +438,35 @@ export default function CoachPage() {
     visibilityAccumulatorRef.current.count += 1;
 
     if (result.visibilityScore < VISIBILITY_THRESHOLD) {
-      setTrackingStatus("Move back until shoulders, hips, knees, and ankles stay in frame.");
+      commitLiveUiFrame({
+        hasPose: true,
+        visibilityScore: result.visibilityScore,
+        fps: result.fps,
+        quality: nextQuality,
+        trackingStatus: "Move back until shoulders, hips, knees, and ankles stay in frame.",
+        repCount: currentSnapshot?.repCount ?? 0,
+        phase: currentSnapshot?.phase ?? "idle",
+      }, frameNow, true);
       setImmediateCue("Hold still while the camera regains a full-body read.", copy.secondaryCue);
       return;
     }
 
     lastPoseAtRef.current = frameNow;
-    setTrackingStatus("Tracking live posture.");
     const state = await validatorRef.current(result, measurementTs, { debounceFrames: 2, bestSide: result.bestSide });
     repMetricsRef.current = state.metrics;
-    setRepCount(state.repCount);
-    setPhase(state.phase);
+    commitLiveUiFrame({
+      hasPose: true,
+      visibilityScore: result.visibilityScore,
+      fps: result.fps,
+      quality: nextQuality,
+      trackingStatus: "Tracking live posture.",
+      repCount: state.repCount,
+      phase: state.phase,
+    }, frameNow);
     const primaryCue = state.mentorCue?.text || state.cues[0] || copy.liveCue;
     const alternateCue = state.cues[1] || copy.secondaryCue;
     setCadencedCue(primaryCue, alternateCue, true);
-  }, [copy.liveCue, copy.secondaryCue, setCadencedCue, setImmediateCue]);
+  }, [commitLiveUiFrame, copy.liveCue, copy.secondaryCue, exercise, setCadencedCue, setImmediateCue]);
 
   const queueSessionStart = useCallback(() => {
     if (!cameraReady || cameraError || detectorError) return;
@@ -818,6 +869,8 @@ export default function CoachPage() {
       framingTone={framing.tone}
       framingLabel={framing.label}
       framingDetail={framing.detail}
+      cameraAngleLabel={framing.cameraAngleLabel}
+      cameraAngleDetail={framing.cameraAngleDetail}
       countdownValue={countdownValue}
       cameraReady={cameraReady}
       hasStageError={Boolean(cameraError) || Boolean(detectorError)}
@@ -846,4 +899,5 @@ export default function CoachPage() {
     />
   );
 }
+
 

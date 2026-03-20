@@ -28,6 +28,12 @@ const patchTargets = [
   path.join(projectRoot, 'node_modules', 'next', 'dist', 'compiled', 'browserslist', 'index.js'),
 ];
 
+const nextDevCacheDir = path.join(projectRoot, '.next', 'dev');
+
+if (command === 'build' && fs.existsSync(nextDevCacheDir)) {
+  fs.rmSync(nextDevCacheDir, { recursive: true, force: true });
+}
+
 for (const target of patchTargets) {
   if (!fs.existsSync(target)) {
     continue;

@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Script from "next/script";
 import LogSilencer from "@/components/LogSilencer";
 import SiteFooter from "@/components/SiteFooter";
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description,
     images: [
       {
-        url: "/og-image?title=AI Form Coach&subtitle=Private motion coaching in your browser",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "AI Form Coach - private motion coaching in your browser",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     creator: "@aiformcoach",
     title: "AI Form Coach - Private Motion Coaching in Your Browser",
     description,
-    images: ["/og-image?title=AI Form Coach&subtitle=Private motion coaching in your browser"],
+    images: ["/twitter-image"],
   },
   robots: {
     index: true,

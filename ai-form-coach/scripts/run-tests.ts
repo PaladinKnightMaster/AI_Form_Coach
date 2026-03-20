@@ -4,7 +4,7 @@ import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import path from 'path';
 
-console.log('🧪 AI Form Coach - Automated Test Runner');
+console.log('ðŸ§ª AI Form Coach - Automated Test Runner');
 console.log('==========================================\n');
 
 // Test configuration
@@ -50,16 +50,16 @@ function runTestFile(filePath: string): { status: 'passed' | 'failed'; error?: s
   try {
     console.log(`${colors.blue}Running: ${filePath}${colors.reset}`);
     
-    const result = execSync(`npx vitest run ${filePath} --config vitest.config.test.ts --reporter=verbose`, {
+    const result = execSync(`npx vitest run ${filePath} --config vitest.config.test.mts --reporter=verbose`, {
       encoding: 'utf8',
       stdio: 'pipe'
     });
     
-    console.log(`${colors.green}✅ PASSED: ${filePath}${colors.reset}\n`);
+    console.log(`${colors.green}âœ… PASSED: ${filePath}${colors.reset}\n`);
     return { status: 'passed' };
     
   } catch (error: unknown) {
-    console.log(`${colors.red}❌ FAILED: ${filePath}${colors.reset}`);
+    console.log(`${colors.red}âŒ FAILED: ${filePath}${colors.reset}`);
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.log(`${colors.red}Error: ${errorMessage}${colors.reset}\n`);
     return { status: 'failed', error: errorMessage };
@@ -77,7 +77,7 @@ async function runAllTests() {
   console.log(`${colors.bold}Starting comprehensive test suite...${colors.reset}\n`);
   
   // Run API Tests
-  console.log(`${colors.yellow}📡 API Tests${colors.reset}`);
+  console.log(`${colors.yellow}ðŸ“¡ API Tests${colors.reset}`);
   console.log('================\n');
   
   for (const testFile of testConfig.apiTests) {
@@ -88,12 +88,12 @@ async function runAllTests() {
       if (result.status === 'passed') testResults.passed++;
       else testResults.failed++;
     } else {
-      console.log(`${colors.yellow}⚠️  SKIPPED: ${testFile} (file not found)${colors.reset}\n`);
+      console.log(`${colors.yellow}âš ï¸  SKIPPED: ${testFile} (file not found)${colors.reset}\n`);
     }
   }
   
   // Run Workflow Tests
-  console.log(`${colors.yellow}🔄 Workflow Tests${colors.reset}`);
+  console.log(`${colors.yellow}ðŸ”„ Workflow Tests${colors.reset}`);
   console.log('===================\n');
   
   for (const testFile of testConfig.workflowTests) {
@@ -104,12 +104,12 @@ async function runAllTests() {
       if (result.status === 'passed') testResults.passed++;
       else testResults.failed++;
     } else {
-      console.log(`${colors.yellow}⚠️  SKIPPED: ${testFile} (file not found)${colors.reset}\n`);
+      console.log(`${colors.yellow}âš ï¸  SKIPPED: ${testFile} (file not found)${colors.reset}\n`);
     }
   }
   
   // Run Integration Tests
-  console.log(`${colors.yellow}🔗 Integration Tests${colors.reset}`);
+  console.log(`${colors.yellow}ðŸ”— Integration Tests${colors.reset}`);
   console.log('=====================\n');
   
   for (const testFile of testConfig.integrationTests) {
@@ -120,7 +120,7 @@ async function runAllTests() {
       if (result.status === 'passed') testResults.passed++;
       else testResults.failed++;
     } else {
-      console.log(`${colors.yellow}⚠️  SKIPPED: ${testFile} (file not found)${colors.reset}\n`);
+      console.log(`${colors.yellow}âš ï¸  SKIPPED: ${testFile} (file not found)${colors.reset}\n`);
     }
   }
   
@@ -130,12 +130,12 @@ async function runAllTests() {
 
 // Print test summary
 function printTestSummary() {
-  console.log(`${colors.bold}📊 Test Summary${colors.reset}`);
+  console.log(`${colors.bold}ðŸ“Š Test Summary${colors.reset}`);
   console.log('================\n');
   
-  console.log(`${colors.green}✅ Passed: ${testResults.passed}${colors.reset}`);
-  console.log(`${colors.red}❌ Failed: ${testResults.failed}${colors.reset}`);
-  console.log(`${colors.blue}📈 Total: ${testResults.total}${colors.reset}\n`);
+  console.log(`${colors.green}âœ… Passed: ${testResults.passed}${colors.reset}`);
+  console.log(`${colors.red}âŒ Failed: ${testResults.failed}${colors.reset}`);
+  console.log(`${colors.blue}ðŸ“ˆ Total: ${testResults.total}${colors.reset}\n`);
   
   if (testResults.failed > 0) {
     console.log(`${colors.red}Failed Tests:${colors.reset}`);
@@ -152,13 +152,13 @@ function printTestSummary() {
   
   // Overall status
   if (testResults.failed === 0) {
-    console.log(`${colors.green}${colors.bold}🎉 All tests passed! Your workflows are working correctly.${colors.reset}\n`);
+    console.log(`${colors.green}${colors.bold}ðŸŽ‰ All tests passed! Your workflows are working correctly.${colors.reset}\n`);
   } else {
-    console.log(`${colors.red}${colors.bold}⚠️  Some tests failed. Please review the errors above.${colors.reset}\n`);
+    console.log(`${colors.red}${colors.bold}âš ï¸  Some tests failed. Please review the errors above.${colors.reset}\n`);
   }
   
   // Test coverage info
-  console.log(`${colors.blue}📋 Test Coverage:${colors.reset}`);
+  console.log(`${colors.blue}ðŸ“‹ Test Coverage:${colors.reset}`);
   console.log('  - API Endpoints: Readiness, Programs, Nutrition');
   console.log('  - Workflows: Nutrition, Readiness, Programs');
   console.log('  - Integration: Database schema, Business logic');
@@ -166,7 +166,7 @@ function printTestSummary() {
   console.log('  - Performance: Large datasets, Score calculations\n');
   
   // Next steps
-  console.log(`${colors.yellow}🚀 Next Steps:${colors.reset}`);
+  console.log(`${colors.yellow}ðŸš€ Next Steps:${colors.reset}`);
   if (testResults.failed === 0) {
     console.log('  1. Your database schema is correctly implemented');
     console.log('  2. All API endpoints are working properly');

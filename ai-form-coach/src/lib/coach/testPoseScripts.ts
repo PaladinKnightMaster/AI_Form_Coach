@@ -4,13 +4,15 @@ export type CoachTestPoseScriptName =
   | "squat-single-rep"
   | "pushup-single-rep"
   | "plank-short-hold"
-  | "squat-visibility-recovery";
+  | "squat-visibility-recovery"
+  | "squat-ready-hold";
 
 const SCRIPT_NAMES: CoachTestPoseScriptName[] = [
   "squat-single-rep",
   "pushup-single-rep",
   "plank-short-hold",
   "squat-visibility-recovery",
+  "squat-ready-hold",
 ];
 const DEFAULT_VISIBILITY = 0.98;
 
@@ -262,11 +264,16 @@ function buildSquatVisibilityRecoveryScript(): PoseEstimateResult[] {
   ];
 }
 
+function buildSquatReadyHoldScript(): PoseEstimateResult[] {
+  return repeatFrames(buildSquatPose({ kneeAngle: 170, hipShiftX: -0.01, hipLift: 0.002 }), 90);
+}
+
 const SCRIPTS: Record<CoachTestPoseScriptName, PoseEstimateResult[]> = {
   "squat-single-rep": buildSquatSingleRepScript(),
   "pushup-single-rep": buildPushupSingleRepScript(),
   "plank-short-hold": buildPlankShortHoldScript(),
   "squat-visibility-recovery": buildSquatVisibilityRecoveryScript(),
+  "squat-ready-hold": buildSquatReadyHoldScript(),
 };
 
 export function isCoachTestPoseScriptName(value: string | null): value is CoachTestPoseScriptName {

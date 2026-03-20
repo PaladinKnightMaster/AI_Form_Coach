@@ -18,6 +18,7 @@ test("coach beta stage boots with camera shell and overlay", async ({ page }, te
   await expect(page.getByText("Private motion coaching beta")).toBeVisible();
   await expect(page.locator("body")).not.toContainText("??");
   await expect(page.getByTestId("coach-framing-guide")).toBeVisible();
+  await expect(page.getByTestId("coach-camera-setup")).toBeVisible();
 
   const action = page.getByTestId("coach-primary-action").first();
   await expect(action).toBeEnabled({ timeout: 60_000 });
@@ -255,6 +256,7 @@ test("coach respects safe-area tray placement on iPhone Safari", async ({ page }
   expect(Math.round(stageBox?.y ?? 9999)).toBeLessThan(Math.round((viewport?.height ?? 0) * 0.18));
   expect(Math.round(cueBox?.y ?? 9999)).toBeLessThan(Math.round((stageBox?.y ?? 0) + (stageBox?.height ?? 0) * 0.45));
 });
+
 
 
 

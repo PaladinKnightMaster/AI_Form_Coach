@@ -68,4 +68,12 @@ describe("coach test pose scripts", () => {
     expect(frames?.some((frame) => frame.visibilityScore < 0.55)).toBe(true);
     expect(frames?.at(-1)?.visibilityScore ?? 0).toBeGreaterThan(0.9);
   });
+
+  it("includes a stable squat hold script for coach visual regression", () => {
+    const frames = getCoachTestPoseScript("squat-ready-hold");
+
+    expect(frames).toHaveLength(90);
+    expect(new Set(frames?.map((frame) => JSON.stringify(frame.landmarks[24]))).size).toBe(1);
+    expect(frames?.every((frame) => frame.visibilityScore > 0.9)).toBe(true);
+  });
 });

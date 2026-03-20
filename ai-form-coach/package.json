@@ -6,15 +6,18 @@
     "dev": "node scripts/run-next-with-baseline-env.mjs dev",
     "build": "node scripts/run-next-with-baseline-env.mjs build",
     "start": "node scripts/run-next-with-baseline-env.mjs start",
-    "lint": "eslint middleware.ts src/app/page.tsx src/app/coach/page.tsx src/app/pricing/page.tsx src/app/history/page.tsx src/app/privacy/page.tsx src/app/terms/page.tsx src/app/og-image/route.tsx src/app/layout.tsx src/app/sitemap.ts src/app/robots.ts src/app/api/ai/generate-food-image/route.ts src/app/api/ai/analyze-food/route.ts src/app/api/ai/test-gemini/route.ts src/app/api/plans/generate/route.ts src/app/api/plans/save-ai-plan/route.ts src/components/SiteHeader.tsx src/components/SiteFooter.tsx src/components/PoseOverlay.tsx src/components/AuthStatus.tsx src/components/coach/CoachCameraChrome.tsx src/components/coach/CoachExperienceView.tsx src/lib/mvp src/lib/history/publicHistory.ts src/lib/coach src/lib/pose/contracts.ts src/lib/pose/render.ts src/lib/ai/providers.ts src/lib/supabase/client.ts src/__tests__/mvp",
+    "lint": "eslint middleware.ts src/app/page.tsx src/app/coach/page.tsx src/app/history/page.tsx src/app/session/[id]/page.tsx src/app/pricing/page.tsx src/app/privacy/page.tsx src/app/terms/page.tsx src/app/og-image/route.tsx src/app/opengraph-image.tsx src/app/twitter-image.tsx src/app/layout.tsx src/app/sitemap.ts src/app/robots.ts src/app/api/[...slug]/route.ts src/components/SiteHeader.tsx src/components/SiteFooter.tsx src/components/PoseOverlay.tsx src/components/AuthStatus.tsx src/components/coach/CoachCameraChrome.tsx src/components/coach/CoachExperienceView.tsx src/lib/mvp src/lib/history/publicHistory.ts src/lib/coach src/lib/pose/contracts.ts src/lib/pose/render.ts src/lib/pose/engine.ts src/lib/ai/providers.ts src/lib/supabase/client.ts src/__tests__/mvp",
     "test": "npm run test:mvp",
     "test:mvp": "vitest run src/__tests__/simple.test.ts src/__tests__/mvp",
     "test:automation": "vitest run src/__tests__/mvp",
     "test:e2e": "playwright test",
     "test:e2e:coach": "playwright test tests/e2e/coach.smoke.spec.ts",
+    "test:e2e:coach:visual": "playwright test tests/e2e/coach.visual.spec.ts",
+    "test:e2e:coach:visual:update": "playwright test tests/e2e/coach.visual.spec.ts --update-snapshots",
     "test:e2e:coach:iphone": "playwright test tests/e2e/coach.smoke.spec.ts --project=iphone-safari",
     "test:extended": "vitest run src/__tests__/integration src/__tests__/performance src/__tests__/pose src/__tests__/workflows src/lib",
     "test:pose-smoke": "vitest run src/__tests__/mvp/poseContracts.test.ts",
+    "test:perf-smoke": "vitest run src/__tests__/performance/coach-performance-smoke.test.ts",
     "test:watch": "vitest",
     "test:workflows": "tsx scripts/run-tests.ts",
     "test:subscription": "tsx scripts/test-subscription-features.ts",
@@ -26,7 +29,7 @@
     "screenshots": "node scripts/screenshot-mobile.js",
     "demo": "echo 'Component demo available at http://localhost:3000/demo'",
     "test:e2e:coach:android": "playwright test tests/e2e/coach.smoke.spec.ts --project=android-chrome",
-    "test:release": "npm run lint && npm run test && npm run build && npm run test:e2e:coach",
+    "test:release": "npm run lint && npm run test && npm run test:perf-smoke && npm run build && npm run test:e2e:coach && npm run test:e2e:coach:visual",
     "test:e2e:coach:android:device": "node scripts/run-android-device-coach-smoke.mjs"
   },
   "dependencies": {
@@ -69,3 +72,4 @@
     "vitest": "^2.0.5"
   }
 }
+
