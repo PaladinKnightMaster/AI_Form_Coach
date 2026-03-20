@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import SessionChart from "@/components/SessionChart";
+import { getTestSessionFixture } from "@/lib/history/testHistoryFixtures";
+import { isLoopbackAutomationAllowed } from "@/lib/mvp/e2eAccess";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
 type SessionRecord = {
@@ -66,6 +68,18 @@ export default function SessionDetailPage() {
   const [notesState, setNotesState] = useState<SaveState>("idle");
   const [shareState, setShareState] = useState<SaveState>("idle");
 
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const loopbackHostname = typeof window !== "undefined" ? window.location.hostname : null;
+  const sessionScriptKey = searchParams?.get("session-script") ?? null;
+  const loopbackAutomationEnabled = isLoopbackAutomationAllowed(searchParams, loopbackHostname);
+  const scriptedSessionFixture = useMemo(() => {
+    if (process.env.NODE_ENV === "production" && !loopbackAutomationEnabled) {
+      return null;
+    }
+
+    return getTestSessionFixture(sessionScriptKey, sessionId);
+  }, [loopbackAutomationEnabled, sessionId, sessionScriptKey]);
+
   useEffect(() => {
     if (!sessionId || typeof window === "undefined") {
       return;
@@ -85,6 +99,19 @@ export default function SessionDetailPage() {
     let active = true;
 
     async function loadSession() {
+      if (scriptedSessionFixture) {
+        if (!active) {
+          return;
+        }
+
+        setRequiresAuth(false);
+        setError(null);
+        setSession(scriptedSessionFixture.session);
+        setReps(scriptedSessionFixture.reps);
+        setLoading(false);
+        return;
+      }
+
       try {
         const supabase = getSupabaseClient();
         const {
@@ -152,7 +179,7 @@ export default function SessionDetailPage() {
     return () => {
       active = false;
     };
-  }, [sessionId]);
+  }, [scriptedSessionFixture, sessionId]);
 
   const summary = useMemo(() => {
     const romValues = reps.map((rep) => rep.rom_score).filter((value): value is number => typeof value === "number");
@@ -243,7 +270,7 @@ export default function SessionDetailPage() {
       summary.averageRom === null ? null : `Average ROM ${summary.averageRom.toFixed(2)}`,
     ]
       .filter(Boolean)
-      .join(" • ");
+      .join(" | ");
 
     try {
       if (navigator.share) {
@@ -304,6 +331,7 @@ export default function SessionDetailPage() {
                 Back to history
               </Link>
               <button
+                data-testid="session-export-csv"
                 type="button"
                 onClick={handleDownloadCsv}
                 className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white"
@@ -398,6 +426,7 @@ export default function SessionDetailPage() {
                   Saved locally in this browser only. Use it for setup reminders, recovery notes, or what to improve next session.
                 </p>
                 <textarea
+                  data-testid="session-note-field"
                   value={notesDraft}
                   onChange={(event) => {
                     setNotesDraft(event.target.value);
@@ -414,6 +443,7 @@ export default function SessionDetailPage() {
                     {notesState === "saved" ? "Saved on this device." : notesState === "error" ? "Could not save this note." : "Not synced to your account."}
                   </div>
                   <button
+                    data-testid="session-save-note"
                     type="button"
                     onClick={handleSaveNote}
                     className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"

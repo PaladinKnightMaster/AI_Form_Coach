@@ -1,4 +1,4 @@
-﻿import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const isMobileProject = (projectName: string) => projectName === "android-chrome" || projectName === "iphone-safari";
 
@@ -261,3 +261,33 @@ test("coach respects safe-area tray placement on iPhone Safari", async ({ page }
 
 
 
+
+test("scripted history can open a session detail page and persist a private note", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium", "History/session hardening runs once in chromium");
+
+  await page.goto("/history?e2e-access=1&history-script=coach-beta-history");
+
+  await expect(page.getByText("Saved coaching sessions")).toBeVisible();
+  await expect(page.getByTestId("history-session-list")).toBeVisible();
+  await expect(page.locator("body")).not.toContainText("Â");
+  await expect(page.locator("body")).not.toContainText("Ã");
+
+  await page.getByTestId("history-session-link").first().click();
+
+  await expect(page).toHaveURL(/\/session\/session-squat-001\?e2e-access=1&session-script=coach-beta-history/);
+  await expect(page.getByText("Saved coach session")).toBeVisible();
+  await expect(page.getByText("Session chart")).toBeVisible();
+  await expect(page.locator("body")).not.toContainText("â€¢");
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByTestId("session-export-csv").click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe("squat-session-squat-001.csv");
+
+  await page.getByTestId("session-note-field").fill("Loopback QA note");
+  await page.getByTestId("session-save-note").click();
+  await expect(page.getByText("Saved on this device.")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByTestId("session-note-field")).toHaveValue("Loopback QA note");
+});

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getPublicHistorySessions } from "@/lib/history/publicHistory";
+import { getTestHistoryFixture } from "@/lib/history/testHistoryFixtures";
+import { isLoopbackAutomationAllowed, withLoopbackAutomationParams } from "@/lib/mvp/e2eAccess";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
 type Session = {
@@ -26,10 +28,35 @@ export default function HistoryPage() {
   const [requiresAuth, setRequiresAuth] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const loopbackHostname = typeof window !== "undefined" ? window.location.hostname : null;
+  const historyScriptKey = searchParams?.get("history-script") ?? null;
+  const loopbackAutomationEnabled = isLoopbackAutomationAllowed(searchParams, loopbackHostname);
+  const scriptedHistoryFixture = useMemo(() => {
+    if (process.env.NODE_ENV === "production" && !loopbackAutomationEnabled) {
+      return null;
+    }
+
+    return getTestHistoryFixture(historyScriptKey);
+  }, [historyScriptKey, loopbackAutomationEnabled]);
+
   useEffect(() => {
     let active = true;
 
     async function loadHistory() {
+      if (scriptedHistoryFixture) {
+        if (!active) {
+          return;
+        }
+
+        setRequiresAuth(false);
+        setError(null);
+        setSessions(getPublicHistorySessions(scriptedHistoryFixture.sessions));
+        setReps(scriptedHistoryFixture.reps.map((rep) => ({ session_id: rep.session_id, rom_score: rep.rom_score })));
+        setLoading(false);
+        return;
+      }
+
       try {
         const supabase = getSupabaseClient();
         const {
@@ -103,7 +130,7 @@ export default function HistoryPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [scriptedHistoryFixture]);
 
   const summary = useMemo(() => {
     const totalSessions = sessions.length;
@@ -183,21 +210,27 @@ export default function HistoryPage() {
               </div>
             </div>
           ) : (
-            <ul className="space-y-4">
-              {sessions.map((session) => (
-                <li key={session.id} className="flex flex-col gap-4 rounded-3xl border border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-2">
-                    <div className="text-lg font-semibold capitalize">{session.exercise}</div>
-                    <div className="text-sm text-slate-600 dark:text-slate-300">{new Date(session.started_at).toLocaleString()}</div>
-                    <div className="text-sm text-slate-600 dark:text-slate-300">
-                      {session.total_reps ?? 0} reps · {Math.round((session.total_time_seconds ?? 0) / 60)} min
+            <ul className="space-y-4" data-testid="history-session-list">
+              {sessions.map((session) => {
+                const sessionHref = scriptedHistoryFixture
+                  ? withLoopbackAutomationParams(`/session/${session.id}`, { "session-script": scriptedHistoryFixture.key })
+                  : `/session/${session.id}`;
+
+                return (
+                  <li key={session.id} data-testid="history-session-row" className="flex flex-col gap-4 rounded-3xl border border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-2">
+                      <div className="text-lg font-semibold capitalize">{session.exercise}</div>
+                      <div className="text-sm text-slate-600 dark:text-slate-300">{new Date(session.started_at).toLocaleString()}</div>
+                      <div className="text-sm text-slate-600 dark:text-slate-300">
+                        {session.total_reps ?? 0} reps - {Math.round((session.total_time_seconds ?? 0) / 60)} min
+                      </div>
                     </div>
-                  </div>
-                  <Link href={`/session/${session.id}`} className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white">
-                    View session
-                  </Link>
-                </li>
-              ))}
+                    <Link data-testid="history-session-link" href={sessionHref} className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white">
+                      View session
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

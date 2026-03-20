@@ -1,6 +1,7 @@
 ﻿import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getMvpDisabledRedirect, isMvpAuthOnlyPath, isMvpDisabledPage } from "./src/lib/mvp/featureRegistry";
+import { isLoopbackHost } from "./src/lib/mvp/e2eAccess";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -31,15 +32,15 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  const isCoachAutomationBypass =
-    process.env.COACH_E2E_BYPASS === "1" && request.nextUrl.searchParams.get("e2e-access") === "1";
+  const isLoopbackAutomationBypass =
+    request.nextUrl.searchParams.get("e2e-access") === "1" && isLoopbackHost(request.nextUrl.hostname);
 
   if (isMvpDisabledPage(pathname)) {
     const redirectUrl = new URL(getMvpDisabledRedirect(pathname, Boolean(user)), request.url);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (!user && isMvpAuthOnlyPath(pathname) && !isCoachAutomationBypass) {
+  if (!user && isMvpAuthOnlyPath(pathname) && !isLoopbackAutomationBypass) {
     const redirectUrl = new URL("/signin", request.url);
     return NextResponse.redirect(redirectUrl);
   }
