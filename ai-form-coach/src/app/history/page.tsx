@@ -156,7 +156,7 @@ export default function HistoryPage() {
           </div>
           <h1 className="mt-4 text-3xl font-bold">Sign in to view your history</h1>
           <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-            History is part of the motion coaching MVP for signed-in beta users. Only real sessions saved from the coach should appear here.
+            History is part of the motion coaching beta for signed-in users. Only real sessions saved from the coach should appear here.
           </p>
           <div className="mt-6 flex justify-center">
             <Link href="/signin" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
@@ -178,7 +178,7 @@ export default function HistoryPage() {
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight">Saved coaching sessions</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-              This page is limited to real sessions saved from the public coach. Demo history and synthetic trends are intentionally excluded from the MVP release.
+              This page is limited to real sessions saved from the public coach. Demo history and synthetic trends are intentionally excluded from the current release.
             </p>
           </div>
 

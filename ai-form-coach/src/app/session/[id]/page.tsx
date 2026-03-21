@@ -410,7 +410,7 @@ export default function SessionDetailPage() {
                 <div className="mt-4 space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
                   <p>
                     This session detail page is intentionally limited to real saved beta sessions. Legacy verification,
-                    embeddings, and report-generation modules are excluded from the MVP release surface.
+                    embeddings, and report-generation modules are excluded from the current release.
                   </p>
                   <p>
                     Use this page to review rep quality, export the raw rep rows, and keep a short note tied to this

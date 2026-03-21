@@ -97,7 +97,7 @@ export default function PrivacyPage() {
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">Last updated: {UPDATED_AT}</p>
             <p className="mx-auto max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300">
-              The current MVP is intentionally narrow: live pose coaching for squat, pushup, and plank. This page explains what stays on your device, what can be saved if you sign in, and what is deliberately outside the beta scope.
+              The current release is intentionally narrow: live pose coaching for squat, pushup, and plank. This page explains what stays on your device, what can be saved if you sign in, and what is deliberately outside the beta scope.
             </p>
           </div>
 

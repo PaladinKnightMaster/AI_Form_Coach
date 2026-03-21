@@ -127,7 +127,7 @@ export default function Home() {
             <Badge tone="neutral" className="mb-4 uppercase tracking-[0.2em]">
               System focus
             </Badge>
-            <h2 className="text-3xl font-bold sm:text-4xl">The MVP is a motion product, not a broad wellness bundle.</h2>
+            <h2 className="text-3xl font-bold sm:text-4xl">This is a motion product, not a broad wellness bundle.</h2>
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             {systemCards.map((card) => (
