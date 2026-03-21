@@ -17,16 +17,19 @@ The golden rule: **never add a technology whose operational cost exceeds its del
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  FRONTEND                                                       │
-│  Next.js 14 (App Router) · React 18 · TypeScript 5            │
-│  Tailwind CSS · Framer Motion · Radix UI primitives            │
+│  Next.js 16 (App Router) · React 19 · TypeScript 5            │
+│  Tailwind CSS 4 · CSS transitions · Radix UI primitives        │
 ├─────────────────────────────────────────────────────────────────┤
 │  AI / ML (Client-Side Only)                                     │
 │  MediaPipe Pose Landmarker (@mediapipe/tasks-vision)           │
-│  One Euro Filter (custom TS) · Canvas 2D (native browser)      │
+│  EMA smoothing (alpha=0.65) · Canvas 2D (native browser)       │
 │  Web Speech API + human-recorded audio (WAV/MP3)               │
 ├─────────────────────────────────────────────────────────────────┤
+│  STATE MANAGEMENT                                               │
+│  Zustand 5.x (high-frequency pose state, ~30fps updates)      │
+├─────────────────────────────────────────────────────────────────┤
 │  PWA / OFFLINE                                                  │
-│  next-pwa (Workbox) · Dexie.js (IndexedDB) · Service Worker   │
+│  idb (IndexedDB wrapper) · Serwist (Phase 1, replaces next-pwa)│
 ├─────────────────────────────────────────────────────────────────┤
 │  BACKEND / API                                                  │
 │  Next.js App Router Route Handlers (Node.js runtime)           │
@@ -50,11 +53,11 @@ The golden rule: **never add a technology whose operational cost exceeds its del
 
 ## 3. Layer-by-Layer Decisions
 
-### 3.1 Framework: Next.js 14 (App Router)
+### 3.1 Framework: Next.js 16 (App Router)
 
 | Attribute | Detail |
 |---|---|
-| Version | 14.x (stable) |
+| Version | 16.0.7 (current) |
 | Router | App Router (React Server Components) |
 | Rendering | Static + SSR hybrid — landing/pricing static, coach/history SSR |
 | Runtime | Node.js (API routes) + Edge (OG image only) |
@@ -98,36 +101,36 @@ Run this after every DB migration. Commit the generated types.
 
 ---
 
-### 3.3 Styling: Tailwind CSS 3 + Radix UI
+### 3.3 Styling: Tailwind CSS 4 + Radix UI
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| Utility CSS | Tailwind CSS 3 | All layout, spacing, color, responsive |
+| Utility CSS | Tailwind CSS 4 | All layout, spacing, color, responsive |
 | Component primitives | Radix UI (headless) | Accessible dialogs, dropdowns, tooltips |
-| Animation | Framer Motion | Coaching stage transitions, countdown, result cards |
-| Design tokens | Tailwind `theme.extend` | Brand colors, font scale, spacing scale |
+| Animation | CSS transitions | All UI animations; no Framer Motion (saves ~32KB gzip) |
+| Design tokens | CSS custom properties in `globals.css` | Brand colors, spacing — single source of truth |
 
-**Tailwind config (key tokens):**
-```javascript
-// tailwind.config.ts
-theme: {
-  extend: {
-    colors: {
-      brand: {
-        primary:   '#2563EB',  // coaching blue
-        accent:    '#10B981',  // form score green
-        warning:   '#F59E0B',  // correction amber
-        danger:    '#EF4444',  // safety red
-        surface:   '#0F172A',  // dark coaching background
-        overlay:   '#1E293B',  // card/panel on dark
-      }
-    },
-    fontFamily: {
-      display: ['Inter', 'sans-serif'],
-      mono:    ['JetBrains Mono', 'monospace'],  // rep counter
-    }
-  }
+**Design tokens (CSS custom properties — `src/app/globals.css`):**
+```css
+/* globals.css — source of truth for all design tokens */
+:root {
+  --brand-primary:   #2563EB;  /* coaching blue */
+  --brand-accent:    #10B981;  /* form score green */
+  --brand-warning:   #F59E0B;  /* correction amber */
+  --brand-danger:    #EF4444;  /* safety red */
+  --brand-surface:   #0F172A;  /* dark coaching background */
+  --brand-overlay:   #1E293B;  /* card/panel on dark */
 }
+```
+
+**Typography: System font stack (not Inter/JetBrains Mono)**
+```css
+/* System fonts — 0KB load, instant render, native feel on every platform */
+font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+/* Mono: for rep counter and form scores */
+font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Mono', monospace;
+```
+**Rationale:** System fonts load instantly (0KB vs ~100KB for Inter). For a coaching app where users are exercising, typography polish matters far less than load speed. Optional brand upgrade via `next/font` in Phase 2+ if differentiation is needed.
 ```
 
 **Why Radix UI (not shadcn/ui):** Radix is the underlying primitive layer. Shadcn/ui wraps Radix with opinionated styling — acceptable, but the coaching surface requires fully custom component behavior (camera overlay, rep counter) that benefits from primitive-level control. Use shadcn/ui patterns as reference only.
@@ -144,7 +147,7 @@ theme: {
 | Attribute | Detail |
 |---|---|
 | Model | Pose Landmarker Lite (MVP), Full (post-benchmark) |
-| Inference mode | `LIVE_STREAM` (async callback, non-blocking) |
+| Inference mode | `VIDEO` (synchronous; LIVE_STREAM migration planned Phase 1) |
 | Acceleration | WebGL delegate (auto-fallback to CPU) |
 | Model hosting | `/public/models/` (versioned filenames, cached by Service Worker) |
 | WASM bundles | Loaded from jsDelivr CDN (SRI hash verified) |
@@ -169,7 +172,7 @@ const WASM_CDN_FALLBACK = 'https://unpkg.com/@mediapipe/tasks-vision@0.10.x/wasm
 
 ### 3.5 Overlay Rendering: Canvas 2D (Native Browser API)
 
-**No additional library needed.** `CanvasRenderingContext2D` with `requestAnimationFrame` handles the overlay at ≤1ms draw time for a 17-joint skeleton. WebGL is explicitly rejected for overlay rendering — it would add shader compilation complexity and fragility for zero measurable improvement.
+**No additional library needed.** `CanvasRenderingContext2D` with `requestAnimationFrame` handles the overlay at ≤1ms draw time for a 10-joint fitness skeleton. WebGL is explicitly rejected for overlay rendering — it would add shader compilation complexity and fragility for zero measurable improvement.
 
 The coaching surface renders two elements:
 1. `<video>` element (camera feed, z-index 0)
@@ -226,39 +229,32 @@ function speakCue(text: string): void {
 
 ---
 
-### 3.7 Offline / PWA: next-pwa + Dexie.js
+### 3.7 Offline / PWA: `idb` + Serwist (Phase 1)
 
-**next-pwa** (Workbox under the hood):
-```javascript
-// next.config.js
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  runtimeCaching: [
-    {
-      urlPattern: /\/models\/.+\.task$/,
-      handler: 'CacheFirst',
-      options: { cacheName: 'ml-models', expiration: { maxEntries: 3 } },
-    },
-    {
-      urlPattern: /\/audio\/cues\/.+\.mp3$/,
-      handler: 'CacheFirst',
-      options: { cacheName: 'audio-cues', expiration: { maxEntries: 60 } },
-    },
-    {
-      urlPattern: /\/api\/v1\//,
-      handler: 'NetworkFirst',
-      options: { cacheName: 'api-cache', networkTimeoutSeconds: 5 },
-    },
-  ],
-});
-```
+**Current state (Beta 1):** No service worker. Offline data persistence uses `idb` (IndexedDB). Service worker planned for Phase 1 using Serwist.
 
-**Dexie.js** (IndexedDB wrapper):
+**`idb`** (IndexedDB Promise wrapper):
 ```json
-"dexie": "^3.2.x"
+"idb": "^8.x"
 ```
-Dexie provides a Promise-based API over IndexedDB with TypeScript generics and automatic schema migrations. Used for: offline session queue, local rep storage, sync status tracking. See `02_SYSTEM_DESIGN.md` §3.3 for schema.
+`idb` provides a thin Promise-based API over the callback-based IndexedDB API. Used in `src/lib/storage/offlineQueue.ts` for: offline session queue, sync status tracking.
+
+**Why `idb` over Dexie.js:** Lighter weight, sufficient for the offline queue pattern. Dexie.js adds schema migrations and more features than needed at MVP.
+
+**Serwist** (Phase 1 — replaces next-pwa):
+```
+Status: Not yet installed. Planned Phase 1 implementation.
+Reason: next-pwa is abandoned (last update 2023). Serwist is the active
+        replacement built for Next.js 14+ App Router.
+
+Planned cache strategy:
+  - Static assets: CacheFirst (long TTL)
+  - API routes: NetworkFirst with IndexedDB fallback
+  - MediaPipe WASM bundles: CacheFirst (version-keyed)
+  - Audio pack files: CacheFirst
+  - Camera stream: Never cached (live only)
+```
+Service worker enables: install prompt, offline page shell, "Add to Home Screen", asset caching.
 
 ---
 
@@ -412,11 +408,11 @@ Sentry.init({
 ### 3.12 Payments: Stripe (Post-MVP Phase 2)
 
 ```json
-"stripe": "^14.x",                    // server-side
-"@stripe/stripe-js": "^3.x"           // client-side
+"stripe": "^16.6.x"                   // server-side ONLY
+// @stripe/stripe-js is NOT needed — Hosted Checkout redirects to Stripe's page
 ```
 
-Implementation pattern: Stripe Checkout (hosted payment page) — not Elements. Hosted checkout handles PCI compliance, reduces frontend complexity, and takes 30 minutes to integrate. No custom card form needed at MVP pricing tier.
+Implementation pattern: **Stripe Checkout (hosted payment page)** — not Elements. The user is redirected to Stripe's hosted page for payment. No client-side Stripe SDK is loaded. This is simpler, more secure, and PCI-compliant by default. No custom card form needed.
 
 **Pricing objects to create in Stripe:**
 | Product | Price ID | Amount | Interval |
@@ -440,17 +436,16 @@ Implementation pattern: Stripe Checkout (hosted payment page) — not Elements. 
 
 | Package | Version | Justification |
 |---|---|---|
-| `next` | 14.x | Framework (existing) |
-| `react` | 18.x | UI (existing) |
+| `next` | 16.x | Framework (existing) |
+| `react` | 19.x | UI (existing) |
 | `typescript` | 5.x | Type safety (existing) |
-| `tailwindcss` | 3.x | Styling (existing) |
+| `tailwindcss` | 4.x | Styling (existing) |
 | `@mediapipe/tasks-vision` | 0.10.x | Pose detection (existing + integrated) |
 | `@supabase/supabase-js` | 2.x | Database client (existing) |
 | `@supabase/ssr` | 0.x | Auth for App Router (existing) |
-| `dexie` | 3.x | IndexedDB for offline queue |
-| `next-pwa` | 5.x | Service Worker / PWA manifest |
+| `idb` | 8.x | IndexedDB Promise wrapper for offline queue |
+| `zustand` | 5.x | High-frequency pose state management |
 | `zod` | 3.x | API input validation |
-| `framer-motion` | 11.x | Coaching stage transitions |
 | `@radix-ui/*` | latest | Accessible UI primitives |
 | `vitest` | 1.x | Unit + integration testing |
 | `@playwright/test` | 1.4x | E2E + device matrix |
@@ -461,7 +456,7 @@ Implementation pattern: Stripe Checkout (hosted payment page) — not Elements. 
 | Package | Why Excluded |
 |---|---|
 | `react-query` / `tanstack-query` | Supabase client handles data fetching; unnecessary abstraction layer at MVP |
-| `zustand` / `jotai` | React Context + `useReducer` sufficient for coaching state |
+| `jotai` | Zustand chosen instead — better ecosystem for high-frequency external state |
 | `prisma` / `drizzle` | Supabase's auto-generated types + raw SQL migrations are simpler |
 | `socket.io` | Supabase Realtime handles WebSocket post-MVP |
 | Any LLM SDK (`openai`, `anthropic`) | No cloud AI in MVP coaching path |
@@ -474,7 +469,7 @@ Implementation pattern: Stripe Checkout (hosted payment page) — not Elements. 
 | Package | When to Add | Use Case |
 |---|---|---|
 | `powersync` | If offline sync reliability is a top user complaint post-beta | Robust Postgres↔SQLite sync |
-| `stripe` | Phase 2 (freemium paywall) | Payments |
+| `serwist` | Phase 1 (PWA service worker) | Asset caching, install prompt, offline shell |
 | `@aws-sdk/client-s3` | If Supabase Storage becomes a bottleneck | Large video assets |
 | `onnxruntime-web` | If post-MVP custom model needed (injury prediction) | Custom ONNX inference |
 | `react-native` | Phase 5 (native mobile) | App Store distribution |
@@ -545,7 +540,7 @@ const { initPoseLandmarker } = await import('@/lib/coach/posePipeline');
 | `SENTRY_AUTH_TOKEN` | GitHub Actions secrets | **Never** |
 | `STRIPE_SECRET_KEY` | Vercel env (Phase 2) | **Never** |
 | `STRIPE_WEBHOOK_SECRET` | Vercel env (Phase 2) | **Never** |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Vercel env (Phase 2) | Yes (safe) |
+| ~~`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`~~ | Not needed — Hosted Checkout | N/A — no client SDK |
 
 ---
 
