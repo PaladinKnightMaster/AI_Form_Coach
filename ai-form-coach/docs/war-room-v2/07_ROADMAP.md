@@ -58,10 +58,10 @@ Phase 5  ──── Platform / Bundling
 | Sessions | End-to-end save success >99% in manual testing | ⏳ Pending |
 | Content | All cues wellness-consultant-reviewed and locked | ⏳ Pending |
 | Audio | Human-recorded audio pack (15+ cues × 3 exercises) shipped | ⏳ Pending |
-| Copy | No placeholder text, fake data, or demo fallbacks on any public route | ⏳ Pending audit |
-| Non-MVP routes | All gated behind FeatureRegistry, hidden from sitemap/nav | ⏳ Pending |
-| Privacy | Account deletion flow works end-to-end | ⏳ Pending |
-| Monitoring | Sentry live, Better Uptime live, telemetry ingesting | ⏳ Pending |
+| Copy | No placeholder text, fake data, or demo fallbacks on any public route | ✅ Done (March 2026 copy audit) |
+| Non-MVP routes | All gated behind FeatureRegistry, hidden from sitemap/nav | ✅ Done (feature registry audit + orphaned components moved) |
+| Privacy | Account deletion flow works end-to-end | ✅ Done (service role admin.deleteUser + ON DELETE CASCADE) |
+| Monitoring | Sentry live, Better Uptime live, telemetry ingesting | ✅ Partial — Sentry DSN configured, error boundaries reporting. `@sentry/nextjs` full coverage deferred to Phase 1. Better Uptime pending. |
 
 ### Immediate Priority Task Queue
 
@@ -75,12 +75,12 @@ Phase 5  ──── Platform / Bundling
 - [ ] Finalize all cue text for squat, pushup, plank with wellness consultant
 - [ ] Record human audio pack (15+ priority cues × 3 exercises; studio not required — clean room mic)
 - [ ] Shoot or source real human demo movement videos for exercise select + framing guides
-- [ ] Audit all public-facing copy for placeholder text
+- [x] Audit all public-facing copy for placeholder text ✅ (March 2026 — 8 "MVP" references replaced)
 
 **Week 2: Final Hardening**
-- [ ] Audit FeatureRegistry — confirm all non-MVP routes return 404 or redirect
-- [ ] Implement and test account deletion (GDPR compliance)
-- [ ] Set up Sentry + Better Uptime + telemetry pipeline
+- [x] Audit FeatureRegistry — confirm all non-MVP routes return 404 or redirect ✅ (March 2026 — orphaned nutrition components moved to legacy-disabled)
+- [x] Implement and test account deletion (GDPR compliance) ✅ (March 2026 — service role + ON DELETE CASCADE)
+- [ ] Set up Sentry + Better Uptime + telemetry pipeline (partial: error boundaries + Sentry wired, DSN pending)
 - [ ] Fix non-blocking Next.js warning in `src/app/og-image/route.tsx` (edge runtime)
 - [ ] Supabase Pro plan activated before beta invite goes out
 
@@ -126,6 +126,7 @@ Everything in the MVP scope from `01_PRODUCT_REQUIREMENTS.md`. Free, no paywall,
 | Password reset flow | P1 | Auth completeness — blocks real user recovery |
 | **Serwist PWA service worker** | P1 | Enables install prompt, offline shell, "Add to Home Screen", asset caching. Replaces abandoned next-pwa. |
 | **LIVE_STREAM mode migration** | P1 | Migrate MediaPipe from VIDEO to LIVE_STREAM mode for better low-end device performance (async callbacks, frame dropping) |
+| **Upgrade to `@sentry/nextjs`** | P1 | Full coverage: server errors, API route errors, unhandled rejections, source maps. Beta 1 ships with `@sentry/browser` (error boundaries only). |
 | Session history pagination (if >30 sessions edge case) | P2 | Beta users won't hit this; ship for launch |
 | Basic analytics dashboard (internal Supabase query) | P1 | Need visibility into beta metrics |
 
