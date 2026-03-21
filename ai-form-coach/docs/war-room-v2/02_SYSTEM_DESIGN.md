@@ -6,16 +6,16 @@
 
 ## 1. Architecture Overview
 
-AI Form Coach is a **single-region, Supabase-backed Next.js 14 PWA** with strictly on-device ML inference. There is no server-side AI, no video upload pipeline, and no cloud compute in the live coaching path. The architecture is deliberately minimal — optimized for a solo developer, zero-cost ML inference, and fast iteration.
+AI Form Coach is a **single-region, Supabase-backed Next.js 16 PWA** with strictly on-device ML inference. There is no server-side AI, no video upload pipeline, and no cloud compute in the live coaching path. The architecture is deliberately minimal — optimized for a solo developer, zero-cost ML inference, and fast iteration.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    CLIENT (Browser / PWA)                    │
 │                                                             │
 │  ┌──────────────┐  ┌─────────────────┐  ┌───────────────┐  │
-│  │  Next.js 14  │  │ MediaPipe Pose  │  │  Canvas 2D    │  │
+│  │  Next.js 16  │  │ MediaPipe Pose  │  │  Canvas 2D    │  │
 │  │  App Router  │  │ Landmarker WASM │  │  Overlay      │  │
-│  │  (React 18)  │  │  (WebGL/WASM)   │  │  Renderer     │  │
+│  │  (React 19)  │  │  (WebGL/WASM)   │  │  Renderer     │  │
 │  └──────┬───────┘  └────────┬────────┘  └───────────────┘  │
 │         │                   │                               │
 │  ┌──────▼───────────────────▼──────────────────────────┐    │
@@ -61,16 +61,16 @@ Camera Stream (getUserMedia)
 ┌───────────────────┐
 │  PosePipeline     │  MediaPipe Pose Landmarker (WASM)
 │  • detect()       │  → RawPose33 (33 3D landmarks + visibility scores)
-│  • smooth()       │  → One Euro Filter applied per landmark
+│  • smooth()       │  → EMA filter (alpha=0.65) applied per landmark
 └────────┬──────────┘
          │ RawPose33 (smoothed)
          ▼
 ┌───────────────────┐
-│  PoseNormalizer   │  Scale-invariant, camera-angle-agnostic
+│  PoseNormalizer   │  Scale-invariant, hip-to-ankle normalization
 │  • normalize()    │  → coordinates in [0,1] range
 │  • deriveJoints() │  → neck (shoulder midpoint), pelvis_center, torso_center
 └────────┬──────────┘
-         │ FitnessSkeleton17 + DerivedJoints
+         │ FitnessSkeleton10 + DerivedJoints
          ▼
 ┌───────────────────┐
 │  MotionFeatures   │  Joint angle calculation (law of cosines)
@@ -81,7 +81,7 @@ Camera Stream (getUserMedia)
          ▼
 ┌───────────────────┐
 │  CueEngine        │  Rule-based cue selector (calmer cadence)
-│  • evaluate()     │  Suppression: no repeat cue within 4s
+│  • evaluate()     │  Cooldown: 3000ms default, 2000ms safety minimum
 │  • selectCue()    │  Priority: safety > correction > encouragement
 └────────┬──────────┘
          │ CueTrigger (optional)
@@ -111,8 +111,9 @@ type RawPose33 = {
   timestamp: number;
 };
 
-type FitnessSkeleton17 = {
-  // COCO-style 17 joints (MediaPipe indices mapped)
+type FitnessSkeleton10 = {
+  // Simplified 10-joint fitness skeleton (shoulders, elbows, wrists, hips, knees, ankles)
+  // Full 33 MediaPipe landmarks reduced to the joints relevant for form coaching
   joints: Record<FitnessJointName, Joint>;
   timestamp: number;
 };
@@ -263,10 +264,11 @@ CREATE POLICY "Users can insert own telemetry" ON telemetry_events
 -- Telemetry reads for analytics are done via service role key (server-only)
 ```
 
-### 3.3 Local-First Offline Schema (IndexedDB via Dexie.js)
+### 3.3 Local-First Offline Schema (IndexedDB via `idb`)
 
 ```typescript
-// src/lib/db/localDb.ts — Dexie schema
+// src/lib/storage/offlineQueue.ts — idb (Promise-based IndexedDB wrapper)
+// Note: Using `idb` library (not Dexie.js) for lightweight Promise-based IndexedDB access
 class AIFormCoachDB extends Dexie {
   sessions!: Table<LocalSession>;
   reps!: Table<LocalRep>;
@@ -337,6 +339,7 @@ type TutorialSampleSession = {
 | `OverlayRenderer` | Canvas2D skeleton drawing, cue text overlay |
 | `VoiceSynthesizer` | Audio pack playback + speechSynthesis fallback |
 | `SessionRecorder` | In-memory accumulation, IndexedDB flush |
+| `ZustandPoseStore` | High-frequency pose state management (~30fps updates without React re-renders) |
 | `SyncQueue` | Offline-first Supabase sync with retry logic |
 | `DeviceReadiness` | Camera checks, frame rate validation, lighting guidance |
 | `Telemetry` | Event logging (batched, fire-and-forget) |
@@ -382,13 +385,20 @@ interface VoiceSynthesisProvider {
 
 ### 5.2 Service Worker (PWA)
 ```
-next-pwa (Workbox under the hood)
-Cache Strategy:
+Status: Not yet implemented (Beta 1 ships without service worker)
+Planned library: Serwist (next-pwa replacement for Next.js 14+; next-pwa is abandoned)
+Phase 1 implementation target.
+
+Planned cache strategy (Phase 1):
   - Static assets: CacheFirst (long TTL)
   - API routes: NetworkFirst with IndexedDB fallback
   - MediaPipe WASM bundles: CacheFirst (version-keyed)
   - Audio pack files: CacheFirst
   - Camera stream: Never cached (live only)
+
+Note: Offline data persistence already works via IndexedDB (`idb` library)
+      in src/lib/storage/offlineQueue.ts. Service worker adds asset caching
+      and the install banner / "Add to Home Screen" capability.
 ```
 
 ### 5.3 Environment Configuration
@@ -483,12 +493,14 @@ Client receives session object via @supabase/ssr
 | Decision | Rationale | Alternatives Considered |
 |---|---|---|
 | MediaPipe Pose Landmarker (not MoveNet) | 33 landmarks with 3D, proven browser SDK, future headroom for richer analysis | MoveNet Lightning (17 landmarks only, no 3D) |
-| Canvas2D for overlay (not WebGL) | <1ms draw time for 17-joint skeleton, no GPU pipeline complexity | WebGL (overkill, adds fragility) |
+| Canvas2D for overlay (not WebGL) | <1ms draw time for 10-joint fitness skeleton, no GPU pipeline complexity | WebGL (overkill, adds fragility) |
 | Supabase (not custom Postgres) | Instant auth, RLS, realtime, Postgres — all for $25/mo | PlanetScale, Neon, Firebase |
 | Next.js App Router (not Pages) | Server Components, layout-level auth, Edge Runtime support | Pages Router (older, more compatible) |
 | IndexedDB + Supabase (not PowerSync) | Simpler for MVP; PowerSync adds ~50KB bundle | PowerSync (evaluate post-MVP for sync robustness) |
 | Client-side AI only (no cloud AI in coaching path) | Privacy, latency, zero per-inference cost, no GPU server needed | Cloud Vision API (too expensive, privacy risk, latency) |
-| One Euro Filter (not Kalman or EMA) | Best accuracy/smoothness tradeoff for real-time pose; well-documented WebGL port | Kalman (higher SEM), EMA (fixed window, worse at varying speeds) |
+| EMA smoothing (alpha=0.65) for MVP | Simpler, faster (~0.1ms vs ~0.3ms), sufficient for dynamic rep-based exercises. One Euro Filter evaluated for Phase 3+ hold-based exercises (yoga/plank). | One Euro Filter (better for holds, adaptive), Kalman (higher SEM, heavier) |
+| Zustand for real-time pose state | Handles ~30fps pose updates without triggering React re-renders; outperforms React Context for high-frequency state | React Context (re-render cascade), Jotai (similar, less ecosystem) |
+| `idb` for IndexedDB (not Dexie.js) | Lightweight Promise wrapper over IndexedDB; sufficient for offline queue pattern | Dexie.js (heavier, more features than needed) |
 
 ---
 

@@ -123,6 +123,8 @@ Everything in the MVP scope from `01_PRODUCT_REQUIREMENTS.md`. Free, no paywall,
 | `robots.txt` (block non-MVP routes) | P1 | SEO hygiene |
 | Pricing page — beta messaging → launch messaging | P1 | Needed before paywall decision |
 | Password reset flow | P1 | Auth completeness — blocks real user recovery |
+| **Serwist PWA service worker** | P1 | Enables install prompt, offline shell, "Add to Home Screen", asset caching. Replaces abandoned next-pwa. |
+| **LIVE_STREAM mode migration** | P1 | Migrate MediaPipe from VIDEO to LIVE_STREAM mode for better low-end device performance (async callbacks, frame dropping) |
 | Session history pagination (if >30 sessions edge case) | P2 | Beta users won't hit this; ship for launch |
 | Basic analytics dashboard (internal Supabase query) | P1 | Need visibility into beta metrics |
 
@@ -322,6 +324,12 @@ Month 18–24  Platform maturity — target $15,000–25,000 MRR
 | Mar 2026 | MediaPipe Lite over Full for launch | Latency budget easier to meet; switch to Full only if benchmark data demands it |
 | Mar 2026 | PWA over native mobile app | No App Store tax; no 30% cut; camera access works on iOS 16+; Phase 5 only if justified |
 | Mar 2026 | Freemium paywall at Month 2 (not Day 1) | Need PMF signal before charging; beta must be free to attract honest feedback |
+| Mar 2026 | EMA smoothing (not One Euro Filter) for Beta 1 | EMA is simpler/faster for dynamic rep-based exercises; One Euro Filter evaluated for hold-based exercises in Phase 3+ |
+| Mar 2026 | Nutrition AI allocated to DRIFT app | Endurance athletes have strongest nutrition-performance link; keeps Form Coach focused on form coaching |
+| Mar 2026 | System fonts (not Inter/JetBrains Mono) | 0KB load vs ~100KB; load speed > typography polish for exercise app; optional brand upgrade Phase 2+ |
+| Mar 2026 | CSS transitions (not Framer Motion) | Saves ~32KB gzip; CSS handles 90%+ of UI animation needs |
+| Mar 2026 | Server-only Stripe (no @stripe/stripe-js) | Hosted Checkout redirects to Stripe's page; no client SDK needed |
+| Mar 2026 | Zustand for real-time state (not React Context) | Handles ~30fps pose updates without React re-render cascade |
 
 ---
 

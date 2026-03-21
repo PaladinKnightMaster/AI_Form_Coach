@@ -25,7 +25,7 @@ Post-MVP ML expansions (multimodal reasoning, voice AI, injury prediction) have 
 | Model variant | Pose Landmarker Lite (MVP launch) |
 | Landmark count | 33 3D world landmarks |
 | Additional outputs | Visibility score (0–1) per landmark, presence score |
-| Inference mode | `LIVE_STREAM` (non-blocking, callback-based) |
+| Inference mode | `VIDEO` (synchronous per-frame; LIVE_STREAM migration planned Phase 1) |
 | Acceleration | WebGL (MediaPipe default in browser) |
 | Model size | ~5MB (Lite), ~25MB (Full) |
 | Typical mobile latency | 12–25ms (Lite), 20–40ms (Full) |
@@ -55,7 +55,7 @@ export async function initPoseLandmarker(): Promise<PoseLandmarker> {
       modelAssetPath: '/models/pose_landmarker_lite.task',  // cached via Service Worker
       delegate: 'GPU',  // falls back to CPU automatically
     },
-    runningMode: 'LIVE_STREAM',
+    runningMode: 'VIDEO',  // Phase 1: migrate to LIVE_STREAM for async callback + frame dropping
     numPoses: 1,
     minPoseDetectionConfidence: 0.5,
     minPosePresenceConfidence: 0.5,
@@ -110,65 +110,32 @@ MediaPipe provides 33 landmarks. The fitness skeleton uses a subset mapped to CO
 
 ## 3. Landmark Normalization & Smoothing
 
-### 3.1 One Euro Filter (Mandatory)
+### 3.1 EMA Smoothing (Current Implementation)
 
-Apply One Euro Filter per landmark, per coordinate (x, y, z) independently. This is the smoothest real-time filter for varying-speed human motion:
+The codebase uses **Exponential Moving Average (EMA)** with alpha=0.65 for landmark smoothing. This is simpler and faster than One Euro Filter (~0.1ms vs ~0.3ms per frame), and sufficient for dynamic rep-based exercises (squat, pushup).
 
 ```typescript
-// src/lib/coach/oneEuroFilter.ts
-export class OneEuroFilter {
-  private beta: number;
-  private dcutoff: number;
-  private minCutoff: number;
-  private xPrev: number | null = null;
-  private dxPrev: number = 0;
-  private tPrev: number | null = null;
+// src/lib/pose/engine.ts — PoseEngine2
+// EMA smoothing applied per landmark coordinate
+const EMA_ALPHA = 0.65;  // higher = more responsive, lower = smoother
 
-  constructor(
-    minCutoff: number = 1.0,   // lower = smoother (more lag at low speed)
-    beta: number = 0.007,       // higher = less lag at high speed
-    dcutoff: number = 1.0
-  ) {
-    this.minCutoff = minCutoff;
-    this.beta = beta;
-    this.dcutoff = dcutoff;
-  }
-
-  filter(x: number, timestamp: number): number {
-    if (this.xPrev === null) {
-      this.xPrev = x;
-      this.tPrev = timestamp;
-      return x;
-    }
-    const dt = (timestamp - this.tPrev!) / 1000; // seconds
-    const dx = (x - this.xPrev) / dt;
-    const edx = this.lowPass(dx, this.dxPrev, this.alpha(this.dcutoff, dt));
-    const cutoff = this.minCutoff + this.beta * Math.abs(edx);
-    const filtered = this.lowPass(x, this.xPrev, this.alpha(cutoff, dt));
-    this.xPrev = filtered;
-    this.dxPrev = edx;
-    this.tPrev = timestamp;
-    return filtered;
-  }
-
-  private alpha(cutoff: number, dt: number): number {
-    const tau = 1 / (2 * Math.PI * cutoff);
-    return 1 / (1 + tau / dt);
-  }
-
-  private lowPass(x: number, prev: number, alpha: number): number {
-    return alpha * x + (1 - alpha) * prev;
-  }
+function emaSmooth(current: number, previous: number): number {
+  return EMA_ALPHA * current + (1 - EMA_ALPHA) * previous;
 }
 
-// One filter instance per landmark per coordinate (33 × 3 = 99 instances)
-// Initialized once, reset on exercise change
+// Applied per landmark per coordinate (x, y, z)
+// Reset on exercise change
 ```
 
-**Recommended parameters for fitness form:**
-- `minCutoff`: 1.0–1.5 (balance jitter reduction vs lag)
-- `beta`: 0.005–0.01 (allow fast motion at high rep speed)
-- **Never share filter instances across exercises** — reset on exercise select
+**Why EMA over One Euro Filter (for now):**
+- Simpler implementation, easier to debug
+- ~3x faster per frame
+- Sufficient for dynamic exercises where the user is in constant motion
+- One Euro Filter's adaptive smoothing (low jitter at rest, responsive during movement) becomes important for **hold-based exercises** (plank holds, yoga poses) — evaluate when building STILL or extending plank detection
+
+**Phase 3+ consideration:** Evaluate One Euro Filter for hold-based exercises where visible jitter at rest degrades UX. The filter's adaptive cutoff frequency provides superior smoothing during static holds while maintaining responsiveness during transitions.
+
+**Never share filter state across exercises** — reset on exercise select
 
 ### 3.2 Normalization
 
@@ -189,9 +156,15 @@ export function normalizePose(raw: RawPose33): NormalizedPose {
   const pelvisCenter = midpoint3D(leftHip, rightHip);
   const torsoCenter = midpoint3D(neck, pelvisCenter);
 
-  // Torso length normalization: scale all world coords so torso = 1.0
-  const torsoLength = distance3D(neck, pelvisCenter);
-  const scale = torsoLength > 0.01 ? 1 / torsoLength : 1;
+  // Hip-to-ankle normalization: scale using lower body segment length
+  // Rationale: superior for lower-body exercises (squat, lunge) because it scales
+  // with the measured body segment. Torso-length normalization breaks when users
+  // lean forward (squat bottom position visually shortens the torso).
+  const leftAnkle = worldLandmarks[27];
+  const rightAnkle = worldLandmarks[28];
+  const ankleCenter = midpoint3D(leftAnkle, rightAnkle);
+  const hipToAnkle = distance3D(pelvisCenter, ankleCenter);
+  const scale = hipToAnkle > 0.01 ? 1 / hipToAnkle : 1;
 
   return {
     screenLandmarks: landmarks,        // unnormalized, for overlay
@@ -398,8 +371,8 @@ type CueEngineState = {
   consecutiveGoodReps: number;
 };
 
-const GLOBAL_CUE_COOLDOWN_MS = 3000;   // no cue more frequent than once per 3s
-const SAFETY_CUE_COOLDOWN_MS = 1500;   // safety cues can be more frequent
+const GLOBAL_CUE_COOLDOWN_MS = 3000;   // no cue more frequent than once per 3s (DEFAULT_COOLDOWN)
+const SAFETY_CUE_COOLDOWN_MS = 2000;   // safety cues have 2s minimum floor
 
 export function evaluateCues(
   features: MotionFeatures,
@@ -547,14 +520,14 @@ function getColorForScore(score: number): string {
 |---|---|---|
 | Camera frame capture | ~2ms | ~1ms |
 | MediaPipe detection | ≤25ms (async, non-blocking) | 12–20ms |
-| One Euro Filter (99 instances) | ~0.5ms | ~0.3ms |
+| EMA smoothing (per landmark) | ~0.2ms | ~0.1ms |
 | Normalization + DerivedJoints | ~0.3ms | ~0.2ms |
 | Motion feature extraction | ~1ms | ~0.5ms |
 | Cue engine evaluation | ~0.5ms | ~0.2ms |
 | Canvas2D render | ≤4ms | ~1–2ms |
 | **Total render thread** | **≤8ms** | **~4ms** |
 
-MediaPipe runs async in its own thread via WASM worker — it does not block the render thread. The render thread handles normalization → cue → overlay only.
+**Note:** Current implementation uses VIDEO mode (synchronous). MediaPipe processes the frame synchronously per `requestAnimationFrame` call. Phase 1 migration to LIVE_STREAM mode will make detection truly async. The render thread handles normalization → cue → overlay only.
 
 ### 7.2 Performance Instrumentation
 
@@ -629,7 +602,7 @@ Before any model addition, it must pass:
 | 2D screen landmarks can't resolve depth ambiguity | Knee valgus estimation may be imprecise in some camera angles | Use world landmarks for angle calc; document limitation in terms |
 | Plank is hard to detect without side view | Shoulder stack measurement limited in front-facing camera | Plank framing guide specifies side profile; front view shows hip height only |
 | iOS Safari camera permission resets | User friction on each session | Persist stream across route transitions; clear UX explanation at permission prompt |
-| One Euro Filter has one-frame startup lag | Slight jitter on session start | Pre-warm filter with first 3 frames before enabling rep counting |
+| EMA smoothing has fixed alpha tradeoff | At alpha=0.65, slightly more jitter than adaptive filters during holds | Acceptable for dynamic exercises; evaluate One Euro Filter for hold-based exercises in Phase 3+ |
 
 ---
 

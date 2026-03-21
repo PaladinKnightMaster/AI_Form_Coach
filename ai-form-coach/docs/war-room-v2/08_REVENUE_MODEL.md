@@ -188,17 +188,21 @@ AI Form Coach advantage over GymStreak benchmark: **zero competitive incumbents*
 
 ### 6.1 Implementation Approach
 
-Stripe Checkout (hosted, not Elements) for all payment flows. Rationale: PCI compliance handled by Stripe, 30-minute integration, no custom card UI needed at MVP pricing tier.
+**Stripe Checkout (hosted, not Elements)** for all payment flows. Server-side only — no `@stripe/stripe-js` client SDK needed. The user is redirected to Stripe's hosted page for payment. PCI compliance handled entirely by Stripe. No custom card UI.
+
+**Implementation:** `stripe` package v16.6.x (server-side only). No client-side Stripe SDK loaded.
 
 ```
 User clicks "Upgrade to Pro"
-  → POST /api/v1/subscriptions/checkout (creates Stripe Checkout session)
-  → Redirect to Stripe-hosted checkout page
-  → User completes payment
+  → POST /api/v1/subscriptions/checkout (creates Stripe Checkout session, server-side)
+  → Redirect to Stripe-hosted checkout page (user leaves our app briefly)
+  → User completes payment on Stripe's page
   → Stripe fires checkout.session.completed webhook
   → POST /api/v1/webhooks/stripe (updates user.subscription_tier in DB)
-  → User redirected to /coach with Pro features unlocked
+  → User redirected back to /coach with Pro features unlocked
 ```
+
+**Why no client-side Stripe SDK:** `@stripe/stripe-js` is only needed for Stripe Elements (embedded card forms). Hosted Checkout doesn't require it. This keeps the client bundle smaller and avoids PCI scope complexity.
 
 ### 6.2 Products and Price IDs to Configure in Stripe
 

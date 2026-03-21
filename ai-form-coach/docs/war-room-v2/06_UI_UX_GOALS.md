@@ -41,12 +41,18 @@ Non-coaching surfaces (landing, pricing, history) use a **light/dark auto mode**
 ### 2.2 Typography
 
 ```
-Display / Headings:  Inter (variable weight, 400–700)
-Body:                Inter (400, 500)
-Rep Counter:         JetBrains Mono (700) — tabular figures, no reflow on count changes
-Form Score:          JetBrains Mono (600)
-Cue Text:            Inter (500, 18px minimum on mobile)
+All text:            System font stack (0KB load, instant render, native feel)
+                     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif
+Rep Counter:         System monospace (700) — tabular figures, no reflow on count changes
+Form Score:          System monospace (600)
+                     ui-monospace, 'SF Mono', Monaco, 'Cascadia Mono', monospace
+Cue Text:            System sans-serif (500, 18px minimum on mobile)
 ```
+
+> **Note:** Inter + JetBrains Mono were originally planned but not implemented.
+> System fonts are used instead — 0KB vs ~100KB load. For a coaching app where
+> users are exercising, load speed matters more than typography differentiation.
+> Optional brand upgrade via `next/font` in Phase 2+ if needed.
 
 **Type scale (coaching surface — optimized for glanceability at arm's length):**
 | Element | Size | Weight | Notes |
@@ -111,13 +117,45 @@ Head indicator:         Single dot, 6px radius — no facial landmarks
 ### 3.2 First-Time User Flow
 
 ```
-Sign Up → Camera Permission Modal (product-branded, explains on-device) →
-Exercise Select (with brief "tap an exercise to start" tooltip, one-time only) →
+Sign Up (lazy profile — email + ID only) →
+Exercise Select (card grid, "tap an exercise to start" tooltip, one-time) →
+Pre-Permission Camera Card (branded explanation, NOT the browser prompt) →
+Browser Camera Permission Prompt →
 Framing Guide (more verbose first time — shows positioning diagram) →
 Session Start
 ```
 
-The first-time experience adds exactly **one additional screen** (camera permission explanation) and one **one-time tooltip**. No mandatory profile setup. No onboarding carousel. No survey.
+**Pre-Permission Camera Card (Critical — Beta 1 P0):**
+
+Research shows pre-permission explanations increase camera grant rates by **81%**.
+The pre-permission card appears BEFORE the browser's native permission prompt:
+
+```
+┌─────────────────────────────────┐
+│                                 │
+│  📷  Camera Access Needed       │
+│                                 │
+│  AI Form Coach uses your camera │
+│  to see your exercise form and  │
+│  give real-time feedback.       │
+│                                 │
+│  🔒 Your video is processed     │
+│     on your device and NEVER    │
+│     uploaded or stored.         │
+│                                 │
+│  [Preview: skeleton overlay     │
+│   on example body image]        │
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │   Allow Camera Access →   │  │  ← THEN triggers browser prompt
+│  └───────────────────────────┘  │
+│                                 │
+│  Why do you need my camera? →   │  ← Expandable FAQ
+│                                 │
+└─────────────────────────────────┘
+```
+
+The first-time experience adds exactly **two additional screens** (pre-permission card + camera card) and one **one-time tooltip**. No mandatory profile setup. No onboarding carousel. No survey.
 
 ---
 
@@ -162,22 +200,20 @@ The first-time experience adds exactly **one additional screen** (camera permiss
 - Exercise previews (squat, pushup, plank thumbnails with form score overlay)
 - Footer: Privacy, Terms, GitHub (if open source eventually)
 
-### 4.2 Authentication (`/auth/signin`, `/auth/signup`)
+### 4.2 Authentication (`/auth` — Unified Page)
 
-**Minimal friction design:**
+**Minimal friction design — single unified auth page with tab toggle:**
 ```
 ┌─────────────────────────────┐
 │  [← Back]                  │
 │                             │
-│  Create your account        │  ← Clear, direct
+│  [Sign In]  [Sign Up]      │  ← Tab toggle (modern standard)
+│  ─────────  ──────────     │
 │                             │
 │  [Email input]              │
 │  [Password input]           │
 │                             │
-│  [Create Account]           │  ← Single CTA
-│                             │
-│  Already have an account?   │
-│  Sign in →                  │
+│  [Continue]                 │  ← Single CTA
 │                             │
 │  By signing up you agree    │  ← Legal, small, below fold
 │  to our Terms & Privacy.    │
@@ -185,6 +221,10 @@ The first-time experience adds exactly **one additional screen** (camera permiss
 ```
 
 **Rules:**
+- **Unified auth page** — single page with Sign In / Sign Up toggle. No separate routes.
+  Reduces friction — users don't have to find the "other" page. Standard pattern (Auth0, Clerk, Supabase Auth UI).
+- **Lazy profile creation** — minimal profile on signup (email + ID only). Don't ask for
+  height/weight/goals until after first session. Prompt for additional info at paywall.
 - No social OAuth at MVP (adds complexity, not needed at beta scale)
 - Password requirements: 8+ characters minimum (no complexity theater)
 - Error states: inline, field-level ("Email already in use" — not a modal)
@@ -301,9 +341,14 @@ Full-screen dark overlay on camera feed:
 
 **Cue text visual behavior:**
 ```
-Trigger → Slide up from bottom (200ms Framer Motion ease-out)
+Trigger → Subtle fade-in at fixed position (150–200ms CSS transition ease-out)
 Display for 3000ms
-Fade out (300ms)
+Fade out (200ms)
+
+Position: bottom-center of screen (fixed, not animated from edge)
+Rationale: During exercise, users' attention is on their body. Slide/bounce
+           animations from edges are distracting. Fade-in at a fixed position
+           with high contrast is optimal for glanceability.
 
 Highlight: the skeleton segment(s) related to the cue change to correction amber
            simultaneously with the text cue appearing.
@@ -416,7 +461,7 @@ Highlight: the skeleton segment(s) related to the cue change to correction amber
 | MediaPipe initializing | Full-screen skeleton animation (branded, not generic spinner) |
 | Camera permissions request | Branded permission card (before browser prompt fires) |
 | Session saving | Button loading state + subtle progress ring |
-| History loading | Skeleton screen (card-shaped placeholders) — never blank |
+| History loading | Skeleton screens (gray card-shaped placeholders) — never blank. Skeleton screens feel 35% faster than spinners in user perception studies. |
 | API error | Inline error with retry button — never navigate away |
 
 ### 5.2 Error States
@@ -457,7 +502,7 @@ No haptic on: cue delivery, errors (too intrusive during exercise).
 | Stage 3 → 4 (end → post-session) | Slide up from bottom | 350ms |
 | Route transitions (history, pricing) | Fade | 200ms |
 
-All transitions use Framer Motion. No CSS-only transitions for stage changes (too limited for the camera surface). Route transitions use Next.js `<Link>` with Framer Motion layout animations.
+All transitions use CSS transitions. Framer Motion is not installed (saves ~32KB gzip). CSS transitions handle 90%+ of UI needs. If exit animations (AnimatePresence) are ever needed, evaluate `LazyMotion` with `domAnimation` (~5KB tree-shaken).
 
 ---
 
@@ -479,14 +524,30 @@ All transitions use Framer Motion. No CSS-only transitions for stage changes (to
 - Sessions completable with audio cues only (no vision required for rep feedback)
 - Pause button: large touch target (minimum 48×48px), always visible
 
-### 6.3 Reduced Motion
+### 6.3 Reduced Motion ⚠️ (WCAG 2.1 AA Required — Beta 1 Blocker)
+
+**All CSS transitions and animations MUST be wrapped in a motion preference check.**
+This is a legal requirement in many jurisdictions and an accessibility necessity.
+
 ```css
+/* All decorative animations gated behind motion preference */
+@media (prefers-reduced-motion: no-preference) {
+  .cue-text { transition: opacity 200ms ease-out; }
+  .stage-transition { transition: transform 300ms ease-out; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  /* Disable all Framer Motion animations */
-  /* Camera overlay still renders (not decorative) */
-  /* Cue text appears immediately without slide animation */
+  /* All transitions: instant (no animation) */
+  /* Camera overlay still renders (functional, not decorative) */
+  /* Cue text appears immediately without fade */
+  /* Skeleton overlay animation disabled */
 }
 ```
+
+**Audit scope for Beta 1:**
+- All CSS transitions in `globals.css` and component styles
+- All programmatic animations (if any)
+- Verify with browser devtools: enable `prefers-reduced-motion: reduce`
 
 ---
 
@@ -503,16 +564,28 @@ All transitions use Framer Motion. No CSS-only transitions for stage changes (to
 
 **Camera aspect ratio:**
 ```typescript
-// Lock camera to 4:3 (better for full-body framing on portrait mobile)
+// Use native camera aspect ratio — do NOT force 4:3 or 16:9
+// Rationale: Forcing a specific ratio letterboxes on most phones.
+// Native aspect maximizes visible body area for form coaching.
 const constraints: MediaStreamConstraints = {
   video: {
     facingMode: 'user',
-    width: { ideal: 640 },
-    height: { ideal: 480 },
-    aspectRatio: { ideal: 4/3 },
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+    // aspectRatio not constrained — let the device choose native
   }
 };
 ```
+
+**Mobile safe areas (required for iOS):**
+```css
+/* Required for notch/Dynamic Island phones */
+padding-top: env(safe-area-inset-top);
+padding-bottom: env(safe-area-inset-bottom);
+padding-left: env(safe-area-inset-left);
+padding-right: env(safe-area-inset-right);
+```
+Without `env(safe-area-inset-*)`, UI elements hide behind the notch/Dynamic Island on modern iPhones. This must be applied to the coaching surface and all full-screen views.
 
 ---
 
