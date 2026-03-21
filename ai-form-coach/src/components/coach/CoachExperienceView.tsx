@@ -137,6 +137,12 @@ export default function CoachExperienceView({
 
   return (
     <div data-testid="coach-page-shell" style={pageShellStyle} className={`min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.2),_transparent_28%),linear-gradient(180deg,_#ecfeff_0%,_#f8fafc_36%,_#ffffff_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.18),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(56,189,248,0.18),_transparent_28%),linear-gradient(180deg,_#020617_0%,_#0f172a_42%,_#020617_100%)] ${pagePaddingClass}`}>
+      {offline && (
+        <div data-testid="coach-offline-banner" className="mx-4 mb-2 flex items-center justify-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 sm:mx-6 lg:mx-8">
+          <Icon name="alert-circle" className="h-4 w-4 flex-shrink-0" />
+          <span>Offline — {pendingWrites > 0 ? `${pendingWrites} session${pendingWrites === 1 ? "" : "s"} will sync when reconnected` : "sessions will sync when reconnected"}</span>
+        </div>
+      )}
       <div className={contentShellClass}>
         {mobileSessionFocus ? (
           <div data-testid="coach-mobile-session-header" className="mb-3 flex items-center justify-between gap-3 lg:hidden">
