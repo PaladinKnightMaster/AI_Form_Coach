@@ -40,6 +40,9 @@ docs/
 │   └── VERIFICATION_SYSTEM.md
 │
 ├── technical/                      # Technical Details
+│   ├── ARCHITECTURE_AUDIT.md       # Doc-vs-code audit (33 findings)
+│   ├── CROSS_PRODUCT_STRATEGY.md   # Wellness app portfolio strategy
+│   ├── CX_JOURNEY_MAP.md           # Customer experience journey map
 │   ├── LEADERBOARDS.md
 │   ├── METRICS_GUARDRAILS_DOCUMENTATION.md
 │   ├── METRICS_GUARDRAILS_IMPLEMENTATION.md
@@ -87,6 +90,9 @@ docs/
 - **Leaderboards** → `technical/LEADERBOARDS.md`
 
 ### **Technical Deep Dives**
+- **Architecture audit** → `technical/ARCHITECTURE_AUDIT.md` (33 doc-vs-code findings)
+- **CX journey map** → `technical/CX_JOURNEY_MAP.md` (full user journey)
+- **Cross-product strategy** → `technical/CROSS_PRODUCT_STRATEGY.md` (wellness portfolio)
 - **Micro model** → `technical/MICRO_MODEL.md`
 - **Movement embeddings** → `technical/MOVEMENT_EMBEDDINGS.md`
 - **Phase detection** → `technical/PHASE_DETECTION.md`
@@ -135,9 +141,15 @@ docs/
 3. Run tests from `verification/`
 
 #### **Understand system architecture**
-1. Start with `pose/README_3D_POSE_SYSTEM.md`
-2. Review `systems/` folder
-3. Check `technical/` for deep details
+1. Start with `technical/ARCHITECTURE_AUDIT.md` - current state of truth
+2. Review `technical/CX_JOURNEY_MAP.md` - user experience flow
+3. Review `systems/` folder
+4. Check `technical/` for deep details
+
+#### **Understand product strategy**
+1. Read `technical/CROSS_PRODUCT_STRATEGY.md` - wellness portfolio
+2. Review `war-room-v2/07_ROADMAP.md` - phased release plan
+3. Review `war-room-v2/08_REVENUE_MODEL.md` - pricing & revenue
 
 ---
 
