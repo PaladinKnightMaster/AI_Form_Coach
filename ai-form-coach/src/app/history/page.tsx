@@ -182,17 +182,19 @@ export default function HistoryPage() {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MetricCard label="Sessions" value={String(summary.totalSessions)} />
-            <MetricCard label="Reps" value={String(summary.totalReps)} />
-            <MetricCard label="Minutes" value={String(summary.totalMinutes)} />
-            <MetricCard label="Average ROM" value={summary.averageRom === null ? "-" : summary.averageRom.toFixed(2)} />
-          </div>
+          {loading ? (
+            <MetricSkeletonRow />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <MetricCard label="Sessions" value={String(summary.totalSessions)} />
+              <MetricCard label="Reps" value={String(summary.totalReps)} />
+              <MetricCard label="Minutes" value={String(summary.totalMinutes)} />
+              <MetricCard label="Average ROM" value={summary.averageRom === null ? "-" : summary.averageRom.toFixed(2)} />
+            </div>
+          )}
 
           {loading ? (
-            <div className="rounded-3xl border border-slate-200 p-8 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-300">
-              Loading saved session history...
-            </div>
+            <HistorySkeletonList />
           ) : error ? (
             <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
               {error}
@@ -245,5 +247,39 @@ function MetricCard({ label, value }: { label: string; value: string }) {
       <div className="text-sm text-slate-500">{label}</div>
       <div className="mt-2 text-2xl font-bold">{value}</div>
     </div>
+  );
+}
+
+function SkeletonPulse({ className }: { className?: string }) {
+  return <div className={`animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700 ${className || ""}`} />;
+}
+
+function MetricSkeletonRow() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="rounded-3xl border border-slate-200 p-5 dark:border-slate-800">
+          <SkeletonPulse className="h-4 w-16 mb-3" />
+          <SkeletonPulse className="h-7 w-12" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HistorySkeletonList() {
+  return (
+    <ul className="space-y-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <li key={i} className="flex flex-col gap-4 rounded-3xl border border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-3">
+            <SkeletonPulse className="h-5 w-24" />
+            <SkeletonPulse className="h-4 w-40" />
+            <SkeletonPulse className="h-4 w-32" />
+          </div>
+          <SkeletonPulse className="h-10 w-28 rounded-lg" />
+        </li>
+      ))}
+    </ul>
   );
 }
