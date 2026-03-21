@@ -1,6 +1,6 @@
-# MVP Release Checklist
+﻿# MVP Release Checklist
 
-Updated: March 15, 2026
+Updated: March 20, 2026
 
 ## Release Command
 
@@ -11,13 +11,15 @@ Updated: March 15, 2026
   - `npm run test`
   - `npm run test:perf-smoke`
   - `npm run build`
-  - `npm run test:e2e:coach`
-  - `npm run test:e2e:coach:visual`
+  - `npm run test:e2e:release`
 
 ## Automated Pass Criteria
 
 - Public routes stay limited to the MVP release surface.
 - Disabled legacy routes redirect away from public access.
+- Protected MVP routes preserve the intended destination when they send a user to sign in.
+- `/signup` opens the combined auth screen in signup mode and preserves redirect intent.
+- `/auth/auth-code-error` offers recovery guidance and retry links when callback exchange fails.
 - `/coach` boots, frames the user, starts, pauses, resumes, saves, and records cue feedback in browser automation.
 - Deterministic squat, pushup, and plank scripted flows all pass.
 - Deterministic recovery flows all pass:
@@ -30,6 +32,7 @@ Updated: March 15, 2026
 ## Manual Release Checks
 
 - Review `/`, `/pricing`, `/coach`, `/history`, `/privacy`, and `/terms` for truthful MVP copy.
+- Review `/signin`, `/signup`, `/reset-password`, and `/auth/auth-code-error` for clear and non-corrupted auth copy.
 - Confirm no public page claims nutrition AI, food scan, workout plans, readiness, or health integrations.
 - Confirm no public page claims fake ratings, fake usage scale, or unsupported platform coverage.
 - Confirm `/coach` recovery guide, save notice, setup guidance, and beta-state language read clearly on desktop and mobile viewport emulation.

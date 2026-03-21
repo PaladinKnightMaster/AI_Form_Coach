@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # Copy & Trust Pass - Comprehensive Verification Report
 
 ## Overview
@@ -186,3 +187,4 @@ This report documents the implementation and verification of the Copy & Trust Pa
 The Copy & Trust Pass feature has been **successfully implemented** and provides comprehensive transparency about AI scoring, verification criteria, and improvement guidance. Users can now understand exactly how they're being judged and how to improve their scores without leaving the app, significantly reducing support burden while building trust through honest, clear communication.
 
 **Status: ✅ IMPLEMENTED AND READY FOR PRODUCTION**
+

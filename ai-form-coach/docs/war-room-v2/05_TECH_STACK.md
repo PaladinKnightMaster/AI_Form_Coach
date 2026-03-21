@@ -1,3 +1,4 @@
+> Beta 2 planning note: this document is part of the initial Beta 2 planning baseline. It does not represent shipped Beta 1 status by itself. Re-check it against [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) before using it for roadmap or release decisions.
 # AI Form Coach — Tech Stack
 **Version:** 1.0 | **Status:** War Room Active | **Date:** March 2026
 **Owner:** Tech Lead | **Reviewed by:** Principal Frontend + Backend Engineers
@@ -545,3 +546,4 @@ const { initPoseLandmarker } = await import('@/lib/coach/posePipeline');
 ---
 
 _Maintained by Tech Lead. Any dependency additions require PR with documented justification. Dependencies that require native modules or break PWA camera access are automatically rejected._
+

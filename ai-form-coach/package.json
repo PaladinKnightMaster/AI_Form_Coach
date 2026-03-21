@@ -6,7 +6,7 @@
     "dev": "node scripts/run-next-with-baseline-env.mjs dev",
     "build": "node scripts/run-next-with-baseline-env.mjs build",
     "start": "node scripts/run-next-with-baseline-env.mjs start",
-    "lint": "eslint middleware.ts src/app/page.tsx src/app/coach/page.tsx src/app/history/page.tsx src/app/session/[id]/page.tsx src/app/pricing/page.tsx src/app/privacy/page.tsx src/app/terms/page.tsx src/app/og-image/route.tsx src/app/opengraph-image.tsx src/app/twitter-image.tsx src/app/layout.tsx src/app/sitemap.ts src/app/robots.ts src/app/api/[...slug]/route.ts src/components/SiteHeader.tsx src/components/SiteFooter.tsx src/components/PoseOverlay.tsx src/components/AuthStatus.tsx src/components/coach/CoachCameraChrome.tsx src/components/coach/CoachExperienceView.tsx src/lib/mvp src/lib/history/publicHistory.ts src/lib/coach src/lib/pose/contracts.ts src/lib/pose/render.ts src/lib/pose/engine.ts src/lib/ai/providers.ts src/lib/supabase/client.ts src/__tests__/mvp",
+    "lint": "eslint middleware.ts src/app/page.tsx src/app/coach/page.tsx src/app/history/page.tsx src/app/session/[id]/page.tsx src/app/pricing/page.tsx src/app/privacy/page.tsx src/app/terms/page.tsx src/app/signin/page.tsx src/app/signup/page.tsx src/app/reset-password/page.tsx src/app/auth/callback/route.tsx src/app/auth/auth-code-error/page.tsx src/app/og-image/route.tsx src/app/opengraph-image.tsx src/app/twitter-image.tsx src/app/layout.tsx src/app/sitemap.ts src/app/robots.ts src/app/api/[...slug]/route.ts src/components/SiteHeader.tsx src/components/SiteFooter.tsx src/components/PoseOverlay.tsx src/components/AuthStatus.tsx src/components/AuthCard.tsx src/components/coach/CoachCameraChrome.tsx src/components/coach/CoachExperienceView.tsx src/lib/auth src/lib/mvp src/lib/history/publicHistory.ts src/lib/coach src/lib/pose/contracts.ts src/lib/pose/render.ts src/lib/pose/engine.ts src/lib/ai/providers.ts src/lib/supabase/client.ts src/__tests__/mvp",
     "test": "npm run test:mvp",
     "test:mvp": "vitest run src/__tests__/simple.test.ts src/__tests__/mvp",
     "test:automation": "vitest run src/__tests__/mvp",
@@ -29,8 +29,10 @@
     "screenshots": "node scripts/screenshot-mobile.js",
     "demo": "echo 'Component demo available at http://localhost:3000/demo'",
     "test:e2e:coach:android": "playwright test tests/e2e/coach.smoke.spec.ts --project=android-chrome",
-    "test:release": "npm run lint && npm run test && npm run test:perf-smoke && npm run build && npm run test:e2e:coach && npm run test:e2e:coach:visual",
-    "test:e2e:coach:android:device": "node scripts/run-android-device-coach-smoke.mjs"
+    "test:release": "npm run lint && npm run test && npm run test:perf-smoke && npm run build && npm run test:e2e:release",
+    "test:e2e:coach:android:device": "node scripts/run-android-device-coach-smoke.mjs",
+    "test:e2e:auth": "playwright test tests/e2e/auth.smoke.spec.ts",
+    "test:e2e:release": "playwright test tests/e2e/auth.smoke.spec.ts tests/e2e/coach.smoke.spec.ts tests/e2e/coach.visual.spec.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -72,4 +74,3 @@
     "vitest": "^2.0.5"
   }
 }
-

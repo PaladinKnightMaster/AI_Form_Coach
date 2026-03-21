@@ -1,3 +1,4 @@
+> Beta 2 planning note: this document is part of the initial Beta 2 planning baseline. It does not represent shipped Beta 1 status by itself. Re-check it against [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) before using it for roadmap or release decisions.
 # AI Form Coach — Go-To-Market Strategy
 **Version:** 1.0 | **Status:** War Room Active | **Date:** March 2026
 **Owner:** Growth Lead | **Reviewed by:** Product Manager + Business Lead
@@ -463,3 +464,4 @@ Compete on UX quality, cue quality, and distribution. An open source tool withou
 ---
 
 _Maintained by Growth Lead. All UTM parameters must be registered in the tracking spreadsheet before launch. Channel spend (if any) requires business lead approval._
+

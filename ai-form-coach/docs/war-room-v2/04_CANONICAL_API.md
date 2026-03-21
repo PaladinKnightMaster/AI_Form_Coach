@@ -1,3 +1,4 @@
+> Beta 2 planning note: this document is part of the initial Beta 2 planning baseline. It does not represent shipped Beta 1 status by itself. Re-check it against [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) before using it for roadmap or release decisions.
 # AI Form Coach — Canonical API List
 **Version:** 1.0 | **Status:** War Room Active | **Date:** March 2026
 **Owner:** Principal Backend Engineer | **Reviewed by:** Tech Lead
@@ -484,3 +485,4 @@ queued → retrying (backoff) → synced (remove from queue)
 ---
 
 _Maintained by Principal Backend Engineer. All new routes require PR review from Tech Lead. Endpoint schemas are the source of truth — Supabase DB schema is derived from these, not vice versa._
+

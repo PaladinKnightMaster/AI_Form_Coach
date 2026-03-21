@@ -1,3 +1,4 @@
+> Beta 2 planning note: this document is part of the initial Beta 2 planning baseline. It does not represent shipped Beta 1 status by itself. Re-check it against [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) before using it for roadmap or release decisions.
 # AI Form Coach — UI/UX Goals
 **Version:** 1.0 | **Status:** War Room Active | **Date:** March 2026
 **Owner:** Principal UI/UX Designer | **Reviewed by:** Product Manager + Wellness Consultant
@@ -625,3 +626,4 @@ Figma source of truth. Handoff to Frontend Engineer via Figma Dev Mode.
 ---
 
 _Maintained by Principal UI/UX Designer. All visual changes to the coaching surface require wellness consultant review before implementation. User-facing copy changes require product manager sign-off._
+

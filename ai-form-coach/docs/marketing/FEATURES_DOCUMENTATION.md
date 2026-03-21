@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # AI Form Coach - Features Documentation for Sales & Marketing
 
 ## Overview
@@ -628,4 +629,5 @@ Phase G is our latest performance optimization release that delivers massive spe
 - "Users report smoother tracking than most fitness apps and even some video games"
 - "Our smart battery optimization means you can do hour-long workouts on mobile"
 - "We deliver motion capture quality at app prices"
+
 

@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # Pacing Bar (PR "Ghost") - Complete Verification Report
 
 ## 🔍 Comprehensive Double-Check Results
@@ -175,3 +176,4 @@ The Pacing Bar (PR "ghost") implementation is **fully functional and ready for p
 7. **Well Integrated**: Seamlessly works with existing codebase
 
 The implementation provides mid-set motivation without distraction, exactly as specified in the requirements.
+

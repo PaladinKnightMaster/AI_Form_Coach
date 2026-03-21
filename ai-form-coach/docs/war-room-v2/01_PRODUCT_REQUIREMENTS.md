@@ -1,3 +1,4 @@
+> Beta 2 planning note: this document is part of the initial Beta 2 planning baseline. It does not represent shipped Beta 1 status by itself. Re-check it against [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) before using it for roadmap or release decisions.
 # AI Form Coach — Product Requirements Document
 **Version:** 1.0 | **Status:** War Room Active | **Date:** March 2026
 **Owner:** Product Manager | **Approved by:** Tech Lead
@@ -314,3 +315,4 @@ Cue wording: action-oriented, positive-framing, ≤10 words per cue, safe/non-cl
 ---
 
 _Document maintained by Product Manager. All scope changes require Tech Lead + Product Manager approval and must be logged in the decision log._
+

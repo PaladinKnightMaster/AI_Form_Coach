@@ -1,3 +1,4 @@
+> Beta 2 planning note: this document is part of the initial Beta 2 planning baseline. It does not represent shipped Beta 1 status by itself. Re-check it against [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) before using it for roadmap or release decisions.
 # AI Form Coach — AI/ML Architecture
 **Version:** 1.0 | **Status:** War Room Active | **Date:** March 2026
 **Owner:** Staff AI/ML Engineer | **Reviewed by:** Tech Lead
@@ -607,3 +608,4 @@ Before any model addition, it must pass:
 ---
 
 _Maintained by Staff AI/ML Engineer. Model changes require benchmark data, wellness consultant sign-off on cue changes, and Tech Lead approval. No live-path model changes without passing the full performance benchmark harness._
+

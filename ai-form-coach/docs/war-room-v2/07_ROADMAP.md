@@ -1,3 +1,4 @@
+> Beta 2 planning note: this document is part of the initial Beta 2 planning baseline. It does not represent shipped Beta 1 status by itself. Re-check it against [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) before using it for roadmap or release decisions.
 # AI Form Coach — Product Roadmap
 **Version:** 1.0 | **Status:** War Room Active | **Date:** March 2026
 **Owner:** Product Manager | **Reviewed by:** Tech Lead + Business Lead
@@ -334,3 +335,4 @@ Month 18–24  Platform maturity — target $15,000–25,000 MRR
 ---
 
 _Maintained by Product Manager. Phase unlock decisions require a written review against the stated success metrics. Roadmap is a living document — reviewed monthly during active development, quarterly thereafter._
+

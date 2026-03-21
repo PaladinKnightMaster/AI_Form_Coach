@@ -1,15 +1,15 @@
-"use client";
+﻿import { redirect } from 'next/navigation';
+import { normalizeAuthNext } from '@/lib/auth/utils';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+interface SignUpPageProps {
+  searchParams?: Promise<{
+    redirect?: string;
+  }>;
+}
 
-export default function SignUp() {
-	const router = useRouter();
-	
-	useEffect(() => {
-		// Redirect to signin page since we now handle both signin/signup there
-		router.push('/signin');
-	}, [router]);
+export default async function SignUp({ searchParams }: SignUpPageProps) {
+  const params = (await searchParams) ?? {};
+  const redirectTarget = normalizeAuthNext(params.redirect);
 
-	return null;
-} 
+  redirect(`/signin?mode=signup&redirect=${encodeURIComponent(redirectTarget)}`);
+}

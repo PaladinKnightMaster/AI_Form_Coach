@@ -42,6 +42,8 @@ export async function middleware(request: NextRequest) {
 
   if (!user && isMvpAuthOnlyPath(pathname) && !isLoopbackAutomationBypass) {
     const redirectUrl = new URL("/signin", request.url);
+    const intendedPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+    redirectUrl.searchParams.set("redirect", intendedPath);
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -51,4 +53,3 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|api/public|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
-
