@@ -6,7 +6,9 @@
 
 ## 1. Architecture Overview
 
-AI Form Coach is a **single-region, Supabase-backed Next.js 16 PWA** with strictly on-device ML inference. There is no server-side AI, no video upload pipeline, and no cloud compute in the live coaching path. The architecture is deliberately minimal — optimized for a solo developer, zero-cost ML inference, and fast iteration.
+AI Form Coach is a **single-region, Supabase-backed Next.js 16 application** with strictly on-device ML inference. There is no server-side AI, no video upload pipeline, and no cloud compute in the live coaching path. The architecture is deliberately minimal — optimized for a solo developer, zero-cost ML inference, and fast iteration.
+
+**Tech Stack:** Next.js 16.0.7, React 19.1.0, TypeScript 5, Tailwind 4, Zustand 5.0.8, MediaPipe Tasks Vision (Lite), Supabase, Zod (API/form validation), `idb` (IndexedDB). System font stack (no web fonts at Beta 1). CSS transitions only (no Framer Motion). Stripe wired but disabled until Phase 2 (server-side Hosted Checkout, no `@stripe/stripe-js` client SDK).
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -42,7 +44,7 @@ AI Form Coach is a **single-region, Supabase-backed Next.js 16 PWA** with strict
 ┌──────────────────────────────▼──────────────────────────────┐
 │                  DEPLOYMENT (Vercel / Netlify)              │
 │  Next.js Edge Runtime for static + API routes               │
-│  Service Worker (PWA offline caching)                       │
+│  No service worker at Beta 1 (Serwist planned Phase 1)     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -59,7 +61,7 @@ Camera Stream (getUserMedia)
         │
         ▼
 ┌───────────────────┐
-│  PosePipeline     │  MediaPipe Pose Landmarker (WASM)
+│  PosePipeline     │  MediaPipe Pose Landmarker (WASM, VIDEO mode)
 │  • detect()       │  → RawPose33 (33 3D landmarks + visibility scores)
 │  • smooth()       │  → EMA filter (alpha=0.65) applied per landmark
 └────────┬──────────┘
@@ -267,33 +269,20 @@ CREATE POLICY "Users can insert own telemetry" ON telemetry_events
 ### 3.3 Local-First Offline Schema (IndexedDB via `idb`)
 
 ```typescript
-// src/lib/storage/offlineQueue.ts — idb (Promise-based IndexedDB wrapper)
-// Note: Using `idb` library (not Dexie.js) for lightweight Promise-based IndexedDB access
-class AIFormCoachDB extends Dexie {
-  sessions!: Table<LocalSession>;
-  reps!: Table<LocalRep>;
-  syncQueue!: Table<SyncQueueItem>;
+// src/lib/offline/syncQueue.ts — idb (Promise-based IndexedDB wrapper)
+// Uses `idb` library openDB/IDBPObjectStore pattern (not Dexie class-based)
 
-  constructor() {
-    super('ai-form-coach');
-    this.version(1).stores({
-      sessions: '++localId, id, userId, exercise, startedAt, syncStatus',
-      reps:     '++localId, id, sessionId, repNumber',
-      syncQueue:'++localId, entityType, entityId, operation, retries, createdAt',
-    });
-  }
-}
-
-type SyncStatus = 'pending' | 'synced' | 'failed';
+// Write queue: table + payload pairs enqueued during session save
 type SyncQueueItem = {
-  localId?: number;
-  entityType: 'session' | 'rep';
-  entityId: string;
-  operation: 'upsert' | 'delete';
-  payload: object;
-  retries: number;
-  createdAt: Date;
+  table: 'sessions' | 'reps';
+  payload: Record<string, unknown>;
 };
+
+// Queue operations:
+// enqueueWrite(item)  → stores to IndexedDB object store
+// flushWrites()       → drains queue to Supabase via upsert
+// getPendingCount()   → returns number of unsynced writes
+// syncPending()       → background retry of failed writes
 ```
 
 ### 3.4 Content Models
@@ -353,8 +342,9 @@ type TutorialSampleSession = {
 | `/api/sessions/[id]/reps` | POST | Required | Batch upsert rep data |
 | `/api/telemetry` | POST | Optional | Ingest telemetry events |
 | `/api/auth/callback` | GET | — | Supabase OAuth callback (post-MVP) |
+| `/api/auth/delete-account` | POST | Required | Account deletion (GDPR); uses service role `admin.deleteUser()` |
 
-**Important:** All live coaching logic executes client-side. The API is only used for persistence and history.
+**Important:** All live coaching logic executes client-side. The API is only used for persistence, history, and account management.
 
 ### 4.3 Provider Boundaries (Disabled in Beta, Wired for Post-MVP)
 ```typescript
@@ -433,7 +423,12 @@ jobs:
 ```
 
 ### 5.5 Monitoring & Observability
-- **Error tracking:** Sentry (free tier, client + server)
+- **Error tracking:** Sentry (`@sentry/browser` v8.36.0, lazy-loaded via `initSentry()`)
+- **Error boundaries:** Three-layer strategy:
+  - `global-error.tsx` — Root boundary (inline styles, no CSS dependency; catches layout-level crashes)
+  - `error.tsx` — Route-level boundary (uses DS components; SiteHeader/Footer remain rendered)
+  - Component-level — try/catch in camera init, session save, sync queue
+- **Offline indicator:** Amber banner in coach experience when `navigator.onLine === false`, shows pending sync count
 - **Performance telemetry:** Custom telemetry.ts events → Supabase `telemetry_events` table
 - **Uptime monitoring:** Better Uptime (free tier, 1-min intervals)
 - **Database monitoring:** Supabase dashboard + pg_stat_statements
@@ -469,10 +464,11 @@ Client receives session object via @supabase/ssr
 | XSS | Next.js React escaping; no dangerouslySetInnerHTML usage |
 | CSRF | Supabase cookie-based auth uses SameSite protection |
 
-### 6.3 Data Retention
+### 6.3 Data Retention & Account Deletion (GDPR)
 - Sessions and reps: retained until user deletes account
 - Telemetry events: 90-day retention, then archived or deleted
-- Account deletion: cascades to all user data (ON DELETE CASCADE in schema)
+- **Account deletion flow:** Settings page → user types "DELETE" to confirm → `POST /api/auth/delete-account` → Supabase service role `admin.deleteUser()` → `ON DELETE CASCADE` removes all linked data (profiles, sessions, reps, telemetry) → client signs out → redirect to home
+- Data export: planned for Phase 2 (pre-deletion download of session history)
 
 ---
 
@@ -501,6 +497,26 @@ Client receives session object via @supabase/ssr
 | EMA smoothing (alpha=0.65) for MVP | Simpler, faster (~0.1ms vs ~0.3ms), sufficient for dynamic rep-based exercises. One Euro Filter evaluated for Phase 3+ hold-based exercises (yoga/plank). | One Euro Filter (better for holds, adaptive), Kalman (higher SEM, heavier) |
 | Zustand for real-time pose state | Handles ~30fps pose updates without triggering React re-renders; outperforms React Context for high-frequency state | React Context (re-render cascade), Jotai (similar, less ecosystem) |
 | `idb` for IndexedDB (not Dexie.js) | Lightweight Promise wrapper over IndexedDB; sufficient for offline queue pattern | Dexie.js (heavier, more features than needed) |
+| MediaPipe VIDEO mode (not LIVE_STREAM) | Synchronous `detectForVideo()` in rAF loop gives explicit frame-level control; LIVE_STREAM's async callback complicates frame-to-UI pairing | LIVE_STREAM (evaluate Phase 1 for low-end device support) |
+| System font stack (no web fonts) | 0KB font load, instant rendering; Inter/JetBrains Mono evaluated but deferred to Phase 2+ brand upgrade | Inter via `next/font` (adds ~20KB, display:swap) |
+| Zod for runtime validation | Type-safe schemas for API payloads and form inputs; zero-config TypeScript inference | io-ts (heavier), manual validation (unsafe) |
+
+---
+
+## 9. Naming Conventions
+
+| Scope | Convention | Example |
+|---|---|---|
+| TypeScript variables, functions | camelCase | `repCount`, `getFramingGuidance()` |
+| React components | PascalCase | `CoachExperienceView`, `CameraPermissionCard` |
+| TypeScript types & interfaces | PascalCase | `SessionState`, `PoseEstimateResult` |
+| Database columns | snake_case | `user_id`, `started_at`, `avg_pose_quality` |
+| Analytics event names | snake_case | `coach_session_start`, `coach_cue_feedback` |
+| CSS classes | Tailwind utility classes | `bg-slate-900/90`, `rounded-2xl` |
+| Environment variables | UPPER_SNAKE_CASE | `NEXT_PUBLIC_SUPABASE_URL` |
+| File names (components) | PascalCase | `CoachExperienceView.tsx` |
+| File names (lib/utils) | camelCase | `cueCadence.ts`, `framing.ts` |
+| File names (routes) | kebab-case (Next.js convention) | `delete-account/route.ts` |
 
 ---
 

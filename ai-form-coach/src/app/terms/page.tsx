@@ -27,7 +27,7 @@ const sections = [
     id: "service",
     title: "1. What this beta is",
     paragraphs: [
-      "AI Form Coach currently provides browser-based motion coaching for squat, pushup, and plank. The service is intentionally narrow while the MVP is being tuned for real session quality.",
+      "AI Form Coach currently provides browser-based motion coaching for squat, pushup, and plank. The service is intentionally narrow while the beta is being tuned for real session quality.",
       "Features outside that launch surface, including nutrition, food scan, workout plans, and health integrations, are not part of the current public beta promise.",
     ],
   },
@@ -121,7 +121,7 @@ export default function TermsPage() {
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">Last updated: {UPDATED_AT}</p>
             <p className="mx-auto max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300">
-              These terms are written for the current MVP release, not a broader platform that has not shipped. They describe the coach as it exists today: a browser-based motion beta with optional sign-in for saved history.
+              These terms are written for the current beta release, not a broader platform that has not shipped. They describe the coach as it exists today: a browser-based motion beta with optional sign-in for saved history.
             </p>
           </div>
 

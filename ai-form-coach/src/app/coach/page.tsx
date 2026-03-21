@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import CameraPermissionCard from "@/components/coach/CameraPermissionCard";
 import CoachExperienceView from "@/components/coach/CoachExperienceView";
 import { createCueCadenceState, resolveCueCadence } from "@/lib/coach/cueCadence";
 import {
@@ -184,6 +185,7 @@ export default function CoachPage() {
   const [cueFeedback, setCueFeedback] = useState<CoachCueFeedback | null>(null);
   const [countdownValue, setCountdownValue] = useState<number | null>(null);
   const [hasPose, setHasPose] = useState(false);
+  const [permissionGranted, setPermissionGranted] = useState(false);
 
   const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const poseScriptQuery = searchParams?.get("pose-script") ?? null;
@@ -646,6 +648,7 @@ export default function CoachPage() {
   }, []);
 
   useEffect(() => {
+    if (!permissionGranted) return;
     let cancelled = false;
 
     async function initialize() {
@@ -735,7 +738,7 @@ export default function CoachPage() {
       cancelled = true;
       releaseCameraStage();
     };
-  }, [cameraBootNonce, enableScriptedStage, releaseCameraStage, stageSimulationMode]);
+  }, [permissionGranted, cameraBootNonce, enableScriptedStage, releaseCameraStage, stageSimulationMode]);
 
   useEffect(() => {
     if (countdownValue === null) {
@@ -848,6 +851,10 @@ export default function CoachPage() {
   const qualityLabel = quality === "good" ? "Locked in" : quality === "warn" ? "Needs cleanup" : "Reframe";
   const phaseLabel = phase === "idle" ? "Ready" : phase.charAt(0).toUpperCase() + phase.slice(1);
   const primaryActionLabel = countdownValue !== null ? "Cancel countdown" : sessionState === "paused" ? "Resume session" : sessionState === "completed" ? "Start another session" : "Start session";
+
+  if (!permissionGranted) {
+    return <CameraPermissionCard onAllow={() => setPermissionGranted(true)} />;
+  }
 
   return (
     <CoachExperienceView

@@ -26,7 +26,7 @@ export default function PricingPage() {
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">No paid plans at launch.</h1>
             <p className="mx-auto max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-              The MVP is being released as a focused motion coaching beta. We are not collecting payment details or selling extra modules while the live coach is still being tuned for reliable session quality.
+              This is a focused motion coaching beta. We are not collecting payment details or selling extra modules while the live coach is still being tuned for reliable session quality.
             </p>
           </div>
 

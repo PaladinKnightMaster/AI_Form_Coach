@@ -156,7 +156,7 @@ export default function HistoryPage() {
           </div>
           <h1 className="mt-4 text-3xl font-bold">Sign in to view your history</h1>
           <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-            History is part of the motion coaching MVP for signed-in beta users. Only real sessions saved from the coach should appear here.
+            History is part of the motion coaching beta for signed-in users. Only real sessions saved from the coach should appear here.
           </p>
           <div className="mt-6 flex justify-center">
             <Link href="/signin" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
@@ -178,21 +178,23 @@ export default function HistoryPage() {
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight">Saved coaching sessions</h1>
             <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-              This page is limited to real sessions saved from the public coach. Demo history and synthetic trends are intentionally excluded from the MVP release.
+              This page is limited to real sessions saved from the public coach. Demo history and synthetic trends are intentionally excluded from the current release.
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MetricCard label="Sessions" value={String(summary.totalSessions)} />
-            <MetricCard label="Reps" value={String(summary.totalReps)} />
-            <MetricCard label="Minutes" value={String(summary.totalMinutes)} />
-            <MetricCard label="Average ROM" value={summary.averageRom === null ? "-" : summary.averageRom.toFixed(2)} />
-          </div>
+          {loading ? (
+            <MetricSkeletonRow />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <MetricCard label="Sessions" value={String(summary.totalSessions)} />
+              <MetricCard label="Reps" value={String(summary.totalReps)} />
+              <MetricCard label="Minutes" value={String(summary.totalMinutes)} />
+              <MetricCard label="Average ROM" value={summary.averageRom === null ? "-" : summary.averageRom.toFixed(2)} />
+            </div>
+          )}
 
           {loading ? (
-            <div className="rounded-3xl border border-slate-200 p-8 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-300">
-              Loading saved session history...
-            </div>
+            <HistorySkeletonList />
           ) : error ? (
             <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
               {error}
@@ -245,5 +247,39 @@ function MetricCard({ label, value }: { label: string; value: string }) {
       <div className="text-sm text-slate-500">{label}</div>
       <div className="mt-2 text-2xl font-bold">{value}</div>
     </div>
+  );
+}
+
+function SkeletonPulse({ className }: { className?: string }) {
+  return <div className={`animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700 ${className || ""}`} />;
+}
+
+function MetricSkeletonRow() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="rounded-3xl border border-slate-200 p-5 dark:border-slate-800">
+          <SkeletonPulse className="h-4 w-16 mb-3" />
+          <SkeletonPulse className="h-7 w-12" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HistorySkeletonList() {
+  return (
+    <ul className="space-y-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <li key={i} className="flex flex-col gap-4 rounded-3xl border border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-3">
+            <SkeletonPulse className="h-5 w-24" />
+            <SkeletonPulse className="h-4 w-40" />
+            <SkeletonPulse className="h-4 w-32" />
+          </div>
+          <SkeletonPulse className="h-10 w-28 rounded-lg" />
+        </li>
+      ))}
+    </ul>
   );
 }
