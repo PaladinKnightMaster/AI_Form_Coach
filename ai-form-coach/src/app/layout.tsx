@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import LogSilencer from "@/components/LogSilencer";
 import SiteFooter from "@/components/SiteFooter";
@@ -8,6 +8,12 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
 const description = "Private, browser-based motion coaching for squat, pushup, and plank. No video uploads during live coaching.";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: {
