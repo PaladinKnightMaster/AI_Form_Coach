@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from 'react';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 
 interface AnimatedGradientBackgroundProps {
   children?: ReactNode;
@@ -43,24 +44,27 @@ export function AnimatedGradientBackground({
   };
 
   const gradients = getGradientConfig();
+  const reduceMotion = useReducedMotion();
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      {/* Animated Background */}
+      {/* Background */}
       <div className="absolute inset-0">
         {/* Primary gradient layer */}
         <div className={`absolute inset-0 bg-gradient-to-br ${gradients.primary}`} />
-        
-        {/* Animated secondary gradient */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${gradients.secondary} opacity-30 animate-pulse`} />
-        
-        {/* Animated accent gradient */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${gradients.accent} opacity-20 animate-pulse`} style={{ animationDelay: '2s' }} />
-        
-        {/* Floating orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-400/20 to-purple-400/20 blur-3xl animate-bounce" style={{ animationDuration: '6s' }} />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 blur-3xl animate-bounce" style={{ animationDuration: '8s', animationDelay: '2s' }} />
-        <div className="absolute top-3/4 left-3/4 w-64 h-64 rounded-full bg-gradient-to-r from-pink-400/20 to-rose-400/20 blur-3xl animate-bounce" style={{ animationDuration: '10s', animationDelay: '4s' }} />
+
+        {/* Secondary + accent gradients (static when reduced motion) */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${gradients.secondary} opacity-30 ${reduceMotion ? '' : 'animate-pulse'}`} />
+        <div className={`absolute inset-0 bg-gradient-to-br ${gradients.accent} opacity-20 ${reduceMotion ? '' : 'animate-pulse'}`} style={reduceMotion ? undefined : { animationDelay: '2s' }} />
+
+        {/* Floating orbs — skip entirely when reduced motion preferred (saves CPU) */}
+        {!reduceMotion && (
+          <>
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-gradient-to-r from-blue-400/20 to-purple-400/20 blur-3xl animate-bounce" style={{ animationDuration: '6s' }} />
+            <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 blur-3xl animate-bounce" style={{ animationDuration: '8s', animationDelay: '2s' }} />
+            <div className="absolute top-3/4 left-3/4 w-64 h-64 rounded-full bg-gradient-to-r from-pink-400/20 to-rose-400/20 blur-3xl animate-bounce" style={{ animationDuration: '10s', animationDelay: '4s' }} />
+          </>
+        )}
       </div>
       
       {/* Overlay for better text readability */}

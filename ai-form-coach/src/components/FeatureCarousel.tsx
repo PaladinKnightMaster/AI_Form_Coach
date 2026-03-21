@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 
 interface CarouselItem {
   id: string;
@@ -68,10 +69,11 @@ const carouselItems: CarouselItem[] = [
 
 export function FeatureCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const reduceMotion = useReducedMotion();
+  const [isAutoPlaying, setIsAutoPlaying] = useState(!reduceMotion);
 
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || reduceMotion) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselItems.length);
