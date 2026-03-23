@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # P7 — Movement Embeddings System Verification Report
 
 ## ✅ **COMPREHENSIVE DOUBLE-CHECK COMPLETE**
@@ -328,3 +329,4 @@ Client → Authentication → RLS Policies → Database
 4. **Collect Feedback** for future enhancements
 
 **The system is ready to provide users with powerful personalization insights and help them track their fitness journey more effectively!** 🚀
+

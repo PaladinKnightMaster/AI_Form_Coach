@@ -34,6 +34,7 @@ export default function AuthStatus() {
 					<div className="px-2 py-1 opacity-70 truncate">{email}</div>
 					<Link role="menuitem" href="/coach" className="block px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10" onClick={() => setOpen(false)}>Start session</Link>
 					<Link role="menuitem" href="/history" className="block px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10" onClick={() => setOpen(false)}>History</Link>
+					<Link role="menuitem" href="/settings" className="block px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10" onClick={() => setOpen(false)}>Settings</Link>
 					<button role="menuitem" className="w-full text-left px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10" onClick={handleSignOut}>Sign out</button>
 				</div>
 			)}

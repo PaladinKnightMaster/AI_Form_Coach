@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # AI Form Coach - Pricing & Plans Documentation
 
 ## Overview
@@ -448,4 +449,5 @@ Organization-level pricing for teams, gyms, corporate wellness programs, and hea
 - **Creator Packs**: Pricing to be set and implemented at Beta 2 release
 - **Enterprise/B2B**: Pricing to be set and implemented at Beta 2 release
 - **Refund Policy**: To be implemented at Beta 2 release (currently handled case-by-case)
+
 

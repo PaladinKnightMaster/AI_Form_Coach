@@ -1,3 +1,4 @@
+> Historical note: this changelog contains point-in-time claims from earlier project phases and broader platform work. It is not the canonical source of truth for the current public MVP. Use [technical/MVP_TRUTH_BASELINE.md](./technical/MVP_TRUTH_BASELINE.md), [technical/MVP_RELEASE_CHECKLIST.md](./technical/MVP_RELEASE_CHECKLIST.md), and [technical/MVP_RELEASE_SCORECARD.md](./technical/MVP_RELEASE_SCORECARD.md) for current release status.
 # Changelog
 ## Project Updates & Release History
 
@@ -326,3 +327,4 @@ Delivered massive performance improvements with minimal code changes:
 **Current Status**: ✅ **Production Ready & Fully Optimized**
 
 Last Updated: October 27, 2025
+

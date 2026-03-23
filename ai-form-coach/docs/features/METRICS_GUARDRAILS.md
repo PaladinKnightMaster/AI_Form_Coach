@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # Metrics & Guardrails System - Comprehensive Verification Report
 
 ## Overview

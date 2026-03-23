@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # AI Form Coach - Product Overview & Value Proposition
 
 ## Executive Summary
@@ -238,4 +239,5 @@
 **Document Version**: 1.0  
 **Last Updated**: November 2025  
 **Next Review**: Quarterly or upon major feature releases
+
 

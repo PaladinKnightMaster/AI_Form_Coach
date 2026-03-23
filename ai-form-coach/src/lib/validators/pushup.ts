@@ -176,8 +176,8 @@ export function createPushupValidator(): Validator {
 			}
 		}
 
-		// Complete rep when returning to idle
-		if (state.phase === 'up' && bend < 10 && state.currentRep) {
+		// Complete rep when returning to the top position
+		if (state.currentRep && bend < 10 && (state.phase === 'up' || state.phase === 'idle')) {
 			const repDuration = ts - state.currentRep.startTs;
 			const tempo = calculateTempo(repDuration);
 			
@@ -294,3 +294,4 @@ export function createPushupValidator(): Validator {
 		return state;
 	};
 } 
+
