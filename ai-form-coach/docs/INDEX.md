@@ -1,326 +1,125 @@
-# AI Form Coach - Documentation Index
-## Master Navigation & Quick Reference
-## October 18, 2025
-
----
-
-## 📚 Documentation Structure
-
-```
-docs/
-├── INDEX.md (this file)             # Master navigation
-├── CHANGELOG.md                     # Version history
-├── README.md                        # Main documentation guide
-│
-├── pose/                            # Pose Detection & Coaching System
-│   ├── README.md                   # Pose system overview
-│   ├── QUICK_REFERENCE.md          # Quick reference guide (6 phases A-F)
-│   ├── README_3D_POSE_SYSTEM.md    # 3D system design & components
-│   ├── pose3DIntegrationGuide.md   # 3D integration guide
-│   ├── INDEX.md                    # Pose documentation index
-│   └── (additional pose guides)
-│
-├── development/                    # Development Guides
-│   ├── POSE_ENGINE2_INTEGRATION_STATUS.md
-│   └── VALIDATION_CHECKLIST.md
-│
-├── features/                       # Feature Documentation
-│   ├── ASYNC_FORM_REPORT.md
-│   ├── COPY_TRUST_PASS.md
-│   ├── METRICS_GUARDRAILS.md
-│   └── ORGANIZATION_DASHBOARD.md
-│
-├── systems/                        # System Implementations
-│   ├── READINESS_SYSTEM_IMPLEMENTATION.md
-│   ├── READINESS_TYPE_ARCHITECTURE.md
-│   └── VERIFICATION_SYSTEM.md
-│
-├── technical/                      # Technical Details
-│   ├── LEADERBOARDS.md
-│   ├── METRICS_GUARDRAILS_DOCUMENTATION.md
-│   ├── METRICS_GUARDRAILS_IMPLEMENTATION.md
-│   ├── MICRO_MODEL.md
-│   ├── MOVEMENT_EMBEDDINGS.md
-│   └── PHASE_DETECTION.md
-│
-└── verification/                   # Verification & Testing
-    ├── ASYNC_FORM_REPORT_VERIFICATION.md
-    ├── COPY_TRUST_PASS_VERIFICATION.md
-    ├── MICRO_MODEL_VERIFICATION.md
-    ├── MOVEMENT_EMBEDDINGS_VERIFICATION.md
-    ├── ORGANIZATION_DASHBOARD_VERIFICATION.md
-    ├── PACING_BAR_COMPLETE.md
-    └── PACING_BAR_VERIFICATION.md
-```
-
----
-
-## 🎯 Quick Navigation by Topic
-
-### **Getting Started**
-- **New to the project?** → Start with `pose/README.md`
-- **Understand the system?** → Read `pose/README_3D_POSE_SYSTEM.md`
-- **Need a quick reference?** → See `pose/QUICK_REFERENCE.md`
-
-### **Pose Detection System**
-- **Overview** → `pose/README.md`
-- **Quick Reference** → `pose/QUICK_REFERENCE.md` (All 6 phases: A-F)
-- **3D Rendering** → `pose/README_3D_POSE_SYSTEM.md`
-- **Integration Guide** → `pose/pose3DIntegrationGuide.md`
-
-### **Feature Implementation**
-- **Async form reports** → `features/ASYNC_FORM_REPORT.md`
-- **Copy trust pass** → `features/COPY_TRUST_PASS.md`
-- **Metrics guardrails** → `features/METRICS_GUARDRAILS.md`
-- **Organization dashboard** → `features/ORGANIZATION_DASHBOARD.md`
-
-### **System Design**
-- **Readiness system** → `systems/READINESS_SYSTEM_IMPLEMENTATION.md`
-- **Verification system** → `systems/VERIFICATION_SYSTEM.md`
-- **Leaderboards** → `technical/LEADERBOARDS.md`
-
-### **Technical Deep Dives**
-- **Micro model** → `technical/MICRO_MODEL.md`
-- **Movement embeddings** → `technical/MOVEMENT_EMBEDDINGS.md`
-- **Phase detection** → `technical/PHASE_DETECTION.md`
-- **Metrics guardrails** → `technical/METRICS_GUARDRAILS_*.md`
-
-### **Verification & Testing**
-- **Form report verification** → `verification/ASYNC_FORM_REPORT_VERIFICATION.md`
-- **Micro model tests** → `verification/MICRO_MODEL_VERIFICATION.md`
-- **Movement embeddings tests** → `verification/MOVEMENT_EMBEDDINGS_VERIFICATION.md`
-- **Dashboard verification** → `verification/ORGANIZATION_DASHBOARD_VERIFICATION.md`
-
-### **Development**
-- **Pose engine status** → `development/POSE_ENGINE2_INTEGRATION_STATUS.md`
-- **Validation checklist** → `development/VALIDATION_CHECKLIST.md`
-
----
-
-## 🔍 By Use Case
-
-### **I want to...**
-
-#### **Understand pose detection (Phases A-F)**
-1. Read `pose/README.md` - Overview
-2. Study `pose/QUICK_REFERENCE.md` - All phases summary
-3. Review `pose/README_3D_POSE_SYSTEM.md` - 3D implementation
-
-#### **Integrate 3D features**
-1. Check `pose/README_3D_POSE_SYSTEM.md` - 3D system
-2. Follow `pose/pose3DIntegrationGuide.md` - Integration steps
-
-#### **Implement a new feature**
-1. Check `systems/` for related system implementation
-2. Review relevant `technical/` documentation
-3. Follow verification procedures in `verification/`
-
-#### **Deploy to production**
-1. Review `development/VALIDATION_CHECKLIST.md`
-2. Run verification tests from `verification/`
-3. Check CHANGELOG.md for breaking changes
-
-#### **Debug a feature**
-1. Find feature in `features/`
-2. Check `technical/` for implementation details
-3. Run tests from `verification/`
-
-#### **Understand system architecture**
-1. Start with `pose/README_3D_POSE_SYSTEM.md`
-2. Review `systems/` folder
-3. Check `technical/` for deep details
-
----
-
-## 📖 Documentation Categories
-
-### **Category 1: Core Documentation**
-- Pose system overview
-- 3D rendering guide
-- Quick references
-
-**Location**: `pose/` folder
-
-### **Category 2: Feature Implementation**
-- Feature specifications
-- Implementation guides
-- Configuration details
-
-**Location**: `features/` folder
-
-### **Category 3: System Architecture**
-- System design documents
-- Architecture decisions
-- Type definitions
-
-**Location**: `systems/` folder
-
-### **Category 4: Technical Details**
-- Deep technical documentation
-- Algorithm explanations
-- Performance analysis
-
-**Location**: `technical/` folder
-
-### **Category 5: Verification & Testing**
-- Test cases
-- Verification procedures
-- Quality metrics
-
-**Location**: `verification/` folder
-
-### **Category 6: Development**
-- Development status
-- Integration guides
-- Validation checklists
-
-**Location**: `development/` folder
-
----
-
-## 🗂️ File Naming Convention
-
-### **Pose System Files**
-- `README.md` - Main overview
-- `QUICK_REFERENCE.md` - Quick lookup
-- `README_3D_POSE_SYSTEM.md` - 3D system guide
-- `pose3DIntegrationGuide.md` - Integration guide
-- `INDEX.md` - Index & navigation
-
-### **Feature Files**
-- `FEATURE_NAME.md` - Feature documentation
-- Format: Uppercase with underscores
-
-### **System Files**
-- `SYSTEM_NAME_*.md` - System documentation
-- Format: Uppercase with underscores
-
-### **Technical Files**
-- `TOPIC_NAME.md` - Technical topic
-- Format: Uppercase with underscores
-
-### **Verification Files**
-- `FEATURE_VERIFICATION.md` - Feature tests
-- `FEATURE_COMPLETE.md` - Completion markers
-- Format: Feature name + VERIFICATION/COMPLETE
-
----
-
-## 📊 Status Indicators
-
-Files are tagged with status indicators:
-
-- ✅ **COMPLETE** - Fully implemented and tested
-- ⏳ **IN_PROGRESS** - Currently being worked on
-- 🔄 **REVIEW** - Under review or refactoring
-- 📋 **DRAFT** - Initial draft phase
-- 🐛 **DEPRECATED** - No longer maintained
-
-Check individual file headers for status.
-
----
-
-## 🔄 Update Guidelines
-
-### **Adding New Documentation**
-1. Determine appropriate category
-2. Use naming convention for category
-3. Add entry to this INDEX
-4. Link from related documents
-
-### **Updating Existing Documentation**
-1. Update file in place
-2. Maintain file naming
-3. Update cross-references
-4. Add note to CHANGELOG.md
-
-### **Removing Documentation**
-1. Check for cross-references
-2. Update INDEX.md
-3. Move to archive if historical value
-4. Note in CHANGELOG.md
-
----
-
-## 📚 Database Documentation
-
-**SQL Migrations**: See `../supabase/SQL_MIGRATIONS_INDEX.md`
-
-Database schema is organized by:
-- Auth & core foundation
-- Pose quality metrics
-- Leaderboards & rankings
-- Organizations
-- User management
-- Social community
-- Nutrition system
-- ML embeddings
-- Analytics & monetization
-
----
-
-## 🔗 Cross-References
-
-### **From Pose Documentation**
-- Architecture → `systems/READINESS_SYSTEM_IMPLEMENTATION.md`
-- Verification → `verification/` folder
-- Technical → `technical/MICRO_MODEL.md`, `technical/MOVEMENT_EMBEDDINGS.md`
-
-### **From Feature Documentation**
-- Async reports → `verification/ASYNC_FORM_REPORT_VERIFICATION.md`
-- Trust pass → `verification/COPY_TRUST_PASS_VERIFICATION.md`
-- Metrics → `technical/METRICS_GUARDRAILS_*.md`
-- Dashboard → `verification/ORGANIZATION_DASHBOARD_VERIFICATION.md`
-
-### **From System Documentation**
-- Readiness → `technical/PHASE_DETECTION.md`
-- Verification → `verification/` folder
-- Quality → `technical/METRICS_GUARDRAILS_*.md`
-
----
-
-## 🎓 Learning Paths
-
-### **Path 1: Understand Pose Detection (2-3 hours)**
-1. `pose/README.md` (30 min)
-2. `pose/QUICK_REFERENCE.md` (1 hour - all phases A-F)
-3. `pose/README_3D_POSE_SYSTEM.md` (30 min)
-4. `technical/MICRO_MODEL.md` (optional, 30 min)
-
-### **Path 2: Implement 3D Features (2-3 hours)**
-1. `pose/README_3D_POSE_SYSTEM.md` (1 hour)
-2. `pose/pose3DIntegrationGuide.md` (1 hour)
-3. `verification/` tests (30-60 min)
-
-### **Path 3: Deploy to Production (1-2 hours)**
-1. `development/VALIDATION_CHECKLIST.md` (30 min)
-2. Review relevant `verification/` docs (30 min)
-3. Check CHANGELOG.md for breaking changes (30 min)
-
----
-
-## ✅ Quality Checklist
-
-Before releasing documentation:
-
-- [ ] File is in correct category folder
-- [ ] Follows naming convention
-- [ ] Added to this INDEX.md
-- [ ] Cross-references are correct
-- [ ] All code examples work
-- [ ] Status indicator is accurate
-- [ ] No broken links
-- [ ] Formatting is consistent
-- [ ] CHANGELOG.md is updated
-
----
-
-## 📝 CHANGELOG
-
-All documentation changes are tracked in `CHANGELOG.md`
-
----
-
-**Last Updated**: October 18, 2025  
-**Next Review**: As new features are added  
-**Maintained By**: Development Team
+# AI Form Coach Documentation Index
+
+Updated: March 21, 2026
+
+## Read This First
+
+Current MVP truth lives here:
+- [technical/MVP_TRUTH_BASELINE.md](./technical/MVP_TRUTH_BASELINE.md)
+- [technical/MVP_RELEASE_CHECKLIST.md](./technical/MVP_RELEASE_CHECKLIST.md)
+- [technical/MVP_RELEASE_SCORECARD.md](./technical/MVP_RELEASE_SCORECARD.md)
+- [technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](./technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md)
+
+These files define the live release surface, the implemented MVP, the restricted areas, the formal release gate, and the explicit Beta 1 versus Beta 2 boundary.
+
+## Current MVP Snapshot
+
+### Public surface
+- `/`
+- `/signin`
+- `/signup`
+- `/reset-password`
+- `/auth/auth-code-error`
+- `/coach`
+- `/history`
+- `/session/[id]`
+- `/settings`
+- `/pricing`
+- `/privacy`
+- `/terms`
+
+### Implemented now
+- Live motion coaching for `squat`, `pushup`, and `plank`
+- Fitness-skeleton pose overlay
+- Exercise-specific framing guidance
+- Pre-permission camera card (U5)
+- Skeleton loading screens on history page (U6)
+- Pause, resume, save, and session review
+- Auth flows with callback recovery
+- Account deletion flow (GDPR)
+- Error boundaries (global + route-level) with Sentry reporting
+- Offline sync banner in coach experience
+- iOS safe area support (viewport-fit=cover)
+- Release automation for auth, coach, visual regression, and performance smoke
+
+### Restricted in public beta
+- Nutrition and food scan
+- Workout plan generation
+- Readiness and health integrations
+- Organizations and community features
+- Leaderboards, challenges, creator packs, and monetization flows
+
+## Canonical Technical Docs
+
+- [technical/MVP_TRUTH_BASELINE.md](./technical/MVP_TRUTH_BASELINE.md)
+- [technical/MVP_RELEASE_CHECKLIST.md](./technical/MVP_RELEASE_CHECKLIST.md)
+- [technical/MVP_RELEASE_SCORECARD.md](./technical/MVP_RELEASE_SCORECARD.md)
+- [technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](./technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md)
+- [technical/DEVICE_VALIDATION_RUNBOOK.md](./technical/DEVICE_VALIDATION_RUNBOOK.md)
+- [technical/COACH_VISUAL_REGRESSION.md](./technical/COACH_VISUAL_REGRESSION.md)
+- [technical/COACH_PERFORMANCE_SMOKE.md](./technical/COACH_PERFORMANCE_SMOKE.md)
+- [technical/MVP_AUTOMATION_MATRIX.md](./technical/MVP_AUTOMATION_MATRIX.md)
+- [technical/SESSION_LIFECYCLE.md](./technical/SESSION_LIFECYCLE.md)
+- [technical/ARCHITECTURE_AUDIT.md](./technical/ARCHITECTURE_AUDIT.md)
+
+## Design Specs
+
+- [superpowers/specs/2026-03-20-account-deletion-design.md](./superpowers/specs/2026-03-20-account-deletion-design.md)
+
+## War Room V2 (Architecture Reference)
+
+- [war-room-v2/01_PRODUCT_REQUIREMENTS.md](./war-room-v2/01_PRODUCT_REQUIREMENTS.md)
+- [war-room-v2/02_SYSTEM_DESIGN.md](./war-room-v2/02_SYSTEM_DESIGN.md)
+- [war-room-v2/03_AI_ML_ARCHITECTURE.md](./war-room-v2/03_AI_ML_ARCHITECTURE.md)
+- [war-room-v2/04_CANONICAL_API.md](./war-room-v2/04_CANONICAL_API.md)
+- [war-room-v2/05_TECH_STACK.md](./war-room-v2/05_TECH_STACK.md)
+- [war-room-v2/06_UI_UX_GOALS.md](./war-room-v2/06_UI_UX_GOALS.md)
+- [war-room-v2/07_ROADMAP.md](./war-room-v2/07_ROADMAP.md)
+- [war-room-v2/08_REVENUE_MODEL.md](./war-room-v2/08_REVENUE_MODEL.md)
+- [war-room-v2/09_GTM_STRATEGY.md](./war-room-v2/09_GTM_STRATEGY.md)
+- [war-room-v2/10_COMPETITIVE_DEFENSIBILITY.md](./war-room-v2/10_COMPETITIVE_DEFENSIBILITY.md)
+
+## Supporting Technical Reference
+
+These docs can still be useful for implementation detail:
+- [pose/README.md](./pose/README.md)
+- [pose/QUICK_REFERENCE.md](./pose/QUICK_REFERENCE.md)
+- [pose/performance/README.md](./pose/performance/README.md)
+- [development/VALIDATION_CHECKLIST.md](./development/VALIDATION_CHECKLIST.md)
+- [technical/PHASE_DETECTION.md](./technical/PHASE_DETECTION.md)
+- [technical/CROSS_PRODUCT_STRATEGY.md](./technical/CROSS_PRODUCT_STRATEGY.md)
+- [technical/CX_JOURNEY_MAP.md](./technical/CX_JOURNEY_MAP.md)
+
+## Historical Or Broader-Scope Docs
+
+The folders below include useful historical work, exploratory design, or broader platform plans. They should not be treated as current MVP release truth unless a canonical MVP technical doc explicitly references them.
+- `features/`
+- `marketing/`
+- `systems/`
+- `verification/`
+
+## Documentation Best-Practice Status
+
+### What is good now
+- The MVP technical docs are current and concrete.
+- The release gate is documented with actual commands.
+- The manual launch gate is explicit.
+- Implemented and restricted areas are clearly separated in the canonical docs.
+- Beta 1 active scope and implemented-but-blocked legacy areas are explicitly separated.
+- Session lifecycle state machine is fully documented.
+- War Room V2 docs are synced with code reality (March 2026 audit).
+
+### What to avoid
+- Treating archival docs as launch truth
+- Using old platform-wide claims in README or marketing copy
+- Keeping mojibake or stale timestamps in top-level entry docs
+- Describing de-scoped features without labeling them historical or restricted
+
+## Maintenance Rule
+
+When MVP scope changes, update these first:
+1. `technical/MVP_TRUTH_BASELINE.md`
+2. `technical/MVP_RELEASE_CHECKLIST.md`
+3. `technical/MVP_RELEASE_SCORECARD.md`
+4. `technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md`
+5. this index and `docs/README.md` only if navigation or status framing changed

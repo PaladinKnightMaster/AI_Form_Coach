@@ -116,12 +116,80 @@ ALTER TABLE public.programs ADD CONSTRAINT fk_programs_created_by
 -- CORE INDEXES FOR PERFORMANCE
 -- =====================================================
 
-CREATE INDEX IF NOT EXISTS idx_sessions_core_performance ON public.sessions 
-  (user_id, started_at DESC, ended_at) 
+CREATE INDEX IF NOT EXISTS idx_sessions_core_performance ON public.sessions
+  (user_id, started_at DESC, ended_at)
   WHERE ended_at IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS idx_sessions_template_id ON public.sessions(template_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_verified ON public.sessions(verified);
+
+-- =====================================================
+-- ROW LEVEL SECURITY
+-- =====================================================
+
+-- Enable RLS on core tables
+ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reps ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (idempotent)
+DROP POLICY IF EXISTS "Users can view own or public sessions" ON public.sessions;
+DROP POLICY IF EXISTS "Users can insert own sessions" ON public.sessions;
+DROP POLICY IF EXISTS "Users can update own sessions" ON public.sessions;
+DROP POLICY IF EXISTS "Users can delete own sessions" ON public.sessions;
+DROP POLICY IF EXISTS "Users can view reps for accessible sessions" ON public.reps;
+DROP POLICY IF EXISTS "Users can insert reps for own sessions" ON public.reps;
+DROP POLICY IF EXISTS "Users can update reps for own sessions" ON public.reps;
+DROP POLICY IF EXISTS "Users can delete reps for own sessions" ON public.reps;
+
+-- Sessions policies: Users can see their own sessions or public sessions
+CREATE POLICY "Users can view own or public sessions" ON public.sessions
+  FOR SELECT USING (user_id = auth.uid() OR is_public = true);
+
+CREATE POLICY "Users can insert own sessions" ON public.sessions
+  FOR INSERT WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Users can update own sessions" ON public.sessions
+  FOR UPDATE USING (user_id = auth.uid());
+
+CREATE POLICY "Users can delete own sessions" ON public.sessions
+  FOR DELETE USING (user_id = auth.uid());
+
+-- Reps policies: Users can only access reps for sessions they can access
+CREATE POLICY "Users can view reps for accessible sessions" ON public.reps
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.sessions
+      WHERE sessions.id = reps.session_id
+      AND (sessions.user_id = auth.uid() OR sessions.is_public = true)
+    )
+  );
+
+CREATE POLICY "Users can insert reps for own sessions" ON public.reps
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.sessions
+      WHERE sessions.id = reps.session_id
+      AND sessions.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update reps for own sessions" ON public.reps
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM public.sessions
+      WHERE sessions.id = reps.session_id
+      AND sessions.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can delete reps for own sessions" ON public.reps
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM public.sessions
+      WHERE sessions.id = reps.session_id
+      AND sessions.user_id = auth.uid()
+    )
+  );
 
 -- =====================================================
 -- SCHEMA & TABLE DOCUMENTATION

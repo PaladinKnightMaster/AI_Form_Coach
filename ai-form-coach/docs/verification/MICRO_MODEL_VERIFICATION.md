@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # P8 — Micro Model Path Verification Report
 
 ## 🎯 **Verification Overview**
@@ -234,3 +235,4 @@ The Micro Model Path (P8) system has been thoroughly verified and is ready for p
 5. Replace stubbed weights with actual trained model when ready
 
 **The system is production-ready and provides a solid foundation for enhanced quality scoring while maintaining the reliability of the existing rule-based system!** 🎉
+

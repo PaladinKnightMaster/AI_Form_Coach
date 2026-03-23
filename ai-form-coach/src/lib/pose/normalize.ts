@@ -36,6 +36,7 @@ export interface RobustAngles {
   wristAngle: number | null;
   
   // Additional metrics
+  bodyLineAngle: number | null; // Shoulder-hip-ankle alignment
   torsoAngle: number | null; // Torso relative to vertical
   sideLean: number | null;   // Left-right lean
   
@@ -143,6 +144,8 @@ export function getRobustAngles(result: PoseEstimateResult): RobustAngles {
   const kneeAngle = calculateAngle(hip, knee, ankle);
   const ankleAngle = calculateAngle(knee, ankle, { x: ankle.x, y: 1, z: ankle.z, visibility: ankle.visibility }); // Ankle relative to ground
 
+  const bodyLineAngle = calculateAngle(shoulder, hip, ankle);
+
   // Calculate upper body angles (for push-ups)
   const shoulderAngle = calculateAngle(hip, shoulder, elbow);
   const elbowAngle = calculateAngle(shoulder, elbow, wrist);
@@ -173,6 +176,7 @@ export function getRobustAngles(result: PoseEstimateResult): RobustAngles {
     hipAngle,
     kneeAngle,
     ankleAngle,
+    bodyLineAngle,
     shoulderAngle,
     elbowAngle,
     wristAngle,
@@ -201,8 +205,8 @@ export function getExerciseAngle(
       return angles.elbowAngle;
     
     case 'plank':
-      // Primary angle is torso angle for plank alignment
-      return angles.torsoAngle;
+      // Primary angle is shoulder-hip-ankle body line for plank alignment
+      return angles.bodyLineAngle;
     
     default:
       return null;
@@ -239,7 +243,7 @@ export function getExerciseAngles(
     
     case 'plank':
       return {
-        hipAngle: allAngles.hipAngle,
+        bodyLineAngle: allAngles.bodyLineAngle,
         torsoAngle: allAngles.torsoAngle,
         sideLean: allAngles.sideLean,
         usedSide: allAngles.usedSide
@@ -249,10 +253,6 @@ export function getExerciseAngles(
       return {};
   }
 }
-
-// ============================================
-// Helper Functions
-// ============================================
 
 /**
  * Calculate angle between three 3D points

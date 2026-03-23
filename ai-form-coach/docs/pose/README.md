@@ -9,8 +9,9 @@
 | Document | Purpose |
 |----------|---------|
 | **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** | Complete system reference (Phases A-G) |
-| **[PERFORMANCE_PHASE_G.md](./PERFORMANCE_PHASE_G.md)** | Phase G: Quick Performance Wins (40.5% faster) |
-| **[QUICK_PERFORMANCE_TEST.md](./QUICK_PERFORMANCE_TEST.md)** | Testing guide for performance optimizations |
+| **[performance/README.md](./performance/README.md)** | Performance overview (all phases A-G) |
+| **[performance/optimizations.md](./performance/optimizations.md)** | Phase G: Quick Performance Wins (40.5% faster) |
+| **[performance/testing-guide.md](./performance/testing-guide.md)** | Testing guide for performance optimizations |
 | **[README_3D_POSE_SYSTEM.md](./README_3D_POSE_SYSTEM.md)** | 3D depth rendering and visualization |
 | **[pose3DIntegrationGuide.md](./pose3DIntegrationGuide.md)** | Integration guide for 3D features |
 | **[INDEX.md](./INDEX.md)** | Documentation index and navigation |
@@ -89,11 +90,12 @@ For complete database documentation, see: **[SQL Migrations Index](../../supabas
 
 | Metric | Value |
 |--------|-------|
-| **Detection Latency** | 25ms (from 124ms) |
-| **FPS** | 35-45 FPS (from 20-25) |
-| **Latency Reduction** | 82% improvement |
-| **FPS Improvement** | 75% improvement |
-| **Model** | MediaPipe Lite (full model available) |
+| **Detection Latency** | **14.87ms** (Phase G optimized, -40.5% from baseline) |
+| **FPS** | **61.2 FPS** (Phase G optimized, +53% from baseline) |
+| **Pool Hit Rate** | **90.4%** (Phase G object pooling) |
+| **GC Pauses** | **Rare** (Phase G optimization, -60-80%) |
+| **SIMD Acceleration** | **2-4x faster** on modern browsers |
+| **Model** | MediaPipe Lite with SIMD support |
 | **Device Support** | 99%+ coverage |
 
 ---
@@ -137,7 +139,7 @@ See `/docs/` for complete system documentation.
 
 ---
 
-**Last Updated:** October 18, 2025  
-**Quality:** 🏥 Clinical Grade  
-**Status:** ✅ Production Ready  
-**Phases Implemented:** ✅ A-F (All Complete)
+**Last Updated:** December 22, 2025
+**Quality:** 🏥 Clinical Grade
+**Status:** ✅ Production Ready
+**Phases Implemented:** ✅ A-G (All 7 Phases Complete)

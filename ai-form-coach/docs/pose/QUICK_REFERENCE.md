@@ -88,7 +88,7 @@
   - Performance benchmark utilities
 - **Performance**: 40.5% latency reduction, 53% FPS increase
 - **Result**: Detection 25ms → 14.87ms, FPS 40 → 61.2
-- **Documentation**: See [PERFORMANCE_PHASE_G.md](./PERFORMANCE_PHASE_G.md)
+- **Documentation**: See [performance/optimizations.md](./performance/optimizations.md)
 
 ---
 
@@ -126,16 +126,21 @@
 User Movement
     ↓
 [MediaPipe Pose Landmarker] (async)
+  └─ Phase G: SIMD Acceleration (2-4x faster on modern browsers)
     ↓
 [PoseEngine2 Core Processing]
+  ├─ Phase G: Object Pooling
+  │   └─ Landmark Pool (90.4% hit rate)
   ├─ Phase A: Smoothing Pipeline
-  │   ├─ EMA Smoothing
+  │   ├─ EMA Smoothing (optimized for-loops)
   │   ├─ Median Filter
   │   └─ Outlier Detection
   ├─ Phase C: Worker Processing (optional)
   │   └─ Off-thread Filtering
   ├─ Phase B: Frame Timing
   │   └─ Latency Measurement
+  ├─ Phase G: Motion Detection
+  │   └─ Motion-aware Frame Skipping (20-30% CPU savings)
   └─ Phase F: Adaptive Frame Dropping
       └─ Device-based optimization
     ↓
@@ -146,6 +151,7 @@ User Movement
     ↓
 [Phase E: Metrics Collection]
   ├─ Real-time Dashboard
+  ├─ Performance Benchmarks (Phase G)
   └─ Analytics Logging
     ↓
 [PoseOverlay Rendering]
@@ -154,7 +160,7 @@ User Movement
   ├─ Edge Rendering
   └─ Visual Effects
     ↓
-Smooth, Stable, Low-Latency Skeleton
+Smooth, Stable, Low-Latency Skeleton (14.87ms, 61+ FPS)
 ```
 
 ---
@@ -162,10 +168,16 @@ Smooth, Stable, Low-Latency Skeleton
 ## 📁 Key Files
 
 ### Core Engine
-- `src/lib/pose/engine.ts` - PoseEngine2 (1000+ lines)
+- `src/lib/pose/engine.ts` - PoseEngine2 (1000+ lines, Phase G optimized)
 - `src/lib/pose/workerFilteringPool.ts` - Worker management
 - `src/lib/pose/poseFilteringWorker.ts` - Worker script
 - `src/lib/pose/depthOptimization.ts` - Device optimization
+
+### Performance Optimization (Phase G)
+- `src/lib/pose/landmarkPool.ts` - Object pooling for landmarks (90.4% hit rate)
+- `src/lib/pose/simdDetection.ts` - SIMD support detection (2-4x faster)
+- `src/lib/pose/performanceBenchmark.ts` - Performance benchmarking utilities
+- `src/lib/pose/adaptiveFrameDropping.ts` - Motion-aware frame skipping
 
 ### Rendering
 - `src/components/PoseOverlay.tsx` - Skeleton renderer
@@ -220,6 +232,13 @@ Smooth, Stable, Low-Latency Skeleton
 - ✅ Analytics persistence
 - ✅ Complete system integration
 
+### Phase G: Quick Performance Wins
+- ✅ Object pooling for landmarks
+- ✅ For-loop optimizations (6 hot path functions)
+- ✅ Motion-aware frame skipping
+- ✅ SIMD support detection & enablement
+- ✅ Performance benchmark utilities
+
 ---
 
 ## 🧪 Testing Status
@@ -231,6 +250,7 @@ Smooth, Stable, Low-Latency Skeleton
 - [x] Phase D: Depth verified (device-aware)
 - [x] Phase E: Metrics verified (real-time tracking)
 - [x] Phase F: Integration verified (adaptive optimization)
+- [x] Phase G: Performance verified (object pooling, SIMD, motion-aware)
 - [x] Integration testing (all phases together)
 - [x] Performance benchmarks
 - [x] Device compatibility
@@ -357,14 +377,15 @@ const validation = validateDepthRendering(metrics, config, fps);
 - **Phase D**: <2% overhead (adaptive)
 - **Phase E**: <1% overhead (metrics)
 - **Phase F**: Auto-optimized per device
-- **Net Impact**: +0% to -10% (improvement)
+- **Phase G**: -40.5% latency, +53% FPS (massive improvement)
+- **Net Impact**: -40% to -50% (major improvement)
 
 ---
 
 ## ✅ Production Readiness
 
 ### Deployment Checklist
-- [x] All phases complete (A-F)
+- [x] All phases complete (A-G)
 - [x] Build passing
 - [x] No TypeScript errors
 - [x] Performance verified
@@ -389,6 +410,7 @@ All phases have been successfully implemented:
 4. ✅ **Phase D**: Depth rendering verification
 5. ✅ **Phase E**: Metrics dashboard & testing
 6. ✅ **Phase F**: Full integration & adaptive frame dropping
+7. ✅ **Phase G**: Quick performance wins (object pooling, SIMD, motion-aware)
 
 **Result**: Professional-grade pose detection with:
 - Solid, stable skeleton rendering
@@ -403,8 +425,8 @@ All phases have been successfully implemented:
 
 ---
 
-**Last Updated**: October 18, 2025  
-**Status**: ✅ All Phases Complete (A-F)  
-**Build**: ✅ Passing  
-**Production**: ✅ Ready  
+**Last Updated**: December 22, 2025
+**Status**: ✅ All Phases Complete (A-G)
+**Build**: ✅ Passing
+**Production**: ✅ Ready
 **Documentation**: ✅ Current & Complete

@@ -214,7 +214,8 @@ CREATE INDEX idx_skeleton_timestamp ON skeleton_events(timestamp);
 -- ANALYTICAL VIEWS
 -- =====================================================
 
-CREATE OR REPLACE VIEW session_quality_summary AS
+CREATE OR REPLACE VIEW session_quality_summary
+WITH (security_invoker = true) AS
 SELECT
   s.id as session_id,
   s.user_id,
@@ -228,7 +229,8 @@ FROM sessions s
 LEFT JOIN pose_quality_metrics pqm ON s.id = pqm.session_id
 GROUP BY s.id, s.user_id;
 
-CREATE OR REPLACE VIEW hint_effectiveness AS
+CREATE OR REPLACE VIEW hint_effectiveness
+WITH (security_invoker = true) AS
 SELECT
   hint_key,
   severity,
@@ -239,7 +241,8 @@ FROM coaching_hints
 WHERE was_followed IS NOT NULL
 GROUP BY hint_key, severity;
 
-CREATE OR REPLACE VIEW skeleton_performance AS
+CREATE OR REPLACE VIEW skeleton_performance
+WITH (security_invoker = true) AS
 SELECT
   user_id,
   ROUND(AVG(render_time_ms)::numeric, 2) as avg_render_time,

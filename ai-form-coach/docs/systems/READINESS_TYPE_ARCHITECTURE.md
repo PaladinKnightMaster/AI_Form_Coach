@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # Readiness Type Architecture
 
 ## Overview
@@ -377,4 +378,5 @@ If you're unsure which type to use, ask yourself:
 2. **Am I processing API responses?** → `ReadinessDataDB`
 3. **Am I converting between formats?** → Use utility functions
 4. **Do I need computed scores?** → Fetch from API, don't calculate locally
+
 

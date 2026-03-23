@@ -1,3 +1,4 @@
+> Historical note: this document reflects earlier broader-scope or pre-Beta-1 work. It is not the canonical source of truth for the current public MVP. Use [../technical/MVP_TRUTH_BASELINE.md](../technical/MVP_TRUTH_BASELINE.md), [../technical/MVP_RELEASE_CHECKLIST.md](../technical/MVP_RELEASE_CHECKLIST.md), [../technical/MVP_RELEASE_SCORECARD.md](../technical/MVP_RELEASE_SCORECARD.md), and [../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md](../technical/MVP_IMPLEMENTATION_STATUS_MATRIX.md) for current Beta 1 release truth.
 # Async Form Report (Paid Add-on) - Verification Report
 
 ## Overview
@@ -311,3 +312,4 @@ The implementation provides clear monetization with zero infrastructure cost, ex
 ## Status: ✅ COMPLETE
 
 All requirements have been implemented and verified. The Async Form Report feature is ready for production use and provides clear monetization opportunities with zero infrastructure cost.
+

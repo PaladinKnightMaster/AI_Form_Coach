@@ -223,7 +223,7 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 @media (min-width: 640px) { .section { padding-block: 2.5rem; } }
 @media (min-width: 1024px) { .section { padding-block: 3rem; } }
 
-/* Subtle motion - respects reduced motion preference */
+/* Decorative motion animations */
 @keyframes floatUpDown { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
 @keyframes floatSway { 0% { transform: translate(0,0) rotate(0deg); } 50% { transform: translate(6px,-6px) rotate(1deg); } 100% { transform: translate(0,0) rotate(0deg); } }
 @keyframes scrollLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -232,13 +232,20 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 .blob-b { animation: floatSway 14s ease-in-out infinite; }
 .hero-float { animation: floatUpDown 12s ease-in-out infinite; }
 
-/* Respect reduced motion preference */
+/* ========================================================================
+   WCAG 2.1 AA: prefers-reduced-motion
+   All decorative animations and transitions are disabled when the user
+   has enabled "Reduce motion" in their OS accessibility settings.
+   This universal selector catches all CSS animations and transitions,
+   including Tailwind utility classes and inline styles.
+
+   Functional rendering (Canvas2D skeleton overlay, camera feed) is
+   NOT affected — those are controlled in JavaScript, not CSS.
+   ======================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  .blob-a, .blob-b, .hero-float {
-    animation: none;
-  }
-  
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
