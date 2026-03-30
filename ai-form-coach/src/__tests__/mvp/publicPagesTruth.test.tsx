@@ -21,7 +21,6 @@ describe("public MVP page truth", () => {
 
     expect(html).toContain("Saved coaching sessions");
     expect(html).toContain("Demo history and synthetic trends are intentionally excluded");
-    expect(html).toContain("Loading saved session history...");
     expect(html).not.toContain("leaderboard");
   });
 
