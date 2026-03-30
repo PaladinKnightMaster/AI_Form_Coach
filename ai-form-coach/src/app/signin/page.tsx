@@ -293,12 +293,12 @@ function SignInContent() {
     return (
       <AuthCard title="Check your email">
         <div className="text-center space-y-4">
-          <div className="text-xs font-semibold uppercase tracking-[0.35em] opacity-50">Email link</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400 dark:text-slate-500">Email link</div>
           <div>
-            <p className="text-sm opacity-80 mb-4">
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
               We&apos;ve sent a magic link to <strong>{email}</strong>
             </p>
-            <p className="text-xs opacity-70 mb-6">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
               Click the link in your email to sign in. The link will expire in 60 minutes.
             </p>
           </div>
@@ -315,7 +315,7 @@ function SignInContent() {
                 setSuccess(false);
                 setMode('signin');
               }}
-              className="w-full text-sm opacity-70 hover:opacity-100"
+              className="w-full text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             >
               Back to sign in
             </button>
@@ -366,21 +366,21 @@ function SignInContent() {
       <div className="flex items-center gap-2 text-xs mb-4 overflow-x-auto">
         <button
           type="button"
-          className={`px-2 py-1 rounded whitespace-nowrap ${mode === 'signin' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+          className={`px-2 py-1 rounded whitespace-nowrap ${mode === 'signin' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-gray-800'}`}
           onClick={() => setMode('signin')}
         >
           Sign in
         </button>
         <button
           type="button"
-          className={`px-2 py-1 rounded whitespace-nowrap ${mode === 'signup' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+          className={`px-2 py-1 rounded whitespace-nowrap ${mode === 'signup' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-gray-800'}`}
           onClick={() => setMode('signup')}
         >
           Sign up
         </button>
         <button
           type="button"
-          className={`px-2 py-1 rounded whitespace-nowrap ${mode === 'reset-request' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+          className={`px-2 py-1 rounded whitespace-nowrap ${mode === 'reset-request' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-gray-800'}`}
           onClick={() => setMode('reset-request')}
         >
           Forgot password
@@ -395,7 +395,7 @@ function SignInContent() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full rounded-md border px-3 py-3 bg-white dark:bg-black focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={loading}
           />
         </div>
@@ -408,7 +408,7 @@ function SignInContent() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full rounded-md border px-3 py-3 bg-white dark:bg-black focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               disabled={loading}
             />
           </div>
@@ -422,7 +422,7 @@ function SignInContent() {
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="Confirm password"
-              className="w-full rounded-md border px-3 py-3 bg-white dark:bg-black focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               disabled={loading}
             />
           </div>
@@ -442,7 +442,7 @@ function SignInContent() {
         <div className="text-center space-y-3">
           <div className="flex items-center gap-3">
             <hr className="flex-1" />
-            <span className="text-xs opacity-50">OR</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500">OR</span>
             <hr className="flex-1" />
           </div>
           <button type="button" onClick={() => setMode('magic-link')} className="w-full btn btn-secondary py-2 text-sm">
@@ -453,7 +453,7 @@ function SignInContent() {
 
       {mode === 'magic-link' && (
         <div className="text-center">
-          <button type="button" onClick={() => setMode('signin')} className="text-sm opacity-70 hover:opacity-100 underline">
+          <button type="button" onClick={() => setMode('signin')} className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 underline">
             Back to password sign in
           </button>
         </div>
