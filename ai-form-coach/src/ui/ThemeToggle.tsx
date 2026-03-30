@@ -53,7 +53,8 @@ export default function ThemeToggle() {
 	const applyTheme = (newTheme: 'light' | 'dark') => {
 		const root = document.documentElement;
 		root.dataset.theme = newTheme;
-		root.className = newTheme;
+		root.classList.remove('light', 'dark');
+		root.classList.add(newTheme);
 	};
 
 	const toggleTheme = () => {
