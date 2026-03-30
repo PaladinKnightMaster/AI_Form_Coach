@@ -1,5 +1,6 @@
 "use client";
 import React, { ForwardedRef, forwardRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 export function Container({ children, className, maxWidth = '7xl' }: { 
 	children: React.ReactNode; 
@@ -60,7 +61,7 @@ export const Button = forwardRef(function Button(
 		xl: 'px-8 py-4 text-lg rounded-xl'
 	};
 	
-	const buttonClasses = `${base} ${variants[variant]} ${sizes[size]} ${className || ''}`;
+	const buttonClasses = twMerge(`${base} ${variants[variant]} ${sizes[size]}`, className);
 	
 	if (asChild && React.isValidElement(children)) {
 		return React.cloneElement(children, {
@@ -113,7 +114,7 @@ export function Badge({ children, tone = 'success', size = 'md', className }: {
 	};
 	
 	return (
-		<span className={`${base} ${tones[tone]} ${sizes[size]} ${className || ''}`}>
+		<span className={twMerge(`${base} ${tones[tone]} ${sizes[size]}`, className)}>
 			{children}
 		</span>
 	);
@@ -197,7 +198,7 @@ export function Card({ children, className, hover = false, padding = 'default' }
 	}[padding];
 	
 	return (
-		<div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 ${paddingClass} ${hover ? 'hover:shadow-xl transition-shadow duration-200' : ''} ${className || ''}`}>
+		<div className={twMerge(`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 ${paddingClass} ${hover ? 'hover:shadow-xl transition-shadow duration-200' : ''}`, className)}>
 			{children}
 		</div>
 	);
