@@ -79,6 +79,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="color-scheme" content="light dark" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('afc_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.classList.add(t);document.documentElement.dataset.theme=t}catch(e){}})()`,
+          }}
+        />
         <AuthProvider>
           <ToastProvider>
             <SiteHeader />

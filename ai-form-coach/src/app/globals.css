@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Enhanced Mobile Touch Interactions */
 @layer utilities {
   .touch-manipulation {
