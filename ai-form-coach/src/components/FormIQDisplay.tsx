@@ -8,12 +8,16 @@ interface FormIQDisplayProps {
   className?: string;
 }
 
+/**
+ * FormIQDisplay — designed for dark overlay contexts (camera feed, coach HUD).
+ * Uses semi-transparent backgrounds with light text for glassmorphism effect.
+ */
 export function FormIQDisplay({ formIQMetrics, exercise, className = '' }: FormIQDisplayProps) {
   const { grade, description, color } = getFormIQGrade(formIQMetrics.formIQ);
   const balanceFeedback = getSideBalanceFeedback(formIQMetrics.sideBalance);
 
   return (
-    <div className={`bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 ${className}`}>
+    <div className={`bg-slate-900/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 ${className}`}>
       <div className="text-center mb-6">
         <h3 className="text-lg font-semibold text-white mb-2">Form IQ</h3>
         <div className={`text-4xl font-bold mb-2 ${color}`}>
@@ -22,7 +26,7 @@ export function FormIQDisplay({ formIQMetrics, exercise, className = '' }: FormI
         <div className="text-2xl font-bold text-white mb-2">
           {Math.round(formIQMetrics.formIQ * 100)}%
         </div>
-        <p className="text-gray-200 text-sm">
+        <p className="text-slate-300 text-sm">
           {description}
         </p>
       </div>
@@ -30,10 +34,10 @@ export function FormIQDisplay({ formIQMetrics, exercise, className = '' }: FormI
       {/* Form IQ Breakdown */}
       <div className="space-y-3 mb-6">
         <div className="flex items-center justify-between">
-          <span className="text-gray-200 text-sm">Range of Motion</span>
+          <span className="text-slate-300 text-sm">Range of Motion</span>
           <div className="flex items-center gap-2">
-            <div className="w-16 h-2 bg-gray-600 rounded-full overflow-hidden">
-              <div 
+            <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
+              <div
                 className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-500"
                 style={{ width: `${formIQMetrics.rangeOfMotion * 100}%` }}
               />
@@ -45,10 +49,10 @@ export function FormIQDisplay({ formIQMetrics, exercise, className = '' }: FormI
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-gray-200 text-sm">Tempo</span>
+          <span className="text-slate-300 text-sm">Tempo</span>
           <div className="flex items-center gap-2">
-            <div className="w-16 h-2 bg-gray-600 rounded-full overflow-hidden">
-              <div 
+            <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
+              <div
                 className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
                 style={{ width: `${formIQMetrics.tempo * 100}%` }}
               />
@@ -60,10 +64,10 @@ export function FormIQDisplay({ formIQMetrics, exercise, className = '' }: FormI
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-gray-200 text-sm">Stability</span>
+          <span className="text-slate-300 text-sm">Stability</span>
           <div className="flex items-center gap-2">
-            <div className="w-16 h-2 bg-gray-600 rounded-full overflow-hidden">
-              <div 
+            <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
+              <div
                 className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-500"
                 style={{ width: `${formIQMetrics.stability * 100}%` }}
               />
@@ -77,22 +81,22 @@ export function FormIQDisplay({ formIQMetrics, exercise, className = '' }: FormI
         {/* Side Balance (only for squats and pushups) */}
         {(exercise === 'squat' || exercise === 'pushup') && (
           <div className="flex items-center justify-between">
-            <span className="text-gray-200 text-sm">Side Balance</span>
+            <span className="text-slate-300 text-sm">Side Balance</span>
             <div className="flex items-center gap-2">
-              <div className="w-16 h-2 bg-gray-600 rounded-full overflow-hidden relative">
+              <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden relative">
                 {/* Balance indicator */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-0.5 h-3 bg-white/50"></div>
                 </div>
-                <div 
+                <div
                   className={`h-full transition-all duration-500 ${
-                    Math.abs(formIQMetrics.sideBalance - 0.5) <= 0.05 
-                      ? 'bg-green-500' 
+                    Math.abs(formIQMetrics.sideBalance - 0.5) <= 0.05
+                      ? 'bg-green-500'
                       : Math.abs(formIQMetrics.sideBalance - 0.5) <= 0.1
                       ? 'bg-yellow-500'
                       : 'bg-orange-500'
                   }`}
-                  style={{ 
+                  style={{
                     width: '100%',
                     transform: `translateX(${(formIQMetrics.sideBalance - 0.5) * 100}%)`
                   }}
@@ -119,14 +123,14 @@ export function FormIQDisplay({ formIQMetrics, exercise, className = '' }: FormI
 }
 
 /**
- * Compact Form IQ indicator for HUD
+ * Compact Form IQ indicator for HUD — always on dark overlay.
  */
 export function FormIQIndicator({ formIQMetrics, className = '' }: { formIQMetrics: FormIQMetrics; className?: string }) {
   const { grade, color } = getFormIQGrade(formIQMetrics.formIQ);
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="text-xs text-gray-200">Form IQ:</div>
+      <div className="text-xs text-slate-300">Form IQ:</div>
       <div className={`text-lg font-bold ${color}`}>
         {grade}
       </div>
