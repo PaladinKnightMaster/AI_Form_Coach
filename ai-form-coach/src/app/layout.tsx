@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import LogSilencer from "@/components/LogSilencer";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
@@ -87,7 +88,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <AuthProvider>
           <ToastProvider>
             <SiteHeader />
-            <main id="main-content">{children}</main>
+            <ErrorBoundary>
+              <main id="main-content">{children}</main>
+            </ErrorBoundary>
             <LogSilencer />
             <SiteFooter />
           </ToastProvider>

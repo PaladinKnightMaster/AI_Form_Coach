@@ -1,6 +1,21 @@
-﻿import { describe, expect, it } from "vitest";
+﻿import { beforeAll, describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import Home from "@/app/page";
+
+beforeAll(() => {
+  if (typeof window !== "undefined" && !window.matchMedia) {
+    window.matchMedia = (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
+  }
+});
 
 describe("homepage truth and visual content", () => {
   it("keeps the premium beta story while staying truthful", () => {
