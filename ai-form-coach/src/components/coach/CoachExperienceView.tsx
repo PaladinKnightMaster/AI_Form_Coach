@@ -205,7 +205,7 @@ export default function CoachExperienceView({
             </div>
 
             {showCenterPanel ? (
-              <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center p-3 sm:p-6">
+              <div className="pointer-events-none absolute inset-0 z-30 flex items-start justify-center overflow-y-auto overscroll-contain p-3 sm:items-center sm:p-6">
                 <div className="pointer-events-auto w-full max-w-2xl rounded-[1.7rem] border border-white/14 bg-slate-950/78 p-4 text-white shadow-2xl backdrop-blur sm:rounded-[2rem] sm:p-6">
                   {isCountingDown ? (
                     <div className="space-y-4 sm:space-y-5">
