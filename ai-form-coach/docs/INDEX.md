@@ -49,6 +49,10 @@ These files define the live release surface, the implemented MVP, the restricted
 - Organizations and community features
 - Leaderboards, challenges, creator packs, and monetization flows
 
+## Deployment & Configuration
+
+- [DEPLOYMENT.md](./DEPLOYMENT.md) — Environment variables, Vercel setup, Supabase auth config, analytics
+
 ## Canonical Technical Docs
 
 - [technical/MVP_TRUTH_BASELINE.md](./technical/MVP_TRUTH_BASELINE.md)
