@@ -8,6 +8,7 @@ import LoadingButton from '@/components/LoadingButton';
 import {
   DEFAULT_AUTH_NEXT,
   getAuthCallbackUrl,
+  getSiteURL,
   hasImmediateSessionAccess,
   isExistingSignupUser,
   normalizeAuthNext,
@@ -83,7 +84,7 @@ function SignInContent() {
   }, [redirectTarget, router]);
 
   function getCallbackUrl() {
-    return getAuthCallbackUrl(window.location.origin, redirectTarget);
+    return getAuthCallbackUrl(undefined, redirectTarget);
   }
 
   async function sendMagicLink() {
@@ -235,7 +236,7 @@ function SignInContent() {
           showError('Email Required', 'Enter your email');
           return;
         }
-        const redirectTo = typeof window !== 'undefined' ? `${location.origin}/reset-password` : undefined;
+        const redirectTo = `${getSiteURL()}reset-password`;
         const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, { redirectTo });
         if (error) {
           showError('Reset Failed', error.message);
