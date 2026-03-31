@@ -67,7 +67,7 @@ export interface CalibrationResult {
 export const DEFAULT_CALIBRATION: Required<CalibrationData> = {
   squat_full_depth_angle: 90, // 90 degrees knee angle at bottom
   pushup_elbow_bottom_angle: 90, // 90 degrees elbow angle at bottom
-  bodyline_target: 180, // Straight line (180 degrees)
+  bodyline_target: 170, // Near-straight line (170 degrees) — anatomically realistic default
 };
 
 // Calibration step definitions

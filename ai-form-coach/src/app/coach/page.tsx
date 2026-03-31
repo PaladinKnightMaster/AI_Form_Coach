@@ -44,6 +44,8 @@ import {
 import { getCurrentUserId } from "@/lib/supabase/client";
 import { createValidator } from "@/lib/validators";
 import type { Exercise, Phase, RepMetric } from "@/lib/validators/types";
+import { repMetricToDatabase } from "@/lib/validators/databaseUtils";
+import { calculateSessionMetrics } from "@/lib/validators/sessionAnalysis";
 import { ensureSpeechReady, setMuted as setVoiceMuted, speak } from "@/lib/voice/coachVoice";
 
 const VISIBILITY_THRESHOLD = 0.55;
@@ -523,6 +525,10 @@ export default function CoachPage() {
         return;
       }
       const sessionId = crypto.randomUUID();
+
+      // Calculate session-level metrics for ML training data
+      const sessionMetrics = calculateSessionMetrics(repMetricsRef.current);
+
       await enqueueWrite({
         table: "sessions",
         payload: {
@@ -535,25 +541,23 @@ export default function CoachPage() {
           total_time_seconds: Math.max(0, Math.round(finalElapsedMs / 1000)),
           avg_pose_quality: averageVisibility,
           is_demo: false,
+          // Enhanced session-level training data
+          avg_quality_score: sessionMetrics.averageQuality,
+          quality_distribution: sessionMetrics.qualityDistribution,
+          total_errors: sessionMetrics.totalErrors,
+          error_rate: sessionMetrics.errorRate,
+          consistency_score: sessionMetrics.consistencyScore,
+          improvement_trend: sessionMetrics.improvementTrend,
+          form_progression: sessionMetrics.formProgression,
+          correct_rate: sessionMetrics.correctRate,
         },
       });
       for (const [index, rep] of repMetricsRef.current.entries()) {
+        // Use databaseUtils for complete rep data including errors & exercise metrics
+        const dbRep = repMetricToDatabase(rep, sessionId, index);
         await enqueueWrite({
           table: "reps",
-          payload: {
-            session_id: sessionId,
-            idx: index,
-            start_ms: rep.startTs,
-            end_ms: rep.endTs,
-            peak_depth: rep.peakDepth ?? null,
-            rom_score: rep.formIQ ?? null,
-            valid: rep.valid !== false,
-            is_correct: rep.is_correct ?? null,
-            confidence: rep.confidence ?? null,
-            quality: rep.quality ?? null,
-            quality_score: rep.score ?? null,
-            tempo: rep.tempo ?? null,
-          },
+          payload: dbRep as unknown as Record<string, unknown>,
         });
       }
       await flushWrites();
