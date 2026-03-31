@@ -23,8 +23,18 @@ function ResetPasswordContent() {
     if (exchanged.current) return;
     exchanged.current = true;
 
+    const supabase = getSupabaseClient();
+
+    // Listen for PASSWORD_RECOVERY event (fired for implicit flow)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setResetState("ready");
+      }
+    });
+
     async function establishSession() {
-      const supabase = getSupabaseClient();
       const code = searchParams.get("code");
 
       if (code) {
@@ -42,11 +52,11 @@ function ResetPasswordContent() {
         return;
       }
 
-      // No code param — check if we already have a session (e.g. from hash fragment)
+      // No code param — check if user is already authenticated (e.g. from hash fragment)
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
         setResetState("ready");
       } else {
         setStatus(
@@ -55,16 +65,6 @@ function ResetPasswordContent() {
         setResetState("error");
       }
     }
-
-    // Also listen for PASSWORD_RECOVERY event (fired for implicit flow)
-    const supabase = getSupabaseClient();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setResetState("ready");
-      }
-    });
 
     establishSession();
 

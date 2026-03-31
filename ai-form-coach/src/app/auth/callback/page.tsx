@@ -62,12 +62,12 @@ function CallbackContent() {
           }
         }
       } else {
-        // No code — check if session was established via hash fragment (implicit flow)
+        // No code — check if user session exists (e.g. from hash fragment / implicit flow)
         const {
-          data: { session },
-        } = await supabase.auth.getSession();
+          data: { user },
+        } = await supabase.auth.getUser();
 
-        if (!session) {
+        if (!user) {
           setError("No authentication code or session found.");
           return;
         }
@@ -76,7 +76,7 @@ function CallbackContent() {
         try {
           await supabase
             .from("profiles")
-            .upsert({ id: session.user.id }, { onConflict: "id" });
+            .upsert({ id: user.id }, { onConflict: "id" });
         } catch (err) {
           console.error("Profile upsert error:", err);
         }
@@ -100,11 +100,9 @@ function CallbackContent() {
             The sign-in link could not be verified. This can happen if the link
             expired or was already used. Please request a fresh link.
           </p>
-          {error && (
-            <p className="rounded-lg border border-amber-300/40 bg-amber-100/40 px-3 py-2 text-xs dark:border-amber-300/20 dark:bg-amber-900/20">
-              Details: {error}
-            </p>
-          )}
+          <p className="rounded-lg border border-amber-300/40 bg-amber-100/40 px-3 py-2 text-xs dark:border-amber-300/20 dark:bg-amber-900/20">
+            Details: {error}
+          </p>
           <div className="space-y-3">
             <a href={signinHref} className="w-full btn btn-primary text-center block">
               Try sign in again

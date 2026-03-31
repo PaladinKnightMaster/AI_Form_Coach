@@ -12,7 +12,6 @@ export default function SettingsPage() {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [passwordCurrent, setPasswordCurrent] = useState("");
   const [passwordNew, setPasswordNew] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -43,7 +42,6 @@ export default function SettingsPage() {
         return;
       }
       setPasswordStatus({ type: "success", message: "Password updated successfully" });
-      setPasswordCurrent("");
       setPasswordNew("");
       setPasswordConfirm("");
     } finally {
