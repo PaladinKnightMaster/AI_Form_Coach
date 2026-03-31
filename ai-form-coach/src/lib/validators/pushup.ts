@@ -3,7 +3,7 @@ import type { Validator, ValidatorState, ValidatorConfig, RepMetric } from './ty
 import type { PoseEstimateResult } from '../pose/engine';
 import { calculateFormIQ, calculateSideBalance } from './formIQ';
 import { getExerciseAngle } from '../pose/normalize';
-// import { getExerciseConfig } from '@/lib/calibration/constants'; // (unused with enhanced phase detection)
+import { getExerciseConfig } from '@/lib/calibration/constants';
 import { getUserCalibration } from '@/lib/calibration/service';
 import type { DeviceCalibration } from '@/types/calibration';
 import { 
@@ -46,11 +46,11 @@ export function createPushupValidator(): Validator {
 		}
 		
 		// Get personalized configuration
-		// const config = getExerciseConfig(userCalibration ? {
-		// 	squat_full_depth_angle: userCalibration.squat_full_depth_angle,
-		// 	pushup_elbow_bottom_angle: userCalibration.pushup_elbow_bottom_angle,
-		// 	bodyline_target: userCalibration.bodyline_target,
-		// } : undefined); // (unused with enhanced phase detection)
+		const config = getExerciseConfig(userCalibration ? {
+			squat_full_depth_angle: userCalibration.squat_full_depth_angle,
+			pushup_elbow_bottom_angle: userCalibration.pushup_elbow_bottom_angle,
+			bodyline_target: userCalibration.bodyline_target,
+		} : undefined);
 		
 		// Use the robust angle calculation from the pose engine
 		const elbowAngle = getExerciseAngle(result, 'pushup');
@@ -65,10 +65,9 @@ export function createPushupValidator(): Validator {
 		// Calculate body line angle
 		const bodyLineAngle = calculateBodyLine(result.landmarks, bestSide);
 		
-		// Use calibrated thresholds
-		// const calibratedBottom = config.pushup.idealElbowAngle; // (unused with enhanced phase detection)
-		// const bottomElbow = calibratedBottom + 5; // 5° tolerance for true bottom (unused with enhanced phase detection)
-		// const topElbow = cfg?.pushup?.topElbow ?? 155; // (unused with enhanced phase detection)
+		// Use calibrated thresholds for depth validation
+		const calibratedBottom = config.pushup.idealElbowAngle;
+		const minDepthAngle = calibratedBottom + 10; // 10° tolerance — elbow must bend past this
 		const debounce = cfg?.debounceFrames ?? 3;
 		
 		// Body line thresholds
@@ -226,7 +225,21 @@ export function createPushupValidator(): Validator {
 				);
 				state.currentRep.errorHistory.push(error);
 			}
-			
+
+			// Depth check — ensure user bent elbows past calibrated threshold
+			if (peakElbowAngle > minDepthAngle) {
+				const error = createFormError(
+					'depth_low',
+					'high',
+					repDuration,
+					`Not deep enough - elbow angle ${Math.round(peakElbowAngle)}° (need ≤${Math.round(minDepthAngle)}°)`,
+					ts,
+					peakElbowAngle,
+					minDepthAngle
+				);
+				state.currentRep.errorHistory.push(error);
+			}
+
 			// Calculate side balance for this rep
 			const sideBalanceData = calculateSideBalance(result.landmarks, 'pushup');
 			

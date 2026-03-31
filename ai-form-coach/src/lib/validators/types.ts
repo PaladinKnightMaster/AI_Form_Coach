@@ -5,7 +5,7 @@ export type Phase = 'idle' | 'down' | 'up' | 'hold';
 
 // Enhanced error types for detailed form analysis
 export type FormError = {
-	type: 'depth_low' | 'knee_valgus' | 'chest_drop' | 'hip_sag' | 'tempo_fast' | 'tempo_slow' | 'bodyline_poor';
+	type: 'depth_low' | 'knee_valgus' | 'chest_drop' | 'hip_sag' | 'hip_pike' | 'tempo_fast' | 'tempo_slow' | 'bodyline_poor';
 	severity: 'low' | 'medium' | 'high';
 	duration: number; // Duration in milliseconds
 	message: string;

@@ -28,7 +28,8 @@ export function createPlankValidator(): Validator {
 	
 	// Error tracking state
 	const errorStates = {
-		hipSag: { startTime: null as number | null, threshold: 0 }
+		hipSag: { startTime: null as number | null, threshold: 0 },
+		hipPike: { startTime: null as number | null, threshold: 0 }
 	};
 
 	const completeHold = async (ts: number, bodyLineThreshold: number) => {
@@ -83,6 +84,7 @@ export function createPlankValidator(): Validator {
 		state.currentRep = undefined;
 		state.phase = 'idle';
 		errorStates.hipSag.startTime = null;
+		errorStates.hipPike.startTime = null;
 	};
 
 	return async (result: PoseEstimateResult | null, ts: number, cfg?: ValidatorConfig) => {
@@ -111,6 +113,8 @@ export function createPlankValidator(): Validator {
 		const bodyLineThreshold = config.plank.idealHipAngle; // Use calibrated body line target
 		const debounce = cfg?.debounceFrames ?? 3;
 		const hipSagThreshold = cfg?.errorThresholds?.errorDurationThresholds?.hipSag ?? 300; // ms
+		const hipPikeThreshold = 300; // ms — same duration gate as hip sag
+		const pikeAngleThreshold = bodyLineThreshold + 12; // hips too high (e.g. 182° when target is 170°)
 		const holdReleaseThreshold = Math.min(bodyLineThreshold - 18, 155);
 
 		// Initialize enhanced phase detector if not already done
@@ -212,6 +216,29 @@ export function createPlankValidator(): Validator {
 				}
 			} else {
 				errorStates.hipSag.startTime = null;
+			}
+
+			// Hip pike detection (hips too high)
+			if (bodyLineAngle > pikeAngleThreshold) {
+				if (!errorStates.hipPike.startTime) {
+					errorStates.hipPike.startTime = ts;
+					errorStates.hipPike.threshold = pikeAngleThreshold;
+				} else if (checkErrorDuration(errorStates.hipPike.startTime, ts, hipPikeThreshold)) {
+					const error = createFormError(
+						'hip_pike',
+						'medium',
+						ts - errorStates.hipPike.startTime,
+						`Hips too high - lower your hips for a straight line`,
+						ts,
+						bodyLineAngle,
+						pikeAngleThreshold
+					);
+					state.currentRep.errorHistory.push(error);
+					state.cues.push('Lower your hips');
+					errorStates.hipPike.startTime = null;
+				}
+			} else {
+				errorStates.hipPike.startTime = null;
 			}
 
 			if (bodyLineAngle <= holdReleaseThreshold) {
