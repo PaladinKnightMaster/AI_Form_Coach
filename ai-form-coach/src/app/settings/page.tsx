@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import DeleteAccountModal from "@/components/DeleteAccountModal";
 import { Button, Card, Icon } from "@/ui/DS";
 
@@ -11,11 +12,44 @@ export default function SettingsPage() {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [passwordCurrent, setPasswordCurrent] = useState("");
+  const [passwordNew, setPasswordNew] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordStatus, setPasswordStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const email = user?.email ?? "—";
   const createdAt = user?.created_at
     ? new Date(user.created_at).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
     : "—";
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordStatus(null);
+    if (passwordNew.length < 6) {
+      setPasswordStatus({ type: "error", message: "Password must be at least 6 characters" });
+      return;
+    }
+    if (passwordNew !== passwordConfirm) {
+      setPasswordStatus({ type: "error", message: "Passwords do not match" });
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase.auth.updateUser({ password: passwordNew });
+      if (error) {
+        setPasswordStatus({ type: "error", message: error.message });
+        return;
+      }
+      setPasswordStatus({ type: "success", message: "Password updated successfully" });
+      setPasswordCurrent("");
+      setPasswordNew("");
+      setPasswordConfirm("");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   const handleDeleteAccount = async () => {
     const res = await fetch("/api/auth/delete-account", { method: "POST" });
@@ -64,6 +98,39 @@ export default function SettingsPage() {
                 <dd className="font-medium">{createdAt}</dd>
               </div>
             </dl>
+          </Card>
+
+          {/* Change Password */}
+          <Card padding="default">
+            <h2 className="text-lg font-semibold mb-4">Change Password</h2>
+            <form onSubmit={handlePasswordChange} className="space-y-3">
+              <input
+                type="password"
+                value={passwordNew}
+                onChange={(e) => { setPasswordNew(e.target.value); setPasswordStatus(null); }}
+                placeholder="New password (min 6 characters)"
+                required
+                className="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-900 text-sm placeholder:text-slate-400 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={passwordLoading}
+              />
+              <input
+                type="password"
+                value={passwordConfirm}
+                onChange={(e) => { setPasswordConfirm(e.target.value); setPasswordStatus(null); }}
+                placeholder="Confirm new password"
+                required
+                className="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-900 text-sm placeholder:text-slate-400 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={passwordLoading}
+              />
+              <Button type="submit" variant="primary" size="md" disabled={passwordLoading}>
+                {passwordLoading ? "Updating…" : "Update password"}
+              </Button>
+              {passwordStatus && (
+                <p className={`text-sm ${passwordStatus.type === "success" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                  {passwordStatus.message}
+                </p>
+              )}
+            </form>
           </Card>
 
           {/* Danger Zone */}
