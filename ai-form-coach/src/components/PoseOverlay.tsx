@@ -15,6 +15,40 @@ import {
   type SkeletonJoint,
 } from "@/lib/pose/contracts";
 
+/* ─────────────────────────────────────────────────────────────────────────────
+ * PREMIUM POSE OVERLAY
+ *
+ * Design reference: Sword Health / Whoop / Peloton
+ * - Soft neon glow on skeleton edges (brand cyan)
+ * - Elegant gradient-filled joint circles with outer glow
+ * - Form-quality color coding: teal → amber → red
+ * - Minimal visual weight: the body is the hero, skeleton is the accent
+ * ────────────────────────────────────────────────────────────────────────── */
+
+// Brand palette — single source of truth for skeleton colors
+const SKELETON_COLORS = {
+  // Normal state: premium teal/cyan (matches brand)
+  edge:       "rgba(45, 212, 191, 0.85)",   // teal-400
+  edgeGlow:   "rgba(45, 212, 191, 0.25)",   // soft glow
+  joint:      "rgba(255, 255, 255, 0.95)",   // white fill
+  jointRing:  "rgba(45, 212, 191, 0.7)",     // teal ring
+  jointGlow:  "rgba(45, 212, 191, 0.35)",    // outer glow
+
+  // Low visibility: faded
+  lowEdge:    "rgba(255, 255, 255, 0.25)",
+  lowJoint:   "rgba(255, 255, 255, 0.3)",
+  lowRing:    "rgba(255, 255, 255, 0.15)",
+
+  // Error/correction: warm red
+  errorEdge:      "rgba(239, 68, 68, 0.9)",
+  errorEdgeGlow:  "rgba(239, 68, 68, 0.3)",
+  errorJoint:     "rgba(239, 68, 68, 0.95)",
+  errorRing:      "rgba(239, 68, 68, 0.6)",
+
+  // Underlay (dark shadow for contrast on any background)
+  shadow:     "rgba(0, 0, 0, 0.45)",
+} as const;
+
 interface PoseOverlayProps {
   landmarks?: Landmark3D[] | null;
   landmarksRef?: React.MutableRefObject<Landmark3D[] | null>;
@@ -28,44 +62,8 @@ interface PoseOverlayProps {
 }
 
 function getRenderableVisibility(value: number | undefined) {
-  if (!Number.isFinite(value)) {
-    return 1;
-  }
+  if (!Number.isFinite(value)) return 1;
   return Math.max(0.18, Math.min(1, value ?? 1));
-}
-
-/**
- * Skeleton edge style — clean white lines (Sword Health aesthetic).
- * High-contrast white on dark camera feed for clarity.
- */
-function getEdgeStyle(edgeVisibility: number, highlighted: boolean) {
-  if (highlighted) {
-    return {
-      stroke: "rgba(239, 68, 68, 0.95)",
-      underlay: "rgba(0, 0, 0, 0.5)",
-      dash: [] as number[],
-      width: 5,
-      underlayWidth: 9,
-    };
-  }
-
-  if (edgeVisibility < 0.45) {
-    return {
-      stroke: `rgba(255, 255, 255, 0.4)`,
-      underlay: "rgba(0, 0, 0, 0.3)",
-      dash: [8, 7],
-      width: 3,
-      underlayWidth: 7,
-    };
-  }
-
-  return {
-    stroke: `rgba(255, 255, 255, ${Math.max(0.8, edgeVisibility * 0.95)})`,
-    underlay: `rgba(0, 0, 0, ${Math.max(0.35, edgeVisibility * 0.45)})`,
-    dash: [] as number[],
-    width: 4,
-    underlayWidth: 8,
-  };
 }
 
 function projectPoint(
@@ -80,10 +78,71 @@ function projectPoint(
   };
 }
 
-/**
- * Draw a single joint landmark — large white filled circles (Sword Health style).
- * Big enough to see clearly on camera feed, with dark outline for contrast.
- */
+/* ── Edge rendering ─────────────────────────────────────────────────────── */
+
+function drawEdge(
+  ctx: CanvasRenderingContext2D,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  edgeVisibility: number,
+  highlighted: boolean,
+) {
+  const isLow = edgeVisibility < 0.45;
+
+  // Colors based on state
+  const strokeColor = highlighted
+    ? SKELETON_COLORS.errorEdge
+    : isLow
+      ? SKELETON_COLORS.lowEdge
+      : SKELETON_COLORS.edge;
+
+  const glowColor = highlighted
+    ? SKELETON_COLORS.errorEdgeGlow
+    : SKELETON_COLORS.edgeGlow;
+
+  const lineWidth = highlighted ? 4 : 3;
+  const dash = isLow && !highlighted ? [6, 5] : [];
+
+  // 1. Dark underlay for contrast
+  ctx.save();
+  ctx.beginPath();
+  ctx.setLineDash([]);
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
+  ctx.strokeStyle = SKELETON_COLORS.shadow;
+  ctx.lineWidth = lineWidth + 4;
+  ctx.stroke();
+  ctx.restore();
+
+  // 2. Soft glow layer (only for visible + normal/error states)
+  if (!isLow) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.strokeStyle = glowColor;
+    ctx.lineWidth = lineWidth + 8;
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 12;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // 3. Main stroke
+  ctx.save();
+  ctx.beginPath();
+  ctx.setLineDash(dash);
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = lineWidth;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+/* ── Joint rendering ────────────────────────────────────────────────────── */
+
 function drawJoint(
   ctx: CanvasRenderingContext2D,
   joint: SkeletonJoint,
@@ -96,49 +155,77 @@ function drawJoint(
   const point = projectPoint(joint.x, joint.y, bounds, mirror);
   const highlighted = isJointHighlighted(joint, highlightJoints);
   const visibility = getRenderableVisibility(joint.visibility);
+  const isLow = visibility < 0.45;
 
-  // Larger radii — 10px base, 12px highlighted, 7px head (Sword Health scale)
-  const radius = highlighted ? 12 : joint.id === "head_center" ? 7 : 10;
+  // Joint sizing — proportional, larger than typical tech demos
+  const isHead = joint.id === "head_center";
+  const baseRadius = isHead ? 5 : 7;
+  const radius = highlighted ? baseRadius + 3 : baseRadius;
 
+  // Color selection
   const fillColor = highlighted
-    ? "rgba(239, 68, 68, 0.95)"
-    : visibility < 0.45
-      ? `rgba(255, 255, 255, 0.4)`
-      : `rgba(255, 255, 255, ${Math.max(0.85, visibility * 0.95)})`;
+    ? SKELETON_COLORS.errorJoint
+    : isLow
+      ? SKELETON_COLORS.lowJoint
+      : SKELETON_COLORS.joint;
 
-  const strokeColor = highlighted
-    ? "rgba(180, 30, 30, 0.9)"
-    : "rgba(0, 0, 0, 0.5)";
+  const ringColor = highlighted
+    ? SKELETON_COLORS.errorRing
+    : isLow
+      ? SKELETON_COLORS.lowRing
+      : SKELETON_COLORS.jointRing;
 
-  // Dark shadow ring for contrast on any background
+  const glowColor = highlighted
+    ? SKELETON_COLORS.errorEdgeGlow
+    : SKELETON_COLORS.jointGlow;
+
+  // 1. Outer glow (only for visible joints)
+  if (!isLow) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, radius + 4, 0, Math.PI * 2);
+    ctx.fillStyle = glowColor;
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // 2. Dark shadow ring
   ctx.beginPath();
-  ctx.arc(point.x, point.y, radius + 2, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+  ctx.arc(point.x, point.y, radius + 1.5, 0, Math.PI * 2);
+  ctx.fillStyle = SKELETON_COLORS.shadow;
   ctx.fill();
 
-  // Main filled circle
+  // 3. Colored ring
   ctx.beginPath();
   ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = ringColor;
+  ctx.fill();
+
+  // 4. White/colored inner dot
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, radius * 0.55, 0, Math.PI * 2);
   ctx.fillStyle = fillColor;
   ctx.fill();
-  ctx.lineWidth = 2.5;
-  ctx.strokeStyle = strokeColor;
-  ctx.stroke();
 
-  if (showConfidence && joint.visibility < 0.7) {
+  // 5. Confidence ring (faint outer ring when visibility is medium)
+  if (showConfidence && joint.visibility < 0.7 && !isLow) {
     ctx.beginPath();
-    ctx.arc(point.x, point.y, radius + 5, 0, Math.PI * 2);
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.arc(point.x, point.y, radius + 6, 0, Math.PI * 2);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
     ctx.stroke();
   }
 
   if (labels) {
-    ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.font = "12px system-ui";
-    ctx.fillText(joint.id, point.x + 14, point.y - 10);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.font = "500 11px system-ui";
+    ctx.fillText(joint.id, point.x + radius + 6, point.y - radius);
   }
 }
+
+/* ── Main component ─────────────────────────────────────────────────────── */
 
 function PoseOverlayComponent({
   landmarks,
@@ -198,6 +285,7 @@ function PoseOverlayComponent({
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
+      // Draw edges first (skeleton lines)
       for (const [fromId, toId] of FITNESS_SKELETON_EDGES) {
         const from = jointMap.get(fromId as FitnessJointId | DerivedJointId);
         const to = jointMap.get(toId as FitnessJointId | DerivedJointId);
@@ -207,51 +295,53 @@ function PoseOverlayComponent({
         const edgeVisibility = (getRenderableVisibility(from.visibility) + getRenderableVisibility(to.visibility)) / 2;
         const fromPoint = projectPoint(from.x, from.y, bounds, mirror);
         const toPoint = projectPoint(to.x, to.y, bounds, mirror);
-        const edgeStyle = getEdgeStyle(edgeVisibility, highlighted);
 
-        ctx.beginPath();
-        ctx.setLineDash([]);
-        ctx.moveTo(fromPoint.x, fromPoint.y);
-        ctx.lineTo(toPoint.x, toPoint.y);
-        ctx.strokeStyle = edgeStyle.underlay;
-        ctx.lineWidth = edgeStyle.underlayWidth;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.setLineDash(edgeStyle.dash);
-        ctx.moveTo(fromPoint.x, fromPoint.y);
-        ctx.lineTo(toPoint.x, toPoint.y);
-        ctx.strokeStyle = edgeStyle.stroke;
-        ctx.lineWidth = edgeStyle.width;
-        ctx.stroke();
-        ctx.setLineDash([]);
+        drawEdge(ctx, fromPoint, toPoint, edgeVisibility, highlighted);
       }
 
+      // Draw joints on top (so they sit above lines)
       for (const joint of renderedJoints) {
         if (!Number.isFinite(joint.x) || !Number.isFinite(joint.y)) continue;
         drawJoint(ctx, joint, bounds, mirror, highlightJoints, labels, showConfidence);
       }
 
+      // Correction callouts
       for (const correction of corrections) {
         const point = projectPoint(correction.position.x, correction.position.y, bounds, mirror);
+
+        // Pulsing ring
+        ctx.save();
         ctx.beginPath();
-        ctx.arc(point.x, point.y, 10, 0, Math.PI * 2);
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "#ef4444";
+        ctx.arc(point.x, point.y, 14, 0, Math.PI * 2);
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = SKELETON_COLORS.errorEdge;
+        ctx.shadowColor = SKELETON_COLORS.errorEdgeGlow;
+        ctx.shadowBlur = 8;
         ctx.stroke();
-        ctx.fillStyle = "rgba(239, 68, 68, 0.95)";
-        ctx.font = "12px system-ui";
-        ctx.fillText(correction.message, point.x + 14, point.y - 4);
+        ctx.restore();
+
+        // Label
+        ctx.save();
+        ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+        const textWidth = ctx.measureText(correction.message).width;
+        ctx.fillRect(point.x + 16, point.y - 12, textWidth + 12, 20);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.font = "500 11px system-ui";
+        ctx.fillText(correction.message, point.x + 22, point.y + 2);
+        ctx.restore();
       }
 
+      // Debug overlay
       if (debug) {
-        ctx.fillStyle = "rgba(15, 23, 42, 0.72)";
-        ctx.fillRect(12, 12, 190, 70);
+        ctx.save();
+        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillRect(8, 8, 180, 64);
         ctx.fillStyle = "#ffffff";
-        ctx.font = "12px system-ui";
-        ctx.fillText(`Visibility: ${motionFeatures.visibilityScore.toFixed(2)}`, 20, 32);
-        ctx.fillText(`Cue state: ${motionFeatures.cueState}`, 20, 50);
-        ctx.fillText(`Symmetry: ${motionFeatures.symmetryScore.toFixed(2)}`, 20, 68);
+        ctx.font = "500 11px system-ui";
+        ctx.fillText(`Vis: ${motionFeatures.visibilityScore.toFixed(2)}`, 16, 26);
+        ctx.fillText(`Cue: ${motionFeatures.cueState}`, 16, 42);
+        ctx.fillText(`Sym: ${motionFeatures.symmetryScore.toFixed(2)}`, 16, 58);
+        ctx.restore();
       }
 
       ctx.restore();
