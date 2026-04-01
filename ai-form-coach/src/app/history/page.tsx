@@ -76,7 +76,7 @@ export default function HistoryPage() {
 
         const { data: sessionRows, error: sessionsError } = await supabase
           .from("sessions")
-          .select("id, exercise, started_at, total_reps, total_time_seconds, is_demo")
+          .select("id, exercise, started_at, total_reps, total_time_seconds")
           .order("started_at", { ascending: false });
 
         if (sessionsError) {

@@ -131,7 +131,7 @@ export default function SessionDetailPage() {
 
         const { data: sessionRow, error: sessionError } = await supabase
           .from("sessions")
-          .select("id, exercise, started_at, total_reps, total_time_seconds, is_demo")
+          .select("id, exercise, started_at, total_reps, total_time_seconds")
           .eq("id", sessionId)
           .maybeSingle();
 
@@ -139,7 +139,7 @@ export default function SessionDetailPage() {
           throw sessionError;
         }
 
-        if (!sessionRow || sessionRow.is_demo) {
+        if (!sessionRow) {
           throw new Error("This saved session is not available in the public beta.");
         }
 

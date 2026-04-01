@@ -34,33 +34,37 @@ function getRenderableVisibility(value: number | undefined) {
   return Math.max(0.18, Math.min(1, value ?? 1));
 }
 
+/**
+ * Skeleton edge style — clean white lines (Sword Health aesthetic).
+ * High-contrast white on dark camera feed for clarity.
+ */
 function getEdgeStyle(edgeVisibility: number, highlighted: boolean) {
   if (highlighted) {
     return {
-      stroke: "rgba(239, 68, 68, 0.98)",
-      underlay: "rgba(69, 10, 10, 0.9)",
+      stroke: "rgba(239, 68, 68, 0.95)",
+      underlay: "rgba(0, 0, 0, 0.5)",
       dash: [] as number[],
       width: 5,
-      underlayWidth: 8,
+      underlayWidth: 9,
     };
   }
 
   if (edgeVisibility < 0.45) {
     return {
-      stroke: "rgba(251, 191, 36, 0.96)",
-      underlay: "rgba(120, 53, 15, 0.75)",
+      stroke: `rgba(255, 255, 255, 0.4)`,
+      underlay: "rgba(0, 0, 0, 0.3)",
       dash: [8, 7],
-      width: 4,
+      width: 3,
       underlayWidth: 7,
     };
   }
 
   return {
-    stroke: `rgba(56, 189, 248, ${Math.max(0.72, edgeVisibility)})`,
-    underlay: `rgba(15, 23, 42, ${Math.max(0.42, edgeVisibility * 0.65)})`,
+    stroke: `rgba(255, 255, 255, ${Math.max(0.8, edgeVisibility * 0.95)})`,
+    underlay: `rgba(0, 0, 0, ${Math.max(0.35, edgeVisibility * 0.45)})`,
     dash: [] as number[],
     width: 4,
-    underlayWidth: 7,
+    underlayWidth: 8,
   };
 }
 
@@ -76,6 +80,10 @@ function projectPoint(
   };
 }
 
+/**
+ * Draw a single joint landmark — large white filled circles (Sword Health style).
+ * Big enough to see clearly on camera feed, with dark outline for contrast.
+ */
 function drawJoint(
   ctx: CanvasRenderingContext2D,
   joint: SkeletonJoint,
@@ -88,35 +96,47 @@ function drawJoint(
   const point = projectPoint(joint.x, joint.y, bounds, mirror);
   const highlighted = isJointHighlighted(joint, highlightJoints);
   const visibility = getRenderableVisibility(joint.visibility);
-  const radius = highlighted ? 8 : joint.id === "head_center" ? 4.5 : 6;
-  const fillColor = highlighted ? "rgba(239, 68, 68, 0.98)" : visibility < 0.45 ? "rgba(251, 191, 36, 0.98)" : `rgba(224, 242, 254, ${Math.max(0.78, visibility)})`;
-  const strokeColor = highlighted ? "rgba(127, 29, 29, 0.95)" : visibility < 0.45 ? "rgba(120, 53, 15, 0.95)" : `rgba(14, 165, 233, ${Math.max(0.76, visibility)})`;
 
+  // Larger radii — 10px base, 12px highlighted, 7px head (Sword Health scale)
+  const radius = highlighted ? 12 : joint.id === "head_center" ? 7 : 10;
+
+  const fillColor = highlighted
+    ? "rgba(239, 68, 68, 0.95)"
+    : visibility < 0.45
+      ? `rgba(255, 255, 255, 0.4)`
+      : `rgba(255, 255, 255, ${Math.max(0.85, visibility * 0.95)})`;
+
+  const strokeColor = highlighted
+    ? "rgba(180, 30, 30, 0.9)"
+    : "rgba(0, 0, 0, 0.5)";
+
+  // Dark shadow ring for contrast on any background
   ctx.beginPath();
   ctx.arc(point.x, point.y, radius + 2, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(15, 23, 42, 0.72)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
   ctx.fill();
 
+  // Main filled circle
   ctx.beginPath();
   ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
   ctx.fillStyle = fillColor;
   ctx.fill();
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.5;
   ctx.strokeStyle = strokeColor;
   ctx.stroke();
 
   if (showConfidence && joint.visibility < 0.7) {
     ctx.beginPath();
-    ctx.arc(point.x, point.y, radius + 4, 0, Math.PI * 2);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgba(245, 158, 11, 0.95)";
+    ctx.arc(point.x, point.y, radius + 5, 0, Math.PI * 2);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
     ctx.stroke();
   }
 
   if (labels) {
     ctx.fillStyle = "rgba(255,255,255,0.95)";
     ctx.font = "12px system-ui";
-    ctx.fillText(joint.id, point.x + 10, point.y - 10);
+    ctx.fillText(joint.id, point.x + 14, point.y - 10);
   }
 }
 
