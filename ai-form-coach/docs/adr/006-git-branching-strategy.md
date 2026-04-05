@@ -53,6 +53,23 @@ dev ─────────────────────────�
 feat/xyz ────┘    fix/abc ──┘
 ```
 
+### Branch Cleanup
+
+After a branch is merged to `dev` (and subsequently `dev` to `main`):
+1. **Delete the remote branch** and **local branch** immediately
+2. **Before starting new work**, clean up all stale merged branches:
+   ```bash
+   git fetch origin --prune
+   git branch --merged origin/dev | grep -v "main\|dev" | xargs git branch -d
+   ```
+3. **Never reuse a merged branch** for new work — always create a fresh branch from `dev`
+
+### One Branch, One Purpose
+
+- Each branch solves **one thing**: a single bug fix, a single feature, or a single doc update
+- Do NOT stack unrelated changes onto an existing branch (e.g., adding docs to a bug fix branch)
+- If a new issue is discovered during work, finish and push the current branch, then create a new branch for the new issue
+
 ### Hotfix Exception
 
 If `main` has a critical production bug and `dev` has untested changes:
