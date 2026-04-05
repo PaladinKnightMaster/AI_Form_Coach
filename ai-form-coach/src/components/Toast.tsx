@@ -138,7 +138,7 @@ interface ToastContainerProps {
 
 export function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-3">
+    <div className="fixed top-4 right-4 z-[60] space-y-3">
       {toasts.map((toast) => (
         <ToastComponent
           key={toast.id}

@@ -439,20 +439,11 @@ function StageToggle({ label, active, onClick }: { label: string; active: boolea
   );
 }
 
-function SummaryChip({ label, value, icon, compact = false, testId }: { label: string; value: string; icon: "target" | "clock" | "camera" | "activity"; compact?: boolean; testId?: string }) {
+function SummaryChip({ label, value, icon, testId }: { label: string; value: string; icon: "target" | "clock" | "camera" | "activity"; testId?: string }) {
   return (
-    <div data-testid={testId} className={`rounded-[1.2rem] border border-white/14 bg-slate-950/68 text-white backdrop-blur ${compact ? "px-3 py-3" : "px-4 py-3"}`}>
-      <div className={`flex items-center gap-2 font-semibold uppercase tracking-[0.18em] text-slate-300 ${compact ? "text-[10px]" : "text-[11px]"}`}><Icon name={icon} className="h-4 w-4" />{label}</div>
-      <div className={`mt-2 font-black ${compact ? "text-lg" : "text-xl"}`}>{value}</div>
-    </div>
-  );
-}
-
-function MiniStat({ label, value, testId }: { label: string; value: string; testId?: string }) {
-  return (
-    <div data-testid={testId} className="min-w-[4.5rem] rounded-2xl border border-white/12 bg-white/6 px-2.5 py-2 text-center">
-      <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-300">{label}</div>
-      <div className="mt-1 text-sm font-black text-white">{value}</div>
+    <div data-testid={testId} className="rounded-[1.2rem] border border-white/14 bg-slate-950/68 px-4 py-3 text-white backdrop-blur">
+      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300"><Icon name={icon} className="h-4 w-4" />{label}</div>
+      <div className="mt-2 text-xl font-black">{value}</div>
     </div>
   );
 }
@@ -483,9 +474,5 @@ function ActionLink({ href, icon, label }: { href: string; icon: "chart" | "pack
     </Link>
   );
 }
-
-
-
-
 
 
