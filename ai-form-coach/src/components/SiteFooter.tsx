@@ -10,7 +10,7 @@ export default function SiteFooter() {
 
   return (
     <footer className="mt-20 border-t bg-slate-50/80 dark:bg-slate-950/70">
-      <div className="container grid gap-8 py-12 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid gap-8 py-12 md:grid-cols-2 lg:grid-cols-4">
         <section className="space-y-4 lg:col-span-1">
           <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">AI Form Coach</h3>
           <p className="max-w-sm text-sm text-slate-600 dark:text-slate-300">
@@ -48,7 +48,7 @@ export default function SiteFooter() {
         </section>
       </div>
 
-      <div className="container flex flex-col items-start justify-between gap-3 border-t py-6 text-sm text-slate-600 dark:text-slate-400 md:flex-row md:items-center">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col items-start justify-between gap-3 border-t py-6 text-sm text-slate-600 dark:text-slate-400 md:flex-row md:items-center">
         <p>Copyright {new Date().getFullYear()} AI Form Coach. Public beta.</p>
         <div className="flex items-center gap-4">
           <Link href="/privacy" className="transition-colors hover:text-slate-950 dark:hover:text-white">

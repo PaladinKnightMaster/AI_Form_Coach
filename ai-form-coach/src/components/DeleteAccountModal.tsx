@@ -28,17 +28,17 @@ export default function DeleteAccountModal({ onConfirm, onCancel }: DeleteAccoun
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
 
       {/* Modal */}
-      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-md w-full p-6">
+      <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-6">
         {/* Close button */}
         <button
           type="button"
           onClick={onCancel}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
           aria-label="Close"
         >
           <Icon name="x" className="w-5 h-5" />
@@ -49,15 +49,15 @@ export default function DeleteAccountModal({ onConfirm, onCancel }: DeleteAccoun
           <Icon name="alert-triangle" className="w-6 h-6 text-red-600 dark:text-red-400" />
         </div>
 
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">
+        <h2 id="delete-account-title" className="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">
           Delete your account?
         </h2>
 
-        <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-4 leading-relaxed">
+        <p className="text-sm text-slate-600 dark:text-slate-300 text-center mb-4 leading-relaxed">
           This action is <strong>permanent and cannot be undone</strong>. All your data will be deleted immediately:
         </p>
 
-        <ul className="text-sm text-gray-600 dark:text-gray-300 mb-6 space-y-1.5 pl-4">
+        <ul className="text-sm text-slate-600 dark:text-slate-300 mb-6 space-y-1.5 pl-4">
           <li className="flex items-start gap-2">
             <span className="text-red-500 mt-0.5">&#x2022;</span>
             Coaching session history and rep data
@@ -73,7 +73,7 @@ export default function DeleteAccountModal({ onConfirm, onCancel }: DeleteAccoun
         </ul>
 
         {/* Confirmation input */}
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           Type <span className="font-mono font-bold text-red-600 dark:text-red-400">DELETE</span> to confirm
         </label>
         <input
@@ -81,7 +81,7 @@ export default function DeleteAccountModal({ onConfirm, onCancel }: DeleteAccoun
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
           placeholder="DELETE"
-          className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent mb-4"
+          className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent mb-4"
           autoComplete="off"
           disabled={deleting}
         />

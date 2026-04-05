@@ -195,7 +195,8 @@ export default function SessionDetailPage() {
 
   if (requiresAuth) {
     return (
-      <div className="container py-20">
+      <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
         <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 p-10 text-center dark:border-slate-800">
           <div className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sm font-medium text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">
             Signed-in beta session review
@@ -214,22 +215,26 @@ export default function SessionDetailPage() {
           </div>
         </div>
       </div>
+      </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="container py-16">
+      <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 p-8 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-300">
           Loading session details...
         </div>
+      </div>
       </div>
     );
   }
 
   if (error || !session) {
     return (
-      <div className="container py-16">
+      <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="mx-auto max-w-5xl rounded-3xl border border-rose-200 bg-rose-50 p-8 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
           {error ?? "Session not found."}
           <div className="mt-6">
@@ -241,6 +246,7 @@ export default function SessionDetailPage() {
             </Link>
           </div>
         </div>
+      </div>
       </div>
     );
   }
@@ -287,6 +293,7 @@ export default function SessionDetailPage() {
       window.setTimeout(() => setShareState("idle"), 2500);
     } catch {
       setShareState("error");
+      window.setTimeout(() => setShareState("idle"), 3000);
     }
   };
 
@@ -307,7 +314,7 @@ export default function SessionDetailPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
-      <div className="container py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="mx-auto max-w-5xl space-y-8">
           <div className="flex flex-col gap-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/70 sm:flex-row sm:items-end sm:justify-between">
             <div className="space-y-3">
