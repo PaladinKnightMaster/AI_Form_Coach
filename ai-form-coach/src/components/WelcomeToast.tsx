@@ -34,7 +34,7 @@ export default function WelcomeToast({ message, onClose, duration = 4000 }: Welc
 
 	return (
 		<div 
-			className={`fixed top-20 right-4 z-50 max-w-sm transition-all duration-300 ${
+			className={`fixed top-20 right-4 z-[60] max-w-sm transition-all duration-300 ${
 				visible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
 			}`}
 		>

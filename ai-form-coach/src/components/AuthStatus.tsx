@@ -30,7 +30,7 @@ export default function AuthStatus() {
 				<span className="inline-grid place-items-center h-8 w-8 rounded-full bg-slate-900 text-white text-sm dark:bg-white dark:text-slate-900">{initial}</span>
 			</button>
 			{open && (
-				<div role="menu" className="absolute right-0 mt-2 w-44 rounded-md border border-slate-200 bg-white shadow-lg p-1 text-sm dark:border-slate-700 dark:bg-slate-900">
+				<div role="menu" className="absolute right-0 z-50 mt-2 w-44 rounded-md border border-slate-200 bg-white shadow-lg p-1 text-sm dark:border-slate-700 dark:bg-slate-900">
 					<div className="px-2 py-1 text-slate-500 dark:text-slate-400 truncate">{email}</div>
 					<Link role="menuitem" href="/coach" className="block px-2 py-1 rounded text-slate-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => setOpen(false)}>Start session</Link>
 					<Link role="menuitem" href="/history" className="block px-2 py-1 rounded text-slate-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => setOpen(false)}>History</Link>
