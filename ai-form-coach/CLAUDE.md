@@ -6,6 +6,13 @@
 - Branch prefixes: `fix/`, `feat/`, `docs/`, `refactor/`, `chore/`
 - Never push directly to `main` or `dev` — always use PRs
 - User creates PRs and merges manually — do NOT auto-create PRs from CLI
+- **One branch = one purpose.** Never stack unrelated changes onto an existing branch
+- **Before starting new work:** delete all merged branches (local + remote), then create fresh from `dev`:
+  ```bash
+  git checkout dev && git pull origin dev && git fetch origin --prune
+  git branch --merged origin/dev | grep -v "main\|dev" | xargs git branch -d
+  git checkout -b fix/new-feature
+  ```
 - See ADR-006 for full details
 
 ## What This Is
