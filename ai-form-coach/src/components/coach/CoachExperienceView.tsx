@@ -412,7 +412,7 @@ function FramingGuide({ tone, label, detail, countdownValue }: { tone: StatusTon
       : "border-white/12 bg-transparent";
 
   return (
-    <div data-testid="coach-framing-guide" className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center p-4 sm:p-6">
+    <div data-testid="coach-framing-guide" className="pointer-events-none absolute inset-0 z-25 flex items-center justify-center p-4 sm:p-6">
       {/* Lightweight body outline — no background fill, just corner brackets */}
       <div className={`relative h-[68%] w-[min(18rem,72vw)] max-w-[20rem] rounded-[1.6rem] border ${ringClass} sm:h-[70%] sm:rounded-[2rem]`}>
         {/* Corner brackets only */}

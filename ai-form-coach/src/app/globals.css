@@ -7,8 +7,9 @@
  * Use these via Tailwind classes: bg-surface, text-brand, rounded-token-md, etc.
  * See docs/design/DESIGN_SYSTEM.md for rationale.
  * ─────────────────────────────────────────────────────────────────────── */
-@theme {
-  /* Brand colors — reference CSS custom properties for light/dark switching */
+/* Tokens that reference :root custom properties must use @theme inline
+ * so Tailwind v4 emits var() literally instead of resolving at compile time. */
+@theme inline {
   --color-surface: var(--color-surface);
   --color-surface-secondary: var(--color-surface-secondary);
   --color-brand: var(--color-primary);
@@ -24,7 +25,14 @@
   --color-text: var(--color-text);
   --color-text-secondary: var(--color-text-secondary);
   --color-text-muted: var(--color-text-muted);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+}
 
+/* Static tokens resolved at build time */
+@theme {
   /* Border radius — 7 allowed stops, no arbitrary values */
   --radius-token-xs: 4px;
   --radius-token-sm: 8px;
@@ -33,12 +41,6 @@
   --radius-token-xl: 24px;
   --radius-token-2xl: 32px;
   --radius-token-full: 999px;
-
-  /* Shadows — reference CSS custom properties */
-  --shadow-sm: var(--shadow-sm);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
-  --shadow-xl: var(--shadow-xl);
 
   /* Fluid type scale */
   --font-size-fluid-xs: var(--step--1);
@@ -185,6 +187,10 @@
   --color-border-light: #475569;
   --color-accent: #8b5cf6;
   --color-accent-light: #a78bfa;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.5);
 }
 
 html { color-scheme: light dark; }
@@ -323,10 +329,11 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 }
 
 /* Custom animations for enhanced UI */
-@keyframes fade-in {
+@keyframes fade-in-up {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+.animate-fade-in-up { animation: fade-in-up 0.8s ease-out; }
 
 @keyframes slide-in-left {
   from { opacity: 0; transform: translateX(-30px); }

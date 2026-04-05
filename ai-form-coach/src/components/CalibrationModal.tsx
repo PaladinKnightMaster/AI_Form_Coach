@@ -54,11 +54,11 @@ export default function CalibrationModal({ exercise, landmarks, onClose, onSaved
 	}
 
 	return (
-		<div className="fixed inset-0 z-50 bg-black/70 backdrop-blur grid place-items-center p-4">
+		<div className="fixed inset-0 z-50 bg-black/70 backdrop-blur grid place-items-center p-4" role="dialog" aria-modal="true" aria-labelledby="calibration-title">
 			<div className="w-full max-w-xl bg-white text-black rounded-xl overflow-hidden">
 				<div className="p-5 space-y-3">
 					<div className="flex items-center justify-between">
-						<h3 className="text-lg font-semibold">Calibrate {exercise}</h3>
+						<h3 id="calibration-title" className="text-lg font-semibold">Calibrate {exercise}</h3>
 						<button onClick={onClose} className="text-sm opacity-60 hover:opacity-100">Close</button>
 					</div>
 					<p className="text-sm">Perform a few good reps or hold the position for ~10s. We’ll learn your range and set thresholds.</p>

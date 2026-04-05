@@ -70,7 +70,7 @@ export default function FAQ() {
 
 	return (
 		<section className="section">
-			<div className="container">
+			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div className="text-center mb-8">
 					<h2 className="font-bold mb-2">Questions & Answers</h2>
 					<p className="opacity-80">Everything you need to know about getting started</p>

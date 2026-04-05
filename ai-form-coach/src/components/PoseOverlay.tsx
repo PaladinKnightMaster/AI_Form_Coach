@@ -370,7 +370,9 @@ const PoseOverlay = React.memo(PoseOverlayComponent, (prevProps, nextProps) => {
     prevProps.landmarks === nextProps.landmarks &&
     prevProps.landmarksRef === nextProps.landmarksRef &&
     prevProps.highlightJoints?.length === nextProps.highlightJoints?.length &&
-    prevProps.corrections?.length === nextProps.corrections?.length
+    (prevProps.highlightJoints?.every((j, i) => j === nextProps.highlightJoints?.[i]) ?? true) &&
+    prevProps.corrections?.length === nextProps.corrections?.length &&
+    (prevProps.corrections?.every((c, i) => c === nextProps.corrections?.[i]) ?? true)
   );
 });
 
