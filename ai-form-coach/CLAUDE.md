@@ -1,5 +1,13 @@
 # AI Form Coach
 
+## Git Branching (MUST FOLLOW)
+- **All feature/fix branches MUST be created from `dev`**, never from `main`
+- Flow: `feature branch` → PR to `dev` → verify on dev → PR `dev` to `main`
+- Branch prefixes: `fix/`, `feat/`, `docs/`, `refactor/`, `chore/`
+- Never push directly to `main` or `dev` — always use PRs
+- User creates PRs and merges manually — do NOT auto-create PRs from CLI
+- See ADR-006 for full details
+
 ## What This Is
 Browser-based AI form coaching app. Users point their camera at themselves during exercises (squat, pushup, plank), and the app provides real-time pose feedback using on-device ML pose detection. No cloud LLM in the live coaching loop.
 

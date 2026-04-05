@@ -70,6 +70,7 @@ These files define the live release surface, the implemented MVP, the restricted
 | [003](adr/003-browser-only-pose-no-cloud-llm.md) | Browser-only pose, no cloud LLM in live loop |
 | [004](adr/004-css-vars-plus-tailwind-tokens.md) | CSS vars + Tailwind v4 CSS-first design tokens |
 | [005](adr/005-mobile-first-camera-hero.md) | Mobile-first camera hero layout |
+| [006](adr/006-git-branching-strategy.md) | Git branching: feature → dev → main |
 
 ## Canonical Technical Docs
 
