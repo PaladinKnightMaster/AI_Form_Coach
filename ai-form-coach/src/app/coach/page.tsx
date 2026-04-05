@@ -540,7 +540,6 @@ export default function CoachPage() {
           total_reps: repCount,
           total_time_seconds: Math.max(0, Math.round(finalElapsedMs / 1000)),
           avg_pose_quality: averageVisibility,
-          is_demo: false,
           // Enhanced session-level training data
           avg_quality_score: sessionMetrics.averageQuality,
           quality_distribution: sessionMetrics.qualityDistribution,
