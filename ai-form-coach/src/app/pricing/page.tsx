@@ -18,7 +18,7 @@ const excluded = [
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
-      <div className="container py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
         <div className="mx-auto max-w-5xl space-y-10">
           <div className="space-y-4 text-center">
             <div className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">

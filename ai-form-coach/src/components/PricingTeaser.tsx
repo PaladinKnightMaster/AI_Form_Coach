@@ -60,7 +60,7 @@ export default function PricingTeaser() {
 	}
 	return (
 		<section className="section">
-			<div className="container">
+			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div className="text-center mb-6">
 					<h2 className="font-semibold" style={{ fontSize: 'var(--step-2)' }}>Simple pricing</h2>
 					<p className="opacity-80 text-sm">Start free. Upgrade anytime.</p>

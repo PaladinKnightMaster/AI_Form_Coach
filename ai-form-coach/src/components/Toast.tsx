@@ -88,7 +88,7 @@ function ToastComponent({ toast, onRemove }: ToastProps) {
     <div className={`${getToastStyles()} ${getTypeStyles()} max-w-sm w-full`}>
       {/* Progress bar */}
       {toast.duration && (
-        <div className="absolute top-0 left-0 h-1 bg-current opacity-30 animate-progress" />
+        <div className="absolute top-0 left-0 h-1 bg-current opacity-30 animate-progress" style={{ animationDuration: `${toast.duration}ms` }} />
       )}
       
       <div className="p-4">
@@ -119,6 +119,7 @@ function ToastComponent({ toast, onRemove }: ToastProps) {
           <div className="ml-4 flex-shrink-0">
             <button
               onClick={handleRemove}
+              aria-label="Dismiss notification"
               className="inline-flex rounded-md p-1.5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
             >
               <Icon name="x" className="w-4 h-4" />

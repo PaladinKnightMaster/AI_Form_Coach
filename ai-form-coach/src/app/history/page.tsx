@@ -149,7 +149,8 @@ export default function HistoryPage() {
 
   if (requiresAuth) {
     return (
-      <div className="container py-20">
+      <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
         <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 p-10 text-center dark:border-slate-800">
           <div className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sm font-medium text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">
             Signed-in beta history
@@ -165,12 +166,13 @@ export default function HistoryPage() {
           </div>
         </div>
       </div>
+      </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
-      <div className="container py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="mx-auto max-w-5xl space-y-10">
           <div className="space-y-4">
             <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">

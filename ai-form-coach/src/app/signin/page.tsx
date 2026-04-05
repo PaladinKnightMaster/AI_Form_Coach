@@ -396,9 +396,12 @@ function SignInContent() {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
+          <label htmlFor="auth-email" className="sr-only">Email</label>
           <input
+            id="auth-email"
             type="email"
             required
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
@@ -409,9 +412,12 @@ function SignInContent() {
 
         {mode !== 'reset-request' && mode !== 'magic-link' && (
           <div>
+            <label htmlFor="auth-password" className="sr-only">Password</label>
             <input
+              id="auth-password"
               type="password"
               required
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
@@ -423,9 +429,12 @@ function SignInContent() {
 
         {mode === 'signup' && (
           <div>
+            <label htmlFor="auth-confirm" className="sr-only">Confirm password</label>
             <input
+              id="auth-confirm"
               type="password"
               required
+              autoComplete="new-password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="Confirm password"
@@ -439,7 +448,7 @@ function SignInContent() {
           type="submit"
           loading={loading}
           loadingText={getButtonText()}
-          className="w-full btn btn-primary py-3"
+          className="w-full py-3"
         >
           {getButtonText()}
         </LoadingButton>
@@ -452,7 +461,7 @@ function SignInContent() {
             <span className="text-xs text-slate-400 dark:text-slate-500">OR</span>
             <hr className="flex-1" />
           </div>
-          <button type="button" onClick={() => setMode('magic-link')} className="w-full btn btn-secondary py-2 text-sm">
+          <button type="button" onClick={() => setMode('magic-link')} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
             Sign in with magic link
           </button>
         </div>

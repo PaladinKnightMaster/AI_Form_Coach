@@ -79,7 +79,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="theme-color" content="#111827" />
         <meta name="color-scheme" content="light dark" />
       </head>
-      <body className="antialiased" suppressHydrationWarning>
+      <body className="flex min-h-screen flex-col antialiased" suppressHydrationWarning>
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('afc_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.classList.add(t);document.documentElement.dataset.theme=t}catch(e){}})()`,
@@ -89,7 +89,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <ToastProvider>
             <SiteHeader />
             <ErrorBoundary>
-              <main id="main-content">{children}</main>
+              <main id="main-content" className="flex-1">{children}</main>
             </ErrorBoundary>
             <LogSilencer />
             <SiteFooter />
