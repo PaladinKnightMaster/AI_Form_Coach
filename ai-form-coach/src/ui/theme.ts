@@ -1,3 +1,9 @@
+/**
+ * @deprecated Design tokens now live in globals.css @theme block (Tailwind v4 CSS-first).
+ * This file is kept for backward compatibility with components that import it directly.
+ * New code should use Tailwind classes: bg-surface, text-brand, rounded-token-md, shadow-lg, etc.
+ * See docs/design/DESIGN_SYSTEM.md for the full token reference.
+ */
 export const theme = {
 	color: {
 		bg: {
