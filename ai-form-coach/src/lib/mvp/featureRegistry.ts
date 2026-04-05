@@ -55,13 +55,16 @@ export function isMvpFeatureEnabled(feature: MvpFeatureFlag): boolean {
 
 export function getHeaderRoutes(isAuthenticated: boolean): PublicRouteDefinition[] {
   return MVP_PUBLIC_ROUTES.filter((route) => {
-    if (route.href === "/privacy" || route.href === "/terms" || route.href === "/signup" || route.href === "/reset-password") {
+    // Auth pages are handled by AuthStatus component — never show in nav links
+    if (route.href === "/signin" || route.href === "/signup" || route.href === "/reset-password") {
       return false;
     }
+    // Footer-only pages
+    if (route.href === "/privacy" || route.href === "/terms") {
+      return false;
+    }
+    // Auth-required pages hidden when logged out
     if (route.authRequired && !isAuthenticated) {
-      return false;
-    }
-    if (route.href === "/signin" && isAuthenticated) {
       return false;
     }
     return true;
