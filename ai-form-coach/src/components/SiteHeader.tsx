@@ -27,16 +27,16 @@ function labelForRoute(href: string) {
     );
   }
 
-  if (href === "/signin") {
+  if (href === "/pricing") {
     return (
       <span className="flex items-center gap-1">
         <Icon name="lock" className="h-4 w-4" />
-        Sign In
+        Beta Access
       </span>
     );
   }
 
-  return href === "/pricing" ? "Beta Access" : "Home";
+  return "Home";
 }
 
 export default function SiteHeader() {
