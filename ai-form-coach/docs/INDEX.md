@@ -53,6 +53,24 @@ These files define the live release surface, the implemented MVP, the restricted
 
 - [DEPLOYMENT.md](./DEPLOYMENT.md) — Environment variables, Vercel setup, Supabase auth config, analytics
 
+## Design System
+
+| Document | What it covers |
+| --- | --- |
+| [Design System Spec](design/DESIGN_SYSTEM.md) | Colors, typography, spacing, radii, shadows, z-index, interaction states |
+| [Component Spec](design/COMPONENT_SPEC.md) | Visual spec for Button, Badge, Card, Input, Stage Shell |
+| [Responsive Strategy](design/RESPONSIVE_STRATEGY.md) | Viewport targets, breakpoint rationale, layout per device class |
+
+## Architecture Decision Records
+
+| # | Decision |
+| --- | --- |
+| [001](adr/001-supabase-pkce-client-side-callback.md) | Supabase PKCE: client-side auth callback |
+| [002](adr/002-10-joint-fitness-skeleton.md) | 10-joint fitness skeleton (not 33 landmarks) |
+| [003](adr/003-browser-only-pose-no-cloud-llm.md) | Browser-only pose, no cloud LLM in live loop |
+| [004](adr/004-css-vars-plus-tailwind-tokens.md) | CSS vars + Tailwind v4 CSS-first design tokens |
+| [005](adr/005-mobile-first-camera-hero.md) | Mobile-first camera hero layout |
+
 ## Canonical Technical Docs
 
 - [technical/MVP_TRUTH_BASELINE.md](./technical/MVP_TRUTH_BASELINE.md)
