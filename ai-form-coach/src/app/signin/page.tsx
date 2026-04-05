@@ -80,7 +80,7 @@ function SignInContent() {
   }, []);
 
   const finishAuth = useCallback(() => {
-    router.push(redirectTarget || DEFAULT_AUTH_NEXT);
+    router.replace(redirectTarget || DEFAULT_AUTH_NEXT);
   }, [redirectTarget, router]);
 
   function getCallbackUrl() {
@@ -276,12 +276,18 @@ function SignInContent() {
     }
   }
 
+  // Listen for auth state changes from OAuth/magic-link callbacks only.
+  // Email/password sign-in calls finishAuth() directly in onSubmit —
+  // this listener handles async flows where the redirect comes later.
   useEffect(() => {
     const supabase = getSupabaseClient();
+    let didRedirect = false;
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (didRedirect) return;
       if (event === 'SIGNED_IN' && session?.user) {
+        didRedirect = true;
         await ensureProfile(session.user.id);
         finishAuth();
       }

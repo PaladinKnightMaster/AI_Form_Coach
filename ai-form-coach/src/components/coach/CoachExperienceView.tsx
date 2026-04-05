@@ -128,9 +128,11 @@ export default function CoachExperienceView({
   const stageAspectClass = mobileSessionFocus
     ? "aspect-[9/15] w-full sm:aspect-[10/16] md:aspect-[16/10] xl:aspect-[16/8.8]"
     : "aspect-[9/14.2] w-full sm:aspect-[10/16] md:aspect-[16/10] xl:aspect-[16/8.8]";
+  // Rich footer only shows on desktop during active session (live cue + stats + controls).
+  // Non-active states use the center panel overlay instead — never render both.
   const richStageFooterClass = sessionState === "active"
     ? "pointer-events-none absolute inset-x-0 bottom-0 z-30 hidden bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent px-3 pb-3 pt-16 sm:px-6 sm:pb-4 lg:block"
-    : "pointer-events-none absolute inset-x-0 bottom-0 z-30 hidden bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent px-3 pb-3 pt-16 sm:px-6 sm:pb-4 lg:block";
+    : "pointer-events-none absolute inset-x-0 bottom-0 z-30 hidden bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent px-3 pb-3 pt-16 sm:px-6 sm:pb-4";
   const supportRailsClass = mobileSessionFocus
     ? "mt-4 hidden gap-3 lg:grid lg:grid-cols-[1.05fr_1fr_1fr]"
     : "mt-4 grid gap-3 lg:grid-cols-[1.05fr_1fr_1fr]";
