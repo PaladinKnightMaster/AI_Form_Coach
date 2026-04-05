@@ -11,6 +11,7 @@ Lightweight ADRs recording **why** decisions were made. When future development 
 | 003 | [Browser-Only Pose, No Cloud LLM in Live Loop](003-browser-only-pose-no-cloud-llm.md) | Accepted | 2026-03 |
 | 004 | [CSS Vars + Tailwind v4 Design Tokens](004-css-vars-plus-tailwind-tokens.md) | Accepted | 2026-04-01 |
 | 005 | [Mobile-First Camera Hero Layout](005-mobile-first-camera-hero.md) | Accepted | 2026-04-01 |
+| 006 | [Git Branching Strategy: feature → dev → main](006-git-branching-strategy.md) | Accepted | 2026-04-04 |
 
 ## Template
 
