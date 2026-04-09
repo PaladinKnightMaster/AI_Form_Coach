@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import ErrorBoundary from "@/components/ErrorBoundary";
 import LogSilencer from "@/components/LogSilencer";
-import SiteFooter from "@/components/SiteFooter";
-import SiteHeader from "@/components/SiteHeader";
 import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
@@ -87,12 +84,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
         <AuthProvider>
           <ToastProvider>
-            <SiteHeader />
-            <ErrorBoundary>
-              <main id="main-content" className="flex-1">{children}</main>
-            </ErrorBoundary>
+            {children}
             <LogSilencer />
-            <SiteFooter />
           </ToastProvider>
         </AuthProvider>
         {umamiWebsiteId ? <Script async defer src={umamiSrc} data-website-id={umamiWebsiteId} /> : null}

@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import type { Landmark3D } from "@/lib/pose/engine";
-import { getContainedVideoRect } from "@/lib/pose/render";
+import type { Exercise } from "@/lib/validators/types";
+import { getContainedVideoRect, getCoveredVideoRect } from "@/lib/pose/render";
 import {
   buildMotionFeatures,
   deriveJoints,
@@ -12,6 +13,7 @@ import {
   reduceToFitnessSkeleton,
   type DerivedJointId,
   type FitnessJointId,
+  type FitnessSkeleton17,
   type SkeletonJoint,
 } from "@/lib/pose/contracts";
 
@@ -53,9 +55,15 @@ interface PoseOverlayProps {
   landmarks?: Landmark3D[] | null;
   landmarksRef?: React.MutableRefObject<Landmark3D[] | null>;
   video: HTMLVideoElement | null;
+  /** How the video is sized in CSS — determines landmark projection math */
+  sizing?: "contain" | "cover";
+  /** Current exercise — used for angle quality thresholds */
+  exercise?: Exercise;
   mirror?: boolean;
   labels?: boolean;
   showConfidence?: boolean;
+  /** Show angle arcs at key joints (knees, elbows) with form quality colors */
+  showAngles?: boolean;
   highlightJoints?: number[];
   corrections?: Array<{ joint: string; position: { x: number; y: number }; message: string }>;
   debug?: boolean;
@@ -225,15 +233,219 @@ function drawJoint(
   }
 }
 
+/* ── Angle arc rendering ───────────────────────────────────────────────── */
+
+/** Quality tiers for angle-based form feedback */
+type FormQuality = "good" | "warning" | "bad";
+
+const QUALITY_COLORS: Record<FormQuality, { arc: string; label: string; glow: string }> = {
+  good:    { arc: "rgba(16, 185, 129, 0.85)", label: "rgba(16, 185, 129, 1)",   glow: "rgba(16, 185, 129, 0.3)" },
+  warning: { arc: "rgba(245, 158, 11, 0.85)", label: "rgba(245, 158, 11, 1)",   glow: "rgba(245, 158, 11, 0.3)" },
+  bad:     { arc: "rgba(239, 68, 68, 0.85)",  label: "rgba(239, 68, 68, 1)",    glow: "rgba(239, 68, 68, 0.3)" },
+};
+
+interface AngleVisualization {
+  /** Joint at the vertex of the angle */
+  vertex: { x: number; y: number };
+  /** Joint at one end of the angle */
+  from: { x: number; y: number };
+  /** Joint at the other end of the angle */
+  to: { x: number; y: number };
+  /** Computed angle in degrees */
+  angleDeg: number;
+  /** Form quality rating */
+  quality: FormQuality;
+  /** Label to display (e.g., "92°") */
+  label: string;
+}
+
+function computeAngleDeg(
+  from: { x: number; y: number },
+  vertex: { x: number; y: number },
+  to: { x: number; y: number },
+): number {
+  const a = { x: from.x - vertex.x, y: from.y - vertex.y };
+  const b = { x: to.x - vertex.x, y: to.y - vertex.y };
+  const dot = a.x * b.x + a.y * b.y;
+  const magA = Math.sqrt(a.x * a.x + a.y * a.y);
+  const magB = Math.sqrt(b.x * b.x + b.y * b.y);
+  if (magA < 0.001 || magB < 0.001) return 0;
+  const cosAngle = Math.max(-1, Math.min(1, dot / (magA * magB)));
+  return Math.acos(cosAngle) * (180 / Math.PI);
+}
+
+function drawAngleArc(
+  ctx: CanvasRenderingContext2D,
+  vis: AngleVisualization,
+  bounds: { x: number; y: number; width: number; height: number },
+  mirror: boolean,
+) {
+  const vertex = projectPoint(vis.vertex.x, vis.vertex.y, bounds, mirror);
+  const from = projectPoint(vis.from.x, vis.from.y, bounds, mirror);
+  const to = projectPoint(vis.to.x, vis.to.y, bounds, mirror);
+
+  const colors = QUALITY_COLORS[vis.quality];
+
+  // Compute angles for arc — always draw the shorter (minor) arc
+  const startAngle = Math.atan2(from.y - vertex.y, from.x - vertex.x);
+  const endAngle = Math.atan2(to.y - vertex.y, to.x - vertex.x);
+  let sweep = endAngle - startAngle;
+  if (sweep > Math.PI) sweep -= 2 * Math.PI;
+  if (sweep < -Math.PI) sweep += 2 * Math.PI;
+  const anticlockwise = sweep < 0;
+  const arcRadius = Math.min(28, Math.max(16, bounds.width * 0.025));
+
+  // Draw the arc
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(vertex.x, vertex.y, arcRadius, startAngle, endAngle, anticlockwise);
+  ctx.strokeStyle = colors.arc;
+  ctx.lineWidth = 2.5;
+  ctx.shadowColor = colors.glow;
+  ctx.shadowBlur = 6;
+  ctx.stroke();
+  ctx.restore();
+
+  // Draw angle label — place at midpoint of the drawn arc
+  const midAngle = startAngle + sweep / 2;
+  const labelRadius = arcRadius + 14;
+  const labelX = vertex.x + Math.cos(midAngle) * labelRadius;
+  const labelY = vertex.y + Math.sin(midAngle) * labelRadius;
+
+  ctx.save();
+  ctx.font = "bold 11px system-ui";
+  const textMetrics = ctx.measureText(vis.label);
+  const textW = textMetrics.width + 8;
+  const textH = 16;
+
+  // Background pill (roundRect fallback for older browsers)
+  ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+  ctx.beginPath();
+  const rx = labelX - textW / 2;
+  const ry = labelY - textH / 2;
+  if (ctx.roundRect) {
+    ctx.roundRect(rx, ry, textW, textH, 4);
+  } else {
+    ctx.rect(rx, ry, textW, textH);
+  }
+  ctx.fill();
+
+  // Text
+  ctx.fillStyle = colors.label;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(vis.label, labelX, labelY);
+  ctx.restore();
+}
+
+/**
+ * Exercise-specific angle quality thresholds.
+ *
+ * - Squat: knee 80-100° is good depth, >160° is standing (warning), elbow not relevant
+ * - Pushup: elbow 80-100° is good depth, >160° is locked out (good), knee not relevant
+ * - Plank: both knee and elbow should be near straight (~170°+)
+ */
+interface AngleThresholds {
+  knee: { goodMin: number; goodMax: number; warningMin: number; warningMax: number };
+  elbow: { goodMin: number; goodMax: number; warningMin: number; warningMax: number };
+}
+
+const EXERCISE_ANGLE_THRESHOLDS: Record<Exercise, AngleThresholds> = {
+  squat: {
+    knee:  { goodMin: 70, goodMax: 110, warningMin: 50, warningMax: 140 },
+    elbow: { goodMin: 0, goodMax: 360, warningMin: 0, warningMax: 360 }, // not scored
+  },
+  pushup: {
+    knee:  { goodMin: 160, goodMax: 180, warningMin: 140, warningMax: 180 }, // should stay straight
+    elbow: { goodMin: 70, goodMax: 110, warningMin: 50, warningMax: 140 },
+  },
+  plank: {
+    knee:  { goodMin: 160, goodMax: 180, warningMin: 140, warningMax: 180 },
+    elbow: { goodMin: 160, goodMax: 180, warningMin: 140, warningMax: 180 },
+  },
+};
+
+function rateAngle(deg: number, t: { goodMin: number; goodMax: number; warningMin: number; warningMax: number }): FormQuality {
+  if (deg >= t.goodMin && deg <= t.goodMax) return "good";
+  if (deg >= t.warningMin && deg <= t.warningMax) return "warning";
+  return "bad";
+}
+
+/**
+ * Extracts key angle visualizations from the fitness skeleton.
+ * Thresholds are tuned per exercise so squat depth reads as "good", not "bad".
+ */
+function getExerciseAngles(skeleton: FitnessSkeleton17, exercise: Exercise): AngleVisualization[] {
+  const angles: AngleVisualization[] = [];
+  const thresholds = EXERCISE_ANGLE_THRESHOLDS[exercise];
+
+  // Left knee angle (hip → knee → ankle)
+  if (skeleton.leftHip && skeleton.leftKnee && skeleton.leftAnkle) {
+    const deg = computeAngleDeg(skeleton.leftHip, skeleton.leftKnee, skeleton.leftAnkle);
+    angles.push({
+      vertex: skeleton.leftKnee,
+      from: skeleton.leftHip,
+      to: skeleton.leftAnkle,
+      angleDeg: deg,
+      quality: rateAngle(deg, thresholds.knee),
+      label: `${Math.round(deg)}°`,
+    });
+  }
+
+  // Right knee angle
+  if (skeleton.rightHip && skeleton.rightKnee && skeleton.rightAnkle) {
+    const deg = computeAngleDeg(skeleton.rightHip, skeleton.rightKnee, skeleton.rightAnkle);
+    angles.push({
+      vertex: skeleton.rightKnee,
+      from: skeleton.rightHip,
+      to: skeleton.rightAnkle,
+      angleDeg: deg,
+      quality: rateAngle(deg, thresholds.knee),
+      label: `${Math.round(deg)}°`,
+    });
+  }
+
+  // Left elbow angle (shoulder → elbow → wrist)
+  if (skeleton.leftShoulder && skeleton.leftElbow && skeleton.leftWrist) {
+    const deg = computeAngleDeg(skeleton.leftShoulder, skeleton.leftElbow, skeleton.leftWrist);
+    angles.push({
+      vertex: skeleton.leftElbow,
+      from: skeleton.leftShoulder,
+      to: skeleton.leftWrist,
+      angleDeg: deg,
+      quality: rateAngle(deg, thresholds.elbow),
+      label: `${Math.round(deg)}°`,
+    });
+  }
+
+  // Right elbow angle
+  if (skeleton.rightShoulder && skeleton.rightElbow && skeleton.rightWrist) {
+    const deg = computeAngleDeg(skeleton.rightShoulder, skeleton.rightElbow, skeleton.rightWrist);
+    angles.push({
+      vertex: skeleton.rightElbow,
+      from: skeleton.rightShoulder,
+      to: skeleton.rightWrist,
+      angleDeg: deg,
+      quality: rateAngle(deg, thresholds.elbow),
+      label: `${Math.round(deg)}°`,
+    });
+  }
+
+  return angles;
+}
+
 /* ── Main component ─────────────────────────────────────────────────────── */
 
 function PoseOverlayComponent({
   landmarks,
   landmarksRef,
   video,
+  sizing = "contain",
+  exercise = "squat",
   mirror = false,
   labels = false,
   showConfidence = false,
+  showAngles = false,
   highlightJoints = [],
   corrections = [],
   debug = false,
@@ -274,7 +486,8 @@ function PoseOverlayComponent({
         return;
       }
 
-      const bounds = getContainedVideoRect(canvas.width, canvas.height, video.videoWidth || width, video.videoHeight || height);
+      const getRect = sizing === "cover" ? getCoveredVideoRect : getContainedVideoRect;
+      const bounds = getRect(canvas.width, canvas.height, video.videoWidth || width, video.videoHeight || height);
       const skeleton = reduceToFitnessSkeleton(currentLandmarks);
       const derived = deriveJoints(skeleton);
       const renderedJoints = getRenderedFitnessJoints(skeleton, derived);
@@ -303,6 +516,14 @@ function PoseOverlayComponent({
       for (const joint of renderedJoints) {
         if (!Number.isFinite(joint.x) || !Number.isFinite(joint.y)) continue;
         drawJoint(ctx, joint, bounds, mirror, highlightJoints, labels, showConfidence);
+      }
+
+      // Angle arcs — drawn on top of skeleton for visibility
+      if (showAngles) {
+        const exerciseAngles = getExerciseAngles(skeleton, exercise);
+        for (const angle of exerciseAngles) {
+          drawAngleArc(ctx, angle, bounds, mirror);
+        }
       }
 
       // Correction callouts
@@ -355,7 +576,7 @@ function PoseOverlayComponent({
         animationRef.current = undefined;
       }
     };
-  }, [corrections, debug, highlightJoints, labels, landmarks, landmarksRef, mirror, showConfidence, video]);
+  }, [corrections, debug, exercise, highlightJoints, labels, landmarks, landmarksRef, mirror, showAngles, showConfidence, sizing, video]);
 
   return <canvas data-testid="pose-overlay" ref={canvasRef} className="pointer-events-none absolute inset-0 z-20" style={{ width: "100%", height: "100%", objectFit: "contain" }} />;
 }
@@ -363,10 +584,13 @@ function PoseOverlayComponent({
 const PoseOverlay = React.memo(PoseOverlayComponent, (prevProps, nextProps) => {
   return (
     prevProps.video === nextProps.video &&
+    prevProps.sizing === nextProps.sizing &&
+    prevProps.exercise === nextProps.exercise &&
     prevProps.mirror === nextProps.mirror &&
     prevProps.debug === nextProps.debug &&
     prevProps.labels === nextProps.labels &&
     prevProps.showConfidence === nextProps.showConfidence &&
+    prevProps.showAngles === nextProps.showAngles &&
     prevProps.landmarks === nextProps.landmarks &&
     prevProps.landmarksRef === nextProps.landmarksRef &&
     prevProps.highlightJoints?.length === nextProps.highlightJoints?.length &&

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import HistoryPage from "@/app/history/page";
-import PricingPage from "@/app/pricing/page";
-import PrivacyPage from "@/app/privacy/page";
-import TermsPage from "@/app/terms/page";
+import HistoryPage from "@/app/(marketing)/history/page";
+import PricingPage from "@/app/(marketing)/pricing/page";
+import PrivacyPage from "@/app/(marketing)/privacy/page";
+import TermsPage from "@/app/(marketing)/terms/page";
 
 describe("public MVP page truth", () => {
   it("keeps pricing focused on a free motion beta", () => {

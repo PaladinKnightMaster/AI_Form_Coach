@@ -15,6 +15,10 @@
   ```
 - See ADR-006 for full details
 
+## Coding Discipline
+- Research the codebase before editing. Never change code you haven't read.
+- Read files before attempting edits — understand existing patterns first.
+
 ## What This Is
 Browser-based AI form coaching app. Users point their camera at themselves during exercises (squat, pushup, plank), and the app provides real-time pose feedback using on-device ML pose detection. No cloud LLM in the live coaching loop.
 

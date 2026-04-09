@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { Landmark3D } from "@/lib/pose/engine";
+import type { Exercise } from "@/lib/validators/types";
 import PoseOverlay from "@/components/PoseOverlay";
 import { Icon } from "@/ui/DS";
 
@@ -11,6 +12,8 @@ interface CoachCameraChromeProps {
   overlayVideo: HTMLVideoElement | null;
   landmarks: Landmark3D[] | null;
   landmarksRef: React.MutableRefObject<Landmark3D[] | null>;
+  exercise: Exercise;
+  showAngles: boolean;
   mirrorVideo: boolean;
   debug: boolean;
 }
@@ -21,6 +24,8 @@ export default function CoachCameraChrome({
   overlayVideo,
   landmarks,
   landmarksRef,
+  exercise,
+  showAngles,
   mirrorVideo,
   debug,
 }: CoachCameraChromeProps) {
@@ -34,7 +39,7 @@ export default function CoachCameraChrome({
       <video
         data-testid="coach-video"
         ref={videoRef}
-        className="relative z-[1] h-full w-full object-contain"
+        className="relative z-[1] h-full w-full object-cover"
         style={{ transform: mirrorVideo ? "scaleX(-1)" : "none" }}
         playsInline
         muted
@@ -45,7 +50,10 @@ export default function CoachCameraChrome({
           landmarks={landmarks}
           landmarksRef={landmarksRef}
           video={overlayVideo}
+          sizing="cover"
           mirror={mirrorVideo}
+          exercise={exercise}
+          showAngles={showAngles}
           debug={debug}
         />
       ) : (
