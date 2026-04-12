@@ -157,9 +157,9 @@ export default function CoachExperienceView({
 
             <div className={`pointer-events-none absolute inset-x-2 top-2 z-30 flex items-center justify-between gap-2 sm:inset-x-4 sm:top-4 ${overlayTransition} ${overlayOpacityClass}`}>
               <div className="flex items-center gap-1.5">
-                <Badge tone={qualityTone} size="md" className="bg-slate-950/50 text-white backdrop-blur-sm dark:bg-slate-950/50 dark:text-white">{qualityLabel}</Badge>
-                <Badge tone={framingTone} size="md" className="hidden bg-slate-950/50 text-white backdrop-blur-sm dark:bg-slate-950/50 dark:text-white sm:inline-flex">{framingLabel}</Badge>
-                <Badge tone="info" size="md" className="hidden bg-slate-950/50 text-white backdrop-blur-sm dark:bg-slate-950/50 dark:text-white lg:inline-flex">{exerciseLabel}</Badge>
+                <Badge tone={qualityTone} size="md" className="bg-slate-950/50 text-white backdrop-blur-sm">{qualityLabel}</Badge>
+                <Badge tone={framingTone} size="md" className="hidden bg-slate-950/50 text-white backdrop-blur-sm sm:inline-flex">{framingLabel}</Badge>
+                <Badge tone="info" size="md" className="hidden bg-slate-950/50 text-white backdrop-blur-sm lg:inline-flex">{exerciseLabel}</Badge>
               </div>
               <div className="pointer-events-auto flex gap-1.5">
                 <StageToggle label={mirrorVideo ? "Mirrored" : "Mirror off"} active={mirrorVideo} onClick={() => onMirrorChange(!mirrorVideo)} />
@@ -237,7 +237,7 @@ export default function CoachExperienceView({
                           <Icon name={sessionState === "paused" ? "play" : "target"} className="h-4 w-4" />
                           {primaryActionLabel}
                         </Button>
-                        <Button variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="flex-1 border-white/14 bg-white/6 text-white hover:bg-white/10 dark:border-white/14 dark:bg-white/6 dark:text-white dark:hover:bg-white/10">
+                        <Button variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="flex-1 border-white/14 bg-white/6 text-white hover:bg-white/10">
                           <Icon name="save" className="h-4 w-4" />
                           {saving ? "Saving..." : "End & save"}
                         </Button>
@@ -303,7 +303,7 @@ export default function CoachExperienceView({
                         Pause
                       </Button>
                     )}
-                    <Button data-testid="coach-footer-session-save" variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="min-w-[10rem] border-white/14 bg-white/6 text-white hover:bg-white/10 dark:border-white/14 dark:bg-white/6 dark:text-white dark:hover:bg-white/10">
+                    <Button data-testid="coach-footer-session-save" variant="secondary" size="lg" onClick={onEndAndSave} disabled={!canEndSession || saving} className="min-w-[10rem] border-white/14 bg-white/6 text-white hover:bg-white/10">
                       <Icon name="save" className="h-4 w-4" />
                       {saving ? "Saving..." : "End & save"}
                     </Button>
@@ -436,7 +436,7 @@ export default function CoachExperienceView({
       {showMobileTray && (
         <div data-testid="coach-mobile-tray" className="fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 px-4 md:hidden">
           <div className="mx-auto max-w-md">
-            <Card className="rounded-[1.45rem] border border-white/60 bg-white/92 shadow-[0_24px_80px_-50px_rgba(15,23,42,0.7)] backdrop-blur dark:border-white/10 dark:bg-slate-950/86" padding="sm">
+            <Card className="rounded-[1.45rem] border border-white/10 bg-slate-950/86 shadow-[0_24px_80px_-50px_rgba(15,23,42,0.7)] backdrop-blur" padding="sm">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Button data-testid="coach-mobile-primary-action" size="lg" onClick={onPrimaryAction} className="w-full">
                   <Icon name="pause" className="h-4 w-4" />
@@ -509,7 +509,7 @@ function FeedbackChoice({ testId, label, selected, onClick }: { testId: string; 
       aria-pressed={selected}
       data-selected={selected ? "true" : "false"}
       onClick={onClick}
-      className={selected ? "justify-center" : "justify-center border-white/14 bg-white/6 text-white hover:bg-white/10 dark:border-white/14 dark:bg-white/6 dark:text-white dark:hover:bg-white/10"}
+      className={selected ? "justify-center" : "justify-center border-white/14 bg-white/6 text-white hover:bg-white/10"}
     >
       {label}
     </Button>

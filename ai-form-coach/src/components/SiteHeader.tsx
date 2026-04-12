@@ -65,18 +65,18 @@ export default function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b bg-white/90 shadow-sm backdrop-blur dark:bg-black/70" role="banner" suppressHydrationWarning>
+      <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/90 shadow-sm backdrop-blur" role="banner" suppressHydrationWarning>
         <a href="#main-content" className="sr-only rounded bg-black px-3 py-1 text-white focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[100]">
           Skip to content
         </a>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="text-xl font-extrabold tracking-tight text-slate-950 dark:text-white">
+          <Link href="/" className="text-xl font-extrabold tracking-tight text-white">
             AI Form Coach
           </Link>
 
           <nav className="hidden items-center gap-6 text-sm md:flex" aria-label="Main navigation">
             {routes.map((route) => (
-              <Link key={route.href} href={route.href} className="text-slate-700 transition-colors hover:text-slate-950 dark:text-slate-300 dark:hover:text-white">
+              <Link key={route.href} href={route.href} className="text-slate-300 transition-colors hover:text-white">
                 {labelForRoute(route.href)}
               </Link>
             ))}
@@ -94,7 +94,7 @@ export default function SiteHeader() {
           <button
             aria-label="Open menu"
             aria-expanded={open}
-            className="flex min-h-[44px] items-center gap-2 rounded-md border px-3 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 md:hidden"
+            className="flex min-h-[44px] items-center gap-2 rounded-md border border-slate-700 px-3 py-2 text-slate-300 transition-colors hover:bg-slate-800 md:hidden"
             onClick={() => setOpen(true)}
             type="button"
           >
@@ -112,14 +112,14 @@ export default function SiteHeader() {
       {open ? (
         <div className="fixed inset-0 z-50" aria-modal="true" role="dialog" aria-labelledby="mobile-menu-title">
           <div className="absolute inset-0 bg-black/60" aria-hidden="true" onClick={() => setOpen(false)} />
-          <aside className="absolute right-0 top-0 grid h-full w-80 max-w-[85vw] content-start gap-4 bg-white p-6 shadow-xl dark:bg-black" aria-label="Mobile navigation" role="navigation">
+          <aside className="absolute right-0 top-0 grid h-full w-80 max-w-[85vw] content-start gap-4 bg-slate-950 p-6 shadow-xl" aria-label="Mobile navigation" role="navigation">
             <div className="mb-4 flex items-center justify-between">
               <span id="mobile-menu-title" className="text-lg font-semibold">
                 Menu
               </span>
               <button
                 aria-label="Close menu"
-                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md p-2 transition-colors hover:bg-slate-800"
                 onClick={() => setOpen(false)}
                 type="button"
               >

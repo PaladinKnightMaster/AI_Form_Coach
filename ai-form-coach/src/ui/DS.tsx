@@ -59,9 +59,9 @@ export const Button = forwardRef(function Button(
 	
 	const variants = {
 		primary: 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg hover:shadow-xl focus-visible:ring-emerald-500',
-		secondary: 'bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 backdrop-blur-sm focus-visible:ring-gray-500',
-		ghost: 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 focus-visible:ring-gray-500',
-		outline: 'border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 focus-visible:ring-gray-500',
+		secondary: 'bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-600 backdrop-blur-sm focus-visible:ring-slate-500',
+		ghost: 'hover:bg-slate-800 text-slate-300 focus-visible:ring-slate-500',
+		outline: 'border border-slate-600 hover:bg-slate-800 text-slate-300 focus-visible:ring-slate-500',
 		destructive: 'bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl focus-visible:ring-red-500'
 	};
 	
@@ -111,11 +111,11 @@ export function Badge({ children, tone = 'success', size = 'md', className }: {
 	const base = 'inline-flex items-center font-medium rounded-full';
 	
 	const tones = {
-		success: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 border border-green-200 dark:border-green-800',
-		warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800',
-		error: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300 border border-red-200 dark:border-red-800',
-		info: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-200 dark:border-blue-800',
-		neutral: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300 border border-gray-200 dark:border-gray-800'
+		success: 'bg-green-900/20 text-green-300 border border-green-800',
+		warning: 'bg-yellow-900/20 text-yellow-300 border border-yellow-800',
+		error: 'bg-red-900/20 text-red-300 border border-red-800',
+		info: 'bg-blue-900/20 text-blue-300 border border-blue-800',
+		neutral: 'bg-gray-900/20 text-gray-300 border border-gray-800'
 	};
 	
 	const sizes = {
@@ -209,7 +209,7 @@ export function Card({ children, className, hover = false, padding = 'default' }
 	}[padding];
 	
 	return (
-		<div className={twMerge(`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 ${paddingClass} ${hover ? 'hover:shadow-xl transition-shadow duration-200' : ''}`, className)}>
+		<div className={twMerge(`bg-slate-900 rounded-xl shadow-lg border border-slate-700 ${paddingClass} ${hover ? 'hover:shadow-xl transition-shadow duration-200' : ''}`, className)}>
 			{children}
 		</div>
 	);
@@ -248,12 +248,12 @@ export function ProgressBar({ value, max = 100, size = 'md', className, showLabe
 	return (
 		<div className={`w-full ${className || ''}`}>
 			{showLabel && (
-				<div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
+				<div className="flex justify-between text-sm text-slate-400 mb-1">
 					<span>Progress</span>
 					<span>{Math.round(percentage)}%</span>
 				</div>
 			)}
-			<div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden ${sizeClass}`} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max}>
+			<div className={`w-full bg-slate-700 rounded-full overflow-hidden ${sizeClass}`} role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max}>
 				<div 
 					className="h-full bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-500 ease-out"
 					style={{ width: `${percentage}%` }}

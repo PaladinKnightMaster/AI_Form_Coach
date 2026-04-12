@@ -173,15 +173,10 @@
 html { color-scheme: dark; }
 
 body {
-  background: var(--color-surface);
+  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%);
   color: var(--color-text);
-  font-family: inherit; /* Inherits next/font Inter from layout.tsx */
   font-size: var(--step-0);
   line-height: 1.6;
-}
-
-body {
-  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%);
   min-height: 100vh;
 }
 

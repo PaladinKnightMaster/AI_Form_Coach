@@ -72,11 +72,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   const umamiSrc = process.env.NEXT_PUBLIC_UMAMI_SRC || "https://analytics.umami.is/script.js";
 
   return (
-    <html lang="en" className={`dark ${inter.className}`} data-theme="dark" style={{ colorScheme: "dark" }} suppressHydrationWarning>
+    <html lang="en" className="dark" data-theme="dark" style={{ colorScheme: "dark" }} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#020617" />
       </head>
-      <body className="flex min-h-screen flex-col antialiased bg-slate-950 text-white" suppressHydrationWarning>
+      <body className={`flex min-h-screen flex-col antialiased text-white ${inter.className}`} suppressHydrationWarning>
 
         <AuthProvider>
           <ToastProvider>
