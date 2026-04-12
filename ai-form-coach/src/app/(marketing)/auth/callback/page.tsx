@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { normalizeAuthNext, DEFAULT_AUTH_NEXT } from "@/lib/auth/utils";
@@ -113,12 +114,12 @@ function CallbackContent() {
             >
               Send a fresh magic link
             </a>
-            <a
+            <Link
               href="/"
               className="block text-center text-sm opacity-70 hover:opacity-100 underline"
             >
               Return to home
-            </a>
+            </Link>
           </div>
         </div>
       </AuthCard>

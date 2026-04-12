@@ -4,7 +4,6 @@ import React from "react";
 import type { Landmark3D } from "@/lib/pose/engine";
 import type { Exercise } from "@/lib/validators/types";
 import PoseOverlay from "@/components/PoseOverlay";
-import { Icon } from "@/ui/DS";
 
 interface CoachCameraChromeProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;

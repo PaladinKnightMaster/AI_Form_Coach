@@ -455,7 +455,7 @@ export default function CoachExperienceView({
   );
 }
 
-function FramingGuide({ tone, label, detail, countdownValue }: { tone: StatusTone; label: string; detail: string; countdownValue: number | null }) {
+function FramingGuide({ tone, label, detail: _detail, countdownValue }: { tone: StatusTone; label: string; detail: string; countdownValue: number | null }) {
   const ringClass = tone === "success"
     ? "border-emerald-300/50 bg-emerald-400/4"
     : tone === "warning"

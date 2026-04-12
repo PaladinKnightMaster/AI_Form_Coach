@@ -68,7 +68,8 @@ export function useOverlayAutoHide({
     poke();
   }, [poke]);
 
-  // Reset when enabled changes
+  // Reset when enabled changes — setState in effect is intentional here
+  // to synchronize visibility state with the enabled prop.
   useEffect(() => {
     if (!enabled) {
       clearTimer();
