@@ -1,7 +1,7 @@
-﻿import { createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { getMvpDisabledRedirect, isMvpAuthOnlyPath, isMvpDisabledPage } from "./src/lib/mvp/featureRegistry";
-import { isLoopbackHost } from "./src/lib/mvp/e2eAccess";
+import { getMvpDisabledRedirect, isMvpAuthOnlyPath, isMvpDisabledPage } from "./lib/mvp/featureRegistry";
+import { isLoopbackHost } from "./lib/mvp/e2eAccess";
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
