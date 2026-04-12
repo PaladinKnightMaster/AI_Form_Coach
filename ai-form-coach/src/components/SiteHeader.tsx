@@ -6,7 +6,6 @@ import AuthStatus from "@/components/AuthStatus";
 import { useAuth } from "@/contexts/AuthContext";
 import { getHeaderRoutes } from "@/lib/mvp/featureRegistry";
 import { Button, Icon } from "@/ui/DS";
-import ThemeToggle from "@/ui/ThemeToggle";
 
 function labelForRoute(href: string) {
   if (href === "/coach") {
@@ -81,7 +80,6 @@ export default function SiteHeader() {
                 {labelForRoute(route.href)}
               </Link>
             ))}
-            <ThemeToggle />
             {isAuthed ? (
               <Link href="/coach">
                 <Button variant="primary" size="sm" className="flex items-center gap-2">
@@ -138,23 +136,20 @@ export default function SiteHeader() {
                   key={route.href}
                   href={route.href}
                   onClick={() => setOpen(false)}
-                  className="block rounded-md px-3 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                  className="block rounded-md px-3 py-3 transition-colors hover:bg-slate-800"
                 >
                   {labelForRoute(route.href)}
                 </Link>
               ))}
-              <Link href="/privacy" onClick={() => setOpen(false)} className="block rounded-md px-3 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
+              <Link href="/privacy" onClick={() => setOpen(false)} className="block rounded-md px-3 py-3 transition-colors hover:bg-slate-800">
                 Privacy
               </Link>
-              <Link href="/terms" onClick={() => setOpen(false)} className="block rounded-md px-3 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800">
+              <Link href="/terms" onClick={() => setOpen(false)} className="block rounded-md px-3 py-3 transition-colors hover:bg-slate-800">
                 Terms
               </Link>
             </nav>
 
-            <div className="space-y-4 border-t pt-4">
-              <div className="px-3">
-                <ThemeToggle />
-              </div>
+            <div className="space-y-4 border-t border-slate-800 pt-4">
               <Link
                 href={isAuthed ? "/coach" : "/signin"}
                 onClick={() => setOpen(false)}

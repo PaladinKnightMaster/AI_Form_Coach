@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import type { Landmark3D } from "@/lib/pose/engine";
@@ -31,11 +31,7 @@ export default function CoachCameraChrome({
 }: CoachCameraChromeProps) {
   return (
     <>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.2),_transparent_32%)]" />
-      <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/65 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white backdrop-blur">
-        <Icon name="camera" className="h-4 w-4" />
-        Live Motion View
-      </div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(52,211,153,0.15),_transparent_32%)]" />
       <video
         data-testid="coach-video"
         ref={videoRef}

@@ -47,7 +47,7 @@ Phone shows **minimum viable coaching UI**:
 - 1 quality badge (top-left)
 - Mirror/mute toggles (top-right)
 - Live cue + reps/elapsed (compact pill, top)
-- Pause/End buttons (bottom tray)
+- Pause/End buttons (bottom tray, stacked vertically via `grid-cols-1`)
 
 Each larger breakpoint **adds** information, never rearranges the core layout:
 - `sm:` → Wider camera aspect
@@ -68,6 +68,7 @@ Each larger breakpoint **adds** information, never rearranges the core layout:
 - Buttons: explicit min-height via Tailwind size classes (h-9/h-11/h-12/h-14)
 - Badge toggles: `py-2 px-3` ensures 44px+ with text
 - Sufficient gap between adjacent targets: minimum 8px (`gap-2`)
+- Action trays stack vertically (`flex-col` or `grid-cols-1`) on mobile to ensure horizontal constraints don't shrink buttons below min-height requirements.
 
 ## Out-of-Session Pages
 

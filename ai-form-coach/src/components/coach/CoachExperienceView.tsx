@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import React from "react";
@@ -181,10 +181,10 @@ export default function CoachExperienceView({
                     <div className="flex flex-col items-center gap-3 py-2">
                       <div data-testid="coach-countdown" className="text-7xl font-black tracking-tight sm:text-8xl">{countdownValue}</div>
                       <div className="text-sm font-semibold text-slate-200">Hold still — starting soon</div>
-                      <div className="flex items-center gap-3 text-xs text-slate-400">
-                        <span>{visibilityLabel} vis</span>
-                        <span>{fpsLabel} fps</span>
-                        <Badge tone={framingTone} size="md">{framingLabel}</Badge>
+                      <div className="flex flex-wrap items-center justify-center gap-3 mt-1">
+                        <div className="rounded-full bg-slate-950/60 px-3 py-1 font-mono text-xs text-white border border-white/10">{visibilityLabel} VIS</div>
+                        <div className="rounded-full bg-slate-950/60 px-3 py-1 font-mono text-xs text-white border border-white/10">{fpsLabel} FPS</div>
+                        <Badge tone={framingTone} size="md" className="backdrop-blur">{framingLabel}</Badge>
                       </div>
                       {showRecoveryGuide && (
                         <Button data-testid="coach-retry-camera" size="sm" onClick={onRetryCamera} className="mt-1">
@@ -201,9 +201,9 @@ export default function CoachExperienceView({
                           <Badge tone={framingTone} size="md">{framingLabel}</Badge>
                           <Badge tone="info" size="md">{sessionState === "completed" ? "Complete" : sessionState === "paused" ? "Paused" : exerciseLabel}</Badge>
                         </div>
-                        <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                          <span>{visibilityLabel} vis</span>
-                          <span>{fpsLabel} fps</span>
+                        <div className="flex items-center gap-2 font-mono text-[10px] text-white">
+                          <span className="rounded-full bg-slate-950/50 px-2 py-0.5 border border-white/10">{visibilityLabel} VIS</span>
+                          <span className="rounded-full bg-slate-950/50 px-2 py-0.5 border border-white/10">{fpsLabel} FPS</span>
                         </div>
                       </div>
 
@@ -214,7 +214,7 @@ export default function CoachExperienceView({
                           <option value="pushup">Pushup</option>
                           <option value="plank">Plank</option>
                         </select>
-                        <span data-testid="coach-camera-setup" className="flex-1 truncate text-[11px] text-slate-400">
+                        <span data-testid="coach-camera-setup" className="flex-1 text-[11px] text-slate-300 leading-tight">
                           {cameraAngleLabel}: {cameraAngleDetail}
                         </span>
                       </div>
@@ -437,7 +437,7 @@ export default function CoachExperienceView({
         <div data-testid="coach-mobile-tray" className="fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 px-4 md:hidden">
           <div className="mx-auto max-w-md">
             <Card className="rounded-[1.45rem] border border-white/60 bg-white/92 shadow-[0_24px_80px_-50px_rgba(15,23,42,0.7)] backdrop-blur dark:border-white/10 dark:bg-slate-950/86" padding="sm">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Button data-testid="coach-mobile-primary-action" size="lg" onClick={onPrimaryAction} className="w-full">
                   <Icon name="pause" className="h-4 w-4" />
                   Pause

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -300,12 +300,12 @@ function SignInContent() {
     return (
       <AuthCard title="Check your email">
         <div className="text-center space-y-4">
-          <div className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400 dark:text-slate-500">Email link</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-400">Email link</div>
           <div>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-              We&apos;ve sent a magic link to <strong>{email}</strong>
+            <p className="text-sm text-slate-300 mb-4">
+              We&apos;ve sent a magic link to <strong className="text-white">{email}</strong>
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+            <p className="text-xs text-slate-500 mb-6">
               Click the link in your email to sign in. The link will expire in 60 minutes.
             </p>
           </div>
@@ -322,7 +322,7 @@ function SignInContent() {
                 setSuccess(false);
                 setMode('signin');
               }}
-              className="w-full text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              className="w-full text-sm font-medium text-slate-400 hover:text-white transition-colors"
             >
               Back to sign in
             </button>
@@ -370,27 +370,27 @@ function SignInContent() {
 
   return (
     <AuthCard title={getTitle()}>
-      <div className="flex items-center gap-2 text-xs mb-4 overflow-x-auto">
+      <div className="flex w-full items-center rounded-xl bg-slate-950/50 p-1 mb-6 border border-slate-800">
         <button
           type="button"
-          className={`px-2 py-1 rounded whitespace-nowrap ${mode === 'signin' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-gray-800'}`}
+          className={`flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all ${mode === 'signin' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
           onClick={() => setMode('signin')}
         >
           Sign in
         </button>
         <button
           type="button"
-          className={`px-2 py-1 rounded whitespace-nowrap ${mode === 'signup' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-gray-800'}`}
+          className={`flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all ${mode === 'signup' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
           onClick={() => setMode('signup')}
         >
           Sign up
         </button>
         <button
           type="button"
-          className={`px-2 py-1 rounded whitespace-nowrap ${mode === 'reset-request' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-gray-800'}`}
+          className={`flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all ${mode === 'reset-request' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
           onClick={() => setMode('reset-request')}
         >
-          Forgot password
+          Reset
         </button>
       </div>
 
@@ -405,7 +405,7 @@ function SignInContent() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full rounded-xl border border-slate-700 bg-slate-950/50 px-4 py-3.5 text-white placeholder:text-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
             disabled={loading}
           />
         </div>
@@ -421,7 +421,7 @@ function SignInContent() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-xl border border-slate-700 bg-slate-950/50 px-4 py-3.5 text-white placeholder:text-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
               disabled={loading}
             />
           </div>
@@ -438,7 +438,7 @@ function SignInContent() {
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="Confirm password"
-              className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-xl border border-slate-700 bg-slate-950/50 px-4 py-3.5 text-white placeholder:text-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
               disabled={loading}
             />
           </div>
@@ -457,11 +457,11 @@ function SignInContent() {
       {mode === 'signin' && (
         <div className="text-center space-y-3">
           <div className="flex items-center gap-3">
-            <hr className="flex-1" />
-            <span className="text-xs text-slate-400 dark:text-slate-500">OR</span>
-            <hr className="flex-1" />
+            <hr className="flex-1 border-slate-800" />
+            <span className="text-xs text-slate-500">OR</span>
+            <hr className="flex-1 border-slate-800" />
           </div>
-          <button type="button" onClick={() => setMode('magic-link')} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+          <button type="button" onClick={() => setMode('magic-link')} className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-700">
             Sign in with magic link
           </button>
         </div>
@@ -469,7 +469,7 @@ function SignInContent() {
 
       {mode === 'magic-link' && (
         <div className="text-center">
-          <button type="button" onClick={() => setMode('signin')} className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 underline">
+          <button type="button" onClick={() => setMode('signin')} className="text-sm text-slate-400 hover:text-white transition-colors underline decoration-slate-600 hover:decoration-white">
             Back to password sign in
           </button>
         </div>

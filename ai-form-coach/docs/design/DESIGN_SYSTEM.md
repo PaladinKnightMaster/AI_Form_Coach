@@ -16,17 +16,17 @@
 
 ## Color Palette
 
-| Token | Light | Dark | Usage |
-|-------|-------|------|-------|
-| `surface` | `#ffffff` | `#020617` (slate-950) | Page backgrounds |
-| `surface-secondary` | `#f9fafb` (gray-50) | `#0f172a` (slate-900) | Card backgrounds |
-| `brand` / `primary` | `#1f2937` (gray-800) | `#f8fafc` (slate-50) | Primary text, headings |
-| `brand-light` | `#374151` (gray-700) | `#e2e8f0` (slate-200) | Secondary text |
-| `accent` | `#7c3aed` (violet-600) | `#8b5cf6` (violet-500) | Links, focus rings |
-| `success` | `#059669` (emerald-600) | `#34d399` (emerald-400) | Good form, framing OK |
-| `warning` | `#d97706` (amber-600) | `#fbbf24` (amber-400) | Attention needed |
-| `error` | `#dc2626` (red-600) | `#f87171` (red-400) | Bad form, camera issues |
-| `info` | `#2563eb` (blue-600) | `#60a5fa` (blue-400) | Neutral badges, tips |
+| Token | Dark (Universal) | Usage |
+|-------|------------------|-------|
+| `surface` | `#020617` (slate-950) | Page backgrounds |
+| `surface-secondary` | `#0f172a` (slate-900) | Card/glass backgrounds |
+| `brand` / `primary` | `#f8fafc` (slate-50) | Primary text, headings |
+| `brand-light` | `#e2e8f0` (slate-200) | Secondary text |
+| `accent` | `#10b981` (emerald-500) | Core branding, focus rings |
+| `success` | `#34d399` (emerald-400) | Good form, framing OK |
+| `warning` | `#fbbf24` (amber-400) | Attention needed |
+| `error` | `#ef4444` (red-500) | Bad form, camera issues |
+| `info` | `#3b82f6` (blue-500) | Neutral badges, tips |
 
 **Skeleton overlay palette** (canvas, not Tailwind — defined in `PoseOverlay.tsx` `SKELETON_COLORS`):
 
@@ -40,9 +40,9 @@
 
 ## Typography
 
-**Font Stack:** System fonts only (no web font load).
+**Font Stack:** Google Fonts `Inter` (loaded via `next/font/google`).
 ```
-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+font-family: var(--font-inter), sans-serif;
 ```
 
 **Fluid Scale** (clamp-based, responsive):

@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Inter } from "next/font/google";
 import LogSilencer from "@/components/LogSilencer";
 import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 const description = "Private, browser-based motion coaching for squat, pushup, and plank. No video uploads during live coaching.";
 
@@ -69,19 +72,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   const umamiSrc = process.env.NEXT_PUBLIC_UMAMI_SRC || "https://analytics.umami.is/script.js";
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`dark ${inter.className}`} data-theme="dark" style={{ colorScheme: "dark" }} suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <meta name="theme-color" content="#111827" />
-        <meta name="color-scheme" content="light dark" />
+        <meta name="theme-color" content="#020617" />
       </head>
-      <body className="flex min-h-screen flex-col antialiased" suppressHydrationWarning>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('afc_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.classList.add(t);document.documentElement.dataset.theme=t}catch(e){}})()`,
-          }}
-        />
+      <body className="flex min-h-screen flex-col antialiased bg-slate-950 text-white" suppressHydrationWarning>
+
         <AuthProvider>
           <ToastProvider>
             {children}
