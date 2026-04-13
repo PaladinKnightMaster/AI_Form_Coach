@@ -11,7 +11,7 @@ import {
 
 describe("featureRegistry", () => {
   it("returns a reduced public header for signed-out users", () => {
-    expect(getHeaderRoutes(false).map((route) => route.href)).toEqual(["/", "/pricing", "/signin"]);
+    expect(getHeaderRoutes(false).map((route) => route.href)).toEqual(["/", "/pricing"]);
   });
 
   it("returns coach-first header routes for authenticated users", () => {

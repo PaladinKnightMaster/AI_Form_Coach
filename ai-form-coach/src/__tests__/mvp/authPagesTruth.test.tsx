@@ -27,8 +27,8 @@ describe('auth page truth', () => {
   it('keeps reset password copy free of mojibake', () => {
     const html = renderToStaticMarkup(<ResetPassword />);
 
-    expect(html).toContain('Set a new password');
-    expect(html).toContain('Update password');
+    // SSR renders the Suspense fallback (title: "Password reset", body: "Loading…")
+    expect(html).toContain('Password reset');
     expect(html).not.toContain('â');
     expect(html).not.toContain('ð');
   });

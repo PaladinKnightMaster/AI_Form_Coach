@@ -1,11 +1,12 @@
 /**
  * Adaptive Frame Dropping Tests
- * 
+ *
  * Validates device-aware frame dropping functionality
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AdaptiveFrameDropping, validateFrameDropping } from '@/lib/pose/adaptiveFrameDropping';
+import type { FrameDropMetrics } from '@/lib/pose/adaptiveFrameDropping';
 
 describe('Adaptive Frame Dropping', () => {
   let frameDropping: AdaptiveFrameDropping;
@@ -30,15 +31,14 @@ describe('Adaptive Frame Dropping', () => {
     });
 
     it('should drop every other frame when frameSkipCount is 2', () => {
-      frameDropping.setEnabled(true);
-      const config = frameDropping.getConfig();
-      config.frameSkipCount = 2;
+      // getConfig() returns a copy — construct with desired config instead
+      const fd = new AdaptiveFrameDropping({ frameSkipCount: 2, enabled: true, motionAwareSkipping: false });
 
       let keptFrames = 0;
       let droppedFrames = 0;
 
       for (let i = 0; i < 100; i++) {
-        if (frameDropping.shouldProcessFrame()) {
+        if (fd.shouldProcessFrame()) {
           keptFrames++;
         } else {
           droppedFrames++;
@@ -52,8 +52,12 @@ describe('Adaptive Frame Dropping', () => {
     it('should respect maximum consecutive drops', () => {
       frameDropping.setEnabled(true);
       const config = frameDropping.getConfig();
-      config.frameSkipCount = 10; // Try to drop 90% of frames
-      config.maxConsecutiveDrops = 3;
+      const maxDrops = config.maxConsecutiveDrops;
+
+      // Drive adaptation by recording low FPS to increase frameSkipCount
+      for (let i = 0; i < 20; i++) {
+        frameDropping.recordFps(5);
+      }
 
       let consecutiveDrops = 0;
       let maxConsecutiveObserved = 0;
@@ -68,7 +72,7 @@ describe('Adaptive Frame Dropping', () => {
       }
 
       // Should never exceed maxConsecutiveDrops
-      expect(maxConsecutiveObserved).toBeLessThanOrEqual(config.maxConsecutiveDrops);
+      expect(maxConsecutiveObserved).toBeLessThanOrEqual(maxDrops);
     });
   });
 
@@ -89,9 +93,9 @@ describe('Adaptive Frame Dropping', () => {
       const initialConfig = frameDropping.getConfig();
       const initialSkip = initialConfig.frameSkipCount;
 
-      // Record low FPS multiple times
+      // Record FPS below minFpsThreshold (15 after setTargetFps(25))
       for (let i = 0; i < 5; i++) {
-        frameDropping.recordFps(15);
+        frameDropping.recordFps(12);
       }
 
       const newConfig = frameDropping.getConfig();
@@ -99,19 +103,16 @@ describe('Adaptive Frame Dropping', () => {
     });
 
     it('should decrease frame skip when FPS is good', () => {
-      frameDropping.setEnabled(true);
-      frameDropping.setTargetFps(25);
+      // Start with high frameSkipCount
+      const fd = new AdaptiveFrameDropping({ enabled: true, frameSkipCount: 3, adaptiveMode: true });
+      fd.setTargetFps(25);
 
-      // Set initial frame skip
-      const config = frameDropping.getConfig();
-      config.frameSkipCount = 3;
-
-      // Record high FPS multiple times
+      // Record high FPS (above targetFps + 5 = 30)
       for (let i = 0; i < 5; i++) {
-        frameDropping.recordFps(40);
+        fd.recordFps(40);
       }
 
-      const newConfig = frameDropping.getConfig();
+      const newConfig = fd.getConfig();
       expect(newConfig.frameSkipCount).toBeLessThanOrEqual(3);
     });
 
@@ -122,9 +123,9 @@ describe('Adaptive Frame Dropping', () => {
       const initialMetrics = frameDropping.getMetrics();
       const initialLevel = initialMetrics.adaptationLevel;
 
-      // Record low FPS
+      // Record FPS below minFpsThreshold (15)
       for (let i = 0; i < 3; i++) {
-        frameDropping.recordFps(18);
+        frameDropping.recordFps(12);
       }
 
       const updatedMetrics = frameDropping.getMetrics();
@@ -143,29 +144,28 @@ describe('Adaptive Frame Dropping', () => {
     });
 
     it('should calculate drop rate correctly', () => {
-      frameDropping.setEnabled(true);
-      const config = frameDropping.getConfig();
-      config.frameSkipCount = 2;
+      // Construct with frameSkipCount=2 and motionAwareSkipping disabled
+      const fd = new AdaptiveFrameDropping({ frameSkipCount: 2, enabled: true, motionAwareSkipping: false });
 
       for (let i = 0; i < 100; i++) {
-        frameDropping.shouldProcessFrame();
+        fd.shouldProcessFrame();
+        // recordFps triggers updateMetrics which recalculates dropRate
+        fd.recordFps(30);
       }
 
-      const metrics = frameDropping.getMetrics();
+      const metrics = fd.getMetrics();
       expect(metrics.dropRate).toBeGreaterThan(0);
       expect(metrics.dropRate).toBeLessThanOrEqual(100);
     });
 
     it('should separate kept and dropped frames', () => {
-      frameDropping.setEnabled(true);
-      const config = frameDropping.getConfig();
-      config.frameSkipCount = 3;
+      const fd = new AdaptiveFrameDropping({ frameSkipCount: 3, enabled: true, motionAwareSkipping: false });
 
       for (let i = 0; i < 60; i++) {
-        frameDropping.shouldProcessFrame();
+        fd.shouldProcessFrame();
       }
 
-      const metrics = frameDropping.getMetrics();
+      const metrics = fd.getMetrics();
       expect(metrics.keptFrames + metrics.droppedFrames).toBe(metrics.totalFrames);
     });
 
@@ -202,30 +202,26 @@ describe('Adaptive Frame Dropping', () => {
     });
 
     it('should calculate drop percentage', () => {
-      const config = frameDropping.getConfig();
-      config.frameSkipCount = 1;
+      // frameSkipCount=1 → 0% drop
+      const fd1 = new AdaptiveFrameDropping({ frameSkipCount: 1 });
+      expect(fd1.getDropPercentage()).toBe(0);
 
-      const percentage1 = frameDropping.getDropPercentage();
-      expect(percentage1).toBe(0);
-
-      config.frameSkipCount = 3;
-      const percentage3 = frameDropping.getDropPercentage();
-      expect(percentage3).toBeGreaterThan(percentage1);
+      // frameSkipCount=3 → (3-1)/5*100 = 40%
+      const fd3 = new AdaptiveFrameDropping({ frameSkipCount: 3 });
+      expect(fd3.getDropPercentage()).toBeGreaterThan(0);
     });
 
     it('should estimate FPS after dropping', () => {
       const baseFps = 60;
 
-      frameDropping.setEnabled(false);
-      expect(frameDropping.getEstimatedFpsAfterDropping(baseFps)).toBe(60);
+      const fdOff = new AdaptiveFrameDropping({ enabled: false });
+      expect(fdOff.getEstimatedFpsAfterDropping(baseFps)).toBe(60);
 
-      frameDropping.setEnabled(true);
-      const config = frameDropping.getConfig();
-      config.frameSkipCount = 2;
-      expect(frameDropping.getEstimatedFpsAfterDropping(baseFps)).toBe(30);
+      const fd2 = new AdaptiveFrameDropping({ enabled: true, frameSkipCount: 2 });
+      expect(fd2.getEstimatedFpsAfterDropping(baseFps)).toBe(30);
 
-      config.frameSkipCount = 3;
-      expect(frameDropping.getEstimatedFpsAfterDropping(baseFps)).toBe(20);
+      const fd3 = new AdaptiveFrameDropping({ enabled: true, frameSkipCount: 3 });
+      expect(fd3.getEstimatedFpsAfterDropping(baseFps)).toBe(20);
     });
   });
 
@@ -303,15 +299,13 @@ describe('Adaptive Frame Dropping', () => {
 
   describe('Device-Specific Behavior', () => {
     it('should auto-enable on low-end devices', () => {
-      // Note: Actual device detection happens in constructor
-      // This tests that config reflects device capability
       const config = frameDropping.getConfig();
       expect(config).toBeDefined();
       expect(config.maxConsecutiveDrops).toBeGreaterThan(0);
     });
 
     it('should set appropriate thresholds', () => {
-      frameDropping.setTargetFps(20); // Low-end target
+      frameDropping.setTargetFps(20);
       const config = frameDropping.getConfig();
 
       expect(config.minFpsThreshold).toBeLessThanOrEqual(20);
@@ -324,9 +318,9 @@ describe('Adaptive Frame Dropping', () => {
       frameDropping.setEnabled(true);
       frameDropping.setTargetFps(25);
 
-      // Simulate steady 20 FPS (below target)
+      // Record FPS below minFpsThreshold (15 after setTargetFps(25))
       for (let i = 0; i < 100; i++) {
-        frameDropping.recordFps(20);
+        frameDropping.recordFps(12);
         frameDropping.shouldProcessFrame();
       }
 
@@ -345,16 +339,16 @@ describe('Adaptive Frame Dropping', () => {
       frameDropping.setEnabled(true);
       frameDropping.setTargetFps(25);
 
-      // Low FPS initially
+      // Low FPS initially (below minFpsThreshold=15)
       for (let i = 0; i < 10; i++) {
-        frameDropping.recordFps(18);
+        frameDropping.recordFps(12);
         frameDropping.shouldProcessFrame();
       }
 
       const configAfterDrop = frameDropping.getConfig();
       const skipAfterDrop = configAfterDrop.frameSkipCount;
 
-      // FPS recovers
+      // FPS recovers (above targetFps + 5 = 30)
       for (let i = 0; i < 10; i++) {
         frameDropping.recordFps(40);
         frameDropping.shouldProcessFrame();
@@ -368,15 +362,18 @@ describe('Adaptive Frame Dropping', () => {
     });
 
     it('should maintain minimum frame processing', () => {
-      frameDropping.setEnabled(true);
-      const config = frameDropping.getConfig();
-      config.maxConsecutiveDrops = 2;
+      const fd = new AdaptiveFrameDropping({ enabled: true, maxConsecutiveDrops: 2, motionAwareSkipping: false });
+
+      // Drive up frameSkipCount via low FPS
+      for (let i = 0; i < 10; i++) {
+        fd.recordFps(5);
+      }
 
       let maxGapBetweenProcessed = 0;
       let lastProcessed = -1;
 
       for (let i = 0; i < 100; i++) {
-        if (frameDropping.shouldProcessFrame()) {
+        if (fd.shouldProcessFrame()) {
           if (lastProcessed >= 0) {
             maxGapBetweenProcessed = Math.max(maxGapBetweenProcessed, i - lastProcessed);
           }
@@ -385,7 +382,7 @@ describe('Adaptive Frame Dropping', () => {
       }
 
       // Should never have gap larger than maxConsecutiveDrops + 1
-      expect(maxGapBetweenProcessed).toBeLessThanOrEqual(config.maxConsecutiveDrops + 1);
+      expect(maxGapBetweenProcessed).toBeLessThanOrEqual(3); // maxConsecutiveDrops(2) + 1
     });
   });
 });
