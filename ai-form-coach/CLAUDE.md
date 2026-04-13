@@ -37,19 +37,23 @@ Browser-based AI form coaching app. Users point their camera at themselves durin
 - **Analytics:** Umami (self-hosted)
 
 ## Architecture Decisions
-- Auth callback is CLIENT-SIDE (`src/app/auth/callback/page.tsx`) because PKCE code_verifier lives in localStorage, inaccessible to server Route Handlers. See ADR-001.
+- Auth callback is CLIENT-SIDE (`src/app/(marketing)/auth/callback/page.tsx`) because PKCE code_verifier lives in localStorage, inaccessible to server Route Handlers. See ADR-001.
 - Skeleton overlay uses 10 fitness-relevant joints, not all 33 MediaPipe landmarks. See ADR-002.
 - No cloud LLM in the live coaching loop — all pose detection and cue generation runs in-browser. Gemini is used for async features only. See ADR-003.
-- Coach UI: camera viewport is the hero element. All overlays must be minimal and translucent. See ADR-005.
-- Design tokens: CSS custom properties in globals.css (runtime-switchable for light/dark) + Tailwind v4 `@theme` block for token definitions. `src/ui/theme.ts` is deprecated. See ADR-004.
+- Design tokens: CSS custom properties in globals.css (dark-only, unified theme) + Tailwind v4 `@theme` block. `src/ui/theme.ts` is deprecated. See ADR-004.
+- Coach UI: full-bleed camera-stage layout with `object-cover`, responsive sidebar grid, auto-hide overlays. See ADR-005.
+- Route groups: `(marketing)` has SiteHeader/SiteFooter, `(coach)` is a bare dark shell. Root layout is providers-only. See ADR-007.
 - Use `getUser()` not `getSession()` for server-side auth verification.
 
 ## Key Directories
-- `src/app/` — Next.js App Router pages
-- `src/components/coach/` — Coach experience UI (CoachExperienceView, CoachCameraChrome)
-- `src/components/` — Shared components (PoseOverlay, etc.)
-- `src/ui/` — Design system components (DS.tsx — Button, Badge, Card, Input, etc.)
-- `src/lib/pose/` — Pose detection engine, contracts, skeleton rendering
+- `src/app/(marketing)/` — Marketing/public pages (home, pricing, history, auth, etc.)
+- `src/app/(coach)/` — Coach page (bare dark shell, no header/footer)
+- `src/app/layout.tsx` — Root layout (providers only, Inter font, dark theme)
+- `src/middleware.ts` — Supabase auth + MVP feature gating middleware
+- `src/components/coach/` — Coach experience UI (CoachExperienceView, CoachCameraChrome, useOverlayAutoHide)
+- `src/components/` — Shared components (PoseOverlay, AuthCard, etc.)
+- `src/ui/` — Design system components (DS.tsx — Button, Badge, Card, Icon, etc.)
+- `src/lib/pose/` — Pose detection engine, contracts, skeleton rendering, getCoveredVideoRect
 - `src/lib/coach/` — Coaching logic, cue engine, telemetry
 - `src/lib/supabase/` — Supabase client/server helpers
 - `src/lib/auth/` — Auth utilities
