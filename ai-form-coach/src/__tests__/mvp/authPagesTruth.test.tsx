@@ -1,7 +1,7 @@
 ﻿import { describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import AuthCodeErrorPage from '@/app/auth/auth-code-error/page';
-import ResetPassword from '@/app/reset-password/page';
+import AuthCodeErrorPage from '@/app/(marketing)/auth/auth-code-error/page';
+import ResetPassword from '@/app/(marketing)/reset-password/page';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({

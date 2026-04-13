@@ -17,6 +17,17 @@ Users perform exercises in front of their phone camera. The camera viewport is t
 - Framing guide renders BELOW skeleton (z-10 vs z-20) so pose feedback is always visible
 - Bottom controls use fixed tray (mobile) or inline footer (desktop)
 
+### April 2026 — Responsive Redesign
+
+Transformed from a centered "content page with camera widget" to a full-bleed "camera-stage application":
+
+- **Route groups:** `(coach)` layout is a bare dark shell (`h-screen h-[100dvh] overflow-hidden bg-slate-950`) — no SiteHeader/SiteFooter. `(marketing)` layout retains full chrome.
+- **Video fill:** `object-cover` (not `object-contain`) eliminates letterboxing. `getCoveredVideoRect()` in `render.ts` provides the inverse math for accurate PoseOverlay landmark projection on covered video.
+- **Responsive sidebar grid:** `md:grid-cols-[1fr_320px] xl:grid-cols-[1fr_380px]`. Mobile = full-bleed camera only. Tablet = camera + 320px sidebar. Desktop = camera + 380px sidebar.
+- **Auto-hide overlays:** `useOverlayAutoHide` hook — Zoom-like behavior with 3.5s inactivity timeout, 120ms throttled pointer detection, Escape key always reveals. Camera stage has `tabIndex={-1}` for keyboard focus.
+- **Exercise-specific angle arcs:** Per-exercise thresholds (squat knee 70-110° = good depth, pushup elbow 70-110° = good depth, plank ~160-180° = straight). Arc direction uses sweep calculation to always draw the minor arc.
+- **Mobile tray:** Stacked `grid-cols-1 sm:grid-cols-2` for large touch targets on phones.
+
 Layout specifics documented in `docs/design/RESPONSIVE_STRATEGY.md`.
 
 ## Consequences

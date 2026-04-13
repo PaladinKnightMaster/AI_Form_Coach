@@ -47,7 +47,7 @@ vi.mock("@/lib/supabase/client", () => ({
   }),
 }));
 
-import SessionDetailPage from "@/app/session/[id]/page";
+import SessionDetailPage from "@/app/(marketing)/session/[id]/page";
 
 async function flushEffects() {
   await act(async () => {

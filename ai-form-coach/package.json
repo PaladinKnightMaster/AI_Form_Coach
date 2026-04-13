@@ -6,7 +6,7 @@
     "dev": "node scripts/run-next-with-baseline-env.mjs dev",
     "build": "node scripts/run-next-with-baseline-env.mjs build",
     "start": "node scripts/run-next-with-baseline-env.mjs start",
-    "lint": "eslint middleware.ts src/app/page.tsx src/app/coach/page.tsx src/app/history/page.tsx src/app/session/[id]/page.tsx src/app/pricing/page.tsx src/app/privacy/page.tsx src/app/terms/page.tsx src/app/signin/page.tsx src/app/signup/page.tsx src/app/reset-password/page.tsx src/app/auth/callback/route.tsx src/app/auth/auth-code-error/page.tsx src/app/og-image/route.tsx src/app/opengraph-image.tsx src/app/twitter-image.tsx src/app/layout.tsx src/app/sitemap.ts src/app/robots.ts src/app/api/[...slug]/route.ts src/components/SiteHeader.tsx src/components/SiteFooter.tsx src/components/PoseOverlay.tsx src/components/AuthStatus.tsx src/components/AuthCard.tsx src/components/coach/CoachCameraChrome.tsx src/components/coach/CoachExperienceView.tsx src/lib/auth src/lib/mvp src/lib/history/publicHistory.ts src/lib/coach src/lib/pose/contracts.ts src/lib/pose/render.ts src/lib/pose/engine.ts src/lib/ai/providers.ts src/lib/supabase/client.ts src/__tests__/mvp",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "test": "npm run test:mvp",
     "test:mvp": "vitest run src/__tests__/simple.test.ts src/__tests__/mvp",
     "test:automation": "vitest run src/__tests__/mvp",

@@ -2,6 +2,23 @@
 # Changelog
 ## Project Updates & Release History
 
+### April 12, 2026 - Premium UI/UX Redesign (Dark Mode) 🎨
+
+**Major Aesthetics & Workflow Overhaul**
+
+#### Brand Identity Shift
+- **Unified Dark Mode**: Locked the application into a single "Apple Fitness+" inspired deep slate (`#020617`) theme with neon accents, permanently retiring the split light/dark mode complexity.
+- **Premium Typography**: Upgraded the global font stack from generic `system-ui` to **Inter** via `next/font/google`, delivering a much more modern sports-tech feel.
+- **Glassmorphism**: Upgraded standard overlays, cards, and HUD badges to utilize thick `backdrop-blur` utilities, achieving high-end dimensionality over content.
+
+#### Active Coaching HUD Improvements
+- **HUD Encapsulation**: Refactored raw diagnostic text (FPS, Visibility) into structured, glassmorphic `.font-mono` pills.
+- **Z-Index Optimization**: Removed redundant "Live Motion View" badges that were overlapping vital stage cues, clearing up the camera viewport.
+- **Mobile Action Stack**: Reoriented the post-session action tray. The grid layout now stacks vertically (`grid-cols-1`) on mobile widths (375px), preventing button squishing and creating massive, error-proof touch targets for sweaty hands.
+- **Instructional Focus**: Removed `.truncate` bounds on live setup instructions so users don't miss vital framing requirements.
+
+---
+
 ### December 23, 2025 - Database Security Hardening 🔒
 
 **Critical Security Fixes & RLS Implementation**

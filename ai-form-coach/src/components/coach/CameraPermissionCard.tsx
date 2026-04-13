@@ -18,29 +18,29 @@ export default function CameraPermissionCard({ onAllow }: CameraPermissionCardPr
           <Icon name="camera" className="w-8 h-8 text-white" />
         </div>
 
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+        <h2 className="text-xl font-bold text-white mb-3">
           Camera Access Needed
         </h2>
 
-        <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+        <p className="text-slate-300 mb-6 leading-relaxed">
           AI Form Coach uses your camera to see your exercise form and give real-time feedback.
         </p>
 
         {/* Privacy assurance */}
-        <div className="flex items-start gap-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-6 text-left">
+        <div className="flex items-start gap-3 bg-emerald-900/20 border border-emerald-800 rounded-xl p-4 mb-6 text-left">
           <div className="flex-shrink-0 mt-0.5">
-            <Icon name="lock" className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <Icon name="lock" className="w-5 h-5 text-emerald-400" />
           </div>
-          <p className="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">
+          <p className="text-sm text-emerald-300 leading-relaxed">
             Your video is processed <strong>on your device</strong> and is <strong>never uploaded or stored</strong>. All AI analysis happens locally in your browser.
           </p>
         </div>
 
         {/* Skeleton preview illustration */}
-        <div className="bg-gray-100 dark:bg-gray-700/50 rounded-xl p-4 mb-6">
+        <div className="bg-slate-800/50 rounded-xl p-4 mb-6">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Icon name="activity" className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            <Icon name="activity" className="w-4 h-4 text-slate-400" />
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
               How it works
             </span>
           </div>
@@ -66,7 +66,7 @@ export default function CameraPermissionCard({ onAllow }: CameraPermissionCardPr
             {/* Angle arc hint */}
             <path d="M 50 95 A 15 15 0 0 1 60 80" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2" className="text-teal-400" />
           </svg>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+          <p className="text-xs text-slate-400 mt-2">
             We track key body joints to analyze your form in real time.
           </p>
         </div>
@@ -86,14 +86,14 @@ export default function CameraPermissionCard({ onAllow }: CameraPermissionCardPr
         <button
           type="button"
           onClick={() => setFaqOpen(!faqOpen)}
-          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors inline-flex items-center gap-1"
+          className="text-sm text-slate-400 hover:text-slate-200 transition-colors inline-flex items-center gap-1"
         >
           Why do you need my camera?
           <Icon name={faqOpen ? "chevron-up" : "chevron-down"} className="w-3 h-3" />
         </button>
 
         {faqOpen && (
-          <div className="mt-3 text-sm text-gray-600 dark:text-gray-300 text-left bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 leading-relaxed">
+          <div className="mt-3 text-sm text-slate-300 text-left bg-slate-800/30 rounded-lg p-4 leading-relaxed">
             <p className="mb-2">
               <strong>Form analysis:</strong> Your camera feed is processed by MediaPipe, a machine learning model that runs entirely in your browser. It identifies body landmarks (shoulders, hips, knees, ankles) to measure joint angles during exercises.
             </p>

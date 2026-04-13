@@ -140,26 +140,26 @@
 }
 
 :root {
-  --color-primary: #1f2937;
-  --color-primary-light: #374151;
-  --color-surface: #ffffff;
-  --color-surface-secondary: #f9fafb;
-  --color-text: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-muted: #9ca3af;
-  --color-success: #059669;
-  --color-warning: #d97706;
-  --color-error: #dc2626;
-  --color-info: #2563eb;
-  --color-border: #d1d5db;
-  --color-border-light: #e5e7eb;
-  --color-accent: #7c3aed;
-  --color-accent-light: #8b5cf6;
+  --color-primary: #f8fafc;
+  --color-primary-light: #e2e8f0;
+  --color-surface: #020617;
+  --color-surface-secondary: #0f172a;
+  --color-text: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --color-border: #1e293b;
+  --color-border-light: #334155;
+  --color-accent: #10b981;
+  --color-accent-light: #34d399;
   --radius-md: 12px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-  --shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.6);
 
   /* Fluid type scale */
   --step--1: clamp(0.79rem, calc(0.75rem + 0.21vw), 0.89rem);
@@ -170,49 +170,13 @@
   --step-4: clamp(1.42rem, calc(1.30rem + 0.52vw), 1.60rem);
 }
 
-[data-theme="dark"],
-.dark {
-  --color-primary: #f1f5f9;
-  --color-primary-light: #e2e8f0;
-  --color-surface: #0f172a;
-  --color-surface-secondary: #1e293b;
-  --color-text: #f8fafc;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #94a3b8;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-  --color-border: #334155;
-  --color-border-light: #475569;
-  --color-accent: #8b5cf6;
-  --color-accent-light: #a78bfa;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
-  --shadow-xl: 0 20px 25px rgba(0,0,0,0.5);
-}
-
-html { color-scheme: light dark; }
+html { color-scheme: dark; }
 
 body {
-  background: var(--color-surface);
+  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%);
   color: var(--color-text);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial;
   font-size: var(--step-0);
   line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Beautiful gradient backgrounds for different themes */
-[data-theme="light"] body {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
-  min-height: 100vh;
-}
-
-[data-theme="dark"] body,
-.dark body {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
   min-height: 100vh;
 }
 
