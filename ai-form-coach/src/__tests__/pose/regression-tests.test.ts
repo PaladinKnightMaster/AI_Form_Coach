@@ -476,8 +476,10 @@ describe('Performance Regression Tests', () => {
 
       expect(report.recommendations.length).toBeGreaterThan(0);
       // Check that specific regression recommendations are present
+      const hasFpsRec = report.recommendations.some(r => /FPS degradation/i.test(r));
       const hasLatencyRec = report.recommendations.some(r => /latency increased/i.test(r));
       const hasJitterRec = report.recommendations.some(r => /jitter increased/i.test(r));
+      expect(hasFpsRec).toBe(true);
       expect(hasLatencyRec).toBe(true);
       expect(hasJitterRec).toBe(true);
     });

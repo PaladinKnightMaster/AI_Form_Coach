@@ -363,8 +363,9 @@ describe('Noise Handling Tests', () => {
       phases.push(result.currentPhase);
     }
 
-    // Should detect at least idle and down across the full rep cycle
+    // Should detect idle, up, and down across the full rep cycle
     expect(phases).toContain('idle');
+    expect(phases).toContain('up');
     expect(phases).toContain('down');
   });
   

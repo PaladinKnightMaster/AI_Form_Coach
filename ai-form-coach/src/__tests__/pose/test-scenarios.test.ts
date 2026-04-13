@@ -298,9 +298,9 @@ describe('Pose Detection Test Scenarios', () => {
 
       // analyzeMetricsHealth checks aggregated averages, not per-frame spikes.
       // With intermittent drops (6/60 frames), the averages stay acceptable.
-      // Verify the health analyzer runs without error and reports a valid status.
-      expect(health.overall).toBeDefined();
-      expect(health.recommendations.length).toBeGreaterThanOrEqual(0);
+      // Verify the health analyzer returns a valid status from the expected enum.
+      expect(['excellent', 'good', 'acceptable', 'poor']).toContain(health.overall);
+      expect(health.recommendations).toBeDefined();
     });
 
     it('should handle low visibility consistently', () => {
