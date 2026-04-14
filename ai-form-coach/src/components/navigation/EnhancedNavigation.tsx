@@ -58,21 +58,21 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
       label: 'Activity Feed',
       icon: 'activity',
       description: 'See what your community is up to',
-      color: 'text-blue-600 dark:text-blue-400'
+      color: 'text-blue-600'
     },
     {
       id: 'feedback',
       label: 'Real-time Feedback',
       icon: 'message',
       description: 'Get instant coaching during workouts',
-      color: 'text-green-600 dark:text-green-400'
+      color: 'text-green-600'
     },
     {
       id: 'competition',
       label: 'Fair Competition',
       icon: 'star',
       description: 'Compete with similar fitness levels',
-      color: 'text-purple-600 dark:text-purple-400'
+      color: 'text-purple-600'
     }
   ];
 
@@ -117,15 +117,15 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 ${className}`}>
+    <div className={`bg-white rounded-lg border border-gray-200 ${className}`}>
       {/* Header with Stats */}
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-gray-900">
               Community Hub
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Stay motivated with real-time feedback and fair competition
             </p>
           </div>
@@ -143,38 +143,38 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="text-2xl font-bold text-gray-900">
                 {stats.totalWorkouts}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Workouts</div>
+              <div className="text-xs text-gray-600">Workouts</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="text-2xl font-bold text-gray-900">
                 {stats.streak}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Day Streak</div>
+              <div className="text-xs text-gray-600">Day Streak</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="text-2xl font-bold text-gray-900">
                 {stats.achievements}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Achievements</div>
+              <div className="text-xs text-gray-600">Achievements</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="text-2xl font-bold text-gray-900">
                 {stats.challengesCompleted}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Challenges</div>
+              <div className="text-xs text-gray-600">Challenges</div>
             </div>
           </div>
         )}
 
         {/* Streak Message */}
         {stats && (
-          <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-800">
+          <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
             <div className="flex items-center space-x-2">
               <Icon name="flame" className="w-5 h-5 text-orange-500" />
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
+              <span className="text-sm font-medium text-gray-900">
                 {getStreakMessage(stats.streak)}
               </span>
             </div>
@@ -183,15 +183,15 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1">
+      <div className="flex space-x-1 bg-gray-100 p-1">
         {navigationItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id as 'feed' | 'feedback' | 'competition')}
             className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all ${
               activeTab === item.id
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
           >
             <div className="flex items-center justify-center space-x-2">
@@ -207,10 +207,10 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
         {activeTab === 'feed' && (
           <div>
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 Community Activity
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 See what your fitness community is up to and stay motivated
               </p>
             </div>
@@ -219,7 +219,7 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
             ) : (
               <div className="text-center py-8">
                 <Icon name="lock" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-gray-600 mb-4">
                   Sign in to see community activity and connect with other fitness enthusiasts
                 </p>
                 <Button 
@@ -236,10 +236,10 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
         {activeTab === 'feedback' && (
           <div>
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 Real-time Coaching
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 Get instant feedback and motivation during your workouts
               </p>
             </div>
@@ -254,10 +254,10 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
         {activeTab === 'competition' && (
           <div>
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 Fair Competition
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 Compete with users of similar fitness levels and track your progress
               </p>
             </div>
@@ -271,8 +271,8 @@ export default function EnhancedNavigation({ className = '' }: EnhancedNavigatio
       </div>
 
       {/* Quick Actions */}
-      <div className="p-6 border-t border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="p-6 border-t border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Quick Actions
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

@@ -30,26 +30,26 @@ export default function VerificationBadge({
   if (flagged) {
     status = 'flagged';
     icon = 'alert';
-    colorClasses = 'text-red-600 dark:text-red-400';
-    bgClasses = 'bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-800';
+    colorClasses = 'text-red-600';
+    bgClasses = 'bg-red-100 border-red-300';
     tooltipText = 'Session flagged for suspicious activity';
   } else if (verified) {
     status = 'verified';
     icon = 'check';
-    colorClasses = 'text-green-600 dark:text-green-400';
-    bgClasses = 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-800';
+    colorClasses = 'text-green-600';
+    bgClasses = 'bg-green-100 border-green-300';
     tooltipText = `Verified session (${Math.round(integrity_score * 100)}% integrity)`;
   } else if (integrity_score >= 0.5) {
     status = 'pending';
     icon = 'activity';
-    colorClasses = 'text-yellow-600 dark:text-yellow-400';
-    bgClasses = 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-800';
+    colorClasses = 'text-yellow-600';
+    bgClasses = 'bg-yellow-100 border-yellow-300';
     tooltipText = 'Verification pending';
   } else {
     status = 'unverified';
     icon = 'alert-circle';
-    colorClasses = 'text-gray-600 dark:text-gray-400';
-    bgClasses = 'bg-gray-100 dark:bg-gray-700/30 border-gray-300 dark:border-gray-600';
+    colorClasses = 'text-gray-600';
+    bgClasses = 'bg-gray-100 border-gray-300';
     tooltipText = 'Not verified';
   }
 
@@ -111,8 +111,8 @@ export function VerificationIcon({
 
   const icon: 'alert' | 'check' = flagged ? 'alert' : 'check';
   const colorClass = flagged 
-    ? 'text-red-500 dark:text-red-400' 
-    : 'text-green-500 dark:text-green-400';
+    ? 'text-red-500' 
+    : 'text-green-500';
   
   const sizeClass = {
     xs: 'w-3 h-3',

@@ -151,20 +151,20 @@ export default function NutritionPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-slate-900 dark:via-emerald-900/30 dark:to-teal-900/30">
+		<div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
 			<Container>
 				<div className="py-8 space-y-8">
 					{/* Header */}
 					<div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
 						<div className="flex-1">
 							<div className="space-y-4">
-								<Badge tone="success" size="lg" className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800">
+								<Badge tone="success" size="lg" className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-700 border-emerald-200">
 									🥗 Smart Nutrition
 								</Badge>
 								<h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
 									Nutrition Tracker
 								</h1>
-								<p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+								<p className="text-xl text-gray-600 leading-relaxed">
 									Track your daily nutrition and achieve your health goals with AI-powered insights
 								</p>
 							</div>
@@ -201,7 +201,7 @@ export default function NutritionPage() {
 					</div>
 
 					{/* Date Picker */}
-					<div className="card p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
+					<div className="card p-6 bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
 						<DatePicker 
 							selectedDate={selectedDate}
 							onDateChange={setSelectedDate}
@@ -209,14 +209,14 @@ export default function NutritionPage() {
 					</div>
 
 					{/* Tab Navigation */}
-					<div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg">
-						<div className="flex border-b border-gray-200 dark:border-gray-700">
+					<div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl shadow-lg">
+						<div className="flex border-b border-gray-200">
 							<button
 								onClick={() => setActiveTab('overview')}
 								className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
 									activeTab === 'overview'
-										? 'text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 dark:border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20'
-										: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+										? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50/50'
+										: 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
 								}`}
 							>
 								<div className="flex items-center justify-center gap-2">
@@ -228,8 +228,8 @@ export default function NutritionPage() {
 								onClick={() => setActiveTab('insights')}
 								className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
 									activeTab === 'insights'
-										? 'text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-600 dark:border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20'
-										: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+										? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50/50'
+										: 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
 								}`}
 							>
 								<div className="flex items-center justify-center gap-2">
@@ -244,8 +244,8 @@ export default function NutritionPage() {
 					{activeTab === 'overview' && (
 						<>
 							{/* Macro Rings */}
-							<div className="card p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
-								<h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+							<div className="card p-8 bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+								<h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
 									Daily Summary
 								</h2>
 								<div className="grid grid-cols-2 md:grid-cols-4 gap-8">

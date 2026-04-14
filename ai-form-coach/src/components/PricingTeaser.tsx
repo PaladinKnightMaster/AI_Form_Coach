@@ -79,7 +79,7 @@ export default function PricingTeaser() {
 						</ul>
 						<Link href="/signin"><Button variant="secondary" className="w-full">Begin training</Button></Link>
 					</div>
-					<div className={`card p-4 ${userTier === 'pro' ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20' : 'border-emerald-500/50'}`}>
+					<div className={`card p-4 ${userTier === 'pro' ? 'border-emerald-500 bg-emerald-50/50' : 'border-emerald-500/50'}`}>
 						<div className="flex items-center justify-between mb-1">
 							<h3 className="font-semibold">Pro</h3>
 							{userTier === 'pro' && (
@@ -115,7 +115,7 @@ export default function PricingTeaser() {
 						)}
 					</div>
 					
-					<div className={`card p-4 ${userTier === 'founder' ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-900/20' : 'border-purple-500/50'} relative`}>
+					<div className={`card p-4 ${userTier === 'founder' ? 'border-purple-500 bg-purple-50/50' : 'border-purple-500/50'} relative`}>
 						<div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
 							{userTier === 'founder' ? (
 								<span className="bg-purple-500 text-white text-xs px-3 py-1 rounded-full font-medium">✓ Current Plan</span>

@@ -31,20 +31,20 @@ export default function AuthStatus() {
 		setOpen(false);
 	};
 
-	if (!email) return <Link href="/signin" className="text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white transition-colors">Sign in</Link>;
+	if (!email) return <Link href="/signin" className="text-slate-700 hover:text-slate-950 transition-colors">Sign in</Link>;
 	const initial = email.charAt(0).toUpperCase();
 	return (
 		<>
 			<button ref={buttonRef} aria-label="Account menu" aria-expanded={open} aria-haspopup="true" className="flex items-center gap-2" onClick={() => setOpen(v => !v)}>
-				<span className="inline-grid place-items-center h-8 w-8 rounded-full bg-slate-900 text-white text-sm dark:bg-white dark:text-slate-900">{initial}</span>
+				<span className="inline-grid place-items-center h-8 w-8 rounded-full bg-slate-900 text-white text-sm">{initial}</span>
 			</button>
 			{open && menuPos && (
-				<div ref={menuRef} role="menu" className="fixed z-50 w-44 rounded-md border border-slate-200 bg-white shadow-lg p-1 text-sm dark:border-slate-700 dark:bg-slate-900" style={{ top: menuPos.top, right: menuPos.right }}>
-					<div className="px-2 py-1 text-slate-500 dark:text-slate-400 truncate">{email}</div>
-					<Link role="menuitem" href="/coach" className="block px-2 py-1 rounded text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => setOpen(false)}>Start session</Link>
-					<Link role="menuitem" href="/history" className="block px-2 py-1 rounded text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => setOpen(false)}>History</Link>
-					<Link role="menuitem" href="/settings" className="block px-2 py-1 rounded text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => setOpen(false)}>Settings</Link>
-					<button role="menuitem" className="w-full text-left px-2 py-1 rounded text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800" onClick={handleSignOut}>Sign out</button>
+				<div ref={menuRef} role="menu" className="fixed z-50 w-44 rounded-md border border-slate-200 bg-white shadow-lg p-1 text-sm" style={{ top: menuPos.top, right: menuPos.right }}>
+					<div className="px-2 py-1 text-slate-500 truncate">{email}</div>
+					<Link role="menuitem" href="/coach" className="block px-2 py-1 rounded text-slate-700 hover:bg-slate-100" onClick={() => setOpen(false)}>Start session</Link>
+					<Link role="menuitem" href="/history" className="block px-2 py-1 rounded text-slate-700 hover:bg-slate-100" onClick={() => setOpen(false)}>History</Link>
+					<Link role="menuitem" href="/settings" className="block px-2 py-1 rounded text-slate-700 hover:bg-slate-100" onClick={() => setOpen(false)}>Settings</Link>
+					<button role="menuitem" className="w-full text-left px-2 py-1 rounded text-slate-700 hover:bg-slate-100" onClick={handleSignOut}>Sign out</button>
 				</div>
 			)}
 		</>

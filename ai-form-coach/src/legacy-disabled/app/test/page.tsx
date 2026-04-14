@@ -9,16 +9,16 @@ export default function TestPage() {
   return (
     <Container className="py-8">
       <div className="max-w-2xl mx-auto text-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
           Test Page
         </h1>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-8 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white rounded-lg p-8 border border-gray-200">
           <div className="mb-6">
-            <div className="text-6xl font-bold text-blue-600 dark:text-blue-400 mb-4">
+            <div className="text-6xl font-bold text-blue-600 mb-4">
               {count}
             </div>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Click the button to test basic functionality
             </p>
           </div>
@@ -41,8 +41,8 @@ export default function TestPage() {
             </Button>
           </div>
           
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-sm text-gray-500">
               If you can see this page and the counter works, the basic app is functioning correctly.
             </p>
           </div>

@@ -147,10 +147,10 @@ export default function OrganizationDashboardPage() {
     return (
       <Container className="py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Organization Dashboard
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             Unable to load dashboard data.
           </p>
         </div>
@@ -165,10 +165,10 @@ export default function OrganizationDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-gray-900">
             {organization.name}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-600 mt-1">
             Organization Dashboard
           </p>
         </div>
@@ -192,19 +192,19 @@ export default function OrganizationDashboardPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Filters
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Time Range
             </label>
             <select
               value={filters.timeRange}
               onChange={(e) => handleFilterChange({ timeRange: e.target.value as '7d' | '30d' | '90d' | '1y' | 'custom' })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
             >
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
@@ -213,13 +213,13 @@ export default function OrganizationDashboardPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Include PHI
             </label>
             <select
               value={filters.includePHI.toString()}
               onChange={(e) => handleFilterChange({ includePHI: e.target.value === 'true' })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
             >
               <option value="false">No</option>
               <option value="true">Yes</option>
@@ -239,7 +239,7 @@ export default function OrganizationDashboardPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
+      <div className="border-b border-gray-200 mb-8">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'overview', label: 'Overview', icon: 'chart' },
@@ -253,8 +253,8 @@ export default function OrganizationDashboardPage() {
               onClick={() => setActiveTab(tab.id as 'overview' | 'form-iq' | 'verified-minutes' | 'adherence' | 'resolution')}
               className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               <Icon name={tab.icon as 'chart' | 'target' | 'clock' | 'check-circle' | 'alert-circle'} className="w-4 h-4 mr-2" />
@@ -317,32 +317,32 @@ function OverviewTab({ metrics }: { metrics: OrganizationMetrics }) {
       </div>
 
       {/* User Summary */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           User Summary
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+            <div className="text-3xl font-bold text-blue-600">
               {metrics.users.total}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-600">
               Total Users
             </div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+            <div className="text-3xl font-bold text-green-600">
               {metrics.users.active}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-600">
               Active Users
             </div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+            <div className="text-3xl font-bold text-purple-600">
               {metrics.users.new}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-600">
               New Users
             </div>
           </div>
@@ -355,40 +355,40 @@ function OverviewTab({ metrics }: { metrics: OrganizationMetrics }) {
 function FormIQTab({ metrics }: { metrics: OrganizationMetrics }) {
   return (
     <div className="space-y-8">
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Form IQ Distribution
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <div className="text-2xl font-bold text-green-600">
               {metrics.formIQ.distribution.excellent}
             </div>
-            <div className="text-sm text-green-700 dark:text-green-300">
+            <div className="text-sm text-green-700">
               Excellent (80-100%)
             </div>
           </div>
-          <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <div className="text-2xl font-bold text-blue-600">
               {metrics.formIQ.distribution.good}
             </div>
-            <div className="text-sm text-blue-700 dark:text-blue-300">
+            <div className="text-sm text-blue-700">
               Good (60-80%)
             </div>
           </div>
-          <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+          <div className="text-center p-4 bg-yellow-50 rounded-lg">
+            <div className="text-2xl font-bold text-yellow-600">
               {metrics.formIQ.distribution.fair}
             </div>
-            <div className="text-sm text-yellow-700 dark:text-yellow-300">
+            <div className="text-sm text-yellow-700">
               Fair (40-60%)
             </div>
           </div>
-          <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+          <div className="text-center p-4 bg-red-50 rounded-lg">
+            <div className="text-2xl font-bold text-red-600">
               {metrics.formIQ.distribution.poor}
             </div>
-            <div className="text-sm text-red-700 dark:text-red-300">
+            <div className="text-sm text-red-700">
               Poor (0-40%)
             </div>
           </div>
@@ -401,40 +401,40 @@ function FormIQTab({ metrics }: { metrics: OrganizationMetrics }) {
 function VerifiedMinutesTab({ metrics }: { metrics: OrganizationMetrics }) {
   return (
     <div className="space-y-8">
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Verified Minutes by Exercise
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <div className="text-2xl font-bold text-blue-600">
               {metrics.verifiedMinutes.byExercise.squat}
             </div>
-            <div className="text-sm text-blue-700 dark:text-blue-300">
+            <div className="text-sm text-blue-700">
               Squat Minutes
             </div>
           </div>
-          <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <div className="text-2xl font-bold text-green-600">
               {metrics.verifiedMinutes.byExercise.pushup}
             </div>
-            <div className="text-sm text-green-700 dark:text-green-300">
+            <div className="text-sm text-green-700">
               Pushup Minutes
             </div>
           </div>
-          <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+          <div className="text-center p-4 bg-purple-50 rounded-lg">
+            <div className="text-2xl font-bold text-purple-600">
               {metrics.verifiedMinutes.byExercise.plank}
             </div>
-            <div className="text-sm text-purple-700 dark:text-purple-300">
+            <div className="text-sm text-purple-700">
               Plank Minutes
             </div>
           </div>
-          <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+          <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <div className="text-2xl font-bold text-gray-600">
               {metrics.verifiedMinutes.byExercise.other}
             </div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">
+            <div className="text-sm text-gray-700">
               Other Minutes
             </div>
           </div>
@@ -447,32 +447,32 @@ function VerifiedMinutesTab({ metrics }: { metrics: OrganizationMetrics }) {
 function AdherenceTab({ metrics }: { metrics: OrganizationMetrics }) {
   return (
     <div className="space-y-8">
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           User Engagement Levels
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <div className="text-2xl font-bold text-green-600">
               {metrics.users.engagement.high}
             </div>
-            <div className="text-sm text-green-700 dark:text-green-300">
+            <div className="text-sm text-green-700">
               High Engagement (&gt;3 sessions/week)
             </div>
           </div>
-          <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+          <div className="text-center p-4 bg-yellow-50 rounded-lg">
+            <div className="text-2xl font-bold text-yellow-600">
               {metrics.users.engagement.medium}
             </div>
-            <div className="text-sm text-yellow-700 dark:text-yellow-300">
+            <div className="text-sm text-yellow-700">
               Medium Engagement (1-3 sessions/week)
             </div>
           </div>
-          <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+          <div className="text-center p-4 bg-red-50 rounded-lg">
+            <div className="text-2xl font-bold text-red-600">
               {metrics.users.engagement.low}
             </div>
-            <div className="text-sm text-red-700 dark:text-red-300">
+            <div className="text-sm text-red-700">
               Low Engagement (&lt;1 session/week)
             </div>
           </div>
@@ -485,32 +485,32 @@ function AdherenceTab({ metrics }: { metrics: OrganizationMetrics }) {
 function ResolutionTab({ metrics }: { metrics: OrganizationMetrics }) {
   return (
     <div className="space-y-8">
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Resolution Statistics
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+            <div className="text-3xl font-bold text-blue-600">
               {metrics.resolution.totalFlagged}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-600">
               Total Flagged
             </div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+            <div className="text-3xl font-bold text-green-600">
               {metrics.resolution.totalResolved}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-600">
               Total Resolved
             </div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+            <div className="text-3xl font-bold text-purple-600">
               {metrics.resolution.resolutionRate.toFixed(1)}%
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-600">
               Resolution Rate
             </div>
           </div>
@@ -533,9 +533,9 @@ function MetricCard({
 }) {
   const getTrendColor = (trend: string) => {
     switch (trend) {
-      case 'improving': return 'text-green-600 dark:text-green-400';
-      case 'declining': return 'text-red-600 dark:text-red-400';
-      default: return 'text-gray-600 dark:text-gray-400';
+      case 'improving': return 'text-green-600';
+      case 'declining': return 'text-red-600';
+      default: return 'text-gray-600';
     }
   };
 
@@ -548,18 +548,18 @@ function MetricCard({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          <p className="text-sm font-medium text-gray-600">
             {title}
           </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          <p className="text-2xl font-bold text-gray-900">
             {value}
           </p>
         </div>
         <div className="flex items-center">
-          <Icon name={icon as 'target' | 'clock' | 'check-circle' | 'user'} className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+          <Icon name={icon as 'target' | 'clock' | 'check-circle' | 'user'} className="w-8 h-8 text-gray-400" />
         </div>
       </div>
       <div className="mt-4 flex items-center">

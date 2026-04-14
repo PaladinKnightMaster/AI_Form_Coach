@@ -85,29 +85,29 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-white">
       <Container className="py-16 sm:py-20">
         <div className="mx-auto max-w-5xl space-y-10">
           <div className="space-y-4 text-center">
             <Badge tone="info" className="mx-auto uppercase tracking-[0.2em]">
               Private motion coaching beta
             </Badge>
-            <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+            <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
               Privacy policy
             </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Last updated: {UPDATED_AT}</p>
-            <p className="mx-auto max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300">
+            <p className="text-sm text-slate-500">Last updated: {UPDATED_AT}</p>
+            <p className="mx-auto max-w-3xl text-base leading-8 text-slate-600">
               The current release is intentionally narrow: live pose coaching for squat, pushup, and plank. This page explains what stays on your device, what can be saved if you sign in, and what is deliberately outside the beta scope.
             </p>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
             {principles.map((item) => (
-              <Card key={item.label} className="h-full rounded-[1.8rem] border border-slate-200 bg-slate-50/80 shadow-sm dark:border-slate-800 dark:bg-slate-900/70" padding="lg">
+              <Card key={item.label} className="h-full rounded-[1.8rem] border border-slate-200 bg-slate-50/80 shadow-sm" padding="lg">
                 <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{item.label}</div>
-                  <div className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">{item.value}</div>
-                  <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{item.detail}</p>
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{item.label}</div>
+                  <div className="text-2xl font-black tracking-tight text-slate-950">{item.value}</div>
+                  <p className="text-sm leading-7 text-slate-600">{item.detail}</p>
                 </div>
               </Card>
             ))}
@@ -115,10 +115,10 @@ export default function PrivacyPage() {
 
           <div className="grid gap-4">
             {sections.map((section) => (
-              <Card key={section.id} className="rounded-[1.9rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/70" padding="lg">
+              <Card key={section.id} className="rounded-[1.9rem] border border-slate-200 bg-white shadow-sm" padding="lg">
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">{section.title}</h2>
-                  <div className="space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                  <h2 className="text-2xl font-black tracking-tight text-slate-950">{section.title}</h2>
+                  <div className="space-y-3 text-sm leading-7 text-slate-600">
                     {section.paragraphs.map((paragraph) => (
                       <p key={paragraph}>{paragraph}</p>
                     ))}
@@ -128,18 +128,18 @@ export default function PrivacyPage() {
             ))}
           </div>
 
-          <Card className="rounded-[1.9rem] border border-slate-200 bg-slate-50/80 shadow-sm dark:border-slate-800 dark:bg-slate-900/70" padding="lg">
+          <Card className="rounded-[1.9rem] border border-slate-200 bg-slate-50/80 shadow-sm" padding="lg">
             <div className="space-y-3 text-center sm:text-left">
-              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Questions or deletion requests</div>
-              <div className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">Contact the beta team</div>
-              <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-                For privacy questions, data export requests, or account deletion, contact <a className="font-semibold text-slate-950 underline decoration-slate-300 underline-offset-4 dark:text-white dark:decoration-slate-700" href="mailto:privacy@aiformcoach.com">privacy@aiformcoach.com</a>.
+              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Questions or deletion requests</div>
+              <div className="text-2xl font-black tracking-tight text-slate-950">Contact the beta team</div>
+              <p className="text-sm leading-7 text-slate-600">
+                For privacy questions, data export requests, or account deletion, contact <a className="font-semibold text-slate-950 underline decoration-slate-300 underline-offset-4" href="mailto:privacy@aiformcoach.com">privacy@aiformcoach.com</a>.
               </p>
               <div className="flex flex-col justify-center gap-3 pt-2 sm:flex-row sm:justify-start">
-                <Link href="/coach" className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+                <Link href="/coach" className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
                   Open coach
                 </Link>
-                <Link href="/terms" className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white">
+                <Link href="/terms" className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950">
                   Read terms
                 </Link>
               </div>

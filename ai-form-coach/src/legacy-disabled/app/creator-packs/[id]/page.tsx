@@ -100,10 +100,10 @@ export default function PackDetailsPage() {
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'advanced': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      case 'beginner': return 'bg-green-100 text-green-800';
+      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'advanced': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -147,10 +147,10 @@ export default function PackDetailsPage() {
     return (
       <Container className="py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
             Pack Not Found
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             The pack you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
         </div>
@@ -188,10 +188,10 @@ export default function PackDetailsPage() {
         <div className="lg:col-span-2">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 {pack.title}
               </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-lg text-gray-600 mb-4">
                 {pack.description}
               </p>
             </div>
@@ -203,15 +203,15 @@ export default function PackDetailsPage() {
           {/* Creator Info */}
           {pack.creator?.name && (
             <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full mr-3 flex items-center justify-center">
-                <Icon name="user" className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <div className="w-10 h-10 bg-gray-300 rounded-full mr-3 flex items-center justify-center">
+                <Icon name="user" className="w-5 h-5 text-gray-600" />
               </div>
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">
+                <p className="font-medium text-gray-900">
                   {pack.creator.name}
                 </p>
                 {pack.creator.credentials && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600">
                     {pack.creator.credentials.join(', ')}
                   </p>
                 )}
@@ -225,10 +225,10 @@ export default function PackDetailsPage() {
           {/* Pack Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="text-2xl font-bold text-gray-900">
                 {pack.duration}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Weeks</div>
+              <div className="text-sm text-gray-600">Weeks</div>
             </div>
             <div className="text-center">
               <Badge tone="neutral" className={getDifficultyColor(pack.difficulty)}>
@@ -239,22 +239,22 @@ export default function PackDetailsPage() {
               <div className="flex justify-center mb-1">
                 {renderStars(pack.rating)}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-sm text-gray-600">
                 ({pack.reviewCount} reviews)
               </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="text-2xl font-bold text-gray-900">
                 {pack.purchaseCount}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Purchases</div>
+              <div className="text-sm text-gray-600">Purchases</div>
             </div>
           </div>
 
           {/* Equipment */}
           {pack.equipment.length > 0 && (
             <div className="mb-6">
-              <h3 className="font-medium text-gray-900 dark:text-white mb-2">Equipment Required</h3>
+              <h3 className="font-medium text-gray-900 mb-2">Equipment Required</h3>
                 <div className="flex flex-wrap gap-2">
                   {pack.equipment.map((item, index) => (
                     <Badge key={index} tone="neutral">
@@ -266,12 +266,12 @@ export default function PackDetailsPage() {
           )}
 
           {/* Price and Purchase */}
-          <div className="flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div className="flex items-center justify-between p-6 bg-gray-50 rounded-lg">
             <div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+              <div className="text-3xl font-bold text-gray-900">
                 {formatPrice(pack.price, pack.currency)}
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 One-time purchase &bull; Lifetime access
               </p>
             </div>
@@ -298,7 +298,7 @@ export default function PackDetailsPage() {
 
       {/* Tabs */}
       <div className="mb-8">
-        <div className="border-b border-gray-200 dark:border-gray-700">
+        <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             {[
               { id: 'overview', label: 'Overview' },
@@ -310,8 +310,8 @@ export default function PackDetailsPage() {
                 onClick={() => setActiveTab(tab.id as 'overview' | 'content' | 'reviews')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 {tab.label}
@@ -328,14 +328,14 @@ export default function PackDetailsPage() {
             {/* Highlights */}
             {pack.preview?.highlights && pack.preview.highlights.length > 0 && (
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   What&apos;s Included
                 </h3>
                 <ul className="space-y-2">
                   {pack.preview.highlights.map((highlight, index) => (
                     <li key={index} className="flex items-start">
                       <Icon name="check" className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700 dark:text-gray-300">{highlight}</span>
+                      <span className="text-gray-700">{highlight}</span>
                     </li>
                   ))}
                 </ul>
@@ -345,14 +345,14 @@ export default function PackDetailsPage() {
             {/* Requirements */}
             {pack.preview?.requirements && pack.preview.requirements.length > 0 && (
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   Requirements
                 </h3>
                 <ul className="space-y-2">
                   {pack.preview.requirements.map((requirement, index) => (
                     <li key={index} className="flex items-start">
                       <Icon name="alert-circle" className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700 dark:text-gray-300">{requirement}</span>
+                      <span className="text-gray-700">{requirement}</span>
                     </li>
                   ))}
                 </ul>
@@ -362,7 +362,7 @@ export default function PackDetailsPage() {
             {/* Target Goals */}
             {pack.targetGoals.length > 0 && (
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   Target Goals
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -379,12 +379,12 @@ export default function PackDetailsPage() {
 
         {activeTab === 'content' && (
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
               Program Content
             </h3>
             {isPurchased ? (
               <div className="space-y-4">
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   Full program content will be displayed here for purchased packs.
                 </p>
                 {/* TODO: Implement full content display */}
@@ -392,10 +392,10 @@ export default function PackDetailsPage() {
             ) : (
               <div className="text-center py-8">
                 <Icon name="lock" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <h4 className="text-lg font-medium text-gray-900 mb-2">
                   Content Locked
                 </h4>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-gray-600 mb-4">
                   Purchase this pack to unlock the full program content
                 </p>
                 <Button variant="primary" onClick={handlePurchase}>
@@ -408,12 +408,12 @@ export default function PackDetailsPage() {
 
         {activeTab === 'reviews' && (
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
               Reviews ({pack.reviewCount})
             </h3>
             {pack.reviewCount > 0 ? (
               <div className="space-y-4">
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   Reviews will be displayed here.
                 </p>
                 {/* TODO: Implement reviews display */}
@@ -421,10 +421,10 @@ export default function PackDetailsPage() {
             ) : (
               <div className="text-center py-8">
                 <Icon name="message" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <h4 className="text-lg font-medium text-gray-900 mb-2">
                   No Reviews Yet
                 </h4>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   Be the first to review this pack after purchasing it.
                 </p>
               </div>
@@ -436,27 +436,27 @@ export default function PackDetailsPage() {
       {/* Related Packs */}
       {relatedPacks.length > 0 && (
         <div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">
             Related Packs
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {relatedPacks.map((relatedPack) => (
               <div
                 key={relatedPack.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
               >
                 <div className="h-32 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                   <Icon name="dumbbell" className="w-8 h-8 text-white" />
                 </div>
                 <div className="p-4">
-                  <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                  <h4 className="font-medium text-gray-900 mb-1">
                     {relatedPack.title}
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  <p className="text-sm text-gray-600 mb-2">
                     {relatedPack.duration} weeks • {relatedPack.difficulty}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-gray-900 dark:text-white">
+                    <span className="font-bold text-gray-900">
                       {formatPrice(relatedPack.price, relatedPack.currency)}
                     </span>
                     <Button

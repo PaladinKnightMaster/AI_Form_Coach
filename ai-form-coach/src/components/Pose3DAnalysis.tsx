@@ -299,7 +299,7 @@ export default function Pose3DAnalysis({
         {/* Feedback Panel */}
         <div className="space-y-4">
           {/* Form Score */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+          <div className="bg-white rounded-lg p-4 shadow">
             <h3 className="text-lg font-semibold mb-2">Form Score</h3>
             <div className="text-3xl font-bold text-blue-600">
               {formScore.toFixed(1)}/100
@@ -313,7 +313,7 @@ export default function Pose3DAnalysis({
           </div>
 
           {/* Movement Phase */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+          <div className="bg-white rounded-lg p-4 shadow">
             <h3 className="text-lg font-semibold mb-2">Movement Phase</h3>
             <div className="text-xl font-medium capitalize text-green-600">
               {movementPhase}
@@ -322,7 +322,7 @@ export default function Pose3DAnalysis({
 
           {/* Session Metrics */}
           {sessionMetrics && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+            <div className="bg-white rounded-lg p-4 shadow">
               <h3 className="text-lg font-semibold mb-2">Session Stats</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
@@ -349,7 +349,7 @@ export default function Pose3DAnalysis({
 
           {/* Real-time Feedback */}
           {currentFeedback && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+            <div className="bg-white rounded-lg p-4 shadow">
               <h3 className="text-lg font-semibold mb-2">Feedback</h3>
               
               {/* Corrections */}
@@ -393,9 +393,9 @@ export default function Pose3DAnalysis({
       </div>
 
       {/* Exercise Instructions */}
-      <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+      <div className="mt-4 bg-blue-50 rounded-lg p-4">
         <h3 className="text-lg font-semibold mb-2">Exercise Instructions</h3>
-        <div className="text-sm text-gray-700 dark:text-gray-300">
+        <div className="text-sm text-gray-700">
           {exerciseType === 'squat' && (
             <p>Stand with feet shoulder-width apart. Lower down by bending your knees and hips, keeping your chest up and knees over your toes. Drive through your heels to return to standing.</p>
           )}

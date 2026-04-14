@@ -153,21 +153,21 @@ export default function PlanWizard({ onComplete, onCancel, isGenerating = false 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-bold text-gray-900">
                 Create Your AI Plan
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600">
                 Step {currentStep + 1} of {steps.length}
               </p>
             </div>
             <button
               onClick={onCancel}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="text-gray-400 hover:text-gray-600"
             >
               <Icon name="x" className="w-6 h-6" />
             </button>
@@ -175,11 +175,11 @@ export default function PlanWizard({ onComplete, onCancel, isGenerating = false 
 
           {/* Progress Bar */}
           <div className="mb-8">
-            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
               <span>Progress</span>
               <span>{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-blue-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
@@ -189,10 +189,10 @@ export default function PlanWizard({ onComplete, onCancel, isGenerating = false 
 
           {/* Current Step */}
           <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
               {currentStepData.title}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-gray-600 mb-6">
               {currentStepData.question}
             </p>
 
@@ -208,16 +208,16 @@ export default function PlanWizard({ onComplete, onCancel, isGenerating = false 
                     onClick={() => handleOptionSelect(option.value)}
                     className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
                       isSelected
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-medium text-gray-900 dark:text-white">
+                        <div className="font-medium text-gray-900">
                           {option.label}
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm text-gray-600">
                           {option.description}
                         </div>
                       </div>

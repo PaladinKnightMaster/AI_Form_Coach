@@ -104,11 +104,11 @@ export default function HealthDashboard() {
 
   const getReadinessColor = (category: string) => {
     switch (category) {
-      case 'excellent': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-      case 'good': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
-      case 'fair': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'poor': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      case 'excellent': return 'bg-green-100 text-green-800';
+      case 'good': return 'bg-blue-100 text-blue-800';
+      case 'fair': return 'bg-yellow-100 text-yellow-800';
+      case 'poor': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -131,18 +131,18 @@ export default function HealthDashboard() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Health Dashboard
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-lg text-gray-600">
             Monitor your readiness and health metrics for optimal training
           </p>
         </div>
 
         {/* Today's Readiness Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-semibold text-gray-900">
               Today&apos;s Readiness
             </h2>
             <Button
@@ -158,7 +158,7 @@ export default function HealthDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Readiness Score */}
               <div className="text-center">
-                <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
                   {Math.round(todayReadiness.computed_readiness * 100)}%
                 </div>
                 <Badge className={getReadinessColor(todayReadiness.readiness_category)}>
@@ -169,47 +169,47 @@ export default function HealthDashboard() {
 
               {/* Manual Assessment */}
               <div className="space-y-2">
-                <h4 className="font-medium text-gray-900 dark:text-white">Manual Assessment</h4>
+                <h4 className="font-medium text-gray-900">Manual Assessment</h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Soreness:</span>
-                    <span className="text-gray-900 dark:text-white">{todayReadiness.soreness_level}/10</span>
+                    <span className="text-gray-600">Soreness:</span>
+                    <span className="text-gray-900">{todayReadiness.soreness_level}/10</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Fatigue:</span>
-                    <span className="text-gray-900 dark:text-white">{todayReadiness.fatigue_level}/10</span>
+                    <span className="text-gray-600">Fatigue:</span>
+                    <span className="text-gray-900">{todayReadiness.fatigue_level}/10</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Sleep:</span>
-                    <span className="text-gray-900 dark:text-white">{todayReadiness.sleep_quality}/10</span>
+                    <span className="text-gray-600">Sleep:</span>
+                    <span className="text-gray-900">{todayReadiness.sleep_quality}/10</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Stress:</span>
-                    <span className="text-gray-900 dark:text-white">{todayReadiness.stress_level}/10</span>
+                    <span className="text-gray-600">Stress:</span>
+                    <span className="text-gray-900">{todayReadiness.stress_level}/10</span>
                   </div>
                 </div>
               </div>
 
               {/* Health Data */}
               <div className="space-y-2">
-                <h4 className="font-medium text-gray-900 dark:text-white">Health Data</h4>
+                <h4 className="font-medium text-gray-900">Health Data</h4>
                 <div className="space-y-1 text-sm">
                   {todayReadiness.sleep_duration && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Sleep:</span>
-                      <span className="text-gray-900 dark:text-white">{todayReadiness.sleep_duration}h</span>
+                      <span className="text-gray-600">Sleep:</span>
+                      <span className="text-gray-900">{todayReadiness.sleep_duration}h</span>
                     </div>
                   )}
                   {todayReadiness.resting_heart_rate && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">RHR:</span>
-                      <span className="text-gray-900 dark:text-white">{todayReadiness.resting_heart_rate} bpm</span>
+                      <span className="text-gray-600">RHR:</span>
+                      <span className="text-gray-900">{todayReadiness.resting_heart_rate} bpm</span>
                     </div>
                   )}
                   {todayReadiness.step_count && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Steps:</span>
-                      <span className="text-gray-900 dark:text-white">{todayReadiness.step_count.toLocaleString()}</span>
+                      <span className="text-gray-600">Steps:</span>
+                      <span className="text-gray-900">{todayReadiness.step_count.toLocaleString()}</span>
                     </div>
                   )}
                 </div>
@@ -218,10 +218,10 @@ export default function HealthDashboard() {
           ) : (
             <div className="text-center py-8">
               <Icon name="activity" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No assessment today
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-gray-600 mb-4">
                 Take your daily readiness assessment to get personalized workout recommendations
               </p>
               <Button
@@ -237,34 +237,34 @@ export default function HealthDashboard() {
 
         {/* Health Baseline */}
         {healthBaseline && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Health Baselines
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {healthBaseline.sleep_baseline}h
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Sleep Baseline</div>
+                <div className="text-sm text-gray-600">Sleep Baseline</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {healthBaseline.rhr_baseline}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">RHR Baseline (bpm)</div>
+                <div className="text-sm text-gray-600">RHR Baseline (bpm)</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {healthBaseline.hrv_baseline}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">HRV Baseline (ms)</div>
+                <div className="text-sm text-gray-600">HRV Baseline (ms)</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {healthBaseline.step_baseline.toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Step Baseline</div>
+                <div className="text-sm text-gray-600">Step Baseline</div>
               </div>
             </div>
           </div>
@@ -272,22 +272,22 @@ export default function HealthDashboard() {
 
         {/* Readiness History */}
         {readinessData.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Readiness History (Last 7 Days)
             </h2>
             <div className="space-y-3">
               {readinessData.map((day) => (
-                <div key={day.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div key={day.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-4">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    <div className="text-sm font-medium text-gray-900">
                       {new Date(day.date).toLocaleDateString()}
                     </div>
                     <Badge className={getReadinessColor(day.readiness_category)}>
                       {day.readiness_category}
                     </Badge>
                   </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center space-x-4 text-sm text-gray-600">
                     <span>{Math.round(day.computed_readiness * 100)}%</span>
                     <div className="flex space-x-2">
                       <span>S:{day.soreness_level}</span>

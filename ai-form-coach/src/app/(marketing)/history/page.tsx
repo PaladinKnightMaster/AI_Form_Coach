@@ -149,18 +149,18 @@ export default function HistoryPage() {
 
   if (requiresAuth) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
-        <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 p-10 text-center dark:border-slate-800">
-          <div className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sm font-medium text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">
+        <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 p-10 text-center">
+          <div className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sm font-medium text-sky-700">
             Signed-in beta history
           </div>
           <h1 className="mt-4 text-3xl font-bold">Sign in to view your history</h1>
-          <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+          <p className="mt-4 text-sm leading-7 text-slate-600">
             History is part of the motion coaching beta for signed-in users. Only real sessions saved from the coach should appear here.
           </p>
           <div className="mt-6 flex justify-center">
-            <Link href="/signin" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+            <Link href="/signin" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
               Sign in
             </Link>
           </div>
@@ -171,15 +171,15 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="mx-auto max-w-5xl space-y-10">
           <div className="space-y-4">
-            <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+            <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700">
               Coach history
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight">Saved coaching sessions</h1>
-            <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+            <p className="max-w-2xl text-sm leading-7 text-slate-600">
               This page is limited to real sessions saved from the public coach. Demo history and synthetic trends are intentionally excluded from the current release.
             </p>
           </div>
@@ -198,17 +198,17 @@ export default function HistoryPage() {
           {loading ? (
             <HistorySkeletonList />
           ) : error ? (
-            <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+            <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-sm text-rose-700">
               {error}
             </div>
           ) : sessions.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
+            <div className="rounded-3xl border border-dashed border-slate-300 p-10 text-center">
               <h2 className="text-2xl font-bold">No saved sessions yet</h2>
-              <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+              <p className="mt-4 text-sm leading-7 text-slate-600">
                 Start a coaching session, finish the save flow, and your first real history entry will show up here.
               </p>
               <div className="mt-6">
-                <Link href="/coach" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">
+                <Link href="/coach" className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
                   Start session
                 </Link>
               </div>
@@ -221,15 +221,15 @@ export default function HistoryPage() {
                   : `/session/${session.id}`;
 
                 return (
-                  <li key={session.id} data-testid="history-session-row" className="flex flex-col gap-4 rounded-3xl border border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+                  <li key={session.id} data-testid="history-session-row" className="flex flex-col gap-4 rounded-3xl border border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
                     <div className="space-y-2">
                       <div className="text-lg font-semibold capitalize">{session.exercise}</div>
-                      <div className="text-sm text-slate-600 dark:text-slate-300">{new Date(session.started_at).toLocaleString()}</div>
-                      <div className="text-sm text-slate-600 dark:text-slate-300">
+                      <div className="text-sm text-slate-600">{new Date(session.started_at).toLocaleString()}</div>
+                      <div className="text-sm text-slate-600">
                         {session.total_reps ?? 0} reps - {Math.round((session.total_time_seconds ?? 0) / 60)} min
                       </div>
                     </div>
-                    <Link data-testid="history-session-link" href={sessionHref} className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white">
+                    <Link data-testid="history-session-link" href={sessionHref} className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950">
                       View session
                     </Link>
                   </li>
@@ -245,7 +245,7 @@ export default function HistoryPage() {
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-slate-200 p-5 dark:border-slate-800">
+    <div className="rounded-3xl border border-slate-200 p-5">
       <div className="text-sm text-slate-500">{label}</div>
       <div className="mt-2 text-2xl font-bold">{value}</div>
     </div>
@@ -253,14 +253,14 @@ function MetricCard({ label, value }: { label: string; value: string }) {
 }
 
 function SkeletonPulse({ className }: { className?: string }) {
-  return <div className={`animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700 ${className || ""}`} />;
+  return <div className={`animate-pulse rounded-lg bg-slate-200 ${className || ""}`} />;
 }
 
 function MetricSkeletonRow() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="rounded-3xl border border-slate-200 p-5 dark:border-slate-800">
+        <div key={i} className="rounded-3xl border border-slate-200 p-5">
           <SkeletonPulse className="h-4 w-16 mb-3" />
           <SkeletonPulse className="h-7 w-12" />
         </div>
@@ -273,7 +273,7 @@ function HistorySkeletonList() {
   return (
     <ul className="space-y-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <li key={i} className="flex flex-col gap-4 rounded-3xl border border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+        <li key={i} className="flex flex-col gap-4 rounded-3xl border border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-3">
             <SkeletonPulse className="h-5 w-24" />
             <SkeletonPulse className="h-4 w-40" />

@@ -107,9 +107,9 @@ export default function ProgressionDashboard({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-gray-900">
           Progressive Overload
         </h3>
         <Button
@@ -124,12 +124,12 @@ export default function ProgressionDashboard({
       {/* Current Status */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {/* Current Target */}
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h4 className="text-sm font-medium text-gray-900 mb-2">
             Current Target
           </h4>
           <div className="space-y-2">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {formatTarget(currentTarget)}
             </div>
             <div className="flex gap-2">
@@ -144,20 +144,20 @@ export default function ProgressionDashboard({
         </div>
 
         {/* Readiness Score */}
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h4 className="text-sm font-medium text-gray-900 mb-2">
             Readiness Score
           </h4>
           <div className="space-y-2">
             {latestReadiness ? (
               <>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {Math.round(getReadinessScore()! * 100)}%
                 </div>
                 <Badge tone={getReadinessColor(getReadinessCategory())}>
                   {getReadinessCategory()}
                 </Badge>
-                <div className="text-xs text-gray-600 dark:text-gray-400">
+                <div className="text-xs text-gray-600">
                   Last assessed: {latestReadiness.assessmentDate.toLocaleDateString()}
                 </div>
               </>
@@ -166,7 +166,7 @@ export default function ProgressionDashboard({
                 <div className="text-2xl font-bold text-gray-400">
                   --
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">
+                <div className="text-xs text-gray-600">
                   No assessment yet
                 </div>
               </>
@@ -175,15 +175,15 @@ export default function ProgressionDashboard({
         </div>
 
         {/* Session History */}
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h4 className="text-sm font-medium text-gray-900 mb-2">
             Recent Sessions
           </h4>
           <div className="space-y-2">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {sessionHistory.length}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="text-xs text-gray-600">
               {sessionHistory.length > 0 
                 ? `Last: ${sessionHistory[sessionHistory.length - 1].sessionDate.toLocaleDateString()}`
                 : 'No sessions yet'
@@ -195,9 +195,9 @@ export default function ProgressionDashboard({
 
       {/* Next Target Recommendation */}
       {nextTarget && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
+        <div className="bg-blue-50 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200">
+            <h4 className="text-sm font-medium text-blue-900">
               Recommended Next Target
             </h4>
             <Button
@@ -210,7 +210,7 @@ export default function ProgressionDashboard({
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <div className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-2">
+              <div className="text-lg font-semibold text-blue-900 mb-2">
                 {formatTarget(nextTarget)}
               </div>
               <div className="flex gap-2 mb-2">
@@ -224,7 +224,7 @@ export default function ProgressionDashboard({
             </div>
             
             {nextTarget.notes && (
-              <div className="text-sm text-blue-800 dark:text-blue-300">
+              <div className="text-sm text-blue-800">
                 <Icon name="alert-circle" className="w-4 h-4 inline mr-1" />
                 {nextTarget.notes}
               </div>
@@ -235,13 +235,13 @@ export default function ProgressionDashboard({
 
       {/* Applicable Rules */}
       {applicableRules.length > 0 && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-yellow-900 dark:text-yellow-200 mb-3">
+        <div className="bg-yellow-50 rounded-lg p-4">
+          <h4 className="text-sm font-medium text-yellow-900 mb-3">
             Active Progression Rules
           </h4>
           <div className="space-y-2">
             {applicableRules.map((rule, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm text-yellow-800 dark:text-yellow-300">
+              <div key={index} className="flex items-center gap-2 text-sm text-yellow-800">
                 <Icon name="check" className="w-4 h-4" />
                 {rule}
               </div>
@@ -253,17 +253,17 @@ export default function ProgressionDashboard({
       {/* Recent Session Quality */}
       {sessionHistory.length > 0 && (
         <div className="mt-6">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+          <h4 className="text-sm font-medium text-gray-900 mb-3">
             Recent Session Quality
           </h4>
           <div className="space-y-2">
             {sessionHistory.slice(-3).map((session, index) => (
-              <div key={index} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+              <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
                 <div className="flex items-center gap-3">
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  <div className="text-sm font-medium text-gray-900">
                     {session.sessionDate.toLocaleDateString()}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-sm text-gray-600">
                     {session.totalReps ? `${session.totalReps} reps` : `${session.totalTimeSeconds}s`}
                   </div>
                 </div>

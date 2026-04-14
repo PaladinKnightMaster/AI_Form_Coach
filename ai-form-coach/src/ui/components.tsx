@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react';
 
 export function Card({ children, className }: { children: React.ReactNode; className?: string }) {
-	return <section className={`rounded-xl border bg-white/80 dark:bg-white/5 ${className ?? ''}`}>{children}</section>;
+	return <section className={`rounded-xl border bg-white/80 ${className ?? ''}`}>{children}</section>;
 }
 
 export function Button({ children, onClick, variant = 'primary', className, ariaLabel }: { children: React.ReactNode; onClick?: () => void; variant?: 'primary'|'secondary'|'ghost'; className?: string; ariaLabel?: string }) {

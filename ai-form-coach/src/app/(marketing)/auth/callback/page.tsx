@@ -101,7 +101,7 @@ function CallbackContent() {
             The sign-in link could not be verified. This can happen if the link
             expired or was already used. Please request a fresh link.
           </p>
-          <p className="rounded-lg border border-amber-300/40 bg-amber-100/40 px-3 py-2 text-xs dark:border-amber-300/20 dark:bg-amber-900/20">
+          <p className="rounded-lg border border-amber-300/40 bg-amber-100/40 px-3 py-2 text-xs">
             Details: {error}
           </p>
           <div className="space-y-3">
@@ -129,8 +129,8 @@ function CallbackContent() {
   return (
     <AuthCard title="Signing you in…">
       <div className="flex flex-col items-center gap-4 py-8">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900 dark:border-slate-600 dark:border-t-white" />
-        <p className="text-sm text-slate-500 dark:text-slate-400">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900" />
+        <p className="text-sm text-slate-500">
           Verifying your authentication…
         </p>
       </div>
@@ -144,8 +144,8 @@ export default function AuthCallbackPage() {
       fallback={
         <AuthCard title="Signing you in…">
           <div className="flex flex-col items-center gap-4 py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900 dark:border-slate-600 dark:border-t-white" />
-            <p className="text-sm text-slate-500 dark:text-slate-400">Loading…</p>
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900" />
+            <p className="text-sm text-slate-500">Loading…</p>
           </div>
         </AuthCard>
       }

@@ -42,45 +42,45 @@ export default function AIGeneratedPlan({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-bold text-gray-900">
                 AI Generated Plan
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600">
                 Review your personalized workout plan
               </p>
             </div>
             <button
               onClick={onCancel}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="text-gray-400 hover:text-gray-600"
             >
               <Icon name="x" className="w-6 h-6" />
             </button>
           </div>
 
           {/* Plan Overview */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-lg p-6 mb-6">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   {plan.name}
                 </h3>
                 <Badge tone={getCategoryColor(plan.category)} className="mb-3">
                   {plan.category}
                 </Badge>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600">
                   {plan.description}
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                <div className="text-sm text-gray-500 mb-1">
                   {getDifficultyStars(plan.difficulty_level)}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-xs text-gray-500">
                   {plan.difficulty_level}/10
                 </div>
               </div>
@@ -88,28 +88,28 @@ export default function AIGeneratedPlan({
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <div className="font-semibold text-gray-900 dark:text-white">
+                <div className="font-semibold text-gray-900">
                   {plan.duration_weeks} weeks
                 </div>
-                <div className="text-gray-500 dark:text-gray-400">Duration</div>
+                <div className="text-gray-500">Duration</div>
               </div>
               <div>
-                <div className="font-semibold text-gray-900 dark:text-white">
+                <div className="font-semibold text-gray-900">
                   {plan.sessions_per_week}/week
                 </div>
-                <div className="text-gray-500 dark:text-gray-400">Sessions</div>
+                <div className="text-gray-500">Sessions</div>
               </div>
               <div>
-                <div className="font-semibold text-gray-900 dark:text-white">
+                <div className="font-semibold text-gray-900">
                   {plan.avg_session_duration}min
                 </div>
-                <div className="text-gray-500 dark:text-gray-400">Per session</div>
+                <div className="text-gray-500">Per session</div>
               </div>
               <div>
-                <div className="font-semibold text-gray-900 dark:text-white">
+                <div className="font-semibold text-gray-900">
                   {plan.equipment_required.length === 0 ? 'None' : plan.equipment_required.length}
                 </div>
-                <div className="text-gray-500 dark:text-gray-400">Equipment</div>
+                <div className="text-gray-500">Equipment</div>
               </div>
             </div>
 
@@ -117,7 +117,7 @@ export default function AIGeneratedPlan({
               {plan.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-3 py-1 bg-white/50 dark:bg-gray-600/50 text-gray-700 dark:text-gray-300 text-sm rounded-full"
+                  className="px-3 py-1 bg-white/50 text-gray-700 text-sm rounded-full"
                 >
                   {tag.replace('-', ' ')}
                 </span>
@@ -127,7 +127,7 @@ export default function AIGeneratedPlan({
 
           {/* Week Selector */}
           <div className="mb-6">
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <h4 className="text-lg font-semibold text-gray-900 mb-3">
               Select Week to Preview
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -138,7 +138,7 @@ export default function AIGeneratedPlan({
                   className={`px-4 py-2 rounded-lg border transition-colors ${
                     selectedWeek === week
                       ? 'border-blue-500 bg-blue-500 text-white'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
+                      : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
                 >
                   Week {week}
@@ -149,25 +149,25 @@ export default function AIGeneratedPlan({
 
           {/* Sessions for Selected Week */}
           <div className="mb-6">
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <h4 className="text-lg font-semibold text-gray-900 mb-3">
               Week {selectedWeek} Sessions
             </h4>
             <div className="space-y-4">
               {currentWeekSessions.map((session, index) => (
                 <div
                   key={index}
-                  className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                  className="border border-gray-200 rounded-lg overflow-hidden"
                 >
                   <button
                     onClick={() => setExpandedSession(expandedSession === index ? null : index)}
-                    className="w-full p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    className="w-full p-4 text-left hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h5 className="font-semibold text-gray-900 dark:text-white">
+                        <h5 className="font-semibold text-gray-900">
                           Day {session.day_number}: {session.session_name}
                         </h5>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-gray-600">
                           {session.estimated_duration} minutes
                         </p>
                       </div>
@@ -179,31 +179,31 @@ export default function AIGeneratedPlan({
                   </button>
                   
                   {expandedSession === index && (
-                    <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    <div className="p-4 border-t border-gray-200 bg-gray-50">
+                      <p className="text-gray-600 mb-4">
                         {session.session_description}
                       </p>
                       
                       <div className="space-y-3">
-                        <h6 className="font-medium text-gray-900 dark:text-white">
+                        <h6 className="font-medium text-gray-900">
                           Exercises:
                         </h6>
                         {session.exercises.map((exercise, exIndex) => (
                           <div
                             key={exIndex}
-                            className="bg-white dark:bg-gray-800 rounded-lg p-3"
+                            className="bg-white rounded-lg p-3"
                           >
                             <div className="flex items-center justify-between mb-2">
-                              <h6 className="font-medium text-gray-900 dark:text-white">
+                              <h6 className="font-medium text-gray-900">
                                 {exercise.name}
                               </h6>
-                              <div className="text-sm text-gray-600 dark:text-gray-400">
+                              <div className="text-sm text-gray-600">
                                 {exercise.sets} sets
                                 {exercise.reps && ` × ${exercise.reps}`}
                                 {exercise.duration && ` × ${exercise.duration}`}
                               </div>
                             </div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                            <div className="text-sm text-gray-600">
                               Rest: {exercise.rest}
                               {exercise.notes && ` • ${exercise.notes}`}
                             </div>
@@ -212,8 +212,8 @@ export default function AIGeneratedPlan({
                       </div>
                       
                       {session.difficulty_notes && (
-                        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-sm text-yellow-800">
                             <strong>Note:</strong> {session.difficulty_notes}
                           </p>
                         </div>
@@ -226,7 +226,7 @@ export default function AIGeneratedPlan({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex justify-between pt-6 border-t border-gray-200">
             <Button
               onClick={onCancel}
               className="bg-gray-500 hover:bg-gray-600 text-white"

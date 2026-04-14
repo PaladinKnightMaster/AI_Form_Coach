@@ -94,22 +94,22 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 animate-fade-in">
-      <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-slide-up">
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">
             Add Food
           </h2>
           <button 
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            className="text-gray-500 hover:text-gray-700"
           >
             <Icon name="x" />
           </button>
         </div>
 
         {/* Search Bar */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200">
           <div className="relative mb-3">
             <Icon name="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -117,19 +117,19 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
               placeholder="Search for foods..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
             />
           </div>
           <div className="flex items-center justify-between">
             <PrivacyBadge type="anonymous" size="sm" showLink={true} />
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-gray-500">
               Powered by Open Food Facts
             </span>
           </div>
         </div>
 
         {/* Categories */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex space-x-2 overflow-x-auto pb-2">
             {categories.map((category) => (
               <button
@@ -138,7 +138,7 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
                 className={`flex items-center space-x-2 px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
                   selectedCategory === category.id
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 <span>{category.emoji}</span>
@@ -153,13 +153,13 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
           {loading && (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Searching...</p>
+              <p className="text-sm text-gray-500">Searching...</p>
             </div>
           )}
 
           {showQuickAdd && !loading && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Quick Add
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -167,14 +167,14 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
                   <button
                     key={index}
                     onClick={() => handleQuickAdd(item)}
-                    className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+                    className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left"
                   >
                     <span className="text-2xl">{item.emoji}</span>
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-white">
+                      <div className="font-medium text-gray-900">
                         {item.name}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <div className="text-sm text-gray-500">
                         {item.calories_per_100g} cal • {item.protein_per_100g}g protein
                       </div>
                     </div>
@@ -186,7 +186,7 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
 
           {searchResults.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Search Results
               </h3>
               <div className="space-y-2">
@@ -202,7 +202,7 @@ export default function FoodSearch({ onSelectFood, onClose }: FoodSearchProps) {
           )}
 
           {searchQuery && !loading && searchResults.length === 0 && (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-8 text-gray-500">
               <Icon name="search" className="mx-auto mb-2 w-12 h-12" />
               <p className="text-sm">No foods found</p>
               <p className="text-xs mt-1">Try a different search term</p>
@@ -236,11 +236,11 @@ function FoodSearchResult({ food, onSelect }: { food: Food; onSelect: () => void
   return (
     <button
       onClick={onSelect}
-      className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
+      className="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
     >
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
-          <div className="font-medium text-gray-900 dark:text-white">
+          <div className="font-medium text-gray-900">
             {food.name}
           </div>
           {topIngredients.length > 0 && (
@@ -254,26 +254,26 @@ function FoodSearchResult({ food, onSelect }: { food: Food; onSelect: () => void
           )}
         </div>
         {food.brand && (
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-sm text-gray-500">
             {food.brand}
           </div>
         )}
         {food.category && (
-          <div className="text-xs text-gray-500 dark:text-gray-500 capitalize">
+          <div className="text-xs text-gray-500 capitalize">
             {food.category}
           </div>
         )}
-        <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <div className="text-sm text-gray-500 mt-1">
           {Math.round(food.calories_per_100g)} cal per 100g
         </div>
       </div>
       
       <div className="flex items-center space-x-3">
         <div className="text-right">
-          <div className="text-sm font-medium text-gray-900 dark:text-white">
+          <div className="text-sm font-medium text-gray-900">
             {Math.round(food.protein_per_100g)}g
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">protein</div>
+          <div className="text-xs text-gray-500">protein</div>
         </div>
         {food.verified && (
           <Icon name="check" className="text-green-500" />

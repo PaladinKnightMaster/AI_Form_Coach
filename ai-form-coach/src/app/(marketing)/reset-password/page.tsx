@@ -102,8 +102,8 @@ function ResetPasswordContent() {
     return (
       <AuthCard title="Password reset">
         <div className="flex flex-col items-center gap-4 py-8">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900 dark:border-slate-600 dark:border-t-white" />
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900" />
+          <p className="text-sm text-slate-500">
             Verifying your reset link…
           </p>
         </div>
@@ -115,7 +115,7 @@ function ResetPasswordContent() {
     return (
       <AuthCard title="Reset link expired">
         <div className="space-y-5 text-sm">
-          <p className="text-slate-600 dark:text-slate-300">{status}</p>
+          <p className="text-slate-600">{status}</p>
           <div className="space-y-3">
             <a
               href="/signin?mode=reset-request"
@@ -139,12 +139,12 @@ function ResetPasswordContent() {
     return (
       <AuthCard title="Password updated">
         <div className="space-y-4 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-            <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+            <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
           </div>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-sm text-slate-600">
             Your password has been updated. Redirecting to the coach…
           </p>
         </div>
@@ -165,7 +165,7 @@ function ResetPasswordContent() {
             }}
             placeholder="New password (min 6 characters)"
             required
-            className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={loading}
           />
         </div>
@@ -179,7 +179,7 @@ function ResetPasswordContent() {
             }}
             placeholder="Confirm new password"
             required
-            className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 dark:bg-slate-900 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full rounded-md border border-slate-300 px-3 py-3 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={loading}
           />
         </div>
@@ -191,7 +191,7 @@ function ResetPasswordContent() {
           {loading ? "Updating…" : "Update password"}
         </button>
         {status && (
-          <p className="text-sm text-red-600 dark:text-red-400">{status}</p>
+          <p className="text-sm text-red-600">{status}</p>
         )}
       </form>
     </AuthCard>
@@ -204,8 +204,8 @@ export default function ResetPassword() {
       fallback={
         <AuthCard title="Password reset">
           <div className="flex flex-col items-center gap-4 py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900 dark:border-slate-600 dark:border-t-white" />
-            <p className="text-sm text-slate-500 dark:text-slate-400">Loading…</p>
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-300 border-t-slate-900" />
+            <p className="text-sm text-slate-500">Loading…</p>
           </div>
         </AuthCard>
       }

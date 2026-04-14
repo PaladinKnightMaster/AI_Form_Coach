@@ -29,9 +29,9 @@ export default function FoodAnalysisResult({
   const [showDetailedDescription, setShowDetailedDescription] = useState(false);
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return 'text-green-600 dark:text-green-400';
-    if (confidence >= 60) return 'text-yellow-600 dark:text-yellow-400';
-    return 'text-red-600 dark:text-red-400';
+    if (confidence >= 80) return 'text-green-600';
+    if (confidence >= 60) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
   const getConfidenceLabel = (confidence: number) => {
@@ -41,32 +41,32 @@ export default function FoodAnalysisResult({
   };
 
   const ingredientCategoryConfig = {
-    vegetables: { emoji: '🥬', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300', label: 'Vegetables' },
-    fruits: { emoji: '🍎', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300', label: 'Fruits' },
-    proteins: { emoji: '🍗', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300', label: 'Proteins' },
-    grains: { emoji: '🌾', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300', label: 'Grains' },
-    dairy: { emoji: '🧀', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300', label: 'Dairy' },
-    other: { emoji: '🧂', color: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300', label: 'Other' }
+    vegetables: { emoji: '🥬', color: 'bg-green-100 text-green-800', label: 'Vegetables' },
+    fruits: { emoji: '🍎', color: 'bg-red-100 text-red-800', label: 'Fruits' },
+    proteins: { emoji: '🍗', color: 'bg-orange-100 text-orange-800', label: 'Proteins' },
+    grains: { emoji: '🌾', color: 'bg-amber-100 text-amber-800', label: 'Grains' },
+    dairy: { emoji: '🧀', color: 'bg-yellow-100 text-yellow-800', label: 'Dairy' },
+    other: { emoji: '🧂', color: 'bg-gray-100 text-gray-800', label: 'Other' }
   };
 
   const hasIngredients = result.ingredients && Object.values(result.ingredients).some(arr => arr && arr.length > 0);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-gray-900">
               🤖 AI Food Analysis
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               Gemini AI has analyzed your food image
             </p>
           </div>
           <button
             onClick={onCancel}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <Icon name="x" className="w-6 h-6" />
           </button>
@@ -80,7 +80,7 @@ export default function FoodAnalysisResult({
               {/* Food Image or Placeholder */}
               <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
                 {imageLoading ? (
-                  <div className="w-full h-full bg-gray-200 dark:bg-gray-700 animate-pulse flex items-center justify-center">
+                  <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
                     <Icon name="camera" className="w-6 h-6 text-gray-400" />
                   </div>
                 ) : foodImage ? (
@@ -103,15 +103,15 @@ export default function FoodAnalysisResult({
                 </div>
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {result.name}
                 </h3>
                 {result.brand && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600">
                     Brand: {result.brand}
                   </p>
                 )}
-                <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">
+                <p className="text-sm text-gray-600 capitalize">
                   Category: {result.category}
                 </p>
               </div>
@@ -125,7 +125,7 @@ export default function FoodAnalysisResult({
               </div>
             </div>
             
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
+            <p className="text-gray-600 text-sm">
               {result.description}
             </p>
           </div>
@@ -133,9 +133,9 @@ export default function FoodAnalysisResult({
           {/* Large Food Image */}
           {foodImage && (
             <div className="mb-6">
-              <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden">
+              <div className="relative w-full h-48 bg-gray-100 rounded-xl overflow-hidden">
                 {imageLoading ? (
-                  <div className="w-full h-full bg-gray-200 dark:bg-gray-700 animate-pulse flex items-center justify-center">
+                  <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
                     <div className="text-center">
                       <Icon name="camera" className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-500">Loading food image...</p>
@@ -166,47 +166,47 @@ export default function FoodAnalysisResult({
           )}
 
           {/* Estimated Weight */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
+          <div className="bg-blue-50 rounded-lg p-4 mb-6">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-lg">⚖️</span>
-              <h4 className="font-medium text-blue-900 dark:text-blue-100">
+              <h4 className="font-medium text-blue-900">
                 Estimated Weight
               </h4>
             </div>
-            <p className="text-blue-800 dark:text-blue-200">
+            <p className="text-blue-800">
               {result.estimatedWeight}g (estimated serving size)
             </p>
           </div>
 
           {/* Nutritional Information */}
           <div className="mb-6">
-            <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
+            <h4 className="font-semibold text-gray-900 mb-4">
               📊 Nutritional Information (per 100g)
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+              <div className="bg-red-50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-red-600">
                   {Math.round(result.nutritionalInfo.calories)}
                 </div>
-                <div className="text-xs text-red-700 dark:text-red-300">Calories</div>
+                <div className="text-xs text-red-700">Calories</div>
               </div>
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              <div className="bg-blue-50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-blue-600">
                   {Math.round(result.nutritionalInfo.protein * 10) / 10}g
                 </div>
-                <div className="text-xs text-blue-700 dark:text-blue-300">Protein</div>
+                <div className="text-xs text-blue-700">Protein</div>
               </div>
-              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              <div className="bg-green-50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-green-600">
                   {Math.round(result.nutritionalInfo.carbs * 10) / 10}g
                 </div>
-                <div className="text-xs text-green-700 dark:text-green-300">Carbs</div>
+                <div className="text-xs text-green-700">Carbs</div>
               </div>
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+              <div className="bg-yellow-50 rounded-lg p-3 text-center">
+                <div className="text-2xl font-bold text-yellow-600">
                   {Math.round(result.nutritionalInfo.fat * 10) / 10}g
                 </div>
-                <div className="text-xs text-yellow-700 dark:text-yellow-300">Fat</div>
+                <div className="text-xs text-yellow-700">Fat</div>
               </div>
             </div>
 
@@ -214,27 +214,27 @@ export default function FoodAnalysisResult({
             {(result.nutritionalInfo.fiber || result.nutritionalInfo.sugar || result.nutritionalInfo.sodium) && (
               <div className="grid grid-cols-3 gap-3 mt-4">
                 {result.nutritionalInfo.fiber && (
-                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2 text-center">
-                    <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                  <div className="bg-purple-50 rounded-lg p-2 text-center">
+                    <div className="text-lg font-bold text-purple-600">
                       {Math.round(result.nutritionalInfo.fiber * 10) / 10}g
                     </div>
-                    <div className="text-xs text-purple-700 dark:text-purple-300">Fiber</div>
+                    <div className="text-xs text-purple-700">Fiber</div>
                   </div>
                 )}
                 {result.nutritionalInfo.sugar && (
-                  <div className="bg-pink-50 dark:bg-pink-900/20 rounded-lg p-2 text-center">
-                    <div className="text-lg font-bold text-pink-600 dark:text-pink-400">
+                  <div className="bg-pink-50 rounded-lg p-2 text-center">
+                    <div className="text-lg font-bold text-pink-600">
                       {Math.round(result.nutritionalInfo.sugar * 10) / 10}g
                     </div>
-                    <div className="text-xs text-pink-700 dark:text-pink-300">Sugar</div>
+                    <div className="text-xs text-pink-700">Sugar</div>
                   </div>
                 )}
                 {result.nutritionalInfo.sodium && (
-                  <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-2 text-center">
-                    <div className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                  <div className="bg-indigo-50 rounded-lg p-2 text-center">
+                    <div className="text-lg font-bold text-indigo-600">
                       {Math.round(result.nutritionalInfo.sodium)}mg
                     </div>
-                    <div className="text-xs text-indigo-700 dark:text-indigo-300">Sodium</div>
+                    <div className="text-xs text-indigo-700">Sodium</div>
                   </div>
                 )}
               </div>
@@ -244,7 +244,7 @@ export default function FoodAnalysisResult({
           {/* Ingredient Breakdown */}
           {hasIngredients && (
             <div className="mb-6">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 🔍 Ingredient Breakdown
                 <span className="text-xs text-gray-500 font-normal">(AI identified)</span>
               </h4>
@@ -255,10 +255,10 @@ export default function FoodAnalysisResult({
                   if (!config) return null;
                   
                   return (
-                    <div key={category} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                    <div key={category} className="bg-gray-50 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-lg">{config.emoji}</span>
-                        <span className="font-medium text-gray-900 dark:text-white text-sm">
+                        <span className="font-medium text-gray-900 text-sm">
                           {config.label} ({items.length})
                         </span>
                       </div>
@@ -284,19 +284,19 @@ export default function FoodAnalysisResult({
             <div className="mb-6">
               <button
                 onClick={() => setShowDetailedDescription(!showDetailedDescription)}
-                className="w-full flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+                className="w-full flex items-center justify-between p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
               >
-                <span className="font-medium text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                <span className="font-medium text-purple-900 flex items-center gap-2">
                   📝 Detailed Description
                 </span>
                 <Icon 
                   name={showDetailedDescription ? "chevron-up" : "chevron-down"} 
-                  className="w-5 h-5 text-purple-600 dark:text-purple-400"
+                  className="w-5 h-5 text-purple-600"
                 />
               </button>
               {showDetailedDescription && (
-                <div className="mt-2 p-4 bg-white dark:bg-gray-700 rounded-lg border border-purple-200 dark:border-purple-800">
-                  <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                <div className="mt-2 p-4 bg-white rounded-lg border border-purple-200">
+                  <p className="text-gray-700 text-sm leading-relaxed">
                     {result.detailedDescription}
                   </p>
                 </div>
@@ -306,14 +306,14 @@ export default function FoodAnalysisResult({
 
           {/* Confidence Warning */}
           {result.confidence < 70 && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
               <div className="flex items-center gap-2 mb-2">
                 <Icon name="alert-triangle" className="w-5 h-5 text-yellow-600" />
-                <h4 className="font-medium text-yellow-900 dark:text-yellow-100">
+                <h4 className="font-medium text-yellow-900">
                   Low Confidence Analysis
                 </h4>
               </div>
-              <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+              <p className="text-yellow-800 text-sm">
                 The AI analysis has low confidence. Please verify the nutritional information 
                 before adding to your meal. You can retry with a clearer photo or use manual search instead.
               </p>
@@ -322,7 +322,7 @@ export default function FoodAnalysisResult({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex gap-3 p-6 border-t border-gray-200">
           <button
             onClick={onCancel}
             className="btn btn-secondary flex-1"
