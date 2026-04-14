@@ -15,6 +15,7 @@ export default function CalibrationModal({ exercise, landmarks, onClose, onSaved
 		if (!running) return;
 		if (!landmarks) return;
 		const val = measure(exercise, landmarks);
+		// eslint-disable-next-line react-hooks/set-state-in-effect -- accumulating external sensor data
 		if (val !== null) setSamples((s) => s.concat(val).slice(-180)); // last 6s @30fps cap
 	}, [landmarks, running, exercise]);
 

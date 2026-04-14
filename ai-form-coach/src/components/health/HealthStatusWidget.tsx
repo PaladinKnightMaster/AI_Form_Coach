@@ -32,7 +32,7 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
   }, [healthManager]);
 
   useEffect(() => {
-    loadHealthData();
+    loadHealthData(); // eslint-disable-line react-hooks/set-state-in-effect -- data fetching on mount
     loadBaseline();
   }, [loadHealthData, loadBaseline]);
 

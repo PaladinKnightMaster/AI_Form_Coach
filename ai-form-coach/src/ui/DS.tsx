@@ -75,6 +75,7 @@ export const Button = forwardRef(function Button(
 	const buttonClasses = twMerge(`${base} ${variants[variant]} ${sizes[size]}`, className);
 	
 	if (asChild && React.isValidElement(children)) {
+		// eslint-disable-next-line react-hooks/refs -- ref forwarding via cloneElement is intentional for polymorphic component
 		return React.cloneElement(children, {
 			className: `${buttonClasses} ${(children.props as { className?: string }).className || ''}`,
 			ref,

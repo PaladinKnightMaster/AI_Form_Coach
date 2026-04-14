@@ -73,7 +73,7 @@ export function useOverlayAutoHide({
   useEffect(() => {
     if (!enabled) {
       clearTimer();
-      setVisible(true);
+      setVisible(true); // eslint-disable-line react-hooks/set-state-in-effect -- syncing visibility with enabled prop
       return;
     }
     // Start the first hide timer when enabled

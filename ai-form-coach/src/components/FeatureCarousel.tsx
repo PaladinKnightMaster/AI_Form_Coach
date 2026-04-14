@@ -80,7 +80,7 @@ export function FeatureCarousel() {
     }, 4000); // Auto-advance every 4 seconds
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, reduceMotion]);
 
   const goToSlide = (index: number) => {
     setCurrentIndex(index);

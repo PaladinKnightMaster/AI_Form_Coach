@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Button, Icon } from '@/ui/DS';
 import { PlanAdjustmentService, type PlanAdjustment } from '@/lib/plans/planAdjustments';
 import type { UserPlan } from '@/types/plans';
@@ -19,18 +19,18 @@ export default function PlanAdjustmentBanner({
   currentDay,
   onPlanUpdate
 }: PlanAdjustmentBannerProps) {
-  const [adjustment, setAdjustment] = useState<PlanAdjustment | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [adjustmentService] = useState(() => new PlanAdjustmentService());
 
-  useEffect(() => {
+  const adjustment = useMemo<PlanAdjustment | null>(() => {
     if (plan && readiness) {
-      const planAdjustment = adjustmentService.adjustPlanForReadiness(plan, readiness, currentDay);
-      setAdjustment(planAdjustment);
+      return adjustmentService.adjustPlanForReadiness(plan, readiness, currentDay);
     }
+    return null;
   }, [plan, readiness, currentDay, adjustmentService]);
 
-  if (!adjustment || adjustment.type === 'none') {
+  if (!adjustment || adjustment.type === 'none' || dismissed) {
     return null;
   }
 
@@ -47,7 +47,7 @@ export default function PlanAdjustmentBanner({
   };
 
   const handleDismiss = () => {
-    setAdjustment(null);
+    setDismissed(true);
   };
 
   const getColorClasses = (color: string) => {

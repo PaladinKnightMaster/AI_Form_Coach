@@ -14,15 +14,19 @@ const eslintConfig = [
       "src/legacy-disabled/**",
     ],
   },
-  // Downgrade React 19's new strict rules to warnings for now.
-  // These were never enforced before (the old lint script whitelisted files).
-  // TODO: fix all violations then promote back to "error".
   {
     rules: {
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/refs": "warn",
-      "react-hooks/purity": "warn",
-      "react-hooks/immutability": "warn",
+      // React 19 strict rules — all violations fixed, now enforced as errors.
+      "react-hooks/set-state-in-effect": "error",
+      "react-hooks/refs": "error",
+      "react-hooks/purity": "error",
+      "react-hooks/immutability": "error",
+      // Allow _-prefixed intentionally unused destructured vars.
+      "@typescript-eslint/no-unused-vars": ["error", {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+      }],
     },
   },
 ];

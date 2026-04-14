@@ -8,7 +8,7 @@ export default function Reveal({ children, delay = 0 }: { children: React.ReactN
 	const [visible, setVisible] = useState(reduceMotion);
 
 	useEffect(() => {
-		if (reduceMotion) { setVisible(true); return; }
+		if (reduceMotion) { setVisible(true); return; } // eslint-disable-line react-hooks/set-state-in-effect -- syncing with accessibility preference
 		const el = ref.current; if (!el) return;
 		const io = new IntersectionObserver((entries) => {
 			entries.forEach((e) => { if (e.isIntersecting) { setVisible(true); io.disconnect(); } });

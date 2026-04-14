@@ -95,6 +95,19 @@ export default function RealTimeFeedback({
     ]
   };
 
+  const updateMetrics = useCallback((newMetrics: Partial<PerformanceMetrics>) => {
+    setMetrics(prev => {
+      const updated = { ...prev, ...newMetrics };
+
+      // Update last rep time when reps increase
+      if (newMetrics.reps && newMetrics.reps > prev.reps) {
+        lastRepTimeRef.current = Date.now();
+      }
+
+      return updated;
+    });
+  }, []);
+
   const generateFeedback = useCallback(() => {
     const now = Date.now();
     const timeSinceLastRep = now - lastRepTimeRef.current;
@@ -149,7 +162,7 @@ export default function RealTimeFeedback({
     if (priority === 'high') {
       showSuccess('Great job!', message);
     }
-  }, [metrics, showSuccess, onFeedback, feedbackMessages.achievement, feedbackMessages.encouragement, feedbackMessages.form, feedbackMessages.motivation]);
+  }, [metrics, showSuccess, onFeedback, updateMetrics, feedbackMessages.achievement, feedbackMessages.encouragement, feedbackMessages.form, feedbackMessages.motivation]);
 
   const startFeedbackLoop = useCallback(() => {
     const interval = setInterval(() => {
@@ -176,19 +189,6 @@ export default function RealTimeFeedback({
 
     return () => stopFeedbackLoop();
   }, [isActive, exercise, startFeedbackLoop]);
-
-  const updateMetrics = (newMetrics: Partial<PerformanceMetrics>) => {
-    setMetrics(prev => {
-      const updated = { ...prev, ...newMetrics };
-      
-      // Update last rep time when reps increase
-      if (newMetrics.reps && newMetrics.reps > prev.reps) {
-        lastRepTimeRef.current = Date.now();
-      }
-      
-      return updated;
-    });
-  };
 
   const getFeedbackIcon = (type: FeedbackMessage['type']) => {
     switch (type) {
