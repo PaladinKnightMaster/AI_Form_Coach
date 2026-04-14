@@ -55,7 +55,7 @@ export default function Pose3DCoach({
     // Speak positive feedback occasionally
     if (feedback.positives.length > 0 && Math.random() < 0.3) {
       const positive = feedback.positives[0];
-      speakFeedback(positive.message, 'low');
+      speakFeedback(positive.message, 'low'); // eslint-disable-line react-hooks/set-state-in-effect -- reacting to external pose feedback
     }
   }, [feedback, isActive, speakFeedback]);
 

@@ -50,7 +50,7 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({
     deviceType: 'unknown'
   });
 
-  const lastTimestampRef = useRef(Date.now());
+  const lastTimestampRef = useRef(0); // initialized in first recordSnapshot call
   const fpsHistoryRef = useRef<number[]>([]);
   const latencyHistoryRef = useRef<number[]>([]);
   const jitterHistoryRef = useRef<number[]>([]);
