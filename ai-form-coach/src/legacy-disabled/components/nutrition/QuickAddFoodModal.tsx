@@ -595,27 +595,27 @@ export default function QuickAddFoodModal({
 
   return createPortal(
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-gray-900">
               Add Food to {mealType}
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600">
               {new Date(date).toLocaleDateString()}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <Icon name="x" className="w-6 h-6" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
+        <div className="flex border-b border-gray-200">
           {[
             { id: 'quick', label: 'Quick Add', icon: '⚡' },
             { id: 'search', label: 'Search', icon: '🔍' },
@@ -627,8 +627,8 @@ export default function QuickAddFoodModal({
               onClick={() => setActiveTab(tab.id as 'quick' | 'search' | 'scan' | 'camera')}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === tab.id
-                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               <span className="mr-2">{tab.icon}</span>
@@ -644,7 +644,7 @@ export default function QuickAddFoodModal({
               {/* Recent Foods */}
               {recentFoods.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900">
                     🕒 Recently Added
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -652,15 +652,15 @@ export default function QuickAddFoodModal({
                       <button
                         key={food.id}
                         onClick={() => handleFoodSelect(food)}
-                        className="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-left"
+                        className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
                       >
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-green-400 rounded-lg mb-2 flex items-center justify-center text-white font-bold text-lg">
                           {food.name.charAt(0).toUpperCase()}
                         </div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        <div className="text-sm font-medium text-gray-900 truncate">
                           {food.name}
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                        <div className="text-xs text-gray-600">
                           {Math.round(food.calories_per_100g)} cal/100g
                         </div>
                       </button>
@@ -671,15 +671,15 @@ export default function QuickAddFoodModal({
 
               {/* Categories */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold mb-4 text-gray-900">
                   🍽️ Browse Categories
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {categories.map((category) => (
-                    <div key={category.id} className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                    <div key={category.id} className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-center mb-3">
                         <span className="text-2xl mr-3">{category.icon}</span>
-                        <h4 className="font-medium text-gray-900 dark:text-white">
+                        <h4 className="font-medium text-gray-900">
                           {category.name}
                         </h4>
                       </div>
@@ -688,12 +688,12 @@ export default function QuickAddFoodModal({
                           <button
                             key={food.id}
                             onClick={() => handleFoodSelect(food)}
-                            className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                            className="w-full text-left p-2 hover:bg-gray-100 rounded-lg transition-colors"
                           >
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="text-sm font-medium text-gray-900">
                               {food.name}
                             </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
+                            <div className="text-xs text-gray-600">
                               {Math.round(food.calories_per_100g)} cal/100g
                             </div>
                           </button>
@@ -730,7 +730,7 @@ export default function QuickAddFoodModal({
 
               {searchResults.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">
                     🔍 Search Results
                   </h3>
                   <div className="space-y-2">
@@ -754,12 +754,12 @@ export default function QuickAddFoodModal({
                         <button
                           key={food.id}
                           onClick={() => handleFoodSelect(food)}
-                          className="w-full p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-left"
+                          className="w-full p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <div className="font-medium text-gray-900 dark:text-white">
+                                <div className="font-medium text-gray-900">
                                   {food.name}
                                 </div>
                                 {topIngredients.length > 0 && (
@@ -773,17 +773,17 @@ export default function QuickAddFoodModal({
                                 )}
                               </div>
                               {food.brand && (
-                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                <div className="text-sm text-gray-600">
                                   {food.brand}
                                 </div>
                               )}
                               {food.category && (
-                                <div className="text-xs text-gray-500 dark:text-gray-500 capitalize">
+                                <div className="text-xs text-gray-500 capitalize">
                                   {food.category}
                                 </div>
                               )}
                             </div>
-                            <div className="text-sm text-gray-600 dark:text-gray-400 ml-2">
+                            <div className="text-sm text-gray-600 ml-2">
                               {Math.round(food.calories_per_100g)} cal/100g
                             </div>
                           </div>
@@ -801,10 +801,10 @@ export default function QuickAddFoodModal({
               <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Icon name="camera" className="w-12 h-12 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">
                 Scan Barcode or QR Code
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-gray-600 mb-6">
                 Point your camera at a product barcode or QR code for instant food lookup
               </p>
               <button
@@ -821,23 +821,23 @@ export default function QuickAddFoodModal({
               <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-4xl">🤖</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">
                 AI Food Recognition
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-gray-600 mb-6">
                 Take a photo of your food and let Gemini AI identify it with nutritional information
               </p>
               
 
               {analysisError && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Icon name="alert-circle" className="w-5 h-5 text-red-600" />
-                    <h4 className="font-medium text-red-900 dark:text-red-100">
+                    <h4 className="font-medium text-red-900">
                       Analysis Error
                     </h4>
                   </div>
-                  <p className="text-red-800 dark:text-red-200 text-sm">
+                  <p className="text-red-800 text-sm">
                     {analysisError}
                   </p>
                 </div>

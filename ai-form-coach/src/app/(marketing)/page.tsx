@@ -42,7 +42,7 @@ const systemCards = [
 
 export default function Home() {
   return (
-    <div className="bg-white text-slate-950 dark:bg-slate-950 dark:text-white">
+    <div className="bg-white text-slate-950">
       <HeroGradientBackground className="relative overflow-hidden">
         <Container className="py-20 sm:py-24 lg:py-28">
           <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
@@ -121,7 +121,7 @@ export default function Home() {
         </Container>
       </HeroGradientBackground>
 
-      <Section className="bg-white dark:bg-slate-950">
+      <Section className="bg-white">
         <Container>
           <div className="mb-10 text-center">
             <Badge tone="neutral" className="mb-4 uppercase tracking-[0.2em]">
@@ -131,13 +131,13 @@ export default function Home() {
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             {systemCards.map((card) => (
-              <Card key={card.title} className="h-full border-slate-200 bg-slate-50/80 shadow-xl dark:border-slate-800 dark:bg-slate-900/80" hover>
+              <Card key={card.title} className="h-full border-slate-200 bg-slate-50/80 shadow-xl" hover>
                 <div className="space-y-4">
-                  <div className="inline-flex rounded-2xl bg-slate-950 p-3 text-white dark:bg-white dark:text-slate-950">
+                  <div className="inline-flex rounded-2xl bg-slate-950 p-3 text-white">
                     <Icon name={card.icon} className="h-6 w-6" />
                   </div>
                   <h3 className="text-2xl font-bold">{card.title}</h3>
-                  <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{card.body}</p>
+                  <p className="text-sm leading-7 text-slate-600">{card.body}</p>
                 </div>
               </Card>
             ))}

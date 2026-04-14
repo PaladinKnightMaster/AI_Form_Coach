@@ -72,10 +72,10 @@ export default function Pose3DWorkout({ className = '' }: Pose3DWorkoutProps) {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-gray-900">
               3D Pose Analysis Workout
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-gray-600 mt-1">
               Professional-grade form analysis and real-time coaching
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function Pose3DWorkout({ className = '' }: Pose3DWorkoutProps) {
 
       {/* Navigation */}
       <div className="mb-6">
-        <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+        <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
           {[
             { id: 'analysis', label: 'Analysis', icon: 'camera' as const },
             { id: 'coach', label: 'Coach', icon: 'message' as const },
@@ -102,8 +102,8 @@ export default function Pose3DWorkout({ className = '' }: Pose3DWorkoutProps) {
               onClick={() => setCurrentView(tab.id as 'analysis' | 'coach' | 'session')}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 currentView === tab.id
-                  ? 'bg-white dark:bg-gray-600 text-blue-600 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               <Icon name={tab.icon} className="w-4 h-4" />
@@ -155,7 +155,7 @@ export default function Pose3DWorkout({ className = '' }: Pose3DWorkoutProps) {
           <div>
             <div className="mb-4">
               <h2 className="text-xl font-semibold">Real-time Coaching</h2>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-gray-600 mt-1">
                 Get instant feedback and coaching cues during your workout
               </p>
             </div>
@@ -174,7 +174,7 @@ export default function Pose3DWorkout({ className = '' }: Pose3DWorkoutProps) {
           <div>
             <div className="mb-4">
               <h2 className="text-xl font-semibold">Session Analytics</h2>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-gray-600 mt-1">
                 Review your workout performance and track your progress
               </p>
             </div>
@@ -191,7 +191,7 @@ export default function Pose3DWorkout({ className = '' }: Pose3DWorkoutProps) {
 
       {/* Quick Stats Bar */}
       {sessionData && (
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="text-center">

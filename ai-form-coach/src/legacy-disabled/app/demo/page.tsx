@@ -19,8 +19,8 @@ export default function ComponentDemo() {
 	];
 
 	return (
-		<div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-			<div className="bg-white dark:bg-black border-b sticky top-0 z-50">
+		<div className="min-h-screen bg-gray-50">
+			<div className="bg-white border-b sticky top-0 z-50">
 				<Container>
 					<div className="py-4">
 						<h1 className="text-2xl font-bold mb-4">Component Demo - Visual QA</h1>
@@ -31,8 +31,8 @@ export default function ComponentDemo() {
 									onClick={() => setActiveSection(section.id)}
 									className={`px-3 py-1 rounded text-sm transition ${
 										activeSection === section.id
-											? 'bg-black text-white dark:bg-white dark:text-black'
-											: 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+											? 'bg-black text-white'
+											: 'bg-gray-200 hover:bg-gray-300'
 									}`}
 								>
 									{section.label}
@@ -139,9 +139,9 @@ function HeaderStatesDemo() {
 
 			<div>
 				<h2 className="text-xl font-semibold mb-4">Mobile Menu Test</h2>
-				<div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-					<h3 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">Testing Instructions:</h3>
-					<ol className="text-sm text-yellow-700 dark:text-yellow-300 space-y-1 list-decimal list-inside">
+				<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+					<h3 className="font-medium text-yellow-800 mb-2">Testing Instructions:</h3>
+					<ol className="text-sm text-yellow-700 space-y-1 list-decimal list-inside">
 						<li>Open browser dev tools (F12)</li>
 						<li>Toggle device toolbar (Ctrl+Shift+M)</li>
 						<li>Select mobile device (iPhone, Android, etc.)</li>
@@ -175,7 +175,7 @@ function AuthCardsDemo() {
 			<div>
 				<h2 className="text-xl font-semibold mb-4">Auth Cards</h2>
 				<div className="grid md:grid-cols-2 gap-6">
-					<div className="border rounded-lg p-4 bg-white dark:bg-black">
+					<div className="border rounded-lg p-4 bg-white">
 						<h3 className="font-medium mb-3">Sign In Card</h3>
 						<div className="scale-75 origin-top-left w-[133%]">
 							<div className="min-h-screen flex items-center justify-center p-6">
@@ -217,7 +217,7 @@ function AuthCardsDemo() {
 						</div>
 					</div>
 
-					<div className="border rounded-lg p-4 bg-white dark:bg-black">
+					<div className="border rounded-lg p-4 bg-white">
 						<h3 className="font-medium mb-3">Sign Up Card</h3>
 						<div className="scale-75 origin-top-left w-[133%]">
 							<div className="min-h-screen flex items-center justify-center p-6">
@@ -279,26 +279,26 @@ function LandingSectionsDemo() {
 
 			<div>
 				<h2 className="text-xl font-semibold mb-4">Interactive Landing Sections</h2>
-				<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-					<p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+				<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+					<p className="text-sm text-blue-700 mb-4">
 						The following sections contain interactive elements and are best viewed on the live landing page:
 					</p>
 					<div className="grid md:grid-cols-3 gap-4">
-						<div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
+						<div className="border rounded-lg p-4 bg-white">
 							<h3 className="font-medium mb-2">Pricing Section</h3>
 							<p className="text-xs opacity-70 mb-3">Monthly/yearly toggle, upgrade buttons</p>
 							<Link href="/#pricing" className="text-blue-600 hover:underline text-sm">
 								View on landing →
 							</Link>
 						</div>
-						<div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
+						<div className="border rounded-lg p-4 bg-white">
 							<h3 className="font-medium mb-2">FAQ Section</h3>
 							<p className="text-xs opacity-70 mb-3">Expandable questions and answers</p>
 							<Link href="/#faq" className="text-blue-600 hover:underline text-sm">
 								View on landing →
 							</Link>
 						</div>
-						<div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
+						<div className="border rounded-lg p-4 bg-white">
 							<h3 className="font-medium mb-2">Final CTA</h3>
 							<p className="text-xs opacity-70 mb-3">Gradient background, action buttons</p>
 							<Link href="/#cta" className="text-blue-600 hover:underline text-sm">
@@ -326,9 +326,9 @@ function MobileBreakpointsDemo() {
 		<div className="space-y-8">
 			<div>
 				<h2 className="text-xl font-semibold mb-4">Mobile Breakpoint Testing</h2>
-				<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-					<h3 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Screenshot Instructions:</h3>
-					<ol className="text-sm text-blue-700 dark:text-blue-300 space-y-1 list-decimal list-inside">
+				<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+					<h3 className="font-medium text-blue-800 mb-2">Screenshot Instructions:</h3>
+					<ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
 						<li>Open browser dev tools (F12)</li>
 						<li>Toggle device toolbar (Ctrl+Shift+M or Cmd+Shift+M)</li>
 						<li>Set custom dimensions using the values below</li>
@@ -343,7 +343,7 @@ function MobileBreakpointsDemo() {
 						<div key={i} className="border rounded-lg p-4">
 							<div className="flex justify-between items-start mb-2">
 								<h3 className="font-medium">{bp.name}</h3>
-								<span className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+								<span className="text-xs bg-gray-100 px-2 py-1 rounded">
 									{bp.device}
 								</span>
 							</div>
@@ -351,7 +351,7 @@ function MobileBreakpointsDemo() {
 								{bp.width} × {bp.height}
 							</div>
 							<div className="mt-3 text-xs">
-								<code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+								<code className="bg-gray-100 px-2 py-1 rounded">
 									{bp.width} × {bp.height}
 								</code>
 							</div>

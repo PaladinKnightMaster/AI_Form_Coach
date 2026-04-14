@@ -53,18 +53,18 @@ const faqs = [
 
 export default function FAQ() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-slate-900 dark:via-violet-900/30 dark:to-fuchsia-900/30">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
       <Section className="py-20">
         <Container>
           <div className="text-center space-y-6 mb-16">
             <div className="space-y-4">
-              <Badge tone="info" size="lg" className="bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800">
+              <Badge tone="info" size="lg" className="bg-gradient-to-r from-violet-500/20 to-purple-500/20 text-violet-700 border-violet-200">
                 ❓ Frequently Asked Questions
               </Badge>
               <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
                 Got Questions? We&apos;ve Got Answers
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Find answers to the most common questions about AI Form Coach and how it can help transform your fitness journey.
               </p>
             </div>

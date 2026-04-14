@@ -63,7 +63,7 @@ export default function FirstRunTutorial({ open, onClose, onComplete }: FirstRun
 			<div className="absolute inset-0 bg-black/60" onClick={handleSkip} aria-hidden="true" />
 			
 			{/* Modal */}
-			<div className="relative bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-md w-full p-6 space-y-6">
+			<div className="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-6">
 				{/* Progress indicator */}
 				<div className="flex items-center justify-between">
 					<div className="flex space-x-2">
@@ -71,7 +71,7 @@ export default function FirstRunTutorial({ open, onClose, onComplete }: FirstRun
 							<div
 								key={i}
 								className={`h-2 w-8 rounded-full transition-colors ${
-									i <= currentStep ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
+									i <= currentStep ? 'bg-green-500' : 'bg-gray-200'
 								}`}
 							/>
 						))}
@@ -86,17 +86,17 @@ export default function FirstRunTutorial({ open, onClose, onComplete }: FirstRun
 
 				{/* Content */}
 				<div className="text-center space-y-4">
-					<div className="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+					<div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
 						<Icon name={step.icon} className="w-8 h-8 text-green-600" />
 					</div>
 					
 					<div>
 						<h2 id="tutorial-title" className="text-xl font-semibold mb-2">{step.title}</h2>
-						<p className="text-gray-600 dark:text-gray-300 leading-relaxed">{step.content}</p>
+						<p className="text-gray-600 leading-relaxed">{step.content}</p>
 					</div>
 					
-					<div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-						<p className="text-sm text-blue-800 dark:text-blue-200">{step.tip}</p>
+					<div className="bg-blue-50 rounded-lg p-3">
+						<p className="text-sm text-blue-800">{step.tip}</p>
 					</div>
 				</div>
 

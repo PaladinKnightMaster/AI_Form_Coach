@@ -148,20 +148,20 @@ export default function ReadinessAssessment({
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-200 dark:border-gray-700 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-2xl p-6 shadow-2xl border border-gray-200 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-gray-900">
               Readiness Assessment
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-gray-600 mt-1">
               Help us personalize your workout intensity
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <Icon name="x" className="w-5 h-5 text-gray-500" />
           </button>
@@ -172,16 +172,16 @@ export default function ReadinessAssessment({
           {sliderConfigs.map((config) => (
             <div key={config.field} className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">
+                <label className="block text-sm font-medium text-gray-900 mb-1">
                   {config.label}
                 </label>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   {config.description}
                 </p>
               </div>
               
               <div className="space-y-2">
-                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex justify-between text-xs text-gray-500">
                   <span>{config.labels[0]}</span>
                   <span className="font-medium">{assessment[config.field]}/10</span>
                   <span>{config.labels[1]}</span>
@@ -206,7 +206,7 @@ export default function ReadinessAssessment({
                         className={`w-1 h-1 rounded-full ${
                           i <= assessment[config.field] 
                             ? `bg-${config.color}-500` 
-                            : 'bg-gray-300 dark:bg-gray-600'
+                            : 'bg-gray-300'
                         }`}
                       />
                     ))}
@@ -218,12 +218,12 @@ export default function ReadinessAssessment({
         </div>
 
         {/* Readiness Score Preview */}
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-900 mb-2">
             Readiness Score Preview
           </h3>
           <div className="flex items-center gap-3">
-            <div className="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-2 rounded-full transition-all duration-300"
                 style={{ 
@@ -237,7 +237,7 @@ export default function ReadinessAssessment({
                 }}
               />
             </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-gray-700">
               {Math.round(
                 (1 - assessment.sorenessLevel / 10) * 30 +
                 (1 - assessment.fatigueLevel / 10) * 25 +
@@ -247,7 +247,7 @@ export default function ReadinessAssessment({
               )}%
             </span>
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-gray-600 mt-1">
             Based on your responses, we&apos;ll adjust your workout intensity accordingly.
           </p>
         </div>
@@ -256,7 +256,7 @@ export default function ReadinessAssessment({
         <div className="flex gap-3 mt-6">
           <Button
             onClick={onClose}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
           >
             Cancel
           </Button>

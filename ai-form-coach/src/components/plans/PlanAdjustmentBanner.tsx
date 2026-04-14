@@ -53,13 +53,13 @@ export default function PlanAdjustmentBanner({
   const getColorClasses = (color: string) => {
     switch (color) {
       case 'blue':
-        return 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-200';
+        return 'bg-blue-50 border-blue-200 text-blue-800';
       case 'yellow':
-        return 'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-200';
+        return 'bg-yellow-50 border-yellow-200 text-yellow-800';
       case 'green':
-        return 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200';
+        return 'bg-green-50 border-green-200 text-green-800';
       default:
-        return 'bg-gray-50 border-gray-200 text-gray-800 dark:bg-gray-900/20 dark:border-gray-800 dark:text-gray-200';
+        return 'bg-gray-50 border-gray-200 text-gray-800';
     }
   };
 
@@ -95,13 +95,13 @@ export default function PlanAdjustmentBanner({
         <div className="flex items-center gap-2">
           <Button
             onClick={() => setShowDetails(!showDetails)}
-            className="text-xs bg-transparent hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1"
+            className="text-xs bg-transparent hover:bg-black/10 px-2 py-1"
           >
             <Icon name={showDetails ? "chevron-up" : "chevron-down"} className="w-3 h-3" />
           </Button>
           <Button
             onClick={handleDismiss}
-            className="text-xs bg-transparent hover:bg-black/10 dark:hover:bg-white/10 px-2 py-1"
+            className="text-xs bg-transparent hover:bg-black/10 px-2 py-1"
           >
             <Icon name="x" className="w-3 h-3" />
           </Button>
@@ -127,7 +127,7 @@ export default function PlanAdjustmentBanner({
         
         <Button
           onClick={handleDismiss}
-          className="text-xs bg-transparent hover:bg-black/10 dark:hover:bg-white/10 px-3 py-1"
+          className="text-xs bg-transparent hover:bg-black/10 px-3 py-1"
         >
           Keep Original Plan
         </Button>

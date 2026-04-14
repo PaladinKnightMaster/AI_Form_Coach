@@ -61,9 +61,9 @@ export default function SettingsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="min-h-screen bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <p className="text-slate-600 dark:text-slate-300 mb-4">You need to be signed in to view settings.</p>
+          <p className="text-slate-600 mb-4">You need to be signed in to view settings.</p>
           <Link href="/signin" className="text-sm font-semibold underline">
             Sign in
           </Link>
@@ -73,12 +73,12 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="mx-auto max-w-2xl space-y-8">
           {/* Header */}
           <div className="space-y-2">
-            <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mb-2">
+            <Link href="/" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-2">
               <Icon name="chevron-left" className="w-4 h-4" />
               Back
             </Link>
@@ -90,11 +90,11 @@ export default function SettingsPage() {
             <h2 className="text-lg font-semibold mb-4">Account</h2>
             <dl className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <dt className="text-slate-500 dark:text-slate-400">Email</dt>
+                <dt className="text-slate-500">Email</dt>
                 <dd className="font-medium">{email}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-slate-500 dark:text-slate-400">Member since</dt>
+                <dt className="text-slate-500">Member since</dt>
                 <dd className="font-medium">{createdAt}</dd>
               </div>
             </dl>
@@ -113,7 +113,7 @@ export default function SettingsPage() {
                 placeholder="New password (min 6 characters)"
                 required
                 autoComplete="new-password"
-                className="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-900 text-sm placeholder:text-slate-400 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-900 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 disabled={passwordLoading}
               />
               <label htmlFor="settings-password-confirm" className="sr-only">Confirm new password</label>
@@ -125,14 +125,14 @@ export default function SettingsPage() {
                 placeholder="Confirm new password"
                 required
                 autoComplete="new-password"
-                className="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-900 text-sm placeholder:text-slate-400 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-md border border-slate-300 px-3 py-2.5 bg-white text-slate-900 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 disabled={passwordLoading}
               />
               <Button type="submit" variant="primary" size="md" disabled={passwordLoading}>
                 {passwordLoading ? "Updating…" : "Update password"}
               </Button>
               {passwordStatus && (
-                <p className={`text-sm ${passwordStatus.type === "success" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                <p className={`text-sm ${passwordStatus.type === "success" ? "text-green-600" : "text-red-600"}`}>
                   {passwordStatus.message}
                 </p>
               )}
@@ -140,9 +140,9 @@ export default function SettingsPage() {
           </Card>
 
           {/* Danger Zone */}
-          <Card padding="default" className="border-red-200 dark:border-red-900/50">
-            <h2 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">Danger Zone</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
+          <Card padding="default" className="border-red-200">
+            <h2 className="text-lg font-semibold text-red-600 mb-2">Danger Zone</h2>
+            <p className="text-sm text-slate-600 mb-4 leading-relaxed">
               Permanently delete your account and all associated data. This action cannot be undone.
             </p>
             <Button

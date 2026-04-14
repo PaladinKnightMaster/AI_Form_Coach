@@ -42,13 +42,13 @@ export default function ProBadge({ className = '', showText = true }: ProBadgePr
       {userTier === 'pro' && (
         <>
           <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-          {showText && <span className="text-emerald-700 dark:text-emerald-300">Pro</span>}
+          {showText && <span className="text-emerald-700">Pro</span>}
         </>
       )}
       {userTier === 'founder' && (
         <>
           <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-          {showText && <span className="text-purple-700 dark:text-purple-300">Founder</span>}
+          {showText && <span className="text-purple-700">Founder</span>}
         </>
       )}
     </span>

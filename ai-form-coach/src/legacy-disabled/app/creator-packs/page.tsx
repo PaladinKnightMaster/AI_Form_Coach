@@ -80,10 +80,10 @@ export default function CreatorPacksMarketplace() {
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'advanced': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      case 'beginner': return 'bg-green-100 text-green-800';
+      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'advanced': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -127,10 +127,10 @@ export default function CreatorPacksMarketplace() {
     <Container className="py-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">
           Creator Packs Marketplace
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Discover premium workout programs created by fitness experts. 
           Each pack includes detailed workouts, progress tracking, and expert guidance.
         </p>
@@ -144,7 +144,7 @@ export default function CreatorPacksMarketplace() {
             <input
               type="text"
               placeholder="Search creator packs..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
               onChange={(e) => handleSearch(e.target.value)}
             />
             <Icon name="search" className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
@@ -155,7 +155,7 @@ export default function CreatorPacksMarketplace() {
         <div className="flex flex-wrap justify-center gap-4">
           {/* Difficulty Filter */}
           <select
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
             onChange={(e) => {
               const value = e.target.value;
               handleFilterChange({
@@ -171,7 +171,7 @@ export default function CreatorPacksMarketplace() {
 
           {/* Duration Filter */}
           <select
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
             onChange={(e) => {
               const value = e.target.value;
               let duration: { min?: number; max?: number } | undefined;
@@ -199,7 +199,7 @@ export default function CreatorPacksMarketplace() {
 
           {/* Price Filter */}
           <select
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
             onChange={(e) => {
               const value = e.target.value;
               let price: { min?: number; max?: number } | undefined;
@@ -227,7 +227,7 @@ export default function CreatorPacksMarketplace() {
 
           {/* Sort */}
           <select
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
             value={searchParams.sortBy}
             onChange={(e) => handleSortChange(e.target.value as 'newest' | 'oldest' | 'price_low' | 'price_high' | 'rating' | 'popularity')}
           >
@@ -243,7 +243,7 @@ export default function CreatorPacksMarketplace() {
 
       {/* Results Count */}
       <div className="mb-6 text-center">
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600">
           Showing {packs.length} of {total} creator packs
         </p>
       </div>
@@ -253,7 +253,7 @@ export default function CreatorPacksMarketplace() {
         {packs.map((pack) => (
           <div
             key={pack.id}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
           >
             {/* Pack Image/Thumbnail */}
             <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative">
@@ -278,10 +278,10 @@ export default function CreatorPacksMarketplace() {
               {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
                     {pack.title}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                  <p className="text-sm text-gray-600 line-clamp-2">
                     {pack.shortDescription}
                   </p>
                 </div>
@@ -295,10 +295,10 @@ export default function CreatorPacksMarketplace() {
               {/* Creator Info */}
               {pack.creator?.name && (
                 <div className="flex items-center mb-3">
-                  <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full mr-2 flex items-center justify-center">
-                    <Icon name="user" className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                  <div className="w-6 h-6 bg-gray-300 rounded-full mr-2 flex items-center justify-center">
+                    <Icon name="user" className="w-3 h-3 text-gray-600" />
                   </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                  <span className="text-sm text-gray-600">
                     by {pack.creator.name}
                   </span>
                   {pack.creator.verified && (
@@ -308,7 +308,7 @@ export default function CreatorPacksMarketplace() {
               )}
 
               {/* Pack Details */}
-              <div className="flex items-center gap-4 mb-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
                 <div className="flex items-center">
                   <Icon name="clock" className="w-4 h-4 mr-1" />
                   {pack.duration} weeks
@@ -329,7 +329,7 @@ export default function CreatorPacksMarketplace() {
               {/* Equipment */}
               {pack.equipment.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mb-1">Equipment:</p>
+                  <p className="text-xs text-gray-500 mb-1">Equipment:</p>
                   <div className="flex flex-wrap gap-1">
                     {pack.equipment.slice(0, 3).map((item, index) => (
                       <Badge key={index} tone="neutral" className="text-xs">
@@ -348,7 +348,7 @@ export default function CreatorPacksMarketplace() {
               {/* Preview Highlights */}
               {pack.preview?.highlights && pack.preview.highlights.length > 0 && (
                 <div className="mb-4">
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                  <ul className="text-sm text-gray-600 space-y-1">
                     {pack.preview.highlights.slice(0, 2).map((highlight, index) => (
                       <li key={index} className="flex items-start">
                         <Icon name="check" className="w-3 h-3 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
@@ -362,11 +362,11 @@ export default function CreatorPacksMarketplace() {
               {/* Price and Action */}
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <span className="text-2xl font-bold text-gray-900">
                     {formatPrice(pack.price, pack.currency)}
                   </span>
                   {pack.purchaseCount > 0 && (
-                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                    <p className="text-xs text-gray-500">
                       {pack.purchaseCount} purchases
                     </p>
                   )}
@@ -400,10 +400,10 @@ export default function CreatorPacksMarketplace() {
       {!loading && packs.length === 0 && (
         <div className="text-center py-12">
           <Icon name="search" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
             No creator packs found
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             Try adjusting your search or filter criteria
           </p>
         </div>

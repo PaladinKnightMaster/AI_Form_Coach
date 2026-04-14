@@ -267,16 +267,16 @@ export default function BarcodeScanner({
         
         <div className="relative">
           {isInitializing && (
-            <div className="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Initializing camera...</p>
+                <p className="text-sm text-gray-600">Initializing camera...</p>
               </div>
             </div>
           )}
           <video
             ref={videoRef}
-            className={`w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg object-cover ${isInitializing ? 'hidden' : ''}`}
+            className={`w-full h-64 bg-gray-100 rounded-lg object-cover ${isInitializing ? 'hidden' : ''}`}
             playsInline
             muted
           />
@@ -310,8 +310,8 @@ export default function BarcodeScanner({
           )}
           
           {/* Debug Info */}
-          <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs">
-            <p className="text-gray-600 dark:text-gray-400">
+          <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
+            <p className="text-gray-600">
               📊 Debug: {isInitializing ? 'Initializing...' : isScanning ? 'Active' : 'Stopped'} | 
               Camera: {hasPermission ? '✅' : '❌'} | 
               Formats: {supportedFormats.length} | 
@@ -354,11 +354,11 @@ export default function BarcodeScanner({
         </div>
         
         {/* Troubleshooting Tips */}
-        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <p className="text-xs text-blue-800 dark:text-blue-200 mb-2">
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-xs text-blue-800 mb-2">
             🔧 Troubleshooting Tips:
           </p>
-          <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+          <ul className="text-xs text-blue-700 space-y-1">
             <li>• Ensure good lighting (avoid shadows)</li>
             <li>• Hold camera steady and parallel to code</li>
             <li>• Try different distances (6-12 inches)</li>

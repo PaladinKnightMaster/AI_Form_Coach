@@ -141,18 +141,18 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
     const today = new Date();
     
     if (date.toDateString() === today.toDateString()) {
-      return { label: 'Today', color: 'text-blue-600 dark:text-blue-400' };
+      return { label: 'Today', color: 'text-blue-600' };
     } else if (date < today) {
       const diffDays = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
       if (diffDays === 1) {
-        return { label: 'Yesterday', color: 'text-gray-600 dark:text-gray-400' };
+        return { label: 'Yesterday', color: 'text-gray-600' };
       } else if (diffDays <= 7) {
-        return { label: `${diffDays} days ago`, color: 'text-gray-600 dark:text-gray-400' };
+        return { label: `${diffDays} days ago`, color: 'text-gray-600' };
       } else {
-        return { label: 'Previous', color: 'text-gray-500 dark:text-gray-500' };
+        return { label: 'Previous', color: 'text-gray-500' };
       }
     } else {
-      return { label: 'Future', color: 'text-gray-400 dark:text-gray-600' };
+      return { label: 'Future', color: 'text-gray-400' };
     }
   };
   
@@ -162,14 +162,14 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-4 py-3 bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm backdrop-blur-sm"
+        className="flex items-center justify-between w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm backdrop-blur-sm"
       >
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center">
             <Icon name="chart" className="text-white w-5 h-5" />
           </div>
           <div className="text-left">
-            <div className="font-semibold text-gray-900 dark:text-white">
+            <div className="font-semibold text-gray-900">
               {formatDisplayDate(selectedDate)}
             </div>
             <div className={`text-sm ${getDateStatus(selectedDate).color}`}>
@@ -190,7 +190,7 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
       {/* Calendar Dropdown - Rendered via Portal */}
       {isOpen && mounted && buttonRect && createPortal(
         <div 
-          className="fixed bg-white/95 dark:bg-gray-800/95 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-[99999] animate-slide-up backdrop-blur-sm"
+          className="fixed bg-white/95 border border-gray-200 rounded-xl shadow-2xl z-[99999] animate-slide-up backdrop-blur-sm"
           style={{
             top: Math.min(buttonRect.bottom + 8, window.innerHeight - 400),
             left: Math.max(8, Math.min(buttonRect.left, window.innerWidth - 320)),
@@ -199,16 +199,16 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
           }}
         >
           {/* Calendar Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <button
               onClick={goToPreviousMonth}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <Icon name="chevron-left" className="w-5 h-5" />
             </button>
             
             <div className="flex items-center space-x-2">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-900">
                 {monthYear}
               </h3>
               <button
@@ -221,7 +221,7 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
             
             <button
               onClick={goToNextMonth}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <Icon name="chevron-right" className="w-5 h-5" />
             </button>
@@ -232,7 +232,7 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
             {/* Day Headers */}
             <div className="grid grid-cols-7 gap-1 mb-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-2">
+                <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
                   {day}
                 </div>
               ))}
@@ -260,10 +260,10 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
                       ${isSelectedDay 
                         ? 'bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg scale-110' 
                         : isCurrentDay
-                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 font-bold'
+                        ? 'bg-blue-100 text-blue-600 font-bold'
                         : isFutureDay
-                        ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-gray-700 hover:bg-gray-100'
                       }
                     `}
                   >
@@ -278,7 +278,7 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
           </div>
           
           {/* Quick Date Buttons */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-t border-gray-200">
             <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => {
@@ -287,7 +287,7 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
                   onDateChange(yesterday.toISOString().split('T')[0]);
                   setIsOpen(false);
                 }}
-                className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Yesterday
               </button>
@@ -305,7 +305,7 @@ export default function DatePicker({ selectedDate, onDateChange, datesWithData =
                   setIsOpen(false);
                 }}
                 disabled
-                className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-600 rounded-lg cursor-not-allowed"
+                className="px-3 py-2 text-sm bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed"
               >
                 Tomorrow
               </button>

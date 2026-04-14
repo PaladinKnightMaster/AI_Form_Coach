@@ -79,19 +79,19 @@ export default function AlertPanel({ className = '' }: AlertPanelProps) {
 
   if (loading) {
     return (
-      <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 ${className}`}>
+      <div className={`bg-white rounded-lg border border-gray-200 p-6 ${className}`}>
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-          <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Loading alerts...</span>
+          <span className="ml-2 text-sm text-gray-600">Loading alerts...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 ${className}`}>
+    <div className={`bg-white rounded-lg border border-gray-200 p-6 ${className}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-gray-900">
           Active Alerts
         </h3>
         <div className="flex items-center space-x-2">
@@ -111,7 +111,7 @@ export default function AlertPanel({ className = '' }: AlertPanelProps) {
       {alerts.length === 0 ? (
         <div className="text-center py-8">
           <Icon name="check-circle" className="w-12 h-12 text-green-500 mx-auto mb-3" />
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             No active alerts. All systems are operating normally.
           </p>
         </div>
@@ -122,10 +122,10 @@ export default function AlertPanel({ className = '' }: AlertPanelProps) {
               key={alert.id}
               className={`p-4 rounded-lg border ${
                 alert.type === 'critical' 
-                  ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
+                  ? 'border-red-200 bg-red-50'
                   : alert.type === 'warning'
-                  ? 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20'
-                  : 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20'
+                  ? 'border-yellow-200 bg-yellow-50'
+                  : 'border-blue-200 bg-blue-50'
               }`}
             >
               <div className="flex items-start justify-between">
@@ -133,15 +133,15 @@ export default function AlertPanel({ className = '' }: AlertPanelProps) {
                   {getAlertIcon(alert.type)}
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-gray-900">
                         {alert.metric}
                       </span>
                       {getAlertBadge(alert.type)}
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <p className="text-sm text-gray-600 mb-2">
                       {alert.message}
                     </p>
-                    <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center space-x-4 text-xs text-gray-500">
                       <span>Value: {alert.value.toFixed(2)}</span>
                       <span>Threshold: {alert.threshold}</span>
                       <span>{new Date(alert.timestamp).toLocaleString()}</span>

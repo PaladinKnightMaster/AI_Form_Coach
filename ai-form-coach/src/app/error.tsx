@@ -21,15 +21,15 @@ export default function Error({
   return (
     <div className="min-h-[60vh] flex items-center justify-center px-4">
       <Card className="max-w-md w-full text-center" padding="lg">
-        <div className="mx-auto w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-          <Icon name="alert-triangle" className="w-6 h-6 text-red-600 dark:text-red-400" />
+        <div className="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
+          <Icon name="alert-triangle" className="w-6 h-6 text-red-600" />
         </div>
 
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+        <h2 className="text-xl font-bold text-gray-900 mb-2">
           Something went wrong
         </h2>
 
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+        <p className="text-sm text-gray-600 mb-6 leading-relaxed">
           This page encountered an error. Your coaching data is safe — this is a display issue, not a data issue.
         </p>
 

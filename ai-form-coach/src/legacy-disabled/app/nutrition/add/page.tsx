@@ -261,7 +261,7 @@ function AddFoodPageContent() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+		<div className="min-h-screen bg-gray-50">
 			<Container>
 				<div className="py-8 max-w-2xl mx-auto">
 					{/* Header */}
@@ -313,21 +313,21 @@ function AddFoodPageContent() {
 								
 								{/* Search Help Text */}
 								{searchQuery.trim() && searchQuery.trim().length < 2 && (
-									<p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+									<p className="text-sm text-gray-600 mb-4">
 										💡 Type at least 2 characters to see food suggestions
 									</p>
 								)}
 								{searchQuery.trim() && searchQuery.trim().length >= 2 && (
-									<p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+									<p className="text-sm text-gray-600 mb-4">
 										🔍 Showing suggestions for &quot;{searchQuery}&quot; • Click &quot;Search&quot; for more results
 									</p>
 								)}
 								
 								{/* Divider */}
 								<div className="flex items-center my-4">
-									<div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
-									<span className="px-3 text-sm text-gray-500 dark:text-gray-400">or</span>
-									<div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+									<div className="flex-1 border-t border-gray-200"></div>
+									<span className="px-3 text-sm text-gray-500">or</span>
+									<div className="flex-1 border-t border-gray-200"></div>
 								</div>
 
 								{/* Barcode Scanner Button */}
@@ -340,17 +340,17 @@ function AddFoodPageContent() {
 										<Icon name="camera" className="w-6 h-6" />
 										{barcodeLoading ? 'Scanning...' : '📱 Scan Barcode or QR Code'}
 									</button>
-									<p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+									<p className="text-sm text-gray-600 mt-3">
 										Point your camera at a product barcode or QR code for instant food lookup
 									</p>
 								</div>
 
 								{/* Barcode Error */}
 								{barcodeError && (
-									<div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+									<div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
 										<div className="flex items-center gap-2">
 											<Icon name="alert-circle" className="text-red-500" />
-											<p className="text-sm text-red-700 dark:text-red-300">{barcodeError}</p>
+											<p className="text-sm text-red-700">{barcodeError}</p>
 										</div>
 									</div>
 								)}
@@ -366,7 +366,7 @@ function AddFoodPageContent() {
 
 							{searchResults.length > 0 && (
 								<div>
-									<h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+									<h3 className="text-sm font-medium text-gray-700 mb-3">
 										🍽️ Food Suggestions
 									</h3>
 									<FoodSearchResults 
@@ -440,19 +440,19 @@ function AddFoodPageContent() {
 								{/* Calculated Macros */}
 								{calculatedMacros && (
 									<div className="grid grid-cols-2 gap-4 mb-6">
-										<div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+										<div className="text-center p-3 bg-blue-50 rounded-lg">
 											<div className="text-2xl font-bold text-blue-600">{Math.round(calculatedMacros.calories)}</div>
 											<div className="text-sm">Calories</div>
 										</div>
-										<div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+										<div className="text-center p-3 bg-red-50 rounded-lg">
 											<div className="text-2xl font-bold text-red-600">{Math.round(calculatedMacros.protein)}g</div>
 											<div className="text-sm">Protein</div>
 										</div>
-										<div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+										<div className="text-center p-3 bg-green-50 rounded-lg">
 											<div className="text-2xl font-bold text-green-600">{Math.round(calculatedMacros.carbs)}g</div>
 											<div className="text-sm">Carbs</div>
 										</div>
-										<div className="text-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+										<div className="text-center p-3 bg-yellow-50 rounded-lg">
 											<div className="text-2xl font-bold text-yellow-600">{Math.round(calculatedMacros.fat)}g</div>
 											<div className="text-sm">Fat</div>
 										</div>
@@ -510,7 +510,7 @@ function FoodSearchResults({
 				<button
 					key={food.id}
 					onClick={() => onSelectFood(food)}
-					className="w-full card p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+					className="w-full card p-4 text-left hover:bg-gray-50 transition-colors"
 				>
 					<div className="flex items-start justify-between">
 						<div className="flex-1">

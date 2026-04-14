@@ -409,19 +409,19 @@ export default function PlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-purple-900/30 dark:to-indigo-900/30" suppressHydrationWarning>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50" suppressHydrationWarning>
       <Container>
         <div className="py-8 space-y-8">
           {/* Header */}
           <div className="text-center space-y-6">
             <div className="space-y-4">
-              <Badge tone="info" size="lg" className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
+              <Badge tone="info" size="lg" className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-700 border-purple-200">
                 🚀 AI-Powered Planning
               </Badge>
               <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Workout Plans
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Choose from our expertly crafted plans or create a personalized program with AI
               </p>
             </div>
@@ -433,20 +433,20 @@ export default function PlansPage() {
           {loading && (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Loading plans...</p>
+              <p className="text-gray-600">Loading plans...</p>
             </div>
           )}
 
           {/* Navigation Tabs */}
           <div className="flex flex-col items-center gap-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-1 shadow-lg">
+            <div className="bg-white rounded-lg p-1 shadow-lg">
               <div className="flex space-x-1">
                 <button
                   onClick={() => setActiveView('featured')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
                     activeView === 'featured'
                       ? 'bg-blue-500 text-white'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
                   <Icon name="star" className="w-4 h-4" />
@@ -457,7 +457,7 @@ export default function PlansPage() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
                     activeView === 'my-plans'
                       ? 'bg-blue-500 text-white'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
                   <Icon name="user" className="w-4 h-4" />
@@ -483,16 +483,16 @@ export default function PlansPage() {
           {/* Content */}
           {!loading && activeView === 'featured' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
+              <h2 className="text-2xl font-bold text-gray-900 text-center">
                 Featured Plans
               </h2>
               {featuredPlans.length === 0 ? (
                 <div className="text-center py-12">
                   <Icon name="calendar" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     No featured plans available
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-gray-600">
                     Check back later for new workout plans.
                   </p>
                 </div>
@@ -501,12 +501,12 @@ export default function PlansPage() {
                   {featuredPlans.map((plan) => (
                   <div
                     key={plan.id}
-                    className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+                    className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
                   >
                     <div className="space-y-4">
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                          <h3 className="text-xl font-bold text-gray-900">
                             {plan.name}
                           </h3>
                           <Badge tone={getCategoryColor(plan.category)} className="mt-1">
@@ -514,43 +514,43 @@ export default function PlansPage() {
                           </Badge>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                          <div className="text-sm text-gray-500">
                             {getDifficultyStars(plan.difficulty_level)}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-gray-500">
                             {plan.difficulty_level}/10
                           </div>
                         </div>
                       </div>
 
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">
+                      <p className="text-gray-600 text-sm">
                         {plan.description}
                       </p>
 
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <div className="font-semibold text-gray-900 dark:text-white">
+                          <div className="font-semibold text-gray-900">
                             {plan.duration_weeks} weeks
                           </div>
-                          <div className="text-gray-500 dark:text-gray-400">Duration</div>
+                          <div className="text-gray-500">Duration</div>
                         </div>
                         <div>
-                          <div className="font-semibold text-gray-900 dark:text-white">
+                          <div className="font-semibold text-gray-900">
                             {plan.sessions_per_week}/week
                           </div>
-                          <div className="text-gray-500 dark:text-gray-400">Sessions</div>
+                          <div className="text-gray-500">Sessions</div>
                         </div>
                         <div>
-                          <div className="font-semibold text-gray-900 dark:text-white">
+                          <div className="font-semibold text-gray-900">
                             {plan.avg_session_duration}min
                           </div>
-                          <div className="text-gray-500 dark:text-gray-400">Per session</div>
+                          <div className="text-gray-500">Per session</div>
                         </div>
                         <div>
-                          <div className="font-semibold text-gray-900 dark:text-white">
+                          <div className="font-semibold text-gray-900">
                             {plan.equipment_required.length === 0 ? 'None' : plan.equipment_required.length}
                           </div>
-                          <div className="text-gray-500 dark:text-gray-400">Equipment</div>
+                          <div className="text-gray-500">Equipment</div>
                         </div>
                       </div>
 
@@ -558,7 +558,7 @@ export default function PlansPage() {
                         {plan.tags.slice(0, 3).map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full"
+                            className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
                           >
                             {tag.replace('-', ' ')}
                           </span>
@@ -585,16 +585,16 @@ export default function PlansPage() {
             <div className="space-y-8">
               {/* My Plans Section */}
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">
                   My Plans
                 </h2>
                 {userPlans.length === 0 ? (
                   <div className="text-center py-12">
                     <Icon name="user" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
                       No plans yet
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    <p className="text-gray-600 mb-6">
                       Select a featured plan to get started.
                     </p>
                     <Button
@@ -609,11 +609,11 @@ export default function PlansPage() {
                   {userPlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg"
+                      className="bg-white rounded-xl p-6 shadow-lg"
                     >
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                          <h3 className="text-xl font-bold text-gray-900">
                             {plan.name}
                           </h3>
                           {plan.is_active && (
@@ -623,16 +623,16 @@ export default function PlansPage() {
 
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <div className="font-semibold text-gray-900 dark:text-white">
+                            <div className="font-semibold text-gray-900">
                               Week {plan.current_week}
                             </div>
-                            <div className="text-gray-500 dark:text-gray-400">Current</div>
+                            <div className="text-gray-500">Current</div>
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900 dark:text-white">
+                            <div className="font-semibold text-gray-900">
                               Day {plan.current_day}
                             </div>
-                            <div className="text-gray-500 dark:text-gray-400">Progress</div>
+                            <div className="text-gray-500">Progress</div>
                           </div>
                         </div>
 
@@ -663,7 +663,7 @@ export default function PlansPage() {
               {/* Creator Packs Section */}
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h2 className="text-2xl font-bold text-gray-900">
                     My Creator Packs
                   </h2>
                   <Button
@@ -676,12 +676,12 @@ export default function PlansPage() {
                 </div>
                 
                 {purchasedPacks.length === 0 ? (
-                  <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div className="text-center py-12 bg-gray-50 rounded-lg">
                     <Icon name="package" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
                       No purchased packs yet
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    <p className="text-gray-600 mb-6">
                       Discover premium workout programs created by fitness experts.
                     </p>
                     <Button
@@ -697,12 +697,12 @@ export default function PlansPage() {
                     {purchasedPacks.map((pack) => (
                       <div
                         key={pack.id}
-                        className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
+                        className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow"
                       >
                         <div className="space-y-4">
                           <div className="flex items-start justify-between">
                             <div>
-                              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                              <h3 className="text-xl font-bold text-gray-900">
                                 {pack.title}
                               </h3>
                               <Badge tone="success" className="mt-1">
@@ -710,21 +710,21 @@ export default function PlansPage() {
                               </Badge>
                             </div>
                             <div className="text-right">
-                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                              <div className="text-sm text-gray-500">
                                 {pack.difficulty}
                               </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                              <div className="text-xs text-gray-500">
                                 {pack.duration} weeks
                               </div>
                             </div>
                           </div>
 
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">
+                          <p className="text-gray-600 text-sm">
                             {pack.shortDescription}
                           </p>
 
                           <div className="flex items-center justify-between">
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                            <div className="text-sm text-gray-500">
                               by {pack.creator?.name || 'Unknown Creator'}
                             </div>
                             <Button

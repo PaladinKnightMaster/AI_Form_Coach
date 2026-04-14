@@ -24,17 +24,17 @@ export default function LoadingOverlay({
           <LoadingSpinner size="lg" className="text-green-600" />
           
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-gray-900">
               {message}
             </h3>
             
             {progress !== undefined && (
               <div className="w-full">
-                <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
                   <span>Progress</span>
                   <span>{Math.round(progress)}%</span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
                     className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
                     style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}

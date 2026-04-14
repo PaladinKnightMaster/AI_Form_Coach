@@ -10,15 +10,15 @@ export default function QualityOverlay({ isVisible, onDismiss }: QualityOverlayP
 
   return (
     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4 text-center shadow-xl animate-fade-in">
+      <div className="bg-white rounded-lg p-6 max-w-md mx-4 text-center shadow-xl animate-fade-in">
         <div className="text-6xl mb-4 animate-bounce">📹</div>
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+        <h3 className="text-xl font-bold text-gray-900 mb-2">
           Camera Quality Issue
         </h3>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
+        <p className="text-gray-600 mb-4">
           I can&apos;t see your full body clearly. Please:
         </p>
-        <ul className="text-left text-sm text-gray-600 dark:text-gray-300 space-y-2 mb-6">
+        <ul className="text-left text-sm text-gray-600 space-y-2 mb-6">
           <li className="flex items-center gap-2">
             <span className="text-green-500">✓</span>
             Step back to fit your full body in frame
@@ -40,8 +40,8 @@ export default function QualityOverlay({ isVisible, onDismiss }: QualityOverlayP
             Remove any objects blocking the camera view
           </li>
         </ul>
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 mb-4">
-          <p className="text-xs text-blue-700 dark:text-blue-300">
+        <div className="bg-blue-50 rounded-lg p-3 mb-4">
+          <p className="text-xs text-blue-700">
             💡 <strong>Pro tip:</strong> Stand 6-8 feet away from your camera for best results
           </p>
         </div>

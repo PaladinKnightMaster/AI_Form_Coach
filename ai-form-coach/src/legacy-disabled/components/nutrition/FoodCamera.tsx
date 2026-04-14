@@ -121,9 +121,9 @@ export default function FoodCamera({ onPhotoTaken, onClose }: FoodCameraProps) {
   if (hasPermission === false) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4">
+        <div className="bg-white rounded-lg p-6 max-w-md mx-4">
           <h3 className="text-lg font-semibold mb-4">Camera Permission Required</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-gray-600 mb-4">
             To analyze food with AI, please allow camera access in your browser settings.
           </p>
           <div className="flex gap-3">
@@ -148,9 +148,9 @@ export default function FoodCamera({ onPhotoTaken, onClose }: FoodCameraProps) {
   if (error) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4">
+        <div className="bg-white rounded-lg p-6 max-w-md mx-4">
           <h3 className="text-lg font-semibold mb-4 text-red-600">Camera Error</h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+          <p className="text-gray-600 mb-4">{error}</p>
           <button 
             onClick={handleClose}
             className="btn btn-primary w-full"
@@ -164,12 +164,12 @@ export default function FoodCamera({ onPhotoTaken, onClose }: FoodCameraProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 max-w-md mx-4 w-full">
+      <div className="bg-white rounded-lg p-4 max-w-md mx-4 w-full">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">🤖 AI Food Analysis</h3>
           <button 
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="text-gray-500 hover:text-gray-700"
           >
             ✕
           </button>
@@ -177,16 +177,16 @@ export default function FoodCamera({ onPhotoTaken, onClose }: FoodCameraProps) {
         
         <div className="relative">
           {isInitializing && (
-            <div className="w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+            <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Initializing camera...</p>
+                <p className="text-sm text-gray-600">Initializing camera...</p>
               </div>
             </div>
           )}
           <video
             ref={videoRef}
-            className={`w-full h-64 bg-gray-100 dark:bg-gray-700 rounded-lg object-cover ${isInitializing ? 'hidden' : ''}`}
+            className={`w-full h-64 bg-gray-100 rounded-lg object-cover ${isInitializing ? 'hidden' : ''}`}
             playsInline
             muted
           />
@@ -208,7 +208,7 @@ export default function FoodCamera({ onPhotoTaken, onClose }: FoodCameraProps) {
         </div>
         
         <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-sm text-gray-600 mb-4">
             Position your food in the center of the frame for best AI analysis
           </p>
           

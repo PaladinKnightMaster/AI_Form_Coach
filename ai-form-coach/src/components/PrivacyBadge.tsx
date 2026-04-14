@@ -21,29 +21,29 @@ export default function PrivacyBadge({
       icon: 'check',
       text: 'On-Device Processing',
       description: 'Processed locally with MediaPipe',
-      color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
-      iconColor: 'text-green-600 dark:text-green-400'
+      color: 'bg-green-100 text-green-800',
+      iconColor: 'text-green-600'
     },
     'anonymous': {
       icon: 'user',
       text: 'Anonymous Lookups',
       description: 'No personal tracking',
-      color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
-      iconColor: 'text-blue-600 dark:text-blue-400'
+      color: 'bg-blue-100 text-blue-800',
+      iconColor: 'text-blue-600'
     },
     'opt-in': {
       icon: 'settings',
       text: 'Opt-In Only',
       description: 'You control your data',
-      color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
-      iconColor: 'text-purple-600 dark:text-purple-400'
+      color: 'bg-purple-100 text-purple-800',
+      iconColor: 'text-purple-600'
     },
     'local-cache': {
       icon: 'save',
       text: 'Local Cache',
       description: 'Stored on your device',
-      color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400',
-      iconColor: 'text-orange-600 dark:text-orange-400'
+      color: 'bg-orange-100 text-orange-800',
+      iconColor: 'text-orange-600'
     }
   };
 

@@ -27,14 +27,14 @@ export default function HealthDataExplanation({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-gray-900">
           Health Data Connection
         </h3>
         <Button
           onClick={() => setShowDetails(!showDetails)}
-          className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+          className="text-sm text-blue-600 hover:text-blue-800"
         >
           {showDetails ? 'Hide Details' : 'Show Details'}
         </Button>
@@ -44,7 +44,7 @@ export default function HealthDataExplanation({
         <div className="flex items-start gap-3">
           <Icon name="alert" className="w-5 h-5 text-blue-500 mt-0.5" />
           <div>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700">
               The &ldquo;Connect Health Data&rdquo; button requests permission to access your device&apos;s built-in health data, 
               not external Bluetooth devices.
             </p>
@@ -53,11 +53,11 @@ export default function HealthDataExplanation({
 
         {showDetails && (
           <div className="space-y-4 pl-8">
-            <div className="border-l-2 border-blue-200 dark:border-blue-800 pl-4">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+            <div className="border-l-2 border-blue-200 pl-4">
+              <h4 className="font-medium text-gray-900 mb-2">
                 📱 Mobile Devices (iOS/Android)
               </h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <ul className="text-sm text-gray-600 space-y-1">
                 <li>• <strong>iOS:</strong> Connects to Apple Health (HealthKit)</li>
                 <li>• <strong>Android:</strong> Connects to Health Connect or Google Fit</li>
                 <li>• Accesses data from your phone&apos;s built-in sensors</li>
@@ -66,11 +66,11 @@ export default function HealthDataExplanation({
               </ul>
             </div>
 
-            <div className="border-l-2 border-green-200 dark:border-green-800 pl-4">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+            <div className="border-l-2 border-green-200 pl-4">
+              <h4 className="font-medium text-gray-900 mb-2">
                 💻 Desktop/Web Browsers
               </h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <ul className="text-sm text-gray-600 space-y-1">
                 <li>• <strong>Limited Web APIs:</strong> Some browsers support Web Bluetooth</li>
                 <li>• <strong>Manual Input:</strong> Recommended for desktop users</li>
                 <li>• <strong>Future:</strong> Could connect to Bluetooth heart rate monitors</li>
@@ -78,11 +78,11 @@ export default function HealthDataExplanation({
               </ul>
             </div>
 
-            <div className="border-l-2 border-yellow-200 dark:border-yellow-800 pl-4">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+            <div className="border-l-2 border-yellow-200 pl-4">
+              <h4 className="font-medium text-gray-900 mb-2">
                 🔗 What Data is Accessed?
               </h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <ul className="text-sm text-gray-600 space-y-1">
                 <li>• <strong>Sleep:</strong> Duration and quality from sleep tracking</li>
                 <li>• <strong>Heart Rate:</strong> Resting heart rate and HRV</li>
                 <li>• <strong>Activity:</strong> Steps, active minutes, distance</li>
@@ -121,7 +121,7 @@ export default function HealthDataExplanation({
           </Button>
         </div>
 
-        <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+        <div className="text-xs text-gray-500 text-center">
           💡 <strong>Tip:</strong> On mobile devices, this connects to your existing health apps. 
           On desktop, manual input provides the same functionality.
         </div>

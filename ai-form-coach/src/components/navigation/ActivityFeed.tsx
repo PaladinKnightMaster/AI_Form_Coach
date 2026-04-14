@@ -96,12 +96,12 @@ export default function ActivityFeed({ className = '', limit = 10 }: ActivityFee
       <div className={`space-y-4 ${className}`}>
         {[...Array(3)].map((_, i) => (
           <div key={i} className="animate-pulse">
-            <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-4">
+            <div className="bg-gray-200 rounded-lg p-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                  <div className="h-3 bg-gray-300 rounded w-1/2"></div>
                 </div>
               </div>
             </div>
@@ -115,10 +115,10 @@ export default function ActivityFeed({ className = '', limit = 10 }: ActivityFee
     return (
       <div className={`text-center py-8 ${className}`}>
         <Icon name="activity" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
           No recent activity
         </h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-gray-600 mb-4">
           Start a workout to see activity updates here
         </p>
         <Button asChild>
@@ -131,7 +131,7 @@ export default function ActivityFeed({ className = '', limit = 10 }: ActivityFee
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-gray-900">
           Recent Activity
         </h3>
         <Button variant="secondary" size="sm" onClick={fetchActivities}>

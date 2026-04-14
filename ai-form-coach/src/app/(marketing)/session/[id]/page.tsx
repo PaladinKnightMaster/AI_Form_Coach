@@ -195,20 +195,20 @@ export default function SessionDetailPage() {
 
   if (requiresAuth) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
-        <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 p-10 text-center dark:border-slate-800">
-          <div className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sm font-medium text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">
+        <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 p-10 text-center">
+          <div className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-sm font-medium text-sky-700">
             Signed-in beta session review
           </div>
           <h1 className="mt-4 text-3xl font-bold">Sign in to view this session</h1>
-          <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+          <p className="mt-4 text-sm leading-7 text-slate-600">
             Session detail is limited to real saved coach sessions from signed-in beta accounts.
           </p>
           <div className="mt-6 flex justify-center">
             <Link
               href="/signin"
-              className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+              className="inline-flex items-center justify-center rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
               Sign in
             </Link>
@@ -221,9 +221,9 @@ export default function SessionDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 p-8 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-300">
+        <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 p-8 text-sm text-slate-600">
           Loading session details...
         </div>
       </div>
@@ -233,14 +233,14 @@ export default function SessionDetailPage() {
 
   if (error || !session) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-950">
+      <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="mx-auto max-w-5xl rounded-3xl border border-rose-200 bg-rose-50 p-8 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+        <div className="mx-auto max-w-5xl rounded-3xl border border-rose-200 bg-rose-50 p-8 text-sm text-rose-700">
           {error ?? "Session not found."}
           <div className="mt-6">
             <Link
               href="/history"
-              className="inline-flex items-center justify-center rounded-lg border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:border-rose-500 hover:text-rose-900 dark:border-rose-800 dark:text-rose-200 dark:hover:border-rose-600 dark:hover:text-white"
+              className="inline-flex items-center justify-center rounded-lg border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:border-rose-500 hover:text-rose-900"
             >
               Back to history
             </Link>
@@ -313,19 +313,19 @@ export default function SessionDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="mx-auto max-w-5xl space-y-8">
-          <div className="flex flex-col gap-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/70 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-end sm:justify-between">
             <div className="space-y-3">
-              <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+              <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700">
                 Session review
               </div>
               <div>
                 <div className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">{sessionRecord.exercise}</div>
-                <h1 className="mt-2 text-4xl font-black tracking-tight text-slate-950 dark:text-white">Saved coach session</h1>
+                <h1 className="mt-2 text-4xl font-black tracking-tight text-slate-950">Saved coach session</h1>
               </div>
-              <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+              <p className="max-w-2xl text-sm leading-7 text-slate-600">
                 Review the reps captured during your session, export the raw rep data, and keep a short private note on this device.
               </p>
             </div>
@@ -333,7 +333,7 @@ export default function SessionDetailPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/history"
-                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white"
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950"
               >
                 Back to history
               </Link>
@@ -341,14 +341,14 @@ export default function SessionDetailPage() {
                 data-testid="session-export-csv"
                 type="button"
                 onClick={handleDownloadCsv}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 dark:border-slate-700 dark:text-slate-200 dark:hover:border-white dark:hover:text-white"
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950"
               >
                 Export CSV
               </button>
               <button
                 type="button"
                 onClick={handleShareSummary}
-                className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+                className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
               >
                 {shareState === "saved" ? "Shared" : shareState === "error" ? "Share failed" : "Share summary"}
               </button>
@@ -366,42 +366,42 @@ export default function SessionDetailPage() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
-            <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/70">
+            <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Rep quality</div>
-                  <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950 dark:text-white">Session chart</h2>
+                  <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Session chart</h2>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                   <div>{summary.strongReps} strong ROM reps</div>
                   <div className="mt-1">Best depth {summary.bestDepth.toFixed(2)}</div>
                 </div>
               </div>
-              <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/60">
+              <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4">
                 <SessionChart reps={reps} />
               </div>
 
               <div className="mt-6 space-y-3">
                 {reps.length === 0 ? (
-                  <div className="rounded-3xl border border-dashed border-slate-300 p-6 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
+                  <div className="rounded-3xl border border-dashed border-slate-300 p-6 text-sm text-slate-600">
                     No rep rows were saved for this session.
                   </div>
                 ) : (
                   reps.map((rep) => (
                     <div
                       key={rep.idx}
-                      className="flex flex-col gap-3 rounded-3xl border border-slate-200 p-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-3 rounded-3xl border border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div>
-                        <div className="text-sm font-semibold text-slate-950 dark:text-white">Rep {rep.idx + 1}</div>
-                        <div className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                        <div className="text-sm font-semibold text-slate-950">Rep {rep.idx + 1}</div>
+                        <div className="mt-1 text-sm text-slate-600">
                           {Math.max(0, rep.end_ms - rep.start_ms)} ms captured
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <StatChip label="Peak depth" value={rep.peak_depth === null ? "-" : rep.peak_depth.toFixed(2)} />
                         <StatChip label="ROM" value={rep.rom_score === null ? "-" : rep.rom_score.toFixed(2)} />
-                        <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">
+                        <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
                           {getRomLabel(rep.rom_score)}
                         </span>
                       </div>
@@ -412,9 +412,9 @@ export default function SessionDetailPage() {
             </section>
 
             <aside className="space-y-6">
-              <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/70">
+              <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Summary</div>
-                <div className="mt-4 space-y-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                <div className="mt-4 space-y-3 text-sm leading-7 text-slate-600">
                   <p>
                     This session detail page is intentionally limited to real saved beta sessions. Legacy verification,
                     embeddings, and report-generation modules are excluded from the current release.
@@ -426,10 +426,10 @@ export default function SessionDetailPage() {
                 </div>
               </section>
 
-              <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/70">
+              <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Private note</div>
-                <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950 dark:text-white">Device-local note</h2>
-                <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">Device-local note</h2>
+                <p className="mt-3 text-sm leading-7 text-slate-600">
                   Saved locally in this browser only. Use it for setup reminders, recovery notes, or what to improve next session.
                 </p>
                 <textarea
@@ -443,7 +443,7 @@ export default function SessionDetailPage() {
                   }}
                   rows={6}
                   placeholder="Example: Camera one step farther back for better ankle visibility."
-                  className="mt-4 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:border-white"
+                  className="mt-4 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900"
                 />
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <div className="text-xs text-slate-500">
@@ -453,7 +453,7 @@ export default function SessionDetailPage() {
                     data-testid="session-save-note"
                     type="button"
                     onClick={handleSaveNote}
-                    className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+                    className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
                     Save note
                   </button>
@@ -469,16 +469,16 @@ export default function SessionDetailPage() {
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950/70">
+    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
       <div className="text-sm text-slate-500">{label}</div>
-      <div className="mt-2 text-lg font-bold text-slate-950 dark:text-white">{value}</div>
+      <div className="mt-2 text-lg font-bold text-slate-950">{value}</div>
     </div>
   );
 }
 
 function StatChip({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+    <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
       {label}: {value}
     </span>
   );

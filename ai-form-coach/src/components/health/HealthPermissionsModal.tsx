@@ -179,10 +179,10 @@ export default function HealthPermissionsModal({
 
   const getPlatformColor = (platform: string) => {
     switch (platform) {
-      case 'ios': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
-      case 'android': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-      case 'web': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      case 'ios': return 'bg-blue-100 text-blue-800';
+      case 'android': return 'bg-green-100 text-green-800';
+      case 'web': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -192,20 +192,20 @@ export default function HealthPermissionsModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-bold text-gray-900">
                 Health Data Permissions
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-gray-600 mt-1">
                 Choose which health data you want to share for personalized insights
               </p>
             </div>
             <Button
               onClick={onClose}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700"
             >
               <Icon name="x" className="w-4 h-4" />
             </Button>
@@ -214,14 +214,14 @@ export default function HealthPermissionsModal({
 
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
           {/* Privacy Notice */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
+          <div className="bg-blue-50 rounded-lg p-4 mb-6">
             <div className="flex items-start space-x-3">
-              <Icon name="lock" className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+              <Icon name="lock" className="w-5 h-5 text-blue-600 mt-0.5" />
               <div>
-                <h3 className="font-medium text-blue-900 dark:text-blue-200 mb-1">
+                <h3 className="font-medium text-blue-900 mb-1">
                   Your Privacy is Protected
                 </h3>
-                <p className="text-sm text-blue-800 dark:text-blue-300">
+                <p className="text-sm text-blue-800">
                   All health data is processed locally when possible. We only store aggregated metrics 
                   to provide you with personalized insights. You can change these permissions anytime.
                 </p>
@@ -231,7 +231,7 @@ export default function HealthPermissionsModal({
 
           {/* Platform Links */}
           <div className="mb-6">
-            <h3 className="font-medium text-gray-900 dark:text-white mb-3">
+            <h3 className="font-medium text-gray-900 mb-3">
               Learn More About Health Data Access
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -239,12 +239,12 @@ export default function HealthPermissionsModal({
                 href="https://developer.apple.com/health/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <span className="text-2xl">📱</span>
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-white">Apple HealthKit</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Official developer documentation</div>
+                  <div className="font-medium text-gray-900">Apple HealthKit</div>
+                  <div className="text-sm text-gray-600">Official developer documentation</div>
                 </div>
                 <Icon name="external-link" className="w-4 h-4 text-gray-400 ml-auto" />
               </a>
@@ -252,12 +252,12 @@ export default function HealthPermissionsModal({
                 href="https://developer.android.com/guide/health-and-fitness/health-connect"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <span className="text-2xl">🤖</span>
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-white">Google Health Connect</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Official developer documentation</div>
+                  <div className="font-medium text-gray-900">Google Health Connect</div>
+                  <div className="text-sm text-gray-600">Official developer documentation</div>
                 </div>
                 <Icon name="external-link" className="w-4 h-4 text-gray-400 ml-auto" />
               </a>
@@ -266,26 +266,26 @@ export default function HealthPermissionsModal({
 
           {/* Permission Categories */}
           <div className="space-y-4">
-            <h3 className="font-medium text-gray-900 dark:text-white">
+            <h3 className="font-medium text-gray-900">
               Health Data Types
             </h3>
             {PERMISSION_CATEGORIES.map((category) => (
               <div
                 key={category.id}
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
               >
                 <div className="flex items-start space-x-3 flex-1">
-                  <Icon name={category.icon as 'heart' | 'activity' | 'moon' | 'trending-up'} className="w-5 h-5 text-gray-600 dark:text-gray-400 mt-0.5" />
+                  <Icon name={category.icon as 'heart' | 'activity' | 'moon' | 'trending-up'} className="w-5 h-5 text-gray-600 mt-0.5" />
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                      <h4 className="font-medium text-gray-900 dark:text-white">
+                      <h4 className="font-medium text-gray-900">
                         {category.name}
                       </h4>
                       <Badge className={getPlatformColor(category.platform)}>
                         {getPlatformIcon(category.platform)} {category.platform}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <p className="text-sm text-gray-600 mb-2">
                       {category.description}
                     </p>
                     {category.developerLink && (
@@ -293,7 +293,7 @@ export default function HealthPermissionsModal({
                         href={category.developerLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                        className="text-xs text-blue-600 hover:underline"
                       >
                         View official documentation →
                       </a>
@@ -308,7 +308,7 @@ export default function HealthPermissionsModal({
                       onChange={() => handlePermissionToggle(category.id)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                   </label>
                 </div>
               </div>
@@ -316,11 +316,11 @@ export default function HealthPermissionsModal({
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-t border-gray-200">
           <div className="flex gap-3">
             <Button
               onClick={onClose}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300"
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
             >
               Cancel
             </Button>

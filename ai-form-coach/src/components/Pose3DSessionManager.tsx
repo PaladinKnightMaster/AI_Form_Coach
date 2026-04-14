@@ -88,9 +88,9 @@ export default function Pose3DSessionManager({
   const progress = sessionData.progress;
 
   return (
-    <div className={`pose-session-manager bg-white dark:bg-gray-800 rounded-lg shadow-lg ${className}`}>
+    <div className={`pose-session-manager bg-white rounded-lg shadow-lg ${className}`}>
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold">Session Analytics</h3>
@@ -125,7 +125,7 @@ export default function Pose3DSessionManager({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 dark:border-gray-700">
+      <div className="flex border-b border-gray-200">
         {[
           { id: 'overview', label: 'Overview', icon: 'chart' as const },
           { id: 'metrics', label: 'Metrics', icon: 'trending-up' as const },
