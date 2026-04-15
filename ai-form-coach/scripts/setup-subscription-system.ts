@@ -15,7 +15,7 @@ async function setupSubscriptionSystem() {
 
     // 1. Check if subscription tables exist
     console.log('1. Checking subscription tables...');
-    const { data: tables, error: tablesError } = await supabase
+    const { data: _tables, error: tablesError } = await supabase
       .from('user_subscriptions')
       .select('*')
       .limit(1);
