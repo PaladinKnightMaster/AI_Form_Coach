@@ -15,6 +15,10 @@ const eslintConfig = [
     ],
   },
   {
+    // Scope to TS/TSX so `npx eslint .` over the whole repo does not try to
+    // apply react-hooks/typescript-eslint rules to JSON/env/mjs config files
+    // (the plugins are only registered for these file types upstream).
+    files: ["**/*.{ts,tsx,mts,cts}"],
     rules: {
       // React 19 strict rules — all violations fixed, now enforced as errors.
       "react-hooks/set-state-in-effect": "error",
