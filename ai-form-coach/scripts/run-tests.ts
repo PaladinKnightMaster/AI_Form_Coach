@@ -50,7 +50,9 @@ function runTestFile(filePath: string): { status: 'passed' | 'failed'; error?: s
   try {
     console.log(`${colors.blue}Running: ${filePath}${colors.reset}`);
     
-    const result = execSync(`npx vitest run ${filePath} --config vitest.config.test.mts --reporter=verbose`, {
+    // Success is inferred from execSync not throwing; stdout is intentionally
+    // discarded here (verbose output would noise up the CLI summary).
+    execSync(`npx vitest run ${filePath} --config vitest.config.test.mts --reporter=verbose`, {
       encoding: 'utf8',
       stdio: 'pipe'
     });
