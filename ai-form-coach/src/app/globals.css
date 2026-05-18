@@ -6,6 +6,11 @@
  * This @theme block is the SINGLE SOURCE OF TRUTH for design tokens.
  * Use these via Tailwind classes: bg-surface, text-brand, rounded-token-md, etc.
  * See docs/design/DESIGN_SYSTEM.md for rationale.
+ *
+ * Carriage v2 palette locked May 2026 — Couture Kinetics.
+ * Brand:        Carriage           Descriptor: AI Form Coach
+ * Concept:      Couture Kinetics   Logo:       Ribbon C
+ * Metaphor:     The Form Line      Tagline:    Form, carried.
  * ─────────────────────────────────────────────────────────────────────── */
 /* Tokens that reference :root custom properties must use @theme inline
  * so Tailwind v4 emits var() literally instead of resolving at compile time. */
@@ -140,26 +145,82 @@
 }
 
 :root {
-  --color-primary: #f8fafc;
-  --color-primary-light: #e2e8f0;
-  --color-surface: #020617;
-  --color-surface-secondary: #0f172a;
-  --color-text: #f8fafc;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #94a3b8;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-  --color-border: #1e293b;
-  --color-border-light: #334155;
-  --color-accent: #10b981;
-  --color-accent-light: #34d399;
-  --radius-md: 12px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
-  --shadow-xl: 0 20px 25px rgba(0,0,0,0.6);
+  /* ─── Carriage v2 palette (locked May 2026) ─────────────────────── */
+  --carriage-obsidian:        #070707;  /* coach app body · camera ground */
+  --carriage-deep-slate:      #111418;  /* UI surface · elevated dark */
+  --carriage-ink:             #17120D;  /* text on bone — warmer than black */
+  --carriage-bone:            #F4EFE6;  /* editorial layer · marketing body */
+  --carriage-malachite:       #0E6F5C;  /* brand · the Form Line */
+  --carriage-malachite-light: #149A80;  /* hover/active */
+  --carriage-malachite-deep:  #094B3F;  /* press */
+  --carriage-champagne:       #D8C29D;  /* premium accent · nodes · numerals */
+  --carriage-oxblood:         #5A1F24;  /* rare dramatic accent · errors */
+  --carriage-soft-clay:       #B99A7A;  /* wellness neutral · photo wash */
+
+  /* ─── Surface roles ─────────────────────────────────────────────── */
+  --color-surface:            var(--carriage-obsidian);
+  --color-surface-secondary:  var(--carriage-deep-slate);
+  --color-surface-elev:       #1a1f24;
+  --color-light-bg:           var(--carriage-bone);
+  --color-light-surface:      #FAF6EF;
+  --color-light-text:         var(--carriage-ink);
+  --color-light-text-sec:     #4B423A;
+  --color-light-border:       #E5DDCD;
+
+  /* ─── Text on dark ──────────────────────────────────────────────── */
+  --color-primary:            #F4EFE6;
+  --color-primary-light:      #E5DDCD;
+  --color-text:               #F4EFE6;
+  --color-text-secondary:     #C9C0B2;
+  --color-text-muted:         #8A8377;
+
+  /* ─── Borders ───────────────────────────────────────────────────── */
+  --color-border:             #1F2228;
+  --color-border-light:       #2C3036;
+
+  /* ─── Brand · Malachite leads ───────────────────────────────────── */
+  --color-accent:             var(--carriage-malachite);
+  --color-accent-light:       var(--carriage-malachite-light);
+  --color-accent-deep:        var(--carriage-malachite-deep);
+
+  /* ─── Premium · Champagne ───────────────────────────────────────── */
+  --color-champagne:          var(--carriage-champagne);
+  --color-champagne-soft:     #ECDCBE;
+
+  /* ─── Wellness · Soft Clay ──────────────────────────────────────── */
+  --color-soft-clay:          var(--carriage-soft-clay);
+
+  /* ─── Dramatic · Oxblood ────────────────────────────────────────── */
+  --color-oxblood:            var(--carriage-oxblood);
+
+  /* ─── Semantic ──────────────────────────────────────────────────── */
+  --color-success:            var(--carriage-malachite);
+  --color-warning:            #C49A47;
+  --color-error:              var(--carriage-oxblood);
+  --color-info:               #4A6FA5;
+
+  /* ─── Pose overlay · The Form Line (malachite → champagne) ──────── */
+  --color-pose-edge-start:    var(--carriage-malachite-light);
+  --color-pose-edge-end:      var(--carriage-champagne);
+  --color-pose-joint:         var(--carriage-champagne);
+
+  /* ─── Signature gradients ───────────────────────────────────────── */
+  --gradient-brand:           linear-gradient(135deg, #149A80 0%, #094B3F 100%);
+  --gradient-brand-soft:      linear-gradient(135deg, rgba(20,154,128,.18) 0%, rgba(9,75,63,.06) 100%);
+  --gradient-pose:            linear-gradient(90deg, #149A80 0%, #D8C29D 100%);
+  --gradient-hero-dark:       linear-gradient(135deg, #070707 0%, #111418 50%, #1a1f24 100%);
+  --gradient-bone:            linear-gradient(180deg, #F4EFE6 0%, #ECE4D2 100%);
+
+  /* ─── Radii ─────────────────────────────────────────────────────── */
+  --radius-md:                12px;
+
+  /* ─── Shadows ───────────────────────────────────────────────────── */
+  --shadow-sm:                0 1px 2px rgba(0,0,0,0.30);
+  --shadow-md:                0 4px 6px rgba(0,0,0,0.40);
+  --shadow-lg:                0 10px 15px rgba(0,0,0,0.50);
+  --shadow-xl:                0 20px 25px rgba(0,0,0,0.60);
+  --shadow-glow-accent:       0 0 24px rgba(20,154,128,0.40);
+  --shadow-glow-champagne:    0 0 28px rgba(216,194,157,0.32);
 
   /* Fluid type scale */
   --step--1: clamp(0.79rem, calc(0.75rem + 0.21vw), 0.89rem);
@@ -173,7 +234,7 @@
 html { color-scheme: dark; }
 
 body {
-  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%);
+  background: var(--gradient-hero-dark);
   color: var(--color-text);
   font-size: var(--step-0);
   line-height: 1.6;
@@ -214,11 +275,16 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   box-shadow: var(--shadow-md);
 }
 
-.btn-primary { 
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%); 
-  color: white;
+.btn-primary {
+  /* Carriage brand gradient — malachite range, never neon. */
+  background: var(--gradient-brand);
+  color: var(--carriage-bone);
   border: none;
   font-weight: 600;
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-glow-accent);
 }
 
 .btn-secondary { 
@@ -314,9 +380,10 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   to { opacity: 1; transform: scale(1); }
 }
 
+/* Brand glow — malachite range (was blue). */
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-  50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(20, 154, 128, 0.30); }
+  50%      { box-shadow: 0 0 30px rgba(20, 154, 128, 0.60); }
 }
 
 @keyframes float {
@@ -325,8 +392,8 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
-  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6); }
+  0%, 100% { box-shadow: 0 0 5px rgba(20, 154, 128, 0.50); }
+  50%      { box-shadow: 0 0 20px rgba(20, 154, 128, 0.80), 0 0 30px rgba(20, 154, 128, 0.60); }
 }
 
 @keyframes slide-up {
