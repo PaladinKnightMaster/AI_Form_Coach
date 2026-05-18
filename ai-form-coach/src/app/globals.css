@@ -2,6 +2,71 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ── Carriage type system · self-hosted ───────────────────────────────────
+ * Variable fonts where available — one file, all weights/axes.
+ * Filenames contain commas → URL-encoded as %2C for safety.
+ * ─────────────────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/Fraunces/Fraunces-VariableFont_SOFT%2CWONK%2Copsz%2Cwght.ttf') format('truetype-variations'),
+       url('/fonts/Fraunces/Fraunces-VariableFont_SOFT%2CWONK%2Copsz%2Cwght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/Fraunces/Fraunces-Italic-VariableFont_SOFT%2CWONK%2Copsz%2Cwght.ttf') format('truetype-variations'),
+       url('/fonts/Fraunces/Fraunces-Italic-VariableFont_SOFT%2CWONK%2Copsz%2Cwght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Variable.woff2') format('woff2-variations'),
+       url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Variable.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-VariableItalic.woff2') format('woff2-variations'),
+       url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-VariableItalic.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ── Design Tokens (Tailwind v4 CSS-first) ──────────────────────────────
  * This @theme block is the SINGLE SOURCE OF TRUTH for design tokens.
  * Use these via Tailwind classes: bg-surface, text-brand, rounded-token-md, etc.
@@ -12,8 +77,6 @@
  * Concept:      Couture Kinetics   Logo:       Ribbon C
  * Metaphor:     The Form Line      Tagline:    Form, carried.
  * ─────────────────────────────────────────────────────────────────────── */
-/* Tokens that reference :root custom properties must use @theme inline
- * so Tailwind v4 emits var() literally instead of resolving at compile time. */
 @theme inline {
   --color-surface: var(--color-surface);
   --color-surface-secondary: var(--color-surface-secondary);
@@ -34,6 +97,11 @@
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
+
+  /* Font families — Tailwind utilities: font-sans / font-display / font-mono */
+  --font-sans:    var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono:    var(--font-mono);
 }
 
 /* Static tokens resolved at build time */
@@ -79,7 +147,7 @@
   .btn {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
-    min-height: 44px; /* iOS recommended touch target */
+    min-height: 44px;
     min-width: 44px;
   }
   
@@ -96,27 +164,15 @@
 
 /* Toast Animations */
 @keyframes progress {
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0%;
-  }
+  from { width: 100%; }
+  to { width: 0%; }
 }
-
-.animate-progress {
-  animation: progress linear;
-}
+.animate-progress { animation: progress linear; }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-
 .animate-shimmer {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   background-size: 200% 100%;
@@ -124,17 +180,10 @@
 }
 
 @keyframes rainbow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
-
 .animate-rainbow {
   background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
   background-size: 400% 400%;
@@ -146,16 +195,16 @@
 
 :root {
   /* ─── Carriage v2 palette (locked May 2026) ─────────────────────── */
-  --carriage-obsidian:        #070707;  /* coach app body · camera ground */
-  --carriage-deep-slate:      #111418;  /* UI surface · elevated dark */
-  --carriage-ink:             #17120D;  /* text on bone — warmer than black */
-  --carriage-bone:            #F4EFE6;  /* editorial layer · marketing body */
-  --carriage-malachite:       #0E6F5C;  /* brand · the Form Line */
-  --carriage-malachite-light: #149A80;  /* hover/active */
-  --carriage-malachite-deep:  #094B3F;  /* press */
-  --carriage-champagne:       #D8C29D;  /* premium accent · nodes · numerals */
-  --carriage-oxblood:         #5A1F24;  /* rare dramatic accent · errors */
-  --carriage-soft-clay:       #B99A7A;  /* wellness neutral · photo wash */
+  --carriage-obsidian:        #070707;
+  --carriage-deep-slate:      #111418;
+  --carriage-ink:             #17120D;
+  --carriage-bone:            #F4EFE6;
+  --carriage-malachite:       #0E6F5C;
+  --carriage-malachite-light: #149A80;
+  --carriage-malachite-deep:  #094B3F;
+  --carriage-champagne:       #D8C29D;
+  --carriage-oxblood:         #5A1F24;
+  --carriage-soft-clay:       #B99A7A;
 
   /* ─── Surface roles ─────────────────────────────────────────────── */
   --color-surface:            var(--carriage-obsidian);
@@ -222,13 +271,22 @@
   --shadow-glow-accent:       0 0 24px rgba(20,154,128,0.40);
   --shadow-glow-champagne:    0 0 28px rgba(216,194,157,0.32);
 
-  /* Fluid type scale */
+  /* ─── Fluid type scale ──────────────────────────────────────────── */
   --step--1: clamp(0.79rem, calc(0.75rem + 0.21vw), 0.89rem);
-  --step-0: clamp(0.89rem, calc(0.84rem + 0.26vw), 1.00rem);
-  --step-1: clamp(1.00rem, calc(0.94rem + 0.31vw), 1.13rem);
-  --step-2: clamp(1.13rem, calc(1.05rem + 0.37vw), 1.27rem);
-  --step-3: clamp(1.27rem, calc(1.17rem + 0.44vw), 1.42rem);
-  --step-4: clamp(1.42rem, calc(1.30rem + 0.52vw), 1.60rem);
+  --step-0:  clamp(0.89rem, calc(0.84rem + 0.26vw), 1.00rem);
+  --step-1:  clamp(1.00rem, calc(0.94rem + 0.31vw), 1.13rem);
+  --step-2:  clamp(1.13rem, calc(1.05rem + 0.37vw), 1.27rem);
+  --step-3:  clamp(1.27rem, calc(1.17rem + 0.44vw), 1.42rem);
+  --step-4:  clamp(1.42rem, calc(1.30rem + 0.52vw), 1.60rem);
+
+  /* ─── Font families ─────────────────────────────────────────────── */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-sans:    'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  /* Wordmark axes — Fraunces italic for the Carriage wordmark */
+  --wordmark-axes: "opsz" 144, "SOFT" 50, "WONK" 1;
+  --display-axes:  "opsz" 144, "SOFT" 50;
 }
 
 html { color-scheme: dark; }
@@ -236,13 +294,52 @@ html { color-scheme: dark; }
 body {
   background: var(--gradient-hero-dark);
   color: var(--color-text);
+  font-family: var(--font-sans);
   font-size: var(--step-0);
   line-height: 1.6;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
+/* Display headings use Fraunces; explicit weights set by component classes. */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
 h1 { font-size: var(--step-3); font-weight: 700; }
 h2 { font-size: var(--step-2); font-weight: 600; }
+h3 { font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.005em; }
+
+p, body { line-height: 1.6; }
+
+/* Carriage wordmark — Fraunces italic with the locked variable axes.
+   Use as <span class="wordmark">Carriage</span> in headers/lockups. */
+.wordmark {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-variation-settings: var(--wordmark-axes);
+  letter-spacing: -0.012em;
+}
+
+/* JetBrains Mono utility for eyebrows / HUD / plate labels. */
+.eyebrow,
+.mono {
+  font-family: var(--font-mono);
+}
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--color-accent);
+}
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
 
 .container { max-width: 1200px; margin: 0 auto; padding-inline: 1rem; }
 .section { padding-block: 2rem; }
@@ -266,8 +363,9 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   padding: 0.75rem 1.5rem; 
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
+  font-family: var(--font-sans);
   font-weight: 600;
-  letter-spacing: 0.025em;
+  letter-spacing: -0.005em;
 }
 
 .btn:hover {
@@ -276,7 +374,6 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 }
 
 .btn-primary {
-  /* Carriage brand gradient — malachite range, never neon. */
   background: var(--gradient-brand);
   color: var(--carriage-bone);
   border: none;
@@ -300,7 +397,14 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   color: var(--color-text);
 }
 
-.badge { border-radius: 999px; padding: 0.125rem 0.5rem; font-size: 12px; }
+.badge {
+  border-radius: 999px;
+  padding: 0.125rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
 .badge-success { background: color-mix(in oklab, var(--color-success) 20%, transparent); color: var(--color-success); }
 .badge-warning { background: color-mix(in oklab, var(--color-warning) 20%, transparent); color: var(--color-warning); }
 
@@ -321,11 +425,6 @@ h2 { font-size: var(--step-2); font-weight: 600; }
    WCAG 2.1 AA: prefers-reduced-motion
    All decorative animations and transitions are disabled when the user
    has enabled "Reduce motion" in their OS accessibility settings.
-   This universal selector catches all CSS animations and transitions,
-   including Tailwind utility classes and inline styles.
-
-   Functional rendering (Canvas2D skeleton overlay, camera feed) is
-   NOT affected — those are controlled in JavaScript, not CSS.
    ======================================================================== */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -345,17 +444,9 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .card {
-    border: 2px solid;
-  }
-  
-  .btn {
-    border: 2px solid;
-  }
-  
-  .opacity-80, .opacity-70, .opacity-50 {
-    opacity: 1;
-  }
+  .card { border: 2px solid; }
+  .btn { border: 2px solid; }
+  .opacity-80, .opacity-70, .opacity-50 { opacity: 1; }
 }
 
 /* Custom animations for enhanced UI */
@@ -380,7 +471,7 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   to { opacity: 1; transform: scale(1); }
 }
 
-/* Brand glow — malachite range (was blue). */
+/* Brand glow — malachite range */
 @keyframes glow {
   0%, 100% { box-shadow: 0 0 20px rgba(20, 154, 128, 0.30); }
   50%      { box-shadow: 0 0 30px rgba(20, 154, 128, 0.60); }
