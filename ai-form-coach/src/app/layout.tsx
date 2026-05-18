@@ -1,12 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Inter } from "next/font/google";
 import LogSilencer from "@/components/LogSilencer";
 import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 const description = "Private, browser-based motion coaching for squat, pushup, and plank. No video uploads during live coaching.";
 
@@ -74,9 +71,26 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className="dark" data-theme="dark" style={{ colorScheme: "dark" }} suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#020617" />
+        {/* Carriage v2 — obsidian theme. */}
+        <meta name="theme-color" content="#070707" />
+        {/* Preload the two faces that paint above-the-fold copy.
+            Variable fonts mean one file each — keeps preloads cheap. */}
+        <link
+          rel="preload"
+          href="/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Variable.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/Fraunces/Fraunces-Italic-VariableFont_SOFT%2CWONK%2Copsz%2Cwght.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
       </head>
-      <body className={`flex min-h-screen flex-col antialiased text-white ${inter.className}`} suppressHydrationWarning>
+      <body className="flex min-h-screen flex-col antialiased text-white font-sans" suppressHydrationWarning>
 
         <AuthProvider>
           <ToastProvider>
