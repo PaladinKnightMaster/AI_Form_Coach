@@ -5,12 +5,31 @@ import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
-const carriageDescription = "AI Form Coach watches your squat, pushup, and plank — and gives you the cues a good teacher would. Your video stays on your device.";
+/* ─────────────────────────────────────────────────────────────────────────
+ * Carriage root layout.
+ *
+ * Step 02 dropped the Inter loader and added font-preload hints.
+ * Step 05 rewrote metadata title/description to the Carriage voice.
+ * Step 06 (this revision) wires the favicon + Apple touch icon + manifest
+ *         via Next.js file-based metadata.
+ *
+ * File-based metadata picks up:
+ *   - src/app/icon.svg            → /icon.svg (browser favicon)
+ *   - src/app/apple-icon.tsx      → /apple-icon (180×180 PNG · iOS)
+ *   - src/app/opengraph-image.tsx → /opengraph-image (OG card)
+ *   - src/app/twitter-image.tsx   → /twitter-image (Twitter card)
+ * Manifest icons (icon-192 / icon-512) are still PNG references; the
+ * source SVG is at public/icon-source.svg with scripts/generate-icons.mjs.
+ * ──────────────────────────────────────────────────────────────────────── */
+
+const description =
+  "AI Form Coach watches your squat, pushup, and plank — and gives you the cues a good teacher would. Your video stays on your device.";
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#070707",
 };
 
 export const metadata: Metadata = {
@@ -18,19 +37,28 @@ export const metadata: Metadata = {
     default: "Carriage — AI Form Coach · Return to your line.",
     template: "%s · Carriage",
   },
-  description: carriageDescription,
-  keywords: ["motion coaching", "form coach", "pose detection", "browser coaching", "on-device", "Carriage"],
+  description,
+  keywords: [
+    "motion coaching",
+    "form coach",
+    "pose detection",
+    "browser coaching",
+    "on-device",
+    "Carriage",
+  ],
   authors: [{ name: "Carriage" }],
   creator: "Carriage",
   publisher: "Carriage",
+  applicationName: "Carriage",
+  manifest: "/manifest.webmanifest",
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://aiformcoach.com"),
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "/",
     siteName: "Carriage",
-    title: "Carriage — AI Form Coach · Return to your line.",
-    description: carriageDescription,
+    title: "Carriage — Return to your line.",
+    description,
     images: [
       {
         url: "/opengraph-image",
@@ -45,7 +73,7 @@ export const metadata: Metadata = {
     site: "@aiformcoach",
     creator: "@aiformcoach",
     title: "Carriage — Return to your line.",
-    description: carriageDescription,
+    description,
     images: ["/twitter-image"],
   },
   robots: {
