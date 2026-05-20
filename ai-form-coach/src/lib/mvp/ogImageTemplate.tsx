@@ -1,16 +1,40 @@
 import { type ReactElement } from "react";
 
-type OgImageTemplateProps = {
-  title: string;
-  subtitle: string;
-};
+/* ─────────────────────────────────────────────────────────────────────────
+ * Carriage OG / Twitter share image — obsidian camera surface.
+ *
+ * Composition matches the Hero Keyart winner (Visual Direction Review,
+ * Study 20): obsidian ground, generous breathing room, mark + italic
+ * wordmark, hairline rule, single champagne trust line. The "foiled
+ * ribbon" of the AI source is replaced with the production single-stroke
+ * Ribbon C, per the brand council's verdict.
+ *
+ * Sizing: 1200 × 630 — Twitter `summary_large_image` and OG default.
+ * Fonts:  Fraunces italic (display) · Satoshi (UI) · JetBrains Mono (eyebrow).
+ *
+ * Tokens are inlined (hex) because ImageResponse runs in the edge runtime
+ * and cannot resolve CSS variables. Values mirror :root in globals.css.
+ * ──────────────────────────────────────────────────────────────────────── */
 
 export const MVP_OG_IMAGE_SIZE = {
   width: 1200,
   height: 630,
 } as const;
 
-export function renderMvpOgImage({ title, subtitle }: OgImageTemplateProps): ReactElement {
+type OgImageTemplateProps = {
+  /** Italic Fraunces — the brand line. Use locked hero or section headlines. */
+  title: string;
+  /** Satoshi — body subtitle. One line, calm and direct. */
+  subtitle: string;
+  /** Mono uppercase eyebrow. Defaults to "Carriage · AI Form Coach". */
+  eyebrow?: string;
+};
+
+export function renderMvpOgImage({
+  title,
+  subtitle,
+  eyebrow = "Carriage · AI Form Coach",
+}: OgImageTemplateProps): ReactElement {
   return (
     <div
       style={{
@@ -18,140 +42,165 @@ export function renderMvpOgImage({ title, subtitle }: OgImageTemplateProps): Rea
         width: "100%",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#0f172a",
+        justifyContent: "space-between",
+        // Hero dark gradient — obsidian → deep slate → elevated dark
+        backgroundColor: "#070707",
         backgroundImage:
-          "radial-gradient(circle at 25% 25%, rgba(20,184,166,0.22) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(14,165,233,0.2) 0%, transparent 52%)",
+          "linear-gradient(135deg, #070707 0%, #111418 55%, #1A1F24 100%)",
+        padding: "72px 84px",
         position: "relative",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          maxWidth: "920px",
-          padding: "0 64px",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "24px",
-            padding: "10px 18px",
-            borderRadius: "999px",
-            border: "1px solid rgba(255,255,255,0.12)",
-            backgroundColor: "rgba(255,255,255,0.08)",
-            color: "#a7f3d0",
-            fontSize: "18px",
-            fontWeight: 700,
-            letterSpacing: "0.22em",
-            textTransform: "uppercase",
-          }}
-        >
-          Motion coaching beta
-        </div>
-
-        <h1
-          style={{
-            fontSize: "76px",
-            fontWeight: 800,
-            color: "#ffffff",
-            margin: "0 0 24px 0",
-            letterSpacing: "-0.03em",
-            lineHeight: 1.05,
-          }}
-        >
-          {title}
-        </h1>
-
-        <p
-          style={{
-            fontSize: "34px",
-            color: "#cbd5e1",
-            margin: "0 0 42px 0",
-            fontWeight: 400,
-            lineHeight: 1.28,
-            maxWidth: "820px",
-          }}
-        >
-          {subtitle}
-        </p>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "28px",
-            color: "#f8fafc",
-            fontSize: "18px",
-            fontWeight: 500,
-          }}
-        >
-          <Badge label="Private live loop" />
-          <Badge label="Human-reviewed cues" />
-          <Badge label="No video uploads" />
-        </div>
-      </div>
-
+      {/* Champagne hairline rule, top — editorial mark */}
       <div
         style={{
           position: "absolute",
-          right: "64px",
-          bottom: "58px",
-          opacity: 0.14,
+          top: 0,
+          left: 84,
+          right: 84,
+          height: "1px",
+          background: "rgba(216, 194, 157, 0.30)",
           display: "flex",
         }}
-      >
-        <svg width="136" height="136" viewBox="0 0 136 136" fill="none">
-          <circle cx="50" cy="28" r="5" fill="#2dd4bf" />
-          <circle cx="50" cy="50" r="5" fill="#2dd4bf" />
-          <circle cx="34" cy="54" r="5" fill="#2dd4bf" />
-          <circle cx="66" cy="54" r="5" fill="#2dd4bf" />
-          <circle cx="40" cy="82" r="5" fill="#2dd4bf" />
-          <circle cx="60" cy="82" r="5" fill="#2dd4bf" />
-          <circle cx="32" cy="116" r="5" fill="#2dd4bf" />
-          <circle cx="68" cy="116" r="5" fill="#2dd4bf" />
-          <line x1="50" y1="28" x2="50" y2="50" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />
-          <line x1="34" y1="54" x2="50" y2="50" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />
-          <line x1="66" y1="54" x2="50" y2="50" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />
-          <line x1="50" y1="50" x2="40" y2="82" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />
-          <line x1="50" y1="50" x2="60" y2="82" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />
-          <line x1="40" y1="82" x2="32" y2="116" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />
-          <line x1="60" y1="82" x2="68" y2="116" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />
-        </svg>
-      </div>
-    </div>
-  );
-}
+      />
 
-function Badge({ label }: { label: string }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        padding: "10px 16px",
-        borderRadius: "999px",
-        border: "1px solid rgba(255,255,255,0.1)",
-        backgroundColor: "rgba(15,23,42,0.34)",
-      }}
-    >
+      {/* Top row · eyebrow + Ribbon C lockup */}
       <div
         style={{
-          width: "12px",
-          height: "12px",
-          borderRadius: "999px",
-          backgroundColor: "#2dd4bf",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          color: "#8A8377",
         }}
-      />
-      {label}
+      >
+        <span
+          style={{
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            fontSize: "16px",
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "#D8C29D",
+          }}
+        >
+          {eyebrow}
+        </span>
+        <span
+          style={{
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            fontSize: "14px",
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "#8A8377",
+            display: "flex",
+          }}
+        >
+          Public Beta · On-device
+        </span>
+      </div>
+
+      {/* Centerpiece · mark + italic wordmark */}
+      <div style={{ display: "flex", alignItems: "center", gap: "44px" }}>
+        <svg
+          width="160"
+          height="160"
+          viewBox="0 0 220 220"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ display: "flex" }}
+        >
+          <path
+            d="M 168 56 C 138 30, 86 30, 60 70 C 34 110, 34 156, 70 184 C 102 208, 156 200, 178 168"
+            fill="none"
+            stroke="#149A80"
+            strokeWidth="10"
+            strokeLinecap="round"
+          />
+          <circle cx="60" cy="70" r="6.5" fill="#D8C29D" />
+          <circle cx="44" cy="130" r="6.5" fill="#D8C29D" />
+          <circle cx="102" cy="200" r="6.5" fill="#D8C29D" />
+          <circle cx="168" cy="56" r="4" fill="#0E6F5C" />
+          <circle cx="178" cy="168" r="4" fill="#0E6F5C" />
+        </svg>
+
+        {/* Vertical hairline — Lockup A divider */}
+        <div
+          style={{
+            width: "1px",
+            height: "120px",
+            background: "rgba(216, 194, 157, 0.35)",
+            display: "flex",
+          }}
+        />
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {/* Italic Fraunces display — locked variation settings */}
+          <span
+            style={{
+              fontFamily: "'Fraunces', Georgia, serif",
+              fontStyle: "italic",
+              fontWeight: 500,
+              fontSize: "108px",
+              lineHeight: 0.94,
+              letterSpacing: "-0.028em",
+              color: "#F4EFE6",
+              fontVariationSettings: "'opsz' 144, 'SOFT' 30, 'WONK' 1",
+              display: "flex",
+            }}
+          >
+            {title}
+          </span>
+          <span
+            style={{
+              fontFamily: "'Satoshi', ui-sans-serif, system-ui, sans-serif",
+              fontSize: "26px",
+              fontWeight: 400,
+              color: "#C9C0B2",
+              maxWidth: "780px",
+              lineHeight: 1.4,
+              display: "flex",
+            }}
+          >
+            {subtitle}
+          </span>
+        </div>
+      </div>
+
+      {/* Footer · trust line + champagne hairline */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingTop: "32px",
+          borderTop: "1px solid rgba(216, 194, 157, 0.30)",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "'Fraunces', Georgia, serif",
+            fontStyle: "italic",
+            fontWeight: 500,
+            fontSize: "32px",
+            color: "#D8C29D",
+            letterSpacing: "-0.012em",
+            fontVariationSettings: "'opsz' 144, 'SOFT' 80, 'WONK' 1",
+            display: "flex",
+          }}
+        >
+          Your video stays on your device.
+        </span>
+        <span
+          style={{
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            fontSize: "14px",
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "#8A8377",
+            display: "flex",
+          }}
+        >
+          Form, carried.
+        </span>
+      </div>
     </div>
   );
 }
