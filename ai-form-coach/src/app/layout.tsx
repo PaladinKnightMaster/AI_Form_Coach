@@ -5,7 +5,7 @@ import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
-const description = "Private, browser-based motion coaching for squat, pushup, and plank. No video uploads during live coaching.";
+const carriageDescription = "AI Form Coach watches your squat, pushup, and plank — and gives you the cues a good teacher would. Your video stays on your device.";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -15,28 +15,28 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "AI Form Coach - Private Motion Coaching in Your Browser",
-    template: "%s - AI Form Coach",
+    default: "Carriage — AI Form Coach · Return to your line.",
+    template: "%s · Carriage",
   },
-  description,
-  keywords: ["AI fitness coach", "form coach", "pose detection", "browser coaching", "privacy-first fitness"],
-  authors: [{ name: "AI Form Coach" }],
-  creator: "AI Form Coach",
-  publisher: "AI Form Coach",
+  description: carriageDescription,
+  keywords: ["motion coaching", "form coach", "pose detection", "browser coaching", "on-device", "Carriage"],
+  authors: [{ name: "Carriage" }],
+  creator: "Carriage",
+  publisher: "Carriage",
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://aiformcoach.com"),
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "/",
-    siteName: "AI Form Coach",
-    title: "AI Form Coach - Private Motion Coaching in Your Browser",
-    description,
+    siteName: "Carriage",
+    title: "Carriage — AI Form Coach · Return to your line.",
+    description: carriageDescription,
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "AI Form Coach - private motion coaching in your browser",
+        alt: "Carriage — Return to your line.",
       },
     ],
   },
@@ -44,8 +44,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@aiformcoach",
     creator: "@aiformcoach",
-    title: "AI Form Coach - Private Motion Coaching in Your Browser",
-    description,
+    title: "Carriage — Return to your line.",
+    description: carriageDescription,
     images: ["/twitter-image"],
   },
   robots: {
