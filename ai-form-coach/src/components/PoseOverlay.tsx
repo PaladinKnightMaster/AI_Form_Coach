@@ -18,34 +18,37 @@ import {
 } from "@/lib/pose/contracts";
 
 /* ─────────────────────────────────────────────────────────────────────────────
- * PREMIUM POSE OVERLAY
+ * CARRIAGE POSE OVERLAY · The Form Line
  *
- * Design reference: Sword Health / Whoop / Peloton
- * - Soft neon glow on skeleton edges (brand cyan)
- * - Elegant gradient-filled joint circles with outer glow
- * - Form-quality color coding: teal → amber → red
- * - Minimal visual weight: the body is the hero, skeleton is the accent
+ * Brand:    Carriage — Couture Kinetics
+ * Metaphor: The Form Line — malachite catches light into champagne.
+ *
+ * Edges draw in malachite-light (#149A80); joints render in champagne
+ * (#D8C29D) with a malachite ring. Faded edges read in bone-tint when a
+ * joint is occluded. Corrections snap to oxblood (#5A1F24) — never neon red.
+ * Locked May 2026 — values mirror --color-pose-* tokens in globals.css.
  * ────────────────────────────────────────────────────────────────────────── */
 
-// Brand palette — single source of truth for skeleton colors
+// Brand palette — single source of truth for skeleton colors.
+// All values are RGBA so we can tune alpha per layer (underlay/glow/main).
 const SKELETON_COLORS = {
-  // Normal state: premium teal/cyan (matches brand)
-  edge:       "rgba(45, 212, 191, 0.85)",   // teal-400
-  edgeGlow:   "rgba(45, 212, 191, 0.25)",   // soft glow
-  joint:      "rgba(255, 255, 255, 0.95)",   // white fill
-  jointRing:  "rgba(45, 212, 191, 0.7)",     // teal ring
-  jointGlow:  "rgba(45, 212, 191, 0.35)",    // outer glow
+  // Normal state · The Form Line · malachite edge, champagne joint
+  edge:       "rgba(20, 154, 128, 0.90)",   // --carriage-malachite-light
+  edgeGlow:   "rgba(20, 154, 128, 0.28)",
+  joint:      "rgba(216, 194, 157, 0.95)",  // --carriage-champagne
+  jointRing:  "rgba(20, 154, 128, 0.70)",   // malachite ring
+  jointGlow:  "rgba(216, 194, 157, 0.35)",  // champagne outer glow
 
-  // Low visibility: faded
-  lowEdge:    "rgba(255, 255, 255, 0.25)",
-  lowJoint:   "rgba(255, 255, 255, 0.3)",
-  lowRing:    "rgba(255, 255, 255, 0.15)",
+  // Low visibility · faded bone tint (was bright white)
+  lowEdge:    "rgba(244, 239, 230, 0.25)",
+  lowJoint:   "rgba(244, 239, 230, 0.30)",
+  lowRing:    "rgba(244, 239, 230, 0.15)",
 
-  // Error/correction: warm red
-  errorEdge:      "rgba(239, 68, 68, 0.9)",
-  errorEdgeGlow:  "rgba(239, 68, 68, 0.3)",
-  errorJoint:     "rgba(239, 68, 68, 0.95)",
-  errorRing:      "rgba(239, 68, 68, 0.6)",
+  // Error / correction · oxblood (rare, dramatic — never gym-red)
+  errorEdge:      "rgba(90, 31, 36, 0.90)",
+  errorEdgeGlow:  "rgba(90, 31, 36, 0.30)",
+  errorJoint:     "rgba(90, 31, 36, 0.95)",
+  errorRing:      "rgba(90, 31, 36, 0.60)",
 
   // Underlay (dark shadow for contrast on any background)
   shadow:     "rgba(0, 0, 0, 0.45)",
@@ -211,7 +214,7 @@ function drawJoint(
   ctx.fillStyle = ringColor;
   ctx.fill();
 
-  // 4. White/colored inner dot
+  // 4. Champagne / bone inner dot
   ctx.beginPath();
   ctx.arc(point.x, point.y, radius * 0.55, 0, Math.PI * 2);
   ctx.fillStyle = fillColor;
@@ -222,13 +225,13 @@ function drawJoint(
     ctx.beginPath();
     ctx.arc(point.x, point.y, radius + 6, 0, Math.PI * 2);
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    ctx.strokeStyle = "rgba(244, 239, 230, 0.20)";
     ctx.stroke();
   }
 
   if (labels) {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.font = "500 11px system-ui";
+    ctx.fillStyle = "rgba(244, 239, 230, 0.92)";
+    ctx.font = "500 11px 'Satoshi', system-ui";
     ctx.fillText(joint.id, point.x + radius + 6, point.y - radius);
   }
 }
@@ -238,10 +241,14 @@ function drawJoint(
 /** Quality tiers for angle-based form feedback */
 type FormQuality = "good" | "warning" | "bad";
 
+// Brand-aligned quality colors.
+//   good    → malachite-light  (#149A80)
+//   warning → champagne-amber  (#C49A47)
+//   bad     → oxblood          (#5A1F24)
 const QUALITY_COLORS: Record<FormQuality, { arc: string; label: string; glow: string }> = {
-  good:    { arc: "rgba(16, 185, 129, 0.85)", label: "rgba(16, 185, 129, 1)",   glow: "rgba(16, 185, 129, 0.3)" },
-  warning: { arc: "rgba(245, 158, 11, 0.85)", label: "rgba(245, 158, 11, 1)",   glow: "rgba(245, 158, 11, 0.3)" },
-  bad:     { arc: "rgba(239, 68, 68, 0.85)",  label: "rgba(239, 68, 68, 1)",    glow: "rgba(239, 68, 68, 0.3)" },
+  good:    { arc: "rgba(20, 154, 128, 0.85)", label: "rgba(20, 154, 128, 1)", glow: "rgba(20, 154, 128, 0.30)" },
+  warning: { arc: "rgba(196, 154, 71, 0.85)", label: "rgba(196, 154, 71, 1)", glow: "rgba(196, 154, 71, 0.30)" },
+  bad:     { arc: "rgba(90, 31, 36, 0.90)",   label: "rgba(90, 31, 36, 1)",   glow: "rgba(90, 31, 36, 0.30)"   },
 };
 
 interface AngleVisualization {
@@ -313,13 +320,14 @@ function drawAngleArc(
   const labelY = vertex.y + Math.sin(midAngle) * labelRadius;
 
   ctx.save();
-  ctx.font = "bold 11px system-ui";
+  // HUD label — JetBrains Mono · all-caps tracking carried by the px-level metrics.
+  ctx.font = "bold 11px 'JetBrains Mono', ui-monospace, monospace";
   const textMetrics = ctx.measureText(vis.label);
   const textW = textMetrics.width + 8;
   const textH = 16;
 
   // Background pill (roundRect fallback for older browsers)
-  ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+  ctx.fillStyle = "rgba(7, 7, 7, 0.70)";   // obsidian, 70% — replaces #000/0.6
   ctx.beginPath();
   const rx = labelX - textW / 2;
   const ry = labelY - textH / 2;
@@ -530,7 +538,7 @@ function PoseOverlayComponent({
       for (const correction of corrections) {
         const point = projectPoint(correction.position.x, correction.position.y, bounds, mirror);
 
-        // Pulsing ring
+        // Pulsing ring · oxblood
         ctx.save();
         ctx.beginPath();
         ctx.arc(point.x, point.y, 14, 0, Math.PI * 2);
@@ -541,24 +549,24 @@ function PoseOverlayComponent({
         ctx.stroke();
         ctx.restore();
 
-        // Label
+        // Label · obsidian background, bone text, Satoshi UI face
         ctx.save();
-        ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+        ctx.fillStyle = "rgba(7, 7, 7, 0.70)";
+        ctx.font = "500 11px 'Satoshi', system-ui";
         const textWidth = ctx.measureText(correction.message).width;
         ctx.fillRect(point.x + 16, point.y - 12, textWidth + 12, 20);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-        ctx.font = "500 11px system-ui";
+        ctx.fillStyle = "rgba(244, 239, 230, 0.95)";
         ctx.fillText(correction.message, point.x + 22, point.y + 2);
         ctx.restore();
       }
 
-      // Debug overlay
+      // Debug overlay · JetBrains Mono HUD
       if (debug) {
         ctx.save();
-        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillStyle = "rgba(7, 7, 7, 0.75)";
         ctx.fillRect(8, 8, 180, 64);
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "500 11px system-ui";
+        ctx.fillStyle = "#D8C29D"; // champagne — HUD numerics
+        ctx.font = "500 11px 'JetBrains Mono', ui-monospace, monospace";
         ctx.fillText(`Vis: ${motionFeatures.visibilityScore.toFixed(2)}`, 16, 26);
         ctx.fillText(`Cue: ${motionFeatures.cueState}`, 16, 42);
         ctx.fillText(`Sym: ${motionFeatures.symmetryScore.toFixed(2)}`, 16, 58);

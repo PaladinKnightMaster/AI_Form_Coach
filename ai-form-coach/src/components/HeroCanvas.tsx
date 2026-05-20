@@ -1,6 +1,14 @@
 "use client";
 import { useEffect, useRef } from 'react';
 
+/**
+ * HeroCanvas — animated mini-skeleton on the marketing hero.
+ *
+ * Repainted in the Carriage Form Line palette:
+ *   edge  · malachite-light (#149A80) → champagne (#D8C29D)  · the body line catching light
+ *   joints · champagne (#D8C29D)
+ *   card  · obsidian (#070707) ground, hairline bone border at 8% opacity
+ */
 export default function HeroCanvas({ className }: { className?: string }) {
 	const ref = useRef<HTMLCanvasElement>(null);
 	useEffect(() => {
@@ -29,31 +37,34 @@ export default function HeroCanvas({ className }: { className?: string }) {
 			const ctx = baseCtx as CanvasRenderingContext2D;
 			const w = canvasEl.width / dpr, h = canvasEl.height / dpr;
 			ctx.clearRect(0, 0, w, h);
-			// background card
-			ctx.fillStyle = 'rgba(0,0,0,0.85)';
-			ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+			// Obsidian card · hairline bone border
+			ctx.fillStyle = 'rgba(7, 7, 7, 0.92)';
+			ctx.strokeStyle = 'rgba(244, 239, 230, 0.08)';
 			roundRect(ctx, 0, 0, w, h, 12); ctx.fill(); ctx.stroke();
-			// animated glow
+			// Animated malachite glow — drifts intensity, not hue
 			const t = Math.sin(frame / 60) * 0.5 + 0.5;
-			ctx.shadowBlur = 12 + t * 8;
-			ctx.shadowColor = `rgba(${34 + Math.round(t*20)}, 197, ${94 - Math.round(t*20)}, 0.6)`;
+			ctx.shadowBlur = 14 + t * 10;
+			ctx.shadowColor = `rgba(20, 154, 128, ${0.45 + t * 0.20})`; // malachite-light
 			ctx.lineWidth = 4; ctx.lineCap = 'round';
-			const grad = ctx.createLinearGradient(0, 0, w, 0); grad.addColorStop(0, '#22c55e'); grad.addColorStop(1, '#3b82f6');
+			// The Form Line · malachite → champagne, left → right
+			const grad = ctx.createLinearGradient(0, 0, w, 0);
+			grad.addColorStop(0, '#149A80'); // malachite-light
+			grad.addColorStop(1, '#D8C29D'); // champagne
 			ctx.strokeStyle = grad;
 			// edges
 			edges.forEach(([a,b]) => {
 				const p1 = pts[a], p2 = pts[b];
 				ctx.beginPath(); ctx.moveTo(scaleX(p1.x, w), scaleY(p1.y, h)); ctx.lineTo(scaleX(p2.x, w), scaleY(p2.y, h)); ctx.stroke();
 			});
-			// joints
-			ctx.fillStyle = '#3b82f6'; ctx.shadowBlur = 0;
+			// joints · champagne calibration nodes
+			ctx.fillStyle = '#D8C29D'; ctx.shadowBlur = 0;
 			pts.forEach(p => { ctx.beginPath(); ctx.arc(scaleX(p.x, w), scaleY(p.y, h), 4, 0, Math.PI*2); ctx.fill(); });
 			frame++; raf = requestAnimationFrame(draw);
 		}
 		draw();
 		return () => { cancelAnimationFrame(raf); ro.disconnect(); };
 	}, []);
-	return <canvas ref={ref} className={className} aria-label="Skeleton overlay demo" />;
+	return <canvas ref={ref} className={className} aria-label="The Form Line — pose overlay demo" />;
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -66,4 +77,4 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 	ctx.closePath();
 }
 function scaleX(x: number, w: number) { return (x / 320) * (w - 24) + 12; }
-function scaleY(y: number, h: number) { return (y / 180) * (h - 24) + 12; } 
+function scaleY(y: number, h: number) { return (y / 180) * (h - 24) + 12; }

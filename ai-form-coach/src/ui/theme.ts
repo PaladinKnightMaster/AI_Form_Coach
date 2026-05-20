@@ -3,6 +3,8 @@
  * This file is kept for backward compatibility with components that import it directly.
  * New code should use Tailwind classes: bg-surface, text-brand, rounded-token-md, shadow-lg, etc.
  * See docs/design/DESIGN_SYSTEM.md for the full token reference.
+ *
+ * Carriage v2 — legacy literals updated to brand range (malachite + oxblood).
  */
 export const theme = {
 	color: {
@@ -15,14 +17,14 @@ export const theme = {
 			muted: 'color-mix(in oklab, var(--color-text) 60%, transparent)'
 		},
 		brand: 'var(--color-primary)',
-		accent: '#3b82f6',
+		accent: '#0E6F5C',          // was '#3b82f6' · now Carriage malachite
 		border: 'var(--color-border)',
 		positive: 'var(--color-success)',
 		warning: 'var(--color-warning)',
-		critical: '#ef4444'
+		critical: '#5A1F24'         // was '#ef4444' · now Carriage oxblood
 	},
 	type: {
-		font: 'system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"',
+		font: 'var(--font-sans), system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
 		size: {
 			sx: 12,
 			sm: 14,
@@ -43,4 +45,4 @@ export const theme = {
 	}
 } as const;
 
-export type Theme = typeof theme; 
+export type Theme = typeof theme;
