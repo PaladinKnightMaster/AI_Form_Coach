@@ -519,3 +519,140 @@ code, kbd, samp, pre {
 .animate-slide-up { animation: slide-up 0.6s ease-out; }
 .animate-bounce-in { animation: bounce-in 0.6s ease-out; }
 .animate-fade-out { animation: fade-out 2s ease-out forwards; }
+/* ─────────────────────────────────────────────────────────────────────────
+   Carriage splash · keyframes + selectors
+   Append this block to the bottom of src/app/globals.css.
+
+   The component (src/components/RibbonCSplash.tsx) only handles orchestration;
+   every easing curve, duration, and colour transition lives here so design
+   can tweak motion without touching JS.
+
+   Locked spec: Design System Vol. 01 § 10 "Motion".
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ribbon-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--gradient-hero-dark);
+  opacity: 1;
+  transition: opacity 240ms ease;
+  /* Ensure the splash sits above any sticky header/nav. */
+  pointer-events: auto;
+}
+
+.ribbon-splash[data-phase="dismissing"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ribbon-splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  /* JS sets --ribbon-len from path.getTotalLength() on mount.
+     Fallback is the measured value for the locked cubic Bézier. */
+  --ribbon-len: 540;
+}
+
+/* The line that draws itself — phase 2 (200–800 ms). */
+.ribbon-splash-path {
+  stroke-dasharray: var(--ribbon-len);
+  stroke-dashoffset: var(--ribbon-len);
+  animation: ribbon-splash-draw 600ms 200ms ease-out forwards;
+}
+
+/* All three calibration nodes start invisible; staggered fade-in.
+   The middle node leads (phase 1 · 0–200 ms); the other two follow
+   after the line completes (phase 3 · 800–1100 ms). */
+.ribbon-splash-node {
+  opacity: 0;
+  fill: #D8C29D; /* champagne — the colour they "settle" into */
+}
+
+.ribbon-splash-node-mid {
+  animation: ribbon-splash-fade 200ms ease-out forwards;
+}
+
+.ribbon-splash-node-top,
+.ribbon-splash-node-btm {
+  animation: ribbon-splash-fade 300ms 800ms ease-out forwards;
+}
+
+/* Wordmark + descriptor — phase 4 (1100–1400 ms). Stagger by 100 ms. */
+.ribbon-splash-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.ribbon-splash-word {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 1;
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.018em;
+  color: #F4EFE6;
+  opacity: 0;
+  animation: ribbon-splash-fade 300ms 1100ms ease-out forwards;
+}
+
+.ribbon-splash-desc {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8A8377;
+  opacity: 0;
+  animation: ribbon-splash-fade 300ms 1200ms ease-out forwards;
+}
+
+@keyframes ribbon-splash-draw {
+  from { stroke-dashoffset: var(--ribbon-len); }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes ribbon-splash-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Reduced-motion path: paint the final frame instantly. The component
+   still holds for 600 ms total (per RibbonCSplash.tsx) so the user can
+   register the mark, then the overlay fades out via the .ribbon-splash
+   transition above (240 ms). */
+.ribbon-splash[data-reduced="true"] .ribbon-splash-path {
+  stroke-dashoffset: 0;
+  animation: none;
+}
+
+.ribbon-splash[data-reduced="true"] .ribbon-splash-node,
+.ribbon-splash[data-reduced="true"] .ribbon-splash-word,
+.ribbon-splash[data-reduced="true"] .ribbon-splash-desc {
+  opacity: 1;
+  animation: none;
+}
+
+/* Belt-and-braces fallback for users whose OS toggles prefers-reduced-motion
+   mid-flight — the universal rule in globals.css already collapses
+   animation-duration to 0.01ms, but the path needs an explicit override so
+   it doesn't render with stroke-dashoffset frozen at full length. */
+@media (prefers-reduced-motion: reduce) {
+  .ribbon-splash-path {
+    stroke-dashoffset: 0;
+  }
+  .ribbon-splash-node,
+  .ribbon-splash-word,
+  .ribbon-splash-desc {
+    opacity: 1;
+  }
+}
