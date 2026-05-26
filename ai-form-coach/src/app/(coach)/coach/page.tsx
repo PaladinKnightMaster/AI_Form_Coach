@@ -204,6 +204,20 @@ export default function CoachPage() {
   const deviceSummary = useMemo(() => formatCoachDeviceSummary(deviceProfile), [deviceProfile]);
   const recoveryGuide = useMemo(() => getCoachRecoveryGuide({ cameraError, detectorError, deviceProfile }), [cameraError, detectorError, deviceProfile]);
   const stageSimulationMode = useMemo(() => getCoachStageSimulationMode(stageSimulationQuery), [stageSimulationQuery]);
+
+  // Loopback automation: when an e2e harness drives /coach?e2e-access=1 from
+  // 127.0.0.1 / localhost, auto-grant the camera-permission gate so the test
+  // can reach `coach-stage-shell`. Mirrors the same loopback condition used
+  // by `scriptedPoseFrames` above. Production users still see the permission
+  // card — this only fires for loopback + the explicit bypass query.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const isLoopbackHost =
+      window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
+    if (e2eAccessQuery === "1" && isLoopbackHost && !permissionGranted) {
+      setPermissionGranted(true);
+    }
+  }, [e2eAccessQuery, permissionGranted]);
   const running = sessionState === "active";
   const copy = EXERCISE_COPY[exercise];
   const framing = useMemo(() => getFramingGuidance({ exercise, cameraReady, visibilityScore, fps, hasPose }), [cameraReady, exercise, fps, hasPose, visibilityScore]);

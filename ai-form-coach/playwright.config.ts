@@ -17,7 +17,13 @@ export default defineConfig({
   },
   webServer: {
     command: "node scripts/run-next-with-baseline-env.mjs dev --hostname 127.0.0.1 --port 3100",
-    url: "http://127.0.0.1:3100/coach",
+    // Probe the auth-bypassed coach URL: the bare `/coach` middleware-redirects
+    // to `/signin` (200) for an unauthenticated session, which used to mask
+    // silent auth failures behind a "webServer is ready" green light. Hitting
+    // the loopback-only bypass route here means a future regression in the
+    // bypass itself surfaces immediately as a webServer-start failure instead
+    // of as 33 cryptic "element not found" test failures.
+    url: "http://127.0.0.1:3100/coach?e2e-access=1",
     reuseExistingServer: true,
     timeout: 120_000,
   },
