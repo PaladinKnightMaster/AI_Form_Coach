@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import LogSilencer from "@/components/LogSilencer";
+import RibbonCSplash from "@/components/RibbonCSplash";
 import { ToastProvider } from "@/components/ToastProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
@@ -8,18 +9,13 @@ import "./globals.css";
 /* ─────────────────────────────────────────────────────────────────────────
  * Carriage root layout.
  *
- * Step 02 dropped the Inter loader and added font-preload hints.
- * Step 05 rewrote metadata title/description to the Carriage voice.
- * Step 06 (this revision) wires the favicon + Apple touch icon + manifest
- *         via Next.js file-based metadata.
- *
- * File-based metadata picks up:
- *   - src/app/icon.svg            → /icon.svg (browser favicon)
- *   - src/app/apple-icon.tsx      → /apple-icon (180×180 PNG · iOS)
- *   - src/app/opengraph-image.tsx → /opengraph-image (OG card)
- *   - src/app/twitter-image.tsx   → /twitter-image (Twitter card)
- * Manifest icons (icon-192 / icon-512) are still PNG references; the
- * source SVG is at public/icon-source.svg with scripts/generate-icons.mjs.
+ * Step 02 dropped Inter, added font-preload hints.
+ * Step 05 rewrote metadata to the Carriage voice.
+ * Step 06 wired the favicon + Apple touch icon + manifest via file-based
+ *         metadata (src/app/icon.svg, src/app/apple-icon.tsx).
+ * Step 07 (this revision) mounts the signature splash. RibbonCSplash is
+ *         a client component; it self-gates on sessionStorage so the
+ *         reveal plays at most once per browser tab.
  * ──────────────────────────────────────────────────────────────────────── */
 
 const description =
@@ -122,6 +118,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
         <AuthProvider>
           <ToastProvider>
+            {/* Signature splash — gates itself per browser tab; renders
+                nothing on subsequent loads. Mounted at the very top of the
+                tree so it sits above SiteHeader, Coach chrome, modals. */}
+            <RibbonCSplash />
             {children}
             <LogSilencer />
           </ToastProvider>
