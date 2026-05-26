@@ -17,6 +17,13 @@ on:
         required: false
         default: false
         type: boolean
+  # BOOTSTRAP — REMOVE BEFORE OPENING PR.
+  # GitHub's workflow_dispatch UI requires the workflow on the default branch
+  # (main) first. Since this is the workflow's first appearance, we need one
+  # bootstrap run to generate Linux baselines before merging. Push events on
+  # this branch auto-enable --update-snapshots via the shell conditional below.
+  push:
+    branches: [chore/close-brand-rollout-ci-gate]
 
 concurrency:
   # Newer pushes on the same ref cancel older runs so the latest commit's signal
@@ -81,7 +88,10 @@ jobs:
         # legs (lint / unit / perf / build) are identical either way.
         shell: bash
         run: |
-          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
+          # BOOTSTRAP — the `|| github.event_name == 'push'` clause auto-enables
+          # --update-snapshots on push events. Remove alongside the bootstrap
+          # push trigger above once Linux baselines are committed.
+          if [ "${{ inputs.update_snapshots }}" = "true" ] || [ "${{ github.event_name }}" = "push" ]; then
             echo "::notice::Regenerating Playwright snapshots for this platform."
             npm run lint
             npm run test
@@ -104,7 +114,10 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload regenerated baselines (update_snapshots only)
-        if: ${{ inputs.update_snapshots == true && success() }}
+        # BOOTSTRAP — `github.event_name == 'push'` clause matches the shell
+        # conditional above so push-bootstrap runs upload their regenerated
+        # baselines. Remove alongside the bootstrap push trigger above.
+        if: ${{ (inputs.update_snapshots == true || github.event_name == 'push') && success() }}
         uses: actions/upload-artifact@v4
         with:
           name: updated-snapshots-linux
