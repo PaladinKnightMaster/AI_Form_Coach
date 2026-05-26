@@ -1,0 +1,107 @@
+name: release-gate
+
+# Triggers (intentional frugality for solo-dev free-tier budget):
+#   - pull_request against main: the integration-to-prod boundary auto-gates
+#   - workflow_dispatch: manual run for ad-hoc verification or platform-baseline
+#     regeneration (set the update_snapshots input to true)
+#   - NOT triggered on push, NOT triggered on PRs against dev — those rely on
+#     local `npm run test:release` discipline. See the dispatch rule of thumb
+#     in docs/superpowers/specs/2026-05-26-close-brand-rollout-ci-gate-design.md.
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: "Pass --update-snapshots to Playwright (regenerates platform baselines, then exits success). Use this once after the workflow is added or whenever baselines drift on a new platform."
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  # Newer pushes on the same ref cancel older runs so the latest commit's signal
+  # is authoritative and free-tier minutes aren't burned on superseded commits.
+  group: release-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        # Next.js app lives under a subdir of the git repo root. Every step
+        # runs from there unless explicitly overridden.
+        working-directory: ai-form-coach
+
+    # CI placeholders — the e2e tests use ?e2e-access=1 + loopback bypass, so
+    # Supabase is constructed but never round-tripped. Build needs these
+    # variables defined (non-null TS assertions, SSR static analysis); their
+    # values are irrelevant in the test path. Real credentials would add
+    # operational overhead for zero functional benefit at the current surface.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
+      NEXT_PUBLIC_BASE_URL: http://127.0.0.1:3100
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: ai-form-coach/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        # chromium covers the `chromium` + `android-chrome` Playwright projects
+        # (both use the chromium engine; android-chrome differs only in device
+        # emulation flags). webkit covers `iphone-safari`. --with-deps installs
+        # the OS-level libs webkit needs on Ubuntu.
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run release gate
+        # On a regular run (PR-against-main or dispatch with update_snapshots
+        # left false) we simply chain `npm run test:release`. When the
+        # update_snapshots input is true, we run the same chain explicitly so
+        # we can append --update-snapshots to the Playwright leg. The other
+        # legs (lint / unit / perf / build) are identical either way.
+        shell: bash
+        run: |
+          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
+            echo "::notice::Regenerating Playwright snapshots for this platform."
+            npm run lint
+            npm run test
+            npm run test:perf-smoke
+            npm run build
+            npx playwright test tests/e2e/auth.smoke.spec.ts tests/e2e/coach.smoke.spec.ts tests/e2e/coach.visual.spec.ts --update-snapshots
+          else
+            npm run test:release
+          fi
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            ai-form-coach/playwright-report/
+            ai-form-coach/test-results/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload regenerated baselines (update_snapshots only)
+        if: ${{ inputs.update_snapshots == true && success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: updated-snapshots-linux
+          path: ai-form-coach/tests/e2e/**/*-snapshots/
+          retention-days: 14
+          if-no-files-found: error
