@@ -97,8 +97,9 @@ swing wildly at that size.
 
 ### 6. Brand identity gap — "AI Form Coach" is a working title
 
-**Status:** 🟡 in progress (this concern triggered the next branch)
+**Status:** 🟢 resolved (2026-05-26)
 **Owner:** Brand design team + Dev
+**Resolution:** Seven-step Carriage rollout merged to `dev` across PRs #48 (tokens), #49 (fonts), #51 (Ribbon C mark + SiteHeader Lockup A), #52 (pose overlay → Form Line palette), #54 (marketing copy + bone editorial surface), #55 (OG keyart, favicon, app icons, manifest + font deploy fix), #56 (signature splash). PR #57 restored the e2e release gate.
 **Risk:** Brand debt scales fast — every email, receipt, blog post compounds the cost
 
 **Recommendation:** Tackle brand identity (name, logo, color, typography,
@@ -250,6 +251,7 @@ Everything else can wait until after beta launches. But those three before the f
 | Date | Concern | Status change | Notes |
 |------|---------|---------------|-------|
 | 2026-05-17 | #6 Brand identity | 🔴 → 🟡 | Brand work scheduled as next branch |
+| 2026-05-26 | #6 Brand identity | 🟡 → 🟢 | Carriage rollout 7/7 merged (PRs #48–#56) + e2e gate restored (#57) |
 
 ---
 
