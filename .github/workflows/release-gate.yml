@@ -24,6 +24,12 @@ concurrency:
   group: release-gate-${{ github.ref }}
   cancel-in-progress: true
 
+# Least-privilege default token scope. This workflow only needs to read the
+# repository for checkout + dependency install. Artifact uploads use the
+# workflow-run scope, not GITHUB_TOKEN. Per GitHub's hardening guidance.
+permissions:
+  contents: read
+
 jobs:
   release-gate:
     runs-on: ubuntu-latest
