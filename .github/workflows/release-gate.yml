@@ -17,13 +17,6 @@ on:
         required: false
         default: false
         type: boolean
-  # BOOTSTRAP — REMOVE BEFORE OPENING PR.
-  # GitHub's workflow_dispatch UI requires the workflow on the default branch
-  # (main) first. Since this is the workflow's first appearance, we need one
-  # bootstrap run to generate Linux baselines before merging. Push events on
-  # this branch auto-enable --update-snapshots via the shell conditional below.
-  push:
-    branches: [chore/close-brand-rollout-ci-gate]
 
 concurrency:
   # Newer pushes on the same ref cancel older runs so the latest commit's signal
