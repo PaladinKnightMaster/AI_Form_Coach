@@ -88,10 +88,7 @@ jobs:
         # legs (lint / unit / perf / build) are identical either way.
         shell: bash
         run: |
-          # BOOTSTRAP — the `|| github.event_name == 'push'` clause auto-enables
-          # --update-snapshots on push events. Remove alongside the bootstrap
-          # push trigger above once Linux baselines are committed.
-          if [ "${{ inputs.update_snapshots }}" = "true" ] || [ "${{ github.event_name }}" = "push" ]; then
+          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
             echo "::notice::Regenerating Playwright snapshots for this platform."
             npm run lint
             npm run test
@@ -114,10 +111,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload regenerated baselines (update_snapshots only)
-        # BOOTSTRAP — `github.event_name == 'push'` clause matches the shell
-        # conditional above so push-bootstrap runs upload their regenerated
-        # baselines. Remove alongside the bootstrap push trigger above.
-        if: ${{ (inputs.update_snapshots == true || github.event_name == 'push') && success() }}
+        if: ${{ inputs.update_snapshots == true && success() }}
         uses: actions/upload-artifact@v4
         with:
           name: updated-snapshots-linux
