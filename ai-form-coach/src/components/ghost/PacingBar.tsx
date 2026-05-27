@@ -103,11 +103,11 @@ export default function PacingBar({
 
   const getDeltaColor = useCallback((delta: LiveDelta) => {
     if (Math.abs(delta.delta) <= 1) {
-      return 'text-green-600 dark:text-green-400';
+      return 'text-green-600';
     } else if (delta.isAhead) {
-      return 'text-blue-600 dark:text-blue-400';
+      return 'text-blue-600';
     } else {
-      return 'text-orange-600 dark:text-orange-400';
+      return 'text-orange-600';
     }
   }, []);
 
@@ -126,10 +126,10 @@ export default function PacingBar({
 
   if (loading) {
     return (
-      <div className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700 p-3 ${className}`}>
+      <div className={`bg-white/80 backdrop-blur-sm rounded-lg border border-gray-200 p-3 ${className}`}>
         <div className="flex items-center justify-center py-2">
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-          <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Loading ghost data...</span>
+          <span className="ml-2 text-sm text-gray-600">Loading ghost data...</span>
         </div>
       </div>
     );
@@ -137,9 +137,9 @@ export default function PacingBar({
 
   if (error || !ghostSeries) {
     return (
-      <div className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700 p-3 ${className}`}>
+      <div className={`bg-white/80 backdrop-blur-sm rounded-lg border border-gray-200 p-3 ${className}`}>
         <div className="flex items-center justify-center py-2">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-sm text-gray-500">
             {error || 'No ghost data available'}
           </div>
         </div>
@@ -148,19 +148,19 @@ export default function PacingBar({
   }
 
   return (
-    <div className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700 ${className}`}>
+    <div className={`bg-white/80 backdrop-blur-sm rounded-lg border border-gray-200 ${className}`}>
       {/* Header */}
       <div 
-        className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+        className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2">
           <div className="text-lg">👻</div>
           <div>
-            <div className="text-sm font-medium text-gray-900 dark:text-white">
+            <div className="text-sm font-medium text-gray-900">
               PR Ghost
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
+            <div className="text-xs text-gray-500">
               vs {new Date(ghostSeries.sessionDate).toLocaleDateString()}
             </div>
           </div>
@@ -182,14 +182,14 @@ export default function PacingBar({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-3 pb-3 border-t border-gray-200 dark:border-gray-700">
+        <div className="px-3 pb-3 border-t border-gray-200">
           {/* Progress Bar */}
           <div className="mt-3">
-            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+            <div className="flex justify-between text-xs text-gray-600 mb-1">
               <span>Session Progress</span>
               <span>{Math.round(getProgressPercentage())}%</span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className={`h-2 rounded-full ${
                   reducedMotion ? '' : 'transition-all duration-500 ease-out'
@@ -206,14 +206,14 @@ export default function PacingBar({
           {liveDelta && (
             <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
               <div className="text-center">
-                <div className="text-gray-500 dark:text-gray-400">You</div>
-                <div className="font-medium text-gray-900 dark:text-white">
+                <div className="text-gray-500">You</div>
+                <div className="font-medium text-gray-900">
                   {liveDelta.you} reps
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-gray-500 dark:text-gray-400">Ghost</div>
-                <div className="font-medium text-gray-900 dark:text-white">
+                <div className="text-gray-500">Ghost</div>
+                <div className="font-medium text-gray-900">
                   {liveDelta.ghost} reps
                 </div>
               </div>
@@ -221,7 +221,7 @@ export default function PacingBar({
           )}
 
           {/* Ghost Session Info */}
-          <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+          <div className="mt-3 text-xs text-gray-500">
             <div>Best session: {ghostSeries.totalCorrectReps} correct reps</div>
             <div>Quality: {Math.round(ghostSeries.qualityScore)}% • Integrity: {Math.round(ghostSeries.integrityScore * 100)}%</div>
           </div>

@@ -123,10 +123,10 @@ export default function ProgramsDashboard() {
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'advanced': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      case 'beginner': return 'bg-green-100 text-green-800';
+      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'advanced': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -141,23 +141,23 @@ export default function ProgramsDashboard() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Workout Programs
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-lg text-gray-600">
             Choose from our featured programs or create your own custom workout plan
           </p>
         </div>
 
         {/* Tab Navigation */}
         <div className="flex justify-center mb-8">
-          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+          <div className="bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setActiveTab('templates')}
               className={`px-6 py-2 rounded-md transition-colors ${
                 activeTab === 'templates'
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               Featured Programs
@@ -166,8 +166,8 @@ export default function ProgramsDashboard() {
               onClick={() => setActiveTab('my-programs')}
               className={`px-6 py-2 rounded-md transition-colors ${
                 activeTab === 'my-programs'
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               My Programs
@@ -180,11 +180,11 @@ export default function ProgramsDashboard() {
           {currentPrograms.map((program) => (
             <div
               key={program.id}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow"
+              className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow"
             >
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  <h3 className="text-xl font-semibold text-gray-900">
                     {program.name}
                   </h3>
                   <Badge className={getDifficultyColor(program.difficulty_level)}>
@@ -192,17 +192,17 @@ export default function ProgramsDashboard() {
                   </Badge>
                 </div>
 
-                <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                <p className="text-gray-600 mb-4 line-clamp-2">
                   {program.description}
                 </p>
 
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center text-sm text-gray-500">
                     <Icon name="calendar" className="w-4 h-4 mr-2" />
                     {program.duration_weeks} weeks
                   </div>
                   
-                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center text-sm text-gray-500">
                     <Icon name="dumbbell" className="w-4 h-4 mr-2" />
                     {program.equipment_required.join(', ') || 'Bodyweight'}
                   </div>
@@ -210,7 +210,7 @@ export default function ProgramsDashboard() {
 
                 <div className="flex flex-wrap gap-1 mb-4">
                   {program.target_goals.map((goal) => (
-                    <Badge key={goal} className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 text-xs">
+                    <Badge key={goal} className="bg-blue-100 text-blue-800 text-xs">
                       {goal}
                     </Badge>
                   ))}
@@ -222,7 +222,7 @@ export default function ProgramsDashboard() {
                       setSelectedProgram(program);
                       setShowProgramDetails(true);
                     }}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300"
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
                   >
                     <Icon name="search" className="w-4 h-4 mr-2" />
                     View Details
@@ -246,10 +246,10 @@ export default function ProgramsDashboard() {
         {currentPrograms.length === 0 && (
           <div className="text-center py-12">
             <Icon name="package" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
               No programs found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               {activeTab === 'templates' 
                 ? 'No featured programs available at the moment.'
                 : 'You haven\'t created any programs yet.'
@@ -290,20 +290,20 @@ function ProgramDetailsModal({ program, isOpen, onClose, onCreateProgram }: Prog
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-bold text-gray-900">
                 {program.name}
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-gray-600 mt-1">
                 {program.description}
               </p>
             </div>
             <Button
               onClick={onClose}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300"
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700"
             >
               <Icon name="x" className="w-4 h-4" />
             </Button>
@@ -313,17 +313,17 @@ function ProgramDetailsModal({ program, isOpen, onClose, onCreateProgram }: Prog
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
           {/* Program Overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-2">Duration</h4>
-              <p className="text-gray-600 dark:text-gray-400">{program.duration_weeks} weeks</p>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">Duration</h4>
+              <p className="text-gray-600">{program.duration_weeks} weeks</p>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-2">Difficulty</h4>
-              <p className="text-gray-600 dark:text-gray-400 capitalize">{program.difficulty_level}</p>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">Difficulty</h4>
+              <p className="text-gray-600 capitalize">{program.difficulty_level}</p>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-2">Equipment</h4>
-              <p className="text-gray-600 dark:text-gray-400">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-2">Equipment</h4>
+              <p className="text-gray-600">
                 {program.equipment_required.join(', ') || 'Bodyweight'}
               </p>
             </div>
@@ -332,17 +332,17 @@ function ProgramDetailsModal({ program, isOpen, onClose, onCreateProgram }: Prog
           {/* Program Weeks */}
           {program.program_weeks && program.program_weeks.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Program Structure
               </h3>
               <div className="space-y-4">
                 {program.program_weeks.map((week) => (
-                  <div key={week.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                  <div key={week.id} className="border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-2">
                       Week {week.week_number}: {week.focus}
                     </h4>
                     {week.notes && (
-                      <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                      <p className="text-gray-600 text-sm mb-3">
                         {week.notes}
                       </p>
                     )}
@@ -350,14 +350,14 @@ function ProgramDetailsModal({ program, isOpen, onClose, onCreateProgram }: Prog
                     {week.program_days && week.program_days.length > 0 && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {week.program_days.map((day) => (
-                          <div key={day.id} className="bg-gray-50 dark:bg-gray-700 rounded p-3">
-                            <h5 className="font-medium text-gray-900 dark:text-white text-sm">
+                          <div key={day.id} className="bg-gray-50 rounded p-3">
+                            <h5 className="font-medium text-gray-900 text-sm">
                               {day.day_name}
                             </h5>
                             {day.is_rest_day ? (
-                              <p className="text-gray-500 dark:text-gray-400 text-xs">Rest Day</p>
+                              <p className="text-gray-500 text-xs">Rest Day</p>
                             ) : (
-                              <p className="text-gray-600 dark:text-gray-400 text-xs">
+                              <p className="text-gray-600 text-xs">
                                 {day.day_blocks.length} blocks
                               </p>
                             )}
@@ -372,11 +372,11 @@ function ProgramDetailsModal({ program, isOpen, onClose, onCreateProgram }: Prog
           )}
         </div>
 
-        <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-t border-gray-200">
           <div className="flex gap-3">
             <Button
               onClick={onClose}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300"
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
             >
               Close
             </Button>

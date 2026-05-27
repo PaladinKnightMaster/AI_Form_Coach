@@ -88,10 +88,10 @@ export default function FairCompetition({
 
   const getRankColor = (rank: number) => {
     switch (rank) {
-      case 1: return 'text-yellow-600 dark:text-yellow-400';
-      case 2: return 'text-gray-500 dark:text-gray-400';
-      case 3: return 'text-amber-600 dark:text-amber-400';
-      default: return 'text-gray-700 dark:text-gray-300';
+      case 1: return 'text-yellow-600';
+      case 2: return 'text-gray-500';
+      case 3: return 'text-amber-600';
+      default: return 'text-gray-700';
     }
   };
 
@@ -113,15 +113,15 @@ export default function FairCompetition({
     return (
       <div className={`space-y-4 ${className}`}>
         <div className="animate-pulse">
-          <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-6">
-            <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-1/3 mb-4"></div>
+          <div className="bg-gray-200 rounded-lg p-6">
+            <div className="h-6 bg-gray-300 rounded w-1/3 mb-4"></div>
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                  <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/4"></div>
-                    <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+                    <div className="h-3 bg-gray-300 rounded w-1/2"></div>
                   </div>
                 </div>
               ))}
@@ -137,10 +137,10 @@ export default function FairCompetition({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-gray-900">
             Fair Competition
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             Compete fairly with users of similar fitness levels
           </p>
         </div>
@@ -151,13 +151,13 @@ export default function FairCompetition({
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+      <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
         <button
           onClick={() => setActiveTab('leaderboard')}
           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
             activeTab === 'leaderboard'
-              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
           }`}
         >
           <Icon name="trophy" className="w-4 h-4 mr-2 inline" />
@@ -167,8 +167,8 @@ export default function FairCompetition({
           onClick={() => setActiveTab('challenges')}
           className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
             activeTab === 'challenges'
-              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
           }`}
         >
           <Icon name="target" className="w-4 h-4 mr-2 inline" />
@@ -178,10 +178,10 @@ export default function FairCompetition({
 
       {/* Leaderboard Tab */}
       {activeTab === 'leaderboard' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-white rounded-lg border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-900">
                 {exercise.charAt(0).toUpperCase() + exercise.slice(1)} Leaderboard
               </h3>
               <Badge tone="info" size="sm">
@@ -194,10 +194,10 @@ export default function FairCompetition({
             {leaderboard.length === 0 ? (
               <div className="text-center py-8">
                 <Icon name="trophy" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <h4 className="text-lg font-medium text-gray-900 mb-2">
                   No data yet
                 </h4>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-gray-600 mb-4">
                   Complete a workout to appear on the leaderboard
                 </p>
                 <Button asChild>
@@ -211,15 +211,15 @@ export default function FairCompetition({
                     key={entry.userId}
                     className={`flex items-center space-x-4 p-3 rounded-lg ${
                       entry.isCurrentUser
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
-                        : 'bg-gray-50 dark:bg-gray-700/50'
+                        ? 'bg-blue-50 border border-blue-200'
+                        : 'bg-gray-50'
                     }`}
                   >
                     <div className="flex-shrink-0">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                         entry.rank <= 3
                           ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white'
-                          : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                          : 'bg-gray-200 text-gray-700'
                       }`}>
                         {getRankIcon(entry.rank)}
                       </div>
@@ -229,8 +229,8 @@ export default function FairCompetition({
                       <div className="flex items-center space-x-2">
                         <span className={`font-medium ${
                           entry.isCurrentUser
-                            ? 'text-blue-900 dark:text-blue-100'
-                            : 'text-gray-900 dark:text-white'
+                            ? 'text-blue-900'
+                            : 'text-gray-900'
                         }`}>
                           {entry.userName}
                         </span>
@@ -238,7 +238,7 @@ export default function FairCompetition({
                           <Badge tone="info" size="sm">You</Badge>
                         )}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-gray-600">
                         {formatScore(entry.score, entry.metric)}
                       </div>
                     </div>
@@ -262,10 +262,10 @@ export default function FairCompetition({
           {challenges.length === 0 ? (
             <div className="text-center py-8">
               <Icon name="target" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h4 className="text-lg font-medium text-gray-900 mb-2">
                 No active challenges
               </h4>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600">
                 Check back later for new challenges
               </p>
             </div>
@@ -273,14 +273,14 @@ export default function FairCompetition({
             challenges.map((challenge) => (
               <div
                 key={challenge.challengeId}
-                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
+                className="bg-white rounded-lg border border-gray-200 p-6"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       {challenge.challengeName}
                     </h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
                       <span className="flex items-center">
                         <Icon name="user" className="w-4 h-4 mr-1" />
                         {challenge.participants} participants
@@ -303,11 +303,11 @@ export default function FairCompetition({
                 </div>
 
                 <div className="mb-4">
-                  <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                     <span>Progress</span>
                     <span>{challenge.progress} / {challenge.target} {challenge.unit}</span>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${getProgressPercentage(challenge.progress, challenge.target)}%` }}
@@ -316,7 +316,7 @@ export default function FairCompetition({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-sm text-gray-600">
                     {challenge.isActive ? (
                       <span>
                         {Math.ceil((new Date(challenge.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left

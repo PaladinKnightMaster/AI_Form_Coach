@@ -1,32 +1,62 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
+import RibbonCMark from "@/components/RibbonCMark";
 import { useAuth } from "@/contexts/AuthContext";
 import { getFooterRouteGroups } from "@/lib/mvp/featureRegistry";
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Carriage footer — bone editorial.
+ *
+ * Lockup A (mark + wordmark) lives top-left of the brand column.
+ * Marketing surface is bone (#F4EFE6); the footer steps to bone-elev
+ * (#FAF6EF) so it reads as a "last page" of the document.
+ * ──────────────────────────────────────────────────────────────────────── */
 
 export default function SiteFooter() {
   const { user } = useAuth();
   const groups = getFooterRouteGroups(Boolean(user));
 
   return (
-    <footer className="mt-20 border-t bg-slate-50/80 dark:bg-slate-950/70">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid gap-8 py-12 md:grid-cols-2 lg:grid-cols-4">
-        <section className="space-y-4 lg:col-span-1">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">AI Form Coach</h3>
-          <p className="max-w-sm text-sm text-slate-600 dark:text-slate-300">
-            Private motion coaching for squat, pushup, and plank. The public beta focuses on live feedback and session history only.
+    <footer className="mt-20 border-t border-[#E5DDCD] bg-[#FAF6EF] text-[#17120D]">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 py-14 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
+
+        {/* Brand · Lockup A */}
+        <section className="space-y-5 lg:col-span-1">
+          <Link href="/" aria-label="Carriage — AI Form Coach" className="flex items-center gap-3 text-[#17120D]">
+            <RibbonCMark size={28} color="currentColor" label={null} />
+            <span aria-hidden="true" className="hidden h-7 w-px bg-[#C7B796] sm:block" />
+            <span
+              className="wordmark text-2xl leading-none"
+              style={{ fontVariationSettings: '"opsz" 144, "SOFT" 50, "WONK" 1' }}
+            >
+              Carriage
+            </span>
+          </Link>
+          <p className="max-w-sm text-sm leading-6 text-[#4B423A]">
+            Private motion coaching for squat, pushup, and plank. The public beta focuses on the live coach and session history.
+          </p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]">
+            Form, carried.
           </p>
         </section>
 
+        {/* Auto-generated route groups */}
         {groups.map((group) => (
           <section key={group.title} aria-labelledby={`footer-${group.title}`}>
-            <h3 id={`footer-${group.title}`} className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">
+            <h3
+              id={`footer-${group.title}`}
+              className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]"
+            >
               {group.title}
             </h3>
             <ul className="space-y-3 text-sm">
               {group.links.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-slate-600 transition-colors hover:text-slate-950 dark:text-slate-400 dark:hover:text-white">
+                  <Link
+                    href={link.href}
+                    className="text-[#4B423A] underline-offset-4 transition-colors hover:text-[#0E6F5C] hover:underline"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -35,31 +65,43 @@ export default function SiteFooter() {
           </section>
         ))}
 
-        <section aria-labelledby="footer-privacy">
-          <h3 id="footer-privacy" className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">
-            Beta Truth
+        {/* Beta truth — locked plain language, lifted from the Design System */}
+        <section aria-labelledby="footer-truth">
+          <h3
+            id="footer-truth"
+            className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]"
+          >
+            Beta truth
           </h3>
-          <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
-            <li>Camera frames stay in your browser during live coaching.</li>
+          <ul className="space-y-3 text-sm leading-6 text-[#4B423A]">
+            <li>Your video stays on your device during live coaching.</li>
             <li>Session summaries save when you sign in.</li>
             <li>Nutrition, plans, and health integrations are not in the public beta.</li>
-            <li>Supported launch exercises: squat, pushup, plank.</li>
+            <li>Supported launch movements: squat, pushup, plank.</li>
           </ul>
         </section>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col items-start justify-between gap-3 border-t py-6 text-sm text-slate-600 dark:text-slate-400 md:flex-row md:items-center">
-        <p>Copyright {new Date().getFullYear()} AI Form Coach. Public beta.</p>
-        <div className="flex items-center gap-4">
-          <Link href="/privacy" className="transition-colors hover:text-slate-950 dark:hover:text-white">
-            Privacy
-          </Link>
-          <Link href="/terms" className="transition-colors hover:text-slate-950 dark:hover:text-white">
-            Terms
-          </Link>
-          <a href="mailto:support@aiformcoach.com" className="transition-colors hover:text-slate-950 dark:hover:text-white">
-            Support
-          </a>
+      {/* Bottom bar */}
+      <div className="border-t border-[#E5DDCD]">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-3 px-4 py-6 sm:px-6 md:flex-row md:items-center lg:px-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]">
+            © {new Date().getFullYear()} Carriage · Public beta
+          </p>
+          <div className="flex items-center gap-6 text-sm">
+            <Link href="/privacy" className="text-[#4B423A] transition-colors hover:text-[#0E6F5C]">
+              Privacy
+            </Link>
+            <Link href="/terms" className="text-[#4B423A] transition-colors hover:text-[#0E6F5C]">
+              Terms
+            </Link>
+            <a
+              href="mailto:support@aiformcoach.com"
+              className="text-[#4B423A] transition-colors hover:text-[#0E6F5C]"
+            >
+              Support
+            </a>
+          </div>
         </div>
       </div>
     </footer>

@@ -159,8 +159,8 @@ export default function ProgressionIntegration({
 
   if (loading) {
     return (
-      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-        <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+      <div className="bg-blue-50 rounded-lg p-4">
+        <div className="flex items-center gap-2 text-blue-700">
           <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
           Loading progression data...
         </div>
@@ -176,20 +176,20 @@ export default function ProgressionIntegration({
     <div className="space-y-4">
       {/* Current Target Display */}
       {currentTarget && (
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+        <div className="bg-green-50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-medium text-green-900 dark:text-green-200">
+            <h4 className="text-sm font-medium text-green-900">
               Current Target
             </h4>
             <Badge tone="success">
               {currentTarget.intensity} intensity
             </Badge>
           </div>
-          <div className="text-lg font-semibold text-green-900 dark:text-green-200">
+          <div className="text-lg font-semibold text-green-900">
             {formatTarget(currentTarget)}
           </div>
           {currentTarget.notes && (
-            <div className="text-sm text-green-800 dark:text-green-300 mt-1">
+            <div className="text-sm text-green-800 mt-1">
               {currentTarget.notes}
             </div>
           )}
@@ -197,9 +197,9 @@ export default function ProgressionIntegration({
       )}
 
       {/* Readiness Assessment */}
-      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+      <div className="bg-gray-50 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+          <h4 className="text-sm font-medium text-gray-900">
             Readiness Assessment
           </h4>
           <Button
@@ -213,18 +213,18 @@ export default function ProgressionIntegration({
         
         {latestReadiness ? (
           <div className="flex items-center gap-3">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {Math.round(getReadinessScore()! * 100)}%
             </div>
             <Badge tone={getReadinessColor(getReadinessCategory())}>
               {getReadinessCategory()}
             </Badge>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="text-xs text-gray-600">
               {latestReadiness.assessmentDate.toLocaleDateString()}
             </div>
           </div>
         ) : (
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="text-sm text-gray-600">
             No readiness assessment yet. Click &ldquo;Assess&rdquo; to get personalized recommendations.
           </div>
         )}
@@ -232,9 +232,9 @@ export default function ProgressionIntegration({
 
       {/* Next Target Recommendation */}
       {nextTarget && nextTarget !== currentTarget && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
+        <div className="bg-yellow-50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-medium text-yellow-900 dark:text-yellow-200">
+            <h4 className="text-sm font-medium text-yellow-900">
               Recommended Next Target
             </h4>
             <Button
@@ -246,7 +246,7 @@ export default function ProgressionIntegration({
           </div>
           
           <div className="space-y-2">
-            <div className="text-lg font-semibold text-yellow-900 dark:text-yellow-200">
+            <div className="text-lg font-semibold text-yellow-900">
               {formatTarget(nextTarget)}
             </div>
             <div className="flex gap-2">
@@ -258,7 +258,7 @@ export default function ProgressionIntegration({
               </Badge>
             </div>
             {nextTarget.notes && (
-              <div className="text-sm text-yellow-800 dark:text-yellow-300">
+              <div className="text-sm text-yellow-800">
                 <Icon name="alert-circle" className="w-4 h-4 inline mr-1" />
                 {nextTarget.notes}
               </div>
@@ -269,14 +269,14 @@ export default function ProgressionIntegration({
 
       {/* Session History Summary */}
       {sessionHistory.length > 0 && (
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h4 className="text-sm font-medium text-gray-900 mb-3">
             Recent Performance
           </h4>
           <div className="space-y-2">
             {sessionHistory.slice(-2).map((session, index) => (
               <div key={index} className="flex items-center justify-between text-sm">
-                <div className="text-gray-600 dark:text-gray-400">
+                <div className="text-gray-600">
                   {session.sessionDate.toLocaleDateString()}
                 </div>
                 <div className="flex gap-2">

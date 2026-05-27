@@ -15,9 +15,9 @@ This fragmentation caused visual inconsistency: 14+ different border-radius valu
 
 ## Decision
 
-- **Source of truth:** `@theme` block in `globals.css` (Tailwind v4 CSS-first approach). References CSS custom properties for runtime-switchable values (colors, shadows) and defines static tokens (radii) directly.
-- **CSS custom properties** remain in `globals.css` `:root` / `.dark` blocks for values that change between light/dark mode. The `@theme` block references these via `var()`.
-- **`tailwind.config.js`** is minimal — only content paths and dark mode strategy. Tokens are NOT in the JS config.
+- **Source of truth:** `@theme` block in `globals.css` (Tailwind v4 CSS-first approach). References CSS custom properties and defines static tokens (radii) directly.
+- **Unified dark theme only.** `:root` defines dark-mode colors directly — no `.dark` override block, no `ThemeToggle`, no `localStorage` theme switching. The `<html>` element carries `class="dark" data-theme="dark"` permanently. This decision (April 2026) eliminated the split light/dark complexity for an Apple Fitness+ inspired aesthetic.
+- **`tailwind.config.js`** is minimal — only content paths. Tokens are NOT in the JS config.
 - **`theme.ts` is deprecated** — kept for backward compatibility but new code uses Tailwind classes
 - **No arbitrary values** — use the defined token stops. `rounded-token-xl` not `rounded-[1.35rem]`
 

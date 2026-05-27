@@ -2,13 +2,81 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ── Carriage type system · self-hosted ───────────────────────────────────
+ * Variable fonts where available — one file, all weights/axes.
+ * Filenames contain commas → URL-encoded as %2C for safety.
+ * ─────────────────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/Fraunces/Fraunces-VariableFont_SOFT%2CWONK%2Copsz%2Cwght.ttf') format('truetype-variations'),
+       url('/fonts/Fraunces/Fraunces-VariableFont_SOFT%2CWONK%2Copsz%2Cwght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/Fraunces/Fraunces-Italic-VariableFont_SOFT%2CWONK%2Copsz%2Cwght.ttf') format('truetype-variations'),
+       url('/fonts/Fraunces/Fraunces-Italic-VariableFont_SOFT%2CWONK%2Copsz%2Cwght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Variable.woff2') format('woff2-variations'),
+       url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Variable.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-VariableItalic.woff2') format('woff2-variations'),
+       url('/fonts/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-VariableItalic.woff2') format('woff2');
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ── Design Tokens (Tailwind v4 CSS-first) ──────────────────────────────
  * This @theme block is the SINGLE SOURCE OF TRUTH for design tokens.
  * Use these via Tailwind classes: bg-surface, text-brand, rounded-token-md, etc.
  * See docs/design/DESIGN_SYSTEM.md for rationale.
+ *
+ * Carriage v2 palette locked May 2026 — Couture Kinetics.
+ * Brand:        Carriage           Descriptor: AI Form Coach
+ * Concept:      Couture Kinetics   Logo:       Ribbon C
+ * Metaphor:     The Form Line      Tagline:    Form, carried.
  * ─────────────────────────────────────────────────────────────────────── */
-/* Tokens that reference :root custom properties must use @theme inline
- * so Tailwind v4 emits var() literally instead of resolving at compile time. */
 @theme inline {
   --color-surface: var(--color-surface);
   --color-surface-secondary: var(--color-surface-secondary);
@@ -29,6 +97,11 @@
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
+
+  /* Font families — Tailwind utilities: font-sans / font-display / font-mono */
+  --font-sans:    var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono:    var(--font-mono);
 }
 
 /* Static tokens resolved at build time */
@@ -74,7 +147,7 @@
   .btn {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
-    min-height: 44px; /* iOS recommended touch target */
+    min-height: 44px;
     min-width: 44px;
   }
   
@@ -91,27 +164,15 @@
 
 /* Toast Animations */
 @keyframes progress {
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0%;
-  }
+  from { width: 100%; }
+  to { width: 0%; }
 }
-
-.animate-progress {
-  animation: progress linear;
-}
+.animate-progress { animation: progress linear; }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-
 .animate-shimmer {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   background-size: 200% 100%;
@@ -119,17 +180,10 @@
 }
 
 @keyframes rainbow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
-
 .animate-rainbow {
   background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
   background-size: 400% 400%;
@@ -140,84 +194,152 @@
 }
 
 :root {
-  --color-primary: #1f2937;
-  --color-primary-light: #374151;
-  --color-surface: #ffffff;
-  --color-surface-secondary: #f9fafb;
-  --color-text: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-muted: #9ca3af;
-  --color-success: #059669;
-  --color-warning: #d97706;
-  --color-error: #dc2626;
-  --color-info: #2563eb;
-  --color-border: #d1d5db;
-  --color-border-light: #e5e7eb;
-  --color-accent: #7c3aed;
-  --color-accent-light: #8b5cf6;
-  --radius-md: 12px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-  --shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
+  /* ─── Carriage v2 palette (locked May 2026) ─────────────────────── */
+  --carriage-obsidian:        #070707;
+  --carriage-deep-slate:      #111418;
+  --carriage-ink:             #17120D;
+  --carriage-bone:            #F4EFE6;
+  --carriage-malachite:       #0E6F5C;
+  --carriage-malachite-light: #149A80;
+  --carriage-malachite-deep:  #094B3F;
+  --carriage-champagne:       #D8C29D;
+  --carriage-oxblood:         #5A1F24;
+  --carriage-soft-clay:       #B99A7A;
 
-  /* Fluid type scale */
+  /* ─── Surface roles ─────────────────────────────────────────────── */
+  --color-surface:            var(--carriage-obsidian);
+  --color-surface-secondary:  var(--carriage-deep-slate);
+  --color-surface-elev:       #1a1f24;
+  --color-light-bg:           var(--carriage-bone);
+  --color-light-surface:      #FAF6EF;
+  --color-light-text:         var(--carriage-ink);
+  --color-light-text-sec:     #4B423A;
+  --color-light-border:       #E5DDCD;
+
+  /* ─── Text on dark ──────────────────────────────────────────────── */
+  --color-primary:            #F4EFE6;
+  --color-primary-light:      #E5DDCD;
+  --color-text:               #F4EFE6;
+  --color-text-secondary:     #C9C0B2;
+  --color-text-muted:         #8A8377;
+
+  /* ─── Borders ───────────────────────────────────────────────────── */
+  --color-border:             #1F2228;
+  --color-border-light:       #2C3036;
+
+  /* ─── Brand · Malachite leads ───────────────────────────────────── */
+  --color-accent:             var(--carriage-malachite);
+  --color-accent-light:       var(--carriage-malachite-light);
+  --color-accent-deep:        var(--carriage-malachite-deep);
+
+  /* ─── Premium · Champagne ───────────────────────────────────────── */
+  --color-champagne:          var(--carriage-champagne);
+  --color-champagne-soft:     #ECDCBE;
+
+  /* ─── Wellness · Soft Clay ──────────────────────────────────────── */
+  --color-soft-clay:          var(--carriage-soft-clay);
+
+  /* ─── Dramatic · Oxblood ────────────────────────────────────────── */
+  --color-oxblood:            var(--carriage-oxblood);
+
+  /* ─── Semantic ──────────────────────────────────────────────────── */
+  --color-success:            var(--carriage-malachite);
+  --color-warning:            #C49A47;
+  --color-error:              var(--carriage-oxblood);
+  --color-info:               #4A6FA5;
+
+  /* ─── Pose overlay · The Form Line (malachite → champagne) ──────── */
+  --color-pose-edge-start:    var(--carriage-malachite-light);
+  --color-pose-edge-end:      var(--carriage-champagne);
+  --color-pose-joint:         var(--carriage-champagne);
+
+  /* ─── Signature gradients ───────────────────────────────────────── */
+  --gradient-brand:           linear-gradient(135deg, #149A80 0%, #094B3F 100%);
+  --gradient-brand-soft:      linear-gradient(135deg, rgba(20,154,128,.18) 0%, rgba(9,75,63,.06) 100%);
+  --gradient-pose:            linear-gradient(90deg, #149A80 0%, #D8C29D 100%);
+  --gradient-hero-dark:       linear-gradient(135deg, #070707 0%, #111418 50%, #1a1f24 100%);
+  --gradient-bone:            linear-gradient(180deg, #F4EFE6 0%, #ECE4D2 100%);
+
+  /* ─── Radii ─────────────────────────────────────────────────────── */
+  --radius-md:                12px;
+
+  /* ─── Shadows ───────────────────────────────────────────────────── */
+  --shadow-sm:                0 1px 2px rgba(0,0,0,0.30);
+  --shadow-md:                0 4px 6px rgba(0,0,0,0.40);
+  --shadow-lg:                0 10px 15px rgba(0,0,0,0.50);
+  --shadow-xl:                0 20px 25px rgba(0,0,0,0.60);
+  --shadow-glow-accent:       0 0 24px rgba(20,154,128,0.40);
+  --shadow-glow-champagne:    0 0 28px rgba(216,194,157,0.32);
+
+  /* ─── Fluid type scale ──────────────────────────────────────────── */
   --step--1: clamp(0.79rem, calc(0.75rem + 0.21vw), 0.89rem);
-  --step-0: clamp(0.89rem, calc(0.84rem + 0.26vw), 1.00rem);
-  --step-1: clamp(1.00rem, calc(0.94rem + 0.31vw), 1.13rem);
-  --step-2: clamp(1.13rem, calc(1.05rem + 0.37vw), 1.27rem);
-  --step-3: clamp(1.27rem, calc(1.17rem + 0.44vw), 1.42rem);
-  --step-4: clamp(1.42rem, calc(1.30rem + 0.52vw), 1.60rem);
+  --step-0:  clamp(0.89rem, calc(0.84rem + 0.26vw), 1.00rem);
+  --step-1:  clamp(1.00rem, calc(0.94rem + 0.31vw), 1.13rem);
+  --step-2:  clamp(1.13rem, calc(1.05rem + 0.37vw), 1.27rem);
+  --step-3:  clamp(1.27rem, calc(1.17rem + 0.44vw), 1.42rem);
+  --step-4:  clamp(1.42rem, calc(1.30rem + 0.52vw), 1.60rem);
+
+  /* ─── Font families ─────────────────────────────────────────────── */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-sans:    'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  /* Wordmark axes — Fraunces italic for the Carriage wordmark */
+  --wordmark-axes: "opsz" 144, "SOFT" 50, "WONK" 1;
+  --display-axes:  "opsz" 144, "SOFT" 50;
 }
 
-[data-theme="dark"],
-.dark {
-  --color-primary: #f1f5f9;
-  --color-primary-light: #e2e8f0;
-  --color-surface: #0f172a;
-  --color-surface-secondary: #1e293b;
-  --color-text: #f8fafc;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #94a3b8;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
-  --color-border: #334155;
-  --color-border-light: #475569;
-  --color-accent: #8b5cf6;
-  --color-accent-light: #a78bfa;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
-  --shadow-xl: 0 20px 25px rgba(0,0,0,0.5);
-}
-
-html { color-scheme: light dark; }
+html { color-scheme: dark; }
 
 body {
-  background: var(--color-surface);
+  background: var(--gradient-hero-dark);
   color: var(--color-text);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial;
+  font-family: var(--font-sans);
   font-size: var(--step-0);
   line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Beautiful gradient backgrounds for different themes */
-[data-theme="light"] body {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-[data-theme="dark"] body,
-.dark body {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-  min-height: 100vh;
+/* Display headings use Fraunces; explicit weights set by component classes. */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
 }
-
 h1 { font-size: var(--step-3); font-weight: 700; }
 h2 { font-size: var(--step-2); font-weight: 600; }
+h3 { font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.005em; }
+
+p, body { line-height: 1.6; }
+
+/* Carriage wordmark — Fraunces italic with the locked variable axes.
+   Use as <span class="wordmark">Carriage</span> in headers/lockups. */
+.wordmark {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-variation-settings: var(--wordmark-axes);
+  letter-spacing: -0.012em;
+}
+
+/* JetBrains Mono utility for eyebrows / HUD / plate labels. */
+.eyebrow,
+.mono {
+  font-family: var(--font-mono);
+}
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--color-accent);
+}
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
 
 .container { max-width: 1200px; margin: 0 auto; padding-inline: 1rem; }
 .section { padding-block: 2rem; }
@@ -241,8 +363,9 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   padding: 0.75rem 1.5rem; 
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
+  font-family: var(--font-sans);
   font-weight: 600;
-  letter-spacing: 0.025em;
+  letter-spacing: -0.005em;
 }
 
 .btn:hover {
@@ -250,11 +373,15 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   box-shadow: var(--shadow-md);
 }
 
-.btn-primary { 
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%); 
-  color: white;
+.btn-primary {
+  background: var(--gradient-brand);
+  color: var(--carriage-bone);
   border: none;
   font-weight: 600;
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-glow-accent);
 }
 
 .btn-secondary { 
@@ -270,7 +397,14 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   color: var(--color-text);
 }
 
-.badge { border-radius: 999px; padding: 0.125rem 0.5rem; font-size: 12px; }
+.badge {
+  border-radius: 999px;
+  padding: 0.125rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
 .badge-success { background: color-mix(in oklab, var(--color-success) 20%, transparent); color: var(--color-success); }
 .badge-warning { background: color-mix(in oklab, var(--color-warning) 20%, transparent); color: var(--color-warning); }
 
@@ -291,11 +425,6 @@ h2 { font-size: var(--step-2); font-weight: 600; }
    WCAG 2.1 AA: prefers-reduced-motion
    All decorative animations and transitions are disabled when the user
    has enabled "Reduce motion" in their OS accessibility settings.
-   This universal selector catches all CSS animations and transitions,
-   including Tailwind utility classes and inline styles.
-
-   Functional rendering (Canvas2D skeleton overlay, camera feed) is
-   NOT affected — those are controlled in JavaScript, not CSS.
    ======================================================================== */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -315,17 +444,9 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .card {
-    border: 2px solid;
-  }
-  
-  .btn {
-    border: 2px solid;
-  }
-  
-  .opacity-80, .opacity-70, .opacity-50 {
-    opacity: 1;
-  }
+  .card { border: 2px solid; }
+  .btn { border: 2px solid; }
+  .opacity-80, .opacity-70, .opacity-50 { opacity: 1; }
 }
 
 /* Custom animations for enhanced UI */
@@ -350,9 +471,10 @@ h2 { font-size: var(--step-2); font-weight: 600; }
   to { opacity: 1; transform: scale(1); }
 }
 
+/* Brand glow — malachite range */
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-  50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(20, 154, 128, 0.30); }
+  50%      { box-shadow: 0 0 30px rgba(20, 154, 128, 0.60); }
 }
 
 @keyframes float {
@@ -361,8 +483,8 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
-  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6); }
+  0%, 100% { box-shadow: 0 0 5px rgba(20, 154, 128, 0.50); }
+  50%      { box-shadow: 0 0 20px rgba(20, 154, 128, 0.80), 0 0 30px rgba(20, 154, 128, 0.60); }
 }
 
 @keyframes slide-up {
@@ -397,3 +519,140 @@ h2 { font-size: var(--step-2); font-weight: 600; }
 .animate-slide-up { animation: slide-up 0.6s ease-out; }
 .animate-bounce-in { animation: bounce-in 0.6s ease-out; }
 .animate-fade-out { animation: fade-out 2s ease-out forwards; }
+/* ─────────────────────────────────────────────────────────────────────────
+   Carriage splash · keyframes + selectors
+   Append this block to the bottom of src/app/globals.css.
+
+   The component (src/components/RibbonCSplash.tsx) only handles orchestration;
+   every easing curve, duration, and colour transition lives here so design
+   can tweak motion without touching JS.
+
+   Locked spec: Design System Vol. 01 § 10 "Motion".
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ribbon-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--gradient-hero-dark);
+  opacity: 1;
+  transition: opacity 240ms ease;
+  /* Ensure the splash sits above any sticky header/nav. */
+  pointer-events: auto;
+}
+
+.ribbon-splash[data-phase="dismissing"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ribbon-splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  /* JS sets --ribbon-len from path.getTotalLength() on mount.
+     Fallback is the measured value for the locked cubic Bézier. */
+  --ribbon-len: 540;
+}
+
+/* The line that draws itself — phase 2 (200–800 ms). */
+.ribbon-splash-path {
+  stroke-dasharray: var(--ribbon-len);
+  stroke-dashoffset: var(--ribbon-len);
+  animation: ribbon-splash-draw 600ms 200ms ease-out forwards;
+}
+
+/* All three calibration nodes start invisible; staggered fade-in.
+   The middle node leads (phase 1 · 0–200 ms); the other two follow
+   after the line completes (phase 3 · 800–1100 ms). */
+.ribbon-splash-node {
+  opacity: 0;
+  fill: #D8C29D; /* champagne — the colour they "settle" into */
+}
+
+.ribbon-splash-node-mid {
+  animation: ribbon-splash-fade 200ms ease-out forwards;
+}
+
+.ribbon-splash-node-top,
+.ribbon-splash-node-btm {
+  animation: ribbon-splash-fade 300ms 800ms ease-out forwards;
+}
+
+/* Wordmark + descriptor — phase 4 (1100–1400 ms). Stagger by 100 ms. */
+.ribbon-splash-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.ribbon-splash-word {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 1;
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.018em;
+  color: #F4EFE6;
+  opacity: 0;
+  animation: ribbon-splash-fade 300ms 1100ms ease-out forwards;
+}
+
+.ribbon-splash-desc {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8A8377;
+  opacity: 0;
+  animation: ribbon-splash-fade 300ms 1200ms ease-out forwards;
+}
+
+@keyframes ribbon-splash-draw {
+  from { stroke-dashoffset: var(--ribbon-len); }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes ribbon-splash-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Reduced-motion path: paint the final frame instantly. The component
+   still holds for 600 ms total (per RibbonCSplash.tsx) so the user can
+   register the mark, then the overlay fades out via the .ribbon-splash
+   transition above (240 ms). */
+.ribbon-splash[data-reduced="true"] .ribbon-splash-path {
+  stroke-dashoffset: 0;
+  animation: none;
+}
+
+.ribbon-splash[data-reduced="true"] .ribbon-splash-node,
+.ribbon-splash[data-reduced="true"] .ribbon-splash-word,
+.ribbon-splash[data-reduced="true"] .ribbon-splash-desc {
+  opacity: 1;
+  animation: none;
+}
+
+/* Belt-and-braces fallback for users whose OS toggles prefers-reduced-motion
+   mid-flight — the universal rule in globals.css already collapses
+   animation-duration to 0.01ms, but the path needs an explicit override so
+   it doesn't render with stroke-dashoffset frozen at full length. */
+@media (prefers-reduced-motion: reduce) {
+  .ribbon-splash-path {
+    stroke-dashoffset: 0;
+  }
+  .ribbon-splash-node,
+  .ribbon-splash-word,
+  .ribbon-splash-desc {
+    opacity: 1;
+  }
+}

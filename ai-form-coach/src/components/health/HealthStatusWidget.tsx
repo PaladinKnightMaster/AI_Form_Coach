@@ -32,7 +32,7 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
   }, [healthManager]);
 
   useEffect(() => {
-    loadHealthData();
+    loadHealthData(); // eslint-disable-line react-hooks/set-state-in-effect -- data fetching on mount
     loadBaseline();
   }, [loadHealthData, loadBaseline]);
 
@@ -70,9 +70,9 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
   const hasHealthData = healthManager.hasHealthData();
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+    <div className="bg-gray-50 rounded-lg p-3">
       <div className="flex items-center justify-between mb-2">
-        <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+        <h4 className="text-sm font-medium text-gray-900">
           Health Status
         </h4>
         <Button
@@ -87,7 +87,7 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
       {hasHealthData && healthData ? (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <div className="text-lg font-bold text-gray-900 dark:text-white">
+            <div className="text-lg font-bold text-gray-900">
               {Math.round(getReadinessScore() * 100)}%
             </div>
             <Badge tone={getReadinessCategory() === 'excellent' ? 'success' : getReadinessCategory() === 'good' ? 'success' : 'warning'}>
@@ -98,25 +98,25 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex items-center gap-1">
               <Icon name="moon" className="w-3 h-3 text-blue-500" />
-              <span className="text-gray-600 dark:text-gray-400">
+              <span className="text-gray-600">
                 {(healthData.sleepDuration || 0).toFixed(1)}h
               </span>
             </div>
             <div className="flex items-center gap-1">
               <Icon name="heart" className="w-3 h-3 text-red-500" />
-              <span className="text-gray-600 dark:text-gray-400">
+              <span className="text-gray-600">
                 {healthData.restingHeartRate || '--'} bpm
               </span>
             </div>
             <div className="flex items-center gap-1">
               <Icon name="activity" className="w-3 h-3 text-green-500" />
-              <span className="text-gray-600 dark:text-gray-400">
+              <span className="text-gray-600">
                 {(healthData.stepCount || 0).toLocaleString()}
               </span>
             </div>
             <div className="flex items-center gap-1">
               <Icon name="trending-up" className="w-3 h-3 text-purple-500" />
-              <span className="text-gray-600 dark:text-gray-400">
+              <span className="text-gray-600">
                 {healthData.trainingLoad || 0}
               </span>
             </div>
@@ -124,7 +124,7 @@ export default function HealthStatusWidget({ onOpenHealthDashboard }: HealthStat
         </div>
       ) : (
         <div className="text-center py-2">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          <div className="text-sm text-gray-600 mb-2">
             No health data connected
           </div>
           <Button

@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import type { Landmark3D } from "@/lib/pose/engine";
+import type { Exercise } from "@/lib/validators/types";
 import PoseOverlay from "@/components/PoseOverlay";
-import { Icon } from "@/ui/DS";
 
 interface CoachCameraChromeProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -11,6 +11,8 @@ interface CoachCameraChromeProps {
   overlayVideo: HTMLVideoElement | null;
   landmarks: Landmark3D[] | null;
   landmarksRef: React.MutableRefObject<Landmark3D[] | null>;
+  exercise: Exercise;
+  showAngles: boolean;
   mirrorVideo: boolean;
   debug: boolean;
 }
@@ -21,20 +23,18 @@ export default function CoachCameraChrome({
   overlayVideo,
   landmarks,
   landmarksRef,
+  exercise,
+  showAngles,
   mirrorVideo,
   debug,
 }: CoachCameraChromeProps) {
   return (
     <>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.2),_transparent_32%)]" />
-      <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/65 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white backdrop-blur">
-        <Icon name="camera" className="h-4 w-4" />
-        Live Motion View
-      </div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.15),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(52,211,153,0.15),_transparent_32%)]" />
       <video
         data-testid="coach-video"
         ref={videoRef}
-        className="relative z-[1] h-full w-full object-contain"
+        className="relative z-[1] h-full w-full object-cover"
         style={{ transform: mirrorVideo ? "scaleX(-1)" : "none" }}
         playsInline
         muted
@@ -45,7 +45,10 @@ export default function CoachCameraChrome({
           landmarks={landmarks}
           landmarksRef={landmarksRef}
           video={overlayVideo}
+          sizing="cover"
           mirror={mirrorVideo}
+          exercise={exercise}
+          showAngles={showAngles}
           debug={debug}
         />
       ) : (

@@ -14,7 +14,7 @@ interface ValidationResult {
   test: string;
   passed: boolean;
   message: string;
-  details?: any;
+  details?: unknown;
 }
 
 class PoseSkeletonValidator {
@@ -244,22 +244,19 @@ class PoseSkeletonValidator {
     ];
 
     const canvasWidth = 1000;
-    let allCorrect = true;
 
     for (const landmark of landmarks) {
       // Test non-mirrored
       const normalX = landmark.x * canvasWidth;
-      
+
       // Test mirrored
       const mirroredX = (1 - landmark.x) * canvasWidth;
-      
+
       // For left landmarks, mirrored should move them right
       // For right landmarks, mirrored should move them left
-      const correctMirror = 
+      const correctMirror =
         (landmark.side === 'left' && mirroredX > normalX) ||
         (landmark.side === 'right' && mirroredX < normalX);
-      
-      if (!correctMirror) allCorrect = false;
 
       this.addResult({
         category: 'Coordinate Transform',

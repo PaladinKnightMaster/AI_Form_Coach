@@ -81,10 +81,10 @@ export default function CoachPacksStore() {
 
   const getDifficultyColor = (level: string) => {
     switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'advanced': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      case 'beginner': return 'bg-green-100 text-green-800';
+      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'advanced': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -101,11 +101,11 @@ export default function CoachPacksStore() {
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg mr-4">
               <Icon name="package" className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-4xl font-bold text-gray-900">
               Coach Packs
             </h1>
           </div>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-lg text-gray-600">
             Premium workout programs designed by fitness experts
           </p>
         </div>
@@ -116,10 +116,10 @@ export default function CoachPacksStore() {
           fallback={
             <div className="text-center py-12">
               <Icon name="lock" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
                 Pro Feature
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-gray-600 mb-4">
                 Coach Packs are available with a Pro subscription
               </p>
               <Button variant="primary" asChild>
@@ -133,11 +133,11 @@ export default function CoachPacksStore() {
             {coachPacks.map((pack) => (
               <div
                 key={pack.id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-200 hover:scale-105"
+                className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
                 <div className="p-6 h-full flex flex-col">
                   <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white flex-1 pr-2">
+                    <h3 className="text-xl font-semibold text-gray-900 flex-1 pr-2">
                       {pack.name}
                     </h3>
                     <Badge className={`${getDifficultyColor(pack.difficulty_level)} flex-shrink-0`}>
@@ -145,17 +145,17 @@ export default function CoachPacksStore() {
                     </Badge>
                   </div>
 
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 flex-1">
+                  <p className="text-gray-600 mb-4 line-clamp-3 flex-1">
                     {pack.description}
                   </p>
 
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center text-sm text-gray-500">
                       <Icon name="calendar" className="w-4 h-4 mr-2 flex-shrink-0" />
                       <span className="truncate">{pack.duration_weeks} weeks</span>
                     </div>
                     
-                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center text-sm text-gray-500">
                       <Icon name="dumbbell" className="w-4 h-4 mr-2 flex-shrink-0" />
                       <span className="truncate">{pack.equipment_required.join(', ') || 'Bodyweight'}</span>
                     </div>
@@ -163,14 +163,14 @@ export default function CoachPacksStore() {
 
                   <div className="flex flex-wrap gap-1 mb-4">
                     {pack.target_goals.map((goal) => (
-                      <Badge key={goal} className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 text-xs">
+                      <Badge key={goal} className="bg-blue-100 text-blue-800 text-xs">
                         {goal}
                       </Badge>
                     ))}
                   </div>
 
                   <div className="flex items-center justify-between mt-auto">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <div className="text-2xl font-bold text-gray-900">
                       {formatPrice(pack.price, pack.currency)}
                     </div>
                     
@@ -200,10 +200,10 @@ export default function CoachPacksStore() {
           {coachPacks.length === 0 && (
             <div className="text-center py-12">
               <Icon name="package" className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No coach packs available
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600">
                 Check back soon for new premium workout programs
               </p>
             </div>

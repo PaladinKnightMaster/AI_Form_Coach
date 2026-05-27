@@ -22,7 +22,7 @@ async function testSubscriptionFeatures() {
 
     // Test 1: Check if activity_likes table exists
     console.log('1. Testing activity_likes table...');
-    const { data: likesTable, error: likesError } = await supabase
+    const { data: _likesTable, error: likesError } = await supabase
       .from('activity_likes')
       .select('*')
       .limit(1);
@@ -36,7 +36,7 @@ async function testSubscriptionFeatures() {
 
     // Test 2: Check if activity_comments table exists
     console.log('\n2. Testing activity_comments table...');
-    const { data: commentsTable, error: commentsError } = await supabase
+    const { data: _commentsTable, error: commentsError } = await supabase
       .from('activity_comments')
       .select('*')
       .limit(1);
@@ -50,7 +50,7 @@ async function testSubscriptionFeatures() {
 
     // Test 3: Check if database functions exist
     console.log('\n3. Testing database functions...');
-    const { data: likeCount, error: likeCountError } = await supabase
+    const { data: _likeCount, error: likeCountError } = await supabase
       .rpc('get_activity_like_count', { activity_id_param: 'test-123' });
     
     if (likeCountError && likeCountError.code === '42883') {
@@ -75,7 +75,7 @@ async function testSubscriptionFeatures() {
 
     // Test 5: Check if sessions table has required columns
     console.log('\n5. Testing sessions table columns...');
-    const { data: sessionColumns, error: sessionError } = await supabase
+    const { data: _sessionColumns, error: sessionError } = await supabase
       .from('sessions')
       .select('is_public, quality_score')
       .limit(1);

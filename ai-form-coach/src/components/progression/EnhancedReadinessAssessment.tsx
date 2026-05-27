@@ -213,29 +213,29 @@ export default function EnhancedReadinessAssessment({
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-200 dark:border-gray-700 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-2xl p-6 shadow-2xl border border-gray-200 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-gray-900">
               Enhanced Readiness Assessment
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-gray-600 mt-1">
               AI-powered readiness using your health data
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <Icon name="x" className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         {/* Health Data Status */}
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200">
+            <h3 className="text-lg font-semibold text-blue-900">
               Health Data Integration
             </h3>
             {!healthManager.hasHealthData() && (
@@ -271,22 +271,22 @@ export default function EnhancedReadinessAssessment({
 
         {/* Auto-Generated Readiness Score */}
         {autoReadinessScore !== null && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <h3 className="text-lg font-semibold text-green-900 dark:text-green-200 mb-3">
+          <div className="mb-6 p-4 bg-green-50 rounded-lg">
+            <h3 className="text-lg font-semibold text-green-900 mb-3">
               AI-Generated Readiness Score
             </h3>
             <div className="flex items-center gap-4">
-              <div className="text-3xl font-bold text-green-900 dark:text-green-200">
+              <div className="text-3xl font-bold text-green-900">
                 {Math.round(autoReadinessScore * 100)}%
               </div>
               <div className="flex-1">
-                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3">
+                <div className="w-full bg-gray-200 rounded-full h-3">
                   <div 
                     className="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-3 rounded-full transition-all duration-300"
                     style={{ width: `${autoReadinessScore * 100}%` }}
                   />
                 </div>
-                <div className="text-sm text-green-800 dark:text-green-300 mt-1">
+                <div className="text-sm text-green-800 mt-1">
                   Based on your health data: Sleep, HRV, Steps, Training Load
                 </div>
               </div>
@@ -296,40 +296,40 @@ export default function EnhancedReadinessAssessment({
 
         {/* Health Data Details */}
         {healthData && (
-          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
               Today&apos;s Health Metrics
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {healthData.sleepDuration.toFixed(1)}h
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Sleep</div>
+                <div className="text-sm text-gray-600">Sleep</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {healthData.restingHeartRate || '--'}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Resting HR</div>
+                <div className="text-sm text-gray-600">Resting HR</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {healthData.hrv ? `${healthData.hrv}ms` : '--'}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">HRV</div>
+                <div className="text-sm text-gray-600">HRV</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {healthData.stepCount.toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Steps</div>
+                <div className="text-sm text-gray-600">Steps</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-gray-900">
                   {healthData.trainingLoad}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Training Load</div>
+                <div className="text-sm text-gray-600">Training Load</div>
               </div>
             </div>
           </div>
@@ -338,7 +338,7 @@ export default function EnhancedReadinessAssessment({
         {/* Manual Assessment (Fallback) */}
         {autoReadinessScore === null && (
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Manual Assessment
             </h3>
             <div className="space-y-4">
@@ -376,16 +376,16 @@ export default function EnhancedReadinessAssessment({
               ].map((config) => (
                 <div key={config.field} className="space-y-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 dark:text-white">
+                    <label className="block text-sm font-medium text-gray-900">
                       {config.label}
                     </label>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-600">
                       {config.description}
                     </p>
                   </div>
                   
                   <div className="space-y-2">
-                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex justify-between text-xs text-gray-500">
                       <span>0</span>
                       <span className="font-medium">{manualAssessment[config.field]}/10</span>
                       <span>10</span>
@@ -422,7 +422,7 @@ export default function EnhancedReadinessAssessment({
         <div className="flex gap-3">
           <Button
             onClick={onClose}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
           >
             Cancel
           </Button>
@@ -484,17 +484,17 @@ function BaselineSetupModal({
     <div className="fixed inset-0 z-60 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-200 dark:border-gray-700 max-w-md w-full mx-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="relative bg-white rounded-2xl p-6 shadow-2xl border border-gray-200 max-w-md w-full mx-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Set Your Health Baseline
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm text-gray-600 mb-4">
           Enter your typical values to personalize readiness calculations.
         </p>
         
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">
+            <label className="block text-sm font-medium text-gray-900 mb-1">
               Sleep Duration (hours)
             </label>
             <input
@@ -509,7 +509,7 @@ function BaselineSetupModal({
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">
+            <label className="block text-sm font-medium text-gray-900 mb-1">
               Resting Heart Rate (bpm)
             </label>
             <input
@@ -523,7 +523,7 @@ function BaselineSetupModal({
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">
+            <label className="block text-sm font-medium text-gray-900 mb-1">
               HRV Baseline (ms)
             </label>
             <input
@@ -537,7 +537,7 @@ function BaselineSetupModal({
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">
+            <label className="block text-sm font-medium text-gray-900 mb-1">
               Daily Steps
             </label>
             <input
@@ -555,7 +555,7 @@ function BaselineSetupModal({
         <div className="flex gap-3 mt-6">
           <Button
             onClick={onClose}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300"
+            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
           >
             Cancel
           </Button>

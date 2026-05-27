@@ -1,4 +1,12 @@
-# Cursor IDE files
+# Editor / agent workspace files
 .cursor/
-.cursor
 .claude/
+
+# Project scratch — not part of the deployed app
+brand_research/
+implementation/
+
+# OS noise files
+Thumbs.db
+desktop.ini
+.DS_Store

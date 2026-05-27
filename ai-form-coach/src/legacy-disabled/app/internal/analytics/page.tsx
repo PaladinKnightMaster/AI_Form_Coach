@@ -24,10 +24,10 @@ interface MetricCardProps {
 function MetricCard({ title, value, subtitle, trend, status, className = '' }: MetricCardProps) {
   const getStatusColor = () => {
     switch (status) {
-      case 'good': return 'text-green-600 dark:text-green-400';
-      case 'warning': return 'text-yellow-600 dark:text-yellow-400';
-      case 'critical': return 'text-red-600 dark:text-red-400';
-      default: return 'text-gray-600 dark:text-gray-400';
+      case 'good': return 'text-green-600';
+      case 'warning': return 'text-yellow-600';
+      case 'critical': return 'text-red-600';
+      default: return 'text-gray-600';
     }
   };
 
@@ -41,12 +41,12 @@ function MetricCard({ title, value, subtitle, trend, status, className = '' }: M
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 ${className}`}>
+    <div className={`bg-white rounded-lg border border-gray-200 p-6 ${className}`}>
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
+        <h3 className="text-sm font-medium text-gray-500">{title}</h3>
         {getTrendIcon()}
       </div>
-      <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+      <div className="text-2xl font-bold text-gray-900 mb-1">
         {value}
       </div>
       {subtitle && (
@@ -71,15 +71,15 @@ function GuardrailsStatus({ guardrails }: GuardrailsStatusProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">
         Performance Guardrails
       </h3>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium text-gray-900 dark:text-white">Device Processing</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="font-medium text-gray-900">Device Processing</p>
+            <p className="text-sm text-gray-500">
               {guardrails.deviceProcessingRate.toFixed(1)}% (Target: ≥{guardrails.thresholds.deviceProcessingMin}%)
             </p>
           </div>
@@ -88,8 +88,8 @@ function GuardrailsStatus({ guardrails }: GuardrailsStatusProps) {
         
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium text-gray-900 dark:text-white">API Latency</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="font-medium text-gray-900">API Latency</p>
+            <p className="text-sm text-gray-500">
               {guardrails.medianApiLatency.toFixed(0)}ms (Target: ≤{guardrails.thresholds.apiLatencyMax}ms)
             </p>
           </div>
@@ -98,8 +98,8 @@ function GuardrailsStatus({ guardrails }: GuardrailsStatusProps) {
         
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium text-gray-900 dark:text-white">Storage per User</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="font-medium text-gray-900">Storage per User</p>
+            <p className="text-sm text-gray-500">
               {guardrails.storagePerUserMB.toFixed(1)}MB (Target: ≤{guardrails.thresholds.storagePerUserMax}MB)
             </p>
           </div>
@@ -180,10 +180,10 @@ export default function InternalAnalyticsPage() {
   if (!isAuthenticated) {
     return (
       <Container className="py-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">
           Access Denied
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
+        <p className="text-gray-600 mb-6">
           This is an internal analytics dashboard. Please sign in to access.
         </p>
         <Button onClick={() => window.location.href = '/signin'}>
@@ -200,10 +200,10 @@ export default function InternalAnalyticsPage() {
   if (!dashboard) {
     return (
       <Container className="py-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">
           No Data Available
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
+        <p className="text-gray-600 mb-6">
           Unable to load analytics data. Please try refreshing.
         </p>
         <Button onClick={handleRefresh} loading={refreshing}>
@@ -218,10 +218,10 @@ export default function InternalAnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-gray-900">
             Internal Analytics Dashboard
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-gray-600 mt-2">
             Investor-grade metrics and performance monitoring
           </p>
         </div>
@@ -229,7 +229,7 @@ export default function InternalAnalyticsPage() {
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value as '7d' | '30d' | '90d' | '1y')}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
           >
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
@@ -344,17 +344,17 @@ export default function InternalAnalyticsPage() {
       </div>
 
       {/* Device Breakdown */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Quality by Device Type
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Object.entries(dashboard.quality.deviceBreakdown).map(([device, confidence]) => (
             <div key={device} className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              <div className="text-2xl font-bold text-gray-900">
                 {confidence ? `${confidence.toFixed(1)}%` : 'N/A'}
               </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+              <div className="text-sm text-gray-500 capitalize">
                 {device} Confidence
               </div>
             </div>
@@ -363,7 +363,7 @@ export default function InternalAnalyticsPage() {
       </div>
 
       {/* Footer */}
-      <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+      <div className="mt-8 text-center text-sm text-gray-500">
         <p>Last updated: {new Date(dashboard.generatedAt).toLocaleString()}</p>
         <p>Period: {new Date(dashboard.period.start).toLocaleDateString()} - {new Date(dashboard.period.end).toLocaleDateString()}</p>
       </div>

@@ -54,7 +54,7 @@ export default function MacroRing({
             stroke="currentColor"
             strokeWidth="8"
             fill="none"
-            className="text-gray-200 dark:text-gray-700"
+            className="text-gray-200"
           />
           {/* Progress ring */}
           <circle
@@ -73,10 +73,10 @@ export default function MacroRing({
         
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className={`font-bold ${valueSizeClasses[size]} text-gray-900 dark:text-white transition-colors duration-300`}>
+          <div className={`font-bold ${valueSizeClasses[size]} text-gray-900 transition-colors duration-300`}>
             {Math.round(value)}
           </div>
-          <div className={`${textSizeClasses[size]} text-gray-500 dark:text-gray-400 transition-colors duration-300`}>
+          <div className={`${textSizeClasses[size]} text-gray-500 transition-colors duration-300`}>
             {unit}
           </div>
         </div>
@@ -84,10 +84,10 @@ export default function MacroRing({
       
       {/* Label and goal */}
       <div className="text-center">
-        <div className={`font-semibold ${textSizeClasses[size]} text-gray-900 dark:text-white transition-colors duration-300`}>
+        <div className={`font-semibold ${textSizeClasses[size]} text-gray-900 transition-colors duration-300`}>
           {label}
         </div>
-        <div className={`${textSizeClasses[size]} text-gray-500 dark:text-gray-400 transition-colors duration-300`}>
+        <div className={`${textSizeClasses[size]} text-gray-500 transition-colors duration-300`}>
           {Math.round(percentage)}% of {goal}{unit}
         </div>
       </div>

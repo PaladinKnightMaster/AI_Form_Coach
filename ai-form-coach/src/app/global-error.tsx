@@ -44,6 +44,7 @@ export default function GlobalError({
               >
                 Try again
               </button>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Global error boundary intentionally uses <a> since the Next.js router may be broken */}
               <a
                 href="/"
                 style={{

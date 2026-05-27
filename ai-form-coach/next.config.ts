@@ -15,6 +15,13 @@ const legacyRouteRedirects = [
 ];
 
 const nextConfig: NextConfig = {
+  // The OG / Twitter image routes read co-located font files at request time
+  // (src/lib/mvp/og-fonts/*). Pin them into each route's serverless bundle so
+  // next/og can rasterise the real Carriage faces in production, not just dev.
+  outputFileTracingIncludes: {
+    "/opengraph-image": ["./src/lib/mvp/og-fonts/**"],
+    "/twitter-image": ["./src/lib/mvp/og-fonts/**"],
+  },
   images: {
     remotePatterns: [
       {

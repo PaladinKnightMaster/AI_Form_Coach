@@ -31,22 +31,21 @@ interface PerformanceSummary {
 export default function MonitoringDashboard() {
   const [errorSummary, setErrorSummary] = useState<ErrorSummary | null>(null);
   const [performanceSummary, setPerformanceSummary] = useState<PerformanceSummary | null>(null);
-  const [sessionId, setSessionId] = useState<string>('');
+  const [sessionId] = useState(() => getSessionId());
   const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setSessionId(getSessionId());
-    updateMetrics();
-    
-    // Update metrics every 30 seconds
-    const interval = setInterval(updateMetrics, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const updateMetrics = () => {
     setErrorSummary(getErrorSummary());
     setPerformanceSummary(getPerformanceSummary());
   };
+
+  useEffect(() => {
+    updateMetrics(); // eslint-disable-line react-hooks/set-state-in-effect -- fetching metrics on mount
+
+    // Update metrics every 30 seconds
+    const interval = setInterval(updateMetrics, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!isVisible) {
     return (

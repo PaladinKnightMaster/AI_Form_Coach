@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import CoachPage from "@/app/coach/page";
+import CoachPage from "@/app/(coach)/coach/page";
 
 beforeAll(() => {
   if (typeof window !== "undefined" && !window.matchMedia) {

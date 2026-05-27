@@ -55,7 +55,7 @@ export default function Pose3DCoach({
     // Speak positive feedback occasionally
     if (feedback.positives.length > 0 && Math.random() < 0.3) {
       const positive = feedback.positives[0];
-      speakFeedback(positive.message, 'low');
+      speakFeedback(positive.message, 'low'); // eslint-disable-line react-hooks/set-state-in-effect -- reacting to external pose feedback
     }
   }, [feedback, isActive, speakFeedback]);
 
@@ -80,9 +80,9 @@ export default function Pose3DCoach({
   }
 
   return (
-    <div className={`pose-3d-coach bg-white dark:bg-gray-800 rounded-lg shadow-lg ${className}`}>
+    <div className={`pose-3d-coach bg-white rounded-lg shadow-lg ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
           <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
           <h3 className="text-lg font-semibold">
@@ -198,7 +198,7 @@ export default function Pose3DCoach({
 
         {/* Movement Phase */}
         {feedback.phase && (
-          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="p-3 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Current Phase:</span>
               <span className="text-sm font-semibold capitalize text-blue-600">
@@ -215,7 +215,7 @@ export default function Pose3DCoach({
 
         {/* Detailed View */}
         {showDetails && (
-          <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="space-y-3 pt-4 border-t border-gray-200">
             {/* All Corrections */}
             {feedback.corrections.length > 0 && (
               <div>

@@ -44,7 +44,7 @@ export default function RankWidget({ className = '' }: RankWidgetProps) {
 
   if (loading) {
     return (
-      <div className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-4 ${className}`}>
+      <div className={`rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm p-4 ${className}`}>
         <div className="flex items-center justify-center py-4">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
         </div>
@@ -54,10 +54,10 @@ export default function RankWidget({ className = '' }: RankWidgetProps) {
 
   if (error || !userRank) {
     return (
-      <div className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-4 ${className}`}>
+      <div className={`rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm p-4 ${className}`}>
         <div className="text-center">
           <div className="text-gray-400 text-2xl mb-2">🏆</div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="text-sm text-gray-600">
             {error ? 'Rank unavailable' : 'Complete a workout to see your rank'}
           </div>
         </div>
@@ -73,77 +73,77 @@ export default function RankWidget({ className = '' }: RankWidgetProps) {
   };
 
   const getRankColor = (rank: number) => {
-    if (rank === 1) return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20';
-    if (rank === 2) return 'text-gray-600 bg-gray-100 dark:bg-gray-900/20';
-    if (rank === 3) return 'text-orange-600 bg-orange-100 dark:bg-orange-900/20';
-    if (rank <= 10) return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20';
-    return 'text-gray-600 bg-gray-50 dark:bg-gray-800/50';
+    if (rank === 1) return 'text-yellow-600 bg-yellow-100';
+    if (rank === 2) return 'text-gray-600 bg-gray-100';
+    if (rank === 3) return 'text-orange-600 bg-orange-100';
+    if (rank <= 10) return 'text-blue-600 bg-blue-100';
+    return 'text-gray-600 bg-gray-50';
   };
 
   return (
-    <div className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-4 ${className}`}>
+    <div className={`rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm p-4 ${className}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="text-lg">🏆</div>
-          <h3 className="font-medium text-gray-900 dark:text-white">Your Rank</h3>
+          <h3 className="font-medium text-gray-900">Your Rank</h3>
         </div>
         <Badge tone="info" size="sm">This Month</Badge>
       </div>
       
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600 dark:text-gray-400">Overall Rank</span>
+          <span className="text-sm text-gray-600">Overall Rank</span>
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${getRankColor(userRank.rank)}`}>
             {getRankIcon(userRank.rank)}
           </span>
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600 dark:text-gray-400">Total Reps</span>
-          <span className="text-sm font-medium text-gray-900 dark:text-white">
+          <span className="text-sm text-gray-600">Total Reps</span>
+          <span className="text-sm font-medium text-gray-900">
             {userRank.total_reps.toLocaleString()}
           </span>
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600 dark:text-gray-400">Quality Score</span>
-          <span className="text-sm font-medium text-gray-900 dark:text-white">
+          <span className="text-sm text-gray-600">Quality Score</span>
+          <span className="text-sm font-medium text-gray-900">
             {Math.round(userRank.avg_quality_score)}%
           </span>
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600 dark:text-gray-400">Verified Sessions</span>
-          <span className="text-sm font-medium text-gray-900 dark:text-white">
+          <span className="text-sm text-gray-600">Verified Sessions</span>
+          <span className="text-sm font-medium text-gray-900">
             {userRank.verified_sessions || 0} / {userRank.total_sessions}
           </span>
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600 dark:text-gray-400">Percentile</span>
-          <span className="text-sm font-medium text-gray-900 dark:text-white">
+          <span className="text-sm text-gray-600">Percentile</span>
+          <span className="text-sm font-medium text-gray-900">
             Top {userRank.total_entries ? Math.round(((userRank.total_entries - userRank.rank + 1) / userRank.total_entries) * 100) : 0}%
           </span>
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600 dark:text-gray-400">Total Athletes</span>
-          <span className="text-sm font-medium text-gray-900 dark:text-white">
+          <span className="text-sm text-gray-600">Total Athletes</span>
+          <span className="text-sm font-medium text-gray-900">
             {(userRank.total_entries || 0).toLocaleString()}
           </span>
         </div>
         
-        <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+        <div className="pt-2 border-t border-gray-200">
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
-              <div className="text-gray-500 dark:text-gray-400">Reps</div>
-              <div className="font-medium text-gray-900 dark:text-white">
+              <div className="text-gray-500">Reps</div>
+              <div className="font-medium text-gray-900">
                 {userRank.total_reps.toLocaleString()}
               </div>
             </div>
             <div>
-              <div className="text-gray-500 dark:text-gray-400">Quality</div>
-              <div className="font-medium text-gray-900 dark:text-white">
+              <div className="text-gray-500">Quality</div>
+              <div className="font-medium text-gray-900">
                 {Math.round(userRank.avg_quality_score)}%
               </div>
             </div>

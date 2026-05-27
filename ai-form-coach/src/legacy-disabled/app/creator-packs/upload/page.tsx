@@ -200,7 +200,7 @@ export default function CreatorPackUploadPage() {
 
     return (
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           {label}
         </label>
         <div className="flex gap-2 mb-2">
@@ -209,7 +209,7 @@ export default function CreatorPackUploadPage() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={placeholder}
-            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -233,13 +233,13 @@ export default function CreatorPackUploadPage() {
           {(array as string[]).map((item: string, index: number) => (
             <span
               key={index}
-              className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+              className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800"
             >
               {item}
               <button
                 type="button"
                 onClick={() => removeArrayItem(field, index)}
-                className="ml-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+                className="ml-1 text-blue-600 hover:text-blue-800"
               >
                 <Icon name="x" className="w-3 h-3" />
               </button>
@@ -268,37 +268,37 @@ export default function CreatorPackUploadPage() {
     <Container className="py-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Upload Creator Pack
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             Create and submit a new workout program for the marketplace
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Basic Information
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Title *
                 </label>
                 <input
                   type="text"
                   value={form.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
                   placeholder="Enter pack title"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Duration (weeks) *
                 </label>
                 <input
@@ -307,18 +307,18 @@ export default function CreatorPackUploadPage() {
                   max="52"
                   value={form.duration}
                   onChange={(e) => handleInputChange('duration', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Difficulty *
                 </label>
                 <select
                   value={form.difficulty}
                   onChange={(e) => handleInputChange('difficulty', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
                 >
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
@@ -327,7 +327,7 @@ export default function CreatorPackUploadPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Price (cents) *
                 </label>
                 <input
@@ -336,7 +336,7 @@ export default function CreatorPackUploadPage() {
                   max="100000"
                   value={form.price}
                   onChange={(e) => handleInputChange('price', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   ${(form.price / 100).toFixed(2)}
@@ -345,35 +345,35 @@ export default function CreatorPackUploadPage() {
             </div>
             
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description *
               </label>
               <textarea
                 value={form.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
                 placeholder="Detailed description of the pack"
               />
             </div>
             
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Short Description *
               </label>
               <input
                 type="text"
                 value={form.shortDescription}
                 onChange={(e) => handleInputChange('shortDescription', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
                 placeholder="Brief description for previews"
               />
             </div>
           </div>
 
           {/* Tags and Equipment */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Tags and Equipment
             </h2>
             
@@ -399,8 +399,8 @@ export default function CreatorPackUploadPage() {
           </div>
 
           {/* Preview Information */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Preview Information
             </h2>
             
@@ -420,48 +420,48 @@ export default function CreatorPackUploadPage() {
           </div>
 
           {/* Creator Information */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Creator Information
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Creator Name *
                 </label>
                 <input
                   type="text"
                   value={form.creator.name}
                   onChange={(e) => handleInputChange('creator.name', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
                   placeholder="Your name or brand"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Experience
                 </label>
                 <input
                   type="text"
                   value={form.creator.experience}
                   onChange={(e) => handleInputChange('creator.experience', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
                   placeholder="e.g., 5+ years, Certified Trainer"
                 />
               </div>
             </div>
             
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Bio
               </label>
               <textarea
                 value={form.creator.bio}
                 onChange={(e) => handleInputChange('creator.bio', e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900"
                 placeholder="Brief bio about yourself"
               />
             </div>
@@ -477,21 +477,21 @@ export default function CreatorPackUploadPage() {
 
           {/* Validation Results */}
           {validation && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
                 Validation Results
               </h2>
               
               {validation.errors.length > 0 && (
                 <div className="mb-4">
-                  <h3 className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">
+                  <h3 className="text-lg font-medium text-red-600 mb-2">
                     Errors
                   </h3>
                   <ul className="space-y-1">
                     {validation.errors.map((error, index) => (
                       <li key={index} className="flex items-start">
                         <Icon name="alert-circle" className="w-4 h-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span className="text-red-600 dark:text-red-400">
+                        <span className="text-red-600">
                           <strong>{error.field}:</strong> {error.message}
                         </span>
                       </li>
@@ -502,14 +502,14 @@ export default function CreatorPackUploadPage() {
               
               {validation.warnings.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-medium text-yellow-600 dark:text-yellow-400 mb-2">
+                  <h3 className="text-lg font-medium text-yellow-600 mb-2">
                     Warnings
                   </h3>
                   <ul className="space-y-1">
                     {validation.warnings.map((warning, index) => (
                       <li key={index} className="flex items-start">
                         <Icon name="alert-triangle" className="w-4 h-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span className="text-yellow-600 dark:text-yellow-400">
+                        <span className="text-yellow-600">
                           <strong>{warning.field}:</strong> {warning.message}
                           {warning.suggestion && (
                             <span className="block text-sm mt-1">

@@ -4,7 +4,7 @@ import type { ReadinessAssessment } from '@/lib/progression/engine';
 
 describe('PlanAdjustmentService', () => {
   const adjustmentService = new PlanAdjustmentService();
-  
+
   const mockPlan: UserPlan = {
     id: 'test-plan',
     user_id: 'test-user',
@@ -69,115 +69,126 @@ describe('PlanAdjustmentService', () => {
     plan_data: {} // Empty plan_data for template plans
   };
 
+  // ReadinessAssessment uses 0-10 scale fields:
+  // sorenessLevel, fatigueLevel, sleepQuality, stressLevel, motivationLevel
+  // readinessScore = ((10-soreness) + (10-fatigue) + sleep + (10-stress) + motivation) / 50
+  // hasSoreness = sorenessLevel > 3
+
   describe('adjustPlanForReadiness', () => {
     it('should return no adjustment for normal readiness', () => {
+      // Target: readinessScore = 0.6 (60%), hasSoreness = true (soreness > 3)
+      // (10-4) + (10-5) + 7 + (10-5) + 7 = 6+5+7+5+7 = 30 → 30/50 = 0.60
       const readiness: ReadinessAssessment = {
-        overallScore: 0.6,
-        soreness: 0.2,
-        fatigue: 0.3,
-        sleep: 0.7,
-        stress: 0.4,
-        motivation: 0.8,
+        sorenessLevel: 4,
+        fatigueLevel: 5,
+        sleepQuality: 7,
+        stressLevel: 5,
+        motivationLevel: 7,
         assessmentDate: new Date()
       };
 
       const adjustment = adjustmentService.adjustPlanForReadiness(mockPlan, readiness, 1);
-      
+
       expect(adjustment.type).toBe('none');
       expect(adjustment.reason).toContain('60%');
     });
 
     it('should reduce volume for low readiness', () => {
+      // Target: readinessScore = 0.3 (30%)
+      // (10-7) + (10-6) + 4 + (10-7) + 1 = 3+4+4+3+1 = 15 → 15/50 = 0.30
       const readiness: ReadinessAssessment = {
-        overallScore: 0.3, // 30% - below 40% threshold
-        soreness: 0.2,
-        fatigue: 0.6,
-        sleep: 0.4,
-        stress: 0.7,
-        motivation: 0.5,
+        sorenessLevel: 7,
+        fatigueLevel: 6,
+        sleepQuality: 4,
+        stressLevel: 7,
+        motivationLevel: 1,
         assessmentDate: new Date()
       };
 
       const adjustment = adjustmentService.adjustPlanForReadiness(mockPlan, readiness, 1);
-      
+
       expect(adjustment.type).toBe('volume_reduction');
       expect(adjustment.reason).toContain('30%');
       expect(adjustment.adjustments).toContain('Reduced sets by 20% for all exercises');
     });
 
     it('should swap to mobility day for very low readiness', () => {
+      // Target: readinessScore ≈ 0.15 (15%)
+      // (10-8) + (10-9) + 1 + (10-8) + 1.5 = 2+1+1+2+1.5 = 7.5 → 7.5/50 = 0.15
       const readiness: ReadinessAssessment = {
-        overallScore: 0.15, // 15% - below 20% threshold
-        soreness: 0.8,
-        fatigue: 0.9,
-        sleep: 0.2,
-        stress: 0.8,
-        motivation: 0.3,
+        sorenessLevel: 8,
+        fatigueLevel: 9,
+        sleepQuality: 1,
+        stressLevel: 8,
+        motivationLevel: 1.5,
         assessmentDate: new Date()
       };
 
       const adjustment = adjustmentService.adjustPlanForReadiness(mockPlan, readiness, 1);
-      
+
       expect(adjustment.type).toBe('mobility_day');
       expect(adjustment.reason).toContain('15%');
       expect(adjustment.adjustments).toContain('Replaced strength/cardio session with mobility day');
     });
 
     it('should add finisher sets for high readiness with no soreness', () => {
+      // Target: readinessScore = 0.85 (85%), hasSoreness = false (soreness ≤ 3)
+      // (10-1) + (10-2) + 9 + (10-2) + 8.5 = 9+8+9+8+8.5 = 42.5 → 42.5/50 = 0.85
       const readiness: ReadinessAssessment = {
-        overallScore: 0.85, // 85% - above 70% threshold
-        soreness: 0.1, // Low soreness - below 0.3 threshold
-        fatigue: 0.2,
-        sleep: 0.9,
-        stress: 0.2,
-        motivation: 0.9,
+        sorenessLevel: 1,
+        fatigueLevel: 2,
+        sleepQuality: 9,
+        stressLevel: 2,
+        motivationLevel: 8.5,
         assessmentDate: new Date()
       };
 
       const adjustment = adjustmentService.adjustPlanForReadiness(mockPlan, readiness, 1);
-      
+
       expect(adjustment.type).toBe('finisher_sets');
       expect(adjustment.reason).toContain('85%');
       expect(adjustment.adjustments).toContain('Added optional finisher sets');
     });
 
     it('should not add finisher sets for high readiness with soreness', () => {
+      // Target: readinessScore = 0.85 (85%), hasSoreness = true (soreness > 3)
+      // (10-5) + (10-1) + 10 + (10-1) + 9.5 = 5+9+10+9+9.5 = 42.5 → 42.5/50 = 0.85
       const readiness: ReadinessAssessment = {
-        overallScore: 0.85, // 85% - above 70% threshold
-        soreness: 0.5, // High soreness - above 0.3 threshold
-        fatigue: 0.2,
-        sleep: 0.9,
-        stress: 0.2,
-        motivation: 0.9,
+        sorenessLevel: 5,
+        fatigueLevel: 1,
+        sleepQuality: 10,
+        stressLevel: 1,
+        motivationLevel: 9.5,
         assessmentDate: new Date()
       };
 
       const adjustment = adjustmentService.adjustPlanForReadiness(mockPlan, readiness, 1);
-      
+
       expect(adjustment.type).toBe('none');
       expect(adjustment.reason).toContain('85%');
     });
 
     it('should handle null readiness gracefully', () => {
       const adjustment = adjustmentService.adjustPlanForReadiness(mockPlan, null, 1);
-      
+
       expect(adjustment.type).toBe('none');
       expect(adjustment.reason).toContain('No readiness assessment available');
     });
 
     it('should handle template-based plans correctly', () => {
+      // Target: readinessScore = 0.3 (30%) — triggers volume_reduction
+      // (10-7) + (10-6) + 4 + (10-7) + 1 = 3+4+4+3+1 = 15 → 15/50 = 0.30
       const readiness: ReadinessAssessment = {
-        overallScore: 0.3, // 30% - below 40% threshold
-        soreness: 0.2,
-        fatigue: 0.6,
-        sleep: 0.4,
-        stress: 0.7,
-        motivation: 0.5,
+        sorenessLevel: 7,
+        fatigueLevel: 6,
+        sleepQuality: 4,
+        stressLevel: 7,
+        motivationLevel: 1,
         assessmentDate: new Date()
       };
 
       const adjustment = adjustmentService.adjustPlanForReadiness(mockTemplatePlan, readiness, 1);
-      
+
       expect(adjustment.type).toBe('volume_reduction');
       expect(adjustment.reason).toContain('template plans cannot be automatically adjusted');
       expect(adjustment.adjustments).toContain('Template-based plans cannot be automatically adjusted');

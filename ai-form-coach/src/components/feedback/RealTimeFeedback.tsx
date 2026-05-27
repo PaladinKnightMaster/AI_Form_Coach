@@ -95,6 +95,19 @@ export default function RealTimeFeedback({
     ]
   };
 
+  const updateMetrics = useCallback((newMetrics: Partial<PerformanceMetrics>) => {
+    setMetrics(prev => {
+      const updated = { ...prev, ...newMetrics };
+
+      // Update last rep time when reps increase
+      if (newMetrics.reps && newMetrics.reps > prev.reps) {
+        lastRepTimeRef.current = Date.now();
+      }
+
+      return updated;
+    });
+  }, []);
+
   const generateFeedback = useCallback(() => {
     const now = Date.now();
     const timeSinceLastRep = now - lastRepTimeRef.current;
@@ -149,7 +162,7 @@ export default function RealTimeFeedback({
     if (priority === 'high') {
       showSuccess('Great job!', message);
     }
-  }, [metrics, showSuccess, onFeedback, feedbackMessages.achievement, feedbackMessages.encouragement, feedbackMessages.form, feedbackMessages.motivation]);
+  }, [metrics, showSuccess, onFeedback, updateMetrics, feedbackMessages.achievement, feedbackMessages.encouragement, feedbackMessages.form, feedbackMessages.motivation]);
 
   const startFeedbackLoop = useCallback(() => {
     const interval = setInterval(() => {
@@ -177,19 +190,6 @@ export default function RealTimeFeedback({
     return () => stopFeedbackLoop();
   }, [isActive, exercise, startFeedbackLoop]);
 
-  const updateMetrics = (newMetrics: Partial<PerformanceMetrics>) => {
-    setMetrics(prev => {
-      const updated = { ...prev, ...newMetrics };
-      
-      // Update last rep time when reps increase
-      if (newMetrics.reps && newMetrics.reps > prev.reps) {
-        lastRepTimeRef.current = Date.now();
-      }
-      
-      return updated;
-    });
-  };
-
   const getFeedbackIcon = (type: FeedbackMessage['type']) => {
     switch (type) {
       case 'encouragement': return 'check';
@@ -202,11 +202,11 @@ export default function RealTimeFeedback({
 
   const getFeedbackColor = (type: FeedbackMessage['type']) => {
     switch (type) {
-      case 'encouragement': return 'text-green-600 dark:text-green-400';
-      case 'form': return 'text-blue-600 dark:text-blue-400';
-      case 'achievement': return 'text-yellow-600 dark:text-yellow-400';
-      case 'motivation': return 'text-purple-600 dark:text-purple-400';
-      default: return 'text-gray-600 dark:text-gray-400';
+      case 'encouragement': return 'text-green-600';
+      case 'form': return 'text-blue-600';
+      case 'achievement': return 'text-yellow-600';
+      case 'motivation': return 'text-purple-600';
+      default: return 'text-gray-600';
     }
   };
 
@@ -219,10 +219,10 @@ export default function RealTimeFeedback({
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 ${className}`}>
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+    <div className={`bg-white rounded-lg border border-gray-200 ${className}`}>
+      <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-semibold text-gray-900">
             Real-time Feedback
           </h3>
           <div className="flex items-center space-x-2">
@@ -245,35 +245,35 @@ export default function RealTimeFeedback({
         {/* Performance Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {metrics.reps}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Reps</div>
+            <div className="text-xs text-gray-600">Reps</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {Math.round(metrics.formScore * 100)}%
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Form</div>
+            <div className="text-xs text-gray-600">Form</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {metrics.streak}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Streak</div>
+            <div className="text-xs text-gray-600">Streak</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="text-2xl font-bold text-gray-900">
               {metrics.personalBest}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">PB</div>
+            <div className="text-xs text-gray-600">PB</div>
           </div>
         </div>
 
         {/* Feedback Messages */}
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {feedback.length === 0 ? (
-            <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-4 text-gray-500">
               <Icon name="message" className="w-8 h-8 mx-auto mb-2" />
               <p>Start your workout to see real-time feedback!</p>
             </div>
@@ -283,8 +283,8 @@ export default function RealTimeFeedback({
                 key={`${item.timestamp}-${index}`}
                 className={`flex items-start space-x-3 p-3 rounded-lg border ${
                   item.priority === 'high' 
-                    ? 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20'
-                    : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50'
+                    ? 'border-yellow-200 bg-yellow-50'
+                    : 'border-gray-200 bg-gray-50'
                 }`}
               >
                 <Icon 
@@ -293,12 +293,12 @@ export default function RealTimeFeedback({
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                    <span className="text-sm font-medium text-gray-900 capitalize">
                       {item.type}
                     </span>
                     {getPriorityBadge(item.priority)}
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                  <p className="text-sm text-gray-700">
                     {item.message}
                   </p>
                 </div>
@@ -308,8 +308,8 @@ export default function RealTimeFeedback({
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="text-xs text-gray-500 dark:text-gray-400">
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+          <div className="text-xs text-gray-500">
             {isActive ? 'Feedback active' : 'Start workout for feedback'}
           </div>
           <div className="flex items-center space-x-2">

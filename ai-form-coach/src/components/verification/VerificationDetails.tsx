@@ -63,8 +63,8 @@ export default function VerificationDetails({
 
   if (error || !summary) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-        <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="flex items-center gap-2 text-red-700">
           <Icon name="alert-circle" className="w-5 h-5" />
           <span>{error || 'Failed to load verification details'}</span>
         </div>
@@ -87,7 +87,7 @@ export default function VerificationDetails({
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Session Verification
           </h3>
           <VerificationBadge
@@ -121,16 +121,16 @@ export default function VerificationDetails({
 
       {/* Flag Reasons (if flagged) */}
       {summary.flagged && summary.flag_reasons.length > 0 && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-start gap-2">
-            <Icon name="alert" className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
+            <Icon name="alert" className="w-5 h-5 text-red-600 mt-0.5" />
             <div>
-              <h4 className="text-sm font-medium text-red-900 dark:text-red-100 mb-2">
+              <h4 className="text-sm font-medium text-red-900 mb-2">
                 Session Flagged
               </h4>
               <ul className="space-y-1">
                 {summary.flag_reasons.map((reason, index) => (
-                  <li key={index} className="text-sm text-red-700 dark:text-red-300">
+                  <li key={index} className="text-sm text-red-700">
                     • {reason}
                   </li>
                 ))}
@@ -151,25 +151,25 @@ export default function VerificationDetails({
           label="Passed"
           value={summary.checks_passed}
           icon="check"
-          valueColor="text-green-600 dark:text-green-400"
+          valueColor="text-green-600"
         />
         <StatCard
           label="Failed"
           value={summary.checks_failed}
           icon="x"
-          valueColor="text-red-600 dark:text-red-400"
+          valueColor="text-red-600"
         />
       </div>
 
       {/* What This Means */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-start gap-2">
-          <Icon name="alert-circle" className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+          <Icon name="alert-circle" className="w-5 h-5 text-blue-600 mt-0.5" />
           <div>
-            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+            <h4 className="text-sm font-medium text-blue-900 mb-1">
               What does this mean?
             </h4>
-            <p className="text-sm text-blue-700 dark:text-blue-300">
+            <p className="text-sm text-blue-700">
               {summary.verified && (
                 <>
                   Your session has been verified as legitimate. It will count towards 
@@ -201,7 +201,7 @@ function StatCard({
   label,
   value,
   icon,
-  valueColor = 'text-gray-900 dark:text-white'
+  valueColor = 'text-gray-900'
 }: {
   label: string;
   value: number;
@@ -209,10 +209,10 @@ function StatCard({
   valueColor?: string;
 }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+    <div className="bg-white rounded-lg p-4 border border-gray-200">
       <div className="flex items-center gap-2 mb-1">
         <Icon name={icon} className="w-4 h-4 text-gray-500" />
-        <span className="text-xs text-gray-600 dark:text-gray-400">{label}</span>
+        <span className="text-xs text-gray-600">{label}</span>
       </div>
       <div className={`text-2xl font-bold ${valueColor}`}>
         {value}

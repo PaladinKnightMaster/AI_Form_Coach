@@ -10,6 +10,14 @@ const screenshotOptions = {
 
 async function prepareCoachVisual(page: Page, path: string) {
   await page.emulateMedia({ reducedMotion: "reduce" });
+  // Pre-seed the splash sessionStorage gate so the signature reveal does NOT
+  // overlay coach-stage-shell during a screenshot. Without this every visual
+  // baseline ends up capturing the splash composition, not the coach surface.
+  await page.addInitScript(() => {
+    try {
+      sessionStorage.setItem("carriage:splash:v1", "shown");
+    } catch {}
+  });
   await page.goto(path);
   await expect(page.getByTestId("coach-stage-shell")).toBeVisible({ timeout: 60_000 });
   await page.addStyleTag({
@@ -26,7 +34,7 @@ async function prepareCoachVisual(page: Page, path: string) {
   });
 }
 
-async function startScriptedSession(page: Page, projectName: string, path = "/coach?pose-script=squat-ready-hold&exercise=squat") {
+async function startScriptedSession(page: Page, projectName: string, path = "/coach?e2e-access=1&pose-script=squat-ready-hold&exercise=squat") {
   await prepareCoachVisual(page, path);
   const action = page.getByTestId("coach-primary-action").first();
   await expect(action).toBeEnabled({ timeout: 60_000 });
@@ -55,7 +63,7 @@ test.describe("coach visual regression", () => {
   test("desktop squat setup card", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "chromium", "Desktop visual baselines run in chromium only");
 
-    await prepareCoachVisual(page, "/coach?pose-script=squat-single-rep&exercise=squat");
+    await prepareCoachVisual(page, "/coach?e2e-access=1&pose-script=squat-single-rep&exercise=squat");
     await expect(page.getByTestId("coach-camera-setup")).toContainText("Quarter turn");
     await expect(page.getByTestId("coach-stage-shell")).toHaveScreenshot("coach-setup-squat-desktop.png", screenshotOptions);
   });
@@ -63,7 +71,7 @@ test.describe("coach visual regression", () => {
   test("desktop pushup setup card", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "chromium", "Desktop visual baselines run in chromium only");
 
-    await prepareCoachVisual(page, "/coach?pose-script=pushup-single-rep&exercise=pushup");
+    await prepareCoachVisual(page, "/coach?e2e-access=1&pose-script=pushup-single-rep&exercise=pushup");
     await expect(page.getByTestId("coach-camera-setup")).toContainText("Side profile");
     await expect(page.getByTestId("coach-stage-shell")).toHaveScreenshot("coach-setup-pushup-desktop.png", screenshotOptions);
   });
@@ -71,7 +79,7 @@ test.describe("coach visual regression", () => {
   test("desktop plank setup card", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "chromium", "Desktop visual baselines run in chromium only");
 
-    await prepareCoachVisual(page, "/coach?pose-script=plank-short-hold&exercise=plank");
+    await prepareCoachVisual(page, "/coach?e2e-access=1&pose-script=plank-short-hold&exercise=plank");
     await expect(page.getByTestId("coach-camera-setup")).toContainText("Side profile");
     await expect(page.getByTestId("coach-stage-shell")).toHaveScreenshot("coach-setup-plank-desktop.png", screenshotOptions);
   });
@@ -83,6 +91,11 @@ test.describe("coach visual regression", () => {
     await expect(page.getByTestId("coach-page-shell")).toHaveScreenshot("coach-mobile-active-android.png", {
       ...screenshotOptions,
       mask: getMobileDynamicMasks(page),
+      // Same canvas churn as the iphone-active sibling: scripted-pose frames
+      // advance every 16ms, so the skeleton position drifts by a handful of
+      // pixels between consecutive captures. Tolerance lets the assertion
+      // measure layout/chrome stability instead of frame-accurate pose.
+      maxDiffPixels: 1500,
     });
   });
 
@@ -110,10 +123,16 @@ test.describe("coach visual regression", () => {
   test("iphone active mobile stage", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "iphone-safari", "iPhone mobile visual baseline only");
 
-    await startScriptedSession(page, testInfo.project.name, "/coach?pose-script=squat-ready-hold&exercise=squat");
+    await startScriptedSession(page, testInfo.project.name, "/coach?e2e-access=1&pose-script=squat-ready-hold&exercise=squat");
     await expect(page.getByTestId("coach-page-shell")).toHaveScreenshot("coach-mobile-active-iphone.png", {
       ...screenshotOptions,
       mask: getMobileDynamicMasks(page),
+      // The pose-overlay canvas advances scripted-pose frames every 16ms,
+      // shifting skeleton joint positions by a handful of pixels between
+      // consecutive screenshots. The dynamic masks already exclude rep-count
+      // and elapsed; this tolerance absorbs the residual canvas churn so the
+      // assertion measures layout/chrome stability, not frame-accurate pose.
+      maxDiffPixels: 1500,
     });
   });
 });

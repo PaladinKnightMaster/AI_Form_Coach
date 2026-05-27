@@ -70,7 +70,7 @@ export function ActivityItem({ activity, onLike, onComment }: ActivityItemProps)
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200">
+    <div className="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200">
       {/* Header */}
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
@@ -79,10 +79,10 @@ export function ActivityItem({ activity, onLike, onComment }: ActivityItemProps)
           </span>
         </div>
         <div className="flex-1">
-          <div className="font-semibold text-gray-900 dark:text-white">
+          <div className="font-semibold text-gray-900">
             {activity.userName}
           </div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-sm text-gray-500">
             {formatTimeAgo(activity.timestamp)}
           </div>
         </div>
@@ -93,13 +93,13 @@ export function ActivityItem({ activity, onLike, onComment }: ActivityItemProps)
 
       {/* Content */}
       <div className="mb-4">
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-gray-700">
           {activity.description}
         </p>
         
         {/* Metrics */}
         {activity.metrics && (
-          <div className="flex gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex gap-4 mt-2 text-sm text-gray-500">
             {activity.metrics.duration && (
               <span className="flex items-center gap-1">
                 <Icon name="clock" className="w-4 h-4" />
@@ -123,7 +123,7 @@ export function ActivityItem({ activity, onLike, onComment }: ActivityItemProps)
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+      <div className="flex items-center gap-4 pt-3 border-t border-gray-100">
         <button
           onClick={handleLike}
           disabled={isLiking}

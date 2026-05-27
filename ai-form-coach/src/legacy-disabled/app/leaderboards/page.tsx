@@ -230,7 +230,7 @@ export default function LeaderboardsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 dark:from-slate-900 dark:via-gray-900/30 dark:to-zinc-900/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50">
       {/* Top 10 Notifications */}
       {activeTab === 'exercise' && (
         <Top10Notification exercise={selectedExercise as 'squat' | 'pushup' | 'plank'} timeRange={timeRange} />
@@ -239,13 +239,13 @@ export default function LeaderboardsPage() {
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center space-y-4 mb-8">
-          <Badge tone="neutral" size="lg" className="bg-gradient-to-r from-slate-500/20 to-gray-500/20 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800">
+          <Badge tone="neutral" size="lg" className="bg-gradient-to-r from-slate-500/20 to-gray-500/20 text-slate-700 border-slate-200">
             🏆 Leaderboards
           </Badge>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-600 via-gray-600 to-zinc-600 bg-clip-text text-transparent">
             Fitness Leaderboards
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Compete with verified athletes and track your progress
           </p>
         </div>
@@ -254,17 +254,17 @@ export default function LeaderboardsPage() {
         <TransparencyPanel className="mb-6" />
 
         {/* Filters */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border p-6 mb-6">
+        <div className="bg-white rounded-lg border p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Time Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Time Range
               </label>
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value as TimeRange)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
               >
                 <option value="today">Today</option>
                 <option value="week">This Week</option>
@@ -282,12 +282,12 @@ export default function LeaderboardsPage() {
                   onChange={(e) => setVerifiedOnly(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 <div className="ml-3">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span className="text-sm font-medium text-gray-700">
                     Verified Only
                   </span>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-gray-500">
                     {verifiedOnly ? 'Showing verified sessions only' : 'Including unverified sessions'}
                   </div>
                 </div>
@@ -297,13 +297,13 @@ export default function LeaderboardsPage() {
             {/* Exercise Selection (for exercise tab) */}
             {activeTab === 'exercise' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Exercise
                 </label>
                 <select
                   value={selectedExercise}
                   onChange={(e) => setSelectedExercise(e.target.value as Exercise)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                 >
                   <option value="squat">Squat</option>
                   <option value="pushup">Push-up</option>
@@ -315,13 +315,13 @@ export default function LeaderboardsPage() {
             {/* Sort By (for exercise tab) */}
             {activeTab === 'exercise' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Sort By
                 </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortBy)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
                 >
                   <option value="reps">Total Reps</option>
                   <option value="correct_rate">Correct Rate</option>
@@ -334,8 +334,8 @@ export default function LeaderboardsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border mb-6">
-          <div className="border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-white rounded-lg border mb-6">
+          <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
               {[
                 { key: 'overall', label: 'Overall', icon: '🏆' },
@@ -347,8 +347,8 @@ export default function LeaderboardsPage() {
                   onClick={() => setActiveTab(tab.key as LeaderboardType)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.key
-                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
                   <span className="mr-2">{tab.icon}</span>
@@ -363,12 +363,12 @@ export default function LeaderboardsPage() {
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-600 dark:text-gray-300">Loading leaderboard...</span>
+                <span className="ml-3 text-gray-600">Loading leaderboard...</span>
               </div>
             ) : error ? (
               <div className="text-center py-12">
-                <div className="text-red-600 dark:text-red-400 mb-2">⚠️ Error</div>
-                <p className="text-gray-600 dark:text-gray-300">{error}</p>
+                <div className="text-red-600 mb-2">⚠️ Error</div>
+                <p className="text-gray-600">{error}</p>
                 <button
                   onClick={loadLeaderboardData}
                   className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -379,16 +379,16 @@ export default function LeaderboardsPage() {
             ) : leaderboardData.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-gray-400 text-4xl mb-4">📊</div>
-                <p className="text-gray-600 dark:text-gray-300">No data available for the selected filters</p>
+                <p className="text-gray-600">No data available for the selected filters</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 dark:border-gray-700">
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Rank</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Athlete</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Rank</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Athlete</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
                         <div className="flex items-center">
                           Total Reps
                           <div className="ml-1 group relative">
@@ -399,7 +399,7 @@ export default function LeaderboardsPage() {
                           </div>
                         </div>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
                         <div className="flex items-center">
                           Sessions
                           <div className="ml-1 group relative">
@@ -410,7 +410,7 @@ export default function LeaderboardsPage() {
                           </div>
                         </div>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
                         <div className="flex items-center">
                           Quality
                           <div className="ml-1 group relative">
@@ -421,7 +421,7 @@ export default function LeaderboardsPage() {
                           </div>
                         </div>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
                         <div className="flex items-center">
                           Correct Rate
                           <div className="ml-1 group relative">
@@ -432,7 +432,7 @@ export default function LeaderboardsPage() {
                           </div>
                         </div>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
                         <div className="flex items-center">
                           Integrity
                           <div className="ml-1 group relative">
@@ -443,7 +443,7 @@ export default function LeaderboardsPage() {
                           </div>
                         </div>
                       </th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -451,8 +451,8 @@ export default function LeaderboardsPage() {
                       <>
                         <tr
                           key={entry.user_id}
-                          className={`border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
-                            currentUser?.id === entry.user_id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                          className={`border-b border-gray-100 hover:bg-gray-50 ${
+                            currentUser?.id === entry.user_id ? 'bg-blue-50' : ''
                           }`}
                         >
                           <td className="py-3 px-4">
@@ -466,25 +466,25 @@ export default function LeaderboardsPage() {
                                 {entry.user_email.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <div className="font-medium text-gray-900 dark:text-white">
+                                <div className="font-medium text-gray-900">
                                   {formatEmail(entry.user_email)}
                                 </div>
                                 {currentUser?.id === entry.user_id && (
-                                  <div className="text-xs text-blue-600 dark:text-blue-400">You</div>
+                                  <div className="text-xs text-blue-600">You</div>
                                 )}
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">
+                          <td className="py-3 px-4 font-medium text-gray-900">
                             {entry.total_reps.toLocaleString()}
                           </td>
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                          <td className="py-3 px-4 text-gray-600">
                             {entry.total_sessions}
                           </td>
                           <td className="py-3 px-4">
                             <div className="flex items-center">
                               {renderSparkline(entry)}
-                              <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
+                              <span className="ml-2 text-sm text-gray-600">
                                 {Math.round(entry.avg_quality_score)}%
                               </span>
                             </div>
@@ -510,39 +510,39 @@ export default function LeaderboardsPage() {
                           <td className="py-3 px-4">
                             <button
                               onClick={() => setExpandedRow(expandedRow === index ? null : index)}
-                              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm"
+                              className="text-blue-600 hover:text-blue-800 text-sm"
                             >
                               {expandedRow === index ? 'Hide' : 'Details'}
                             </button>
                           </td>
                         </tr>
                         {expandedRow === index && (
-                          <tr className="bg-gray-50 dark:bg-gray-800/50">
+                          <tr className="bg-gray-50">
                             <td colSpan={8} className="py-6 px-4">
                               <div className="space-y-4">
                                 {/* Performance Metrics */}
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
                                   <div>
-                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Best Session</div>
-                                    <div className="text-gray-600 dark:text-gray-400">
+                                    <div className="font-medium text-gray-700 mb-1">Best Session</div>
+                                    <div className="text-gray-600">
                                       {entry.best_session_date ? new Date(entry.best_session_date).toLocaleDateString() : 'N/A'}
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Last Session</div>
-                                    <div className="text-gray-600 dark:text-gray-400">
+                                    <div className="font-medium text-gray-700 mb-1">Last Session</div>
+                                    <div className="text-gray-600">
                                       {entry.last_session_date ? new Date(entry.last_session_date).toLocaleDateString() : 'N/A'}
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Total Volume</div>
-                                    <div className="text-gray-600 dark:text-gray-400">
+                                    <div className="font-medium text-gray-700 mb-1">Total Volume</div>
+                                    <div className="text-gray-600">
                                       {Math.round(entry.total_volume).toLocaleString()}
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Verified Sessions</div>
-                                    <div className="text-gray-600 dark:text-gray-400">
+                                    <div className="font-medium text-gray-700 mb-1">Verified Sessions</div>
+                                    <div className="text-gray-600">
                                       {entry.verified_sessions || 0} / {entry.total_sessions}
                                     </div>
                                   </div>
@@ -550,8 +550,8 @@ export default function LeaderboardsPage() {
                                 
                                 {/* Depth Sparkline */}
                                 <div>
-                                  <div className="font-medium text-gray-700 dark:text-gray-300 mb-2">Performance Trend</div>
-                                  <div className="bg-white dark:bg-gray-700 rounded-lg p-4 border">
+                                  <div className="font-medium text-gray-700 mb-2">Performance Trend</div>
+                                  <div className="bg-white rounded-lg p-4 border">
                                     {renderSparkline(entry)}
                                   </div>
                                 </div>
@@ -559,20 +559,20 @@ export default function LeaderboardsPage() {
                                 {/* Additional Stats */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                                   <div>
-                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Average Quality</div>
-                                    <div className="text-gray-600 dark:text-gray-400">
+                                    <div className="font-medium text-gray-700 mb-1">Average Quality</div>
+                                    <div className="text-gray-600">
                                       {Math.round(entry.avg_quality_score)}%
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Correct Rate</div>
-                                    <div className="text-gray-600 dark:text-gray-400">
+                                    <div className="font-medium text-gray-700 mb-1">Correct Rate</div>
+                                    <div className="text-gray-600">
                                       {Math.round(entry.correct_rate * 100)}%
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Integrity Score</div>
-                                    <div className="text-gray-600 dark:text-gray-400">
+                                    <div className="font-medium text-gray-700 mb-1">Integrity Score</div>
+                                    <div className="text-gray-600">
                                       {Math.round(entry.integrity_score * 100)}%
                                     </div>
                                   </div>
@@ -590,8 +590,8 @@ export default function LeaderboardsPage() {
             
             {/* Pagination Controls */}
             {leaderboardData.length > 0 && totalEntries > 50 && (
-              <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+                <div className="text-sm text-gray-600">
                   Showing {currentPage * 50 + 1} to {Math.min((currentPage + 1) * 50, totalEntries)} of {totalEntries} entries
                 </div>
                 <div className="flex items-center gap-2">
@@ -603,7 +603,7 @@ export default function LeaderboardsPage() {
                   >
                     Previous
                   </Button>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                  <span className="text-sm text-gray-600">
                     Page {currentPage + 1} of {Math.ceil(totalEntries / 50)}
                   </span>
                   <Button
@@ -620,19 +620,19 @@ export default function LeaderboardsPage() {
             
             {/* User Rank Display */}
             {userRank && (
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium text-blue-900 dark:text-blue-100">Your Rank</h3>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                    <h3 className="font-medium text-blue-900">Your Rank</h3>
+                    <p className="text-sm text-blue-700">
                       You&apos;re ranked #{userRank.rank} out of {userRank.total_entries || 0} athletes
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                    <div className="text-2xl font-bold text-blue-900">
                       #{userRank.rank}
                     </div>
-                    <div className="text-sm text-blue-700 dark:text-blue-300">
+                    <div className="text-sm text-blue-700">
                       {userRank.total_entries ? Math.round(((userRank.total_entries - userRank.rank + 1) / userRank.total_entries) * 100) : 0}th percentile
                     </div>
                   </div>

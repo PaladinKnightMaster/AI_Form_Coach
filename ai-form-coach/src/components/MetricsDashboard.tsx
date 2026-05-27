@@ -50,7 +50,7 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({
     deviceType: 'unknown'
   });
 
-  const lastTimestampRef = useRef(Date.now());
+  const lastTimestampRef = useRef(0); // initialized in first recordSnapshot call
   const fpsHistoryRef = useRef<number[]>([]);
   const latencyHistoryRef = useRef<number[]>([]);
   const jitterHistoryRef = useRef<number[]>([]);
@@ -127,13 +127,13 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({
 
   const getHealthColor = (value: number, min: number, max: number, inverted = false) => {
     if (inverted) {
-      if (value <= min) return '#22c55e'; // green
-      if (value <= (min + max) / 2) return '#eab308'; // yellow
-      return '#ef4444'; // red
+      if (value <= min) return '#149A80';                    // malachite-light · good
+      if (value <= (min + max) / 2) return '#C49A47';        // champagne-amber · warning
+      return '#5A1F24';                                       // oxblood · bad
     } else {
-      if (value >= max) return '#22c55e'; // green
-      if (value >= (min + max) / 2) return '#eab308'; // yellow
-      return '#ef4444'; // red
+      if (value >= max) return '#149A80';                    // malachite-light · good
+      if (value >= (min + max) / 2) return '#C49A47';        // champagne-amber · warning
+      return '#5A1F24';                                       // oxblood · bad
     }
   };
 

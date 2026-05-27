@@ -26,26 +26,26 @@ export default function IntegrityScoreDisplay({
   // Color mapping
   const colorClasses: Record<string, { bg: string; text: string; ring: string; fill: string }> = {
     green: {
-      bg: 'bg-green-100 dark:bg-green-900/30',
-      text: 'text-green-700 dark:text-green-300',
+      bg: 'bg-green-100',
+      text: 'text-green-700',
       ring: 'ring-green-500',
       fill: 'text-green-500'
     },
     yellow: {
-      bg: 'bg-yellow-100 dark:bg-yellow-900/30',
-      text: 'text-yellow-700 dark:text-yellow-300',
+      bg: 'bg-yellow-100',
+      text: 'text-yellow-700',
       ring: 'ring-yellow-500',
       fill: 'text-yellow-500'
     },
     orange: {
-      bg: 'bg-orange-100 dark:bg-orange-900/30',
-      text: 'text-orange-700 dark:text-orange-300',
+      bg: 'bg-orange-100',
+      text: 'text-orange-700',
       ring: 'ring-orange-500',
       fill: 'text-orange-500'
     },
     red: {
-      bg: 'bg-red-100 dark:bg-red-900/30',
-      text: 'text-red-700 dark:text-red-300',
+      bg: 'bg-red-100',
+      text: 'text-red-700',
       ring: 'ring-red-500',
       fill: 'text-red-500'
     }
@@ -86,7 +86,7 @@ export default function IntegrityScoreDisplay({
         </div>
 
         {/* Progress Bar */}
-        <div className="mt-3 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
           <div
             className={`h-full ${colors.fill} transition-all duration-500`}
             style={{ width: `${scorePercent}%` }}
@@ -97,7 +97,7 @@ export default function IntegrityScoreDisplay({
       {/* Detailed Breakdown */}
       {showBreakdown && isExpanded && checks.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <h4 className="text-sm font-medium text-gray-700">
             Check Details
           </h4>
           {checks.map((check, index) => (
@@ -118,10 +118,10 @@ function CheckResultCard({ check }: { check: IntegrityCheckResult }) {
   // Icon and color based on pass/fail
   const icon: 'check' | 'alert-circle' = check.passed ? 'check' : 'alert-circle';
   const iconColor = check.passed 
-    ? 'text-green-500 dark:text-green-400'
+    ? 'text-green-500'
     : check.severity === 'error' 
-      ? 'text-red-500 dark:text-red-400'
-      : 'text-yellow-500 dark:text-yellow-400';
+      ? 'text-red-500'
+      : 'text-yellow-500';
 
   // Friendly check names
   const checkNames: Record<string, string> = {
@@ -134,23 +134,23 @@ function CheckResultCard({ check }: { check: IntegrityCheckResult }) {
   const checkName = checkNames[check.check_type] || check.check_type;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+    <div className="bg-white rounded-lg p-3 border border-gray-200">
       <div className="flex items-start gap-3">
         <Icon name={icon} className={`${iconColor} w-5 h-5 mt-0.5 flex-shrink-0`} />
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
+            <span className="text-sm font-medium text-gray-900">
               {checkName}
             </span>
             <span className={`text-xs font-medium ${
-              checkScore >= 70 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'
+              checkScore >= 70 ? 'text-green-600' : 'text-orange-600'
             }`}>
               {checkScore}%
             </span>
           </div>
           
-          <p className="text-xs text-gray-600 dark:text-gray-400">
+          <p className="text-xs text-gray-600">
             {check.message}
           </p>
 
@@ -159,10 +159,10 @@ function CheckResultCard({ check }: { check: IntegrityCheckResult }) {
             <div className="mt-2">
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
                 check.severity === 'error' 
-                  ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                  ? 'bg-red-100 text-red-700'
                   : check.severity === 'warning'
-                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
-                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : 'bg-blue-100 text-blue-700'
               }`}>
                 {check.severity.toUpperCase()}
               </span>
@@ -182,10 +182,10 @@ export function CompactIntegrityScore({ score }: { score: number }) {
   const color = getIntegrityScoreColor(score);
 
   const colorClasses: Record<string, string> = {
-    green: 'text-green-600 dark:text-green-400',
-    yellow: 'text-yellow-600 dark:text-yellow-400',
-    orange: 'text-orange-600 dark:text-orange-400',
-    red: 'text-red-600 dark:text-red-400'
+    green: 'text-green-600',
+    yellow: 'text-yellow-600',
+    orange: 'text-orange-600',
+    red: 'text-red-600'
   };
 
   return (
