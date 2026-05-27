@@ -9,10 +9,6 @@ import { Container, Section } from "@/ui/DS";
  * Surface:  #F4EFE6 bone · ink text (#17120D) · malachite accents
  * Voice:    Calm. Precise. Private. Direct. No hype.
  * Hero:     italic Fraunces "Return to your line." · single malachite CTA.
- *
- * The legacy AnimatedGradientBackground variants (Hero/Nutrition/Plans)
- * are intentionally NOT imported — marketing is bone editorial, not the
- * coach-app obsidian surface.
  * ──────────────────────────────────────────────────────────────────────── */
 
 const betaIncludes = [

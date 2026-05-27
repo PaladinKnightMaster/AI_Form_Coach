@@ -91,6 +91,11 @@ test.describe("coach visual regression", () => {
     await expect(page.getByTestId("coach-page-shell")).toHaveScreenshot("coach-mobile-active-android.png", {
       ...screenshotOptions,
       mask: getMobileDynamicMasks(page),
+      // Same canvas churn as the iphone-active sibling: scripted-pose frames
+      // advance every 16ms, so the skeleton position drifts by a handful of
+      // pixels between consecutive captures. Tolerance lets the assertion
+      // measure layout/chrome stability instead of frame-accurate pose.
+      maxDiffPixels: 1500,
     });
   });
 
@@ -122,6 +127,12 @@ test.describe("coach visual regression", () => {
     await expect(page.getByTestId("coach-page-shell")).toHaveScreenshot("coach-mobile-active-iphone.png", {
       ...screenshotOptions,
       mask: getMobileDynamicMasks(page),
+      // The pose-overlay canvas advances scripted-pose frames every 16ms,
+      // shifting skeleton joint positions by a handful of pixels between
+      // consecutive screenshots. The dynamic masks already exclude rep-count
+      // and elapsed; this tolerance absorbs the residual canvas churn so the
+      // assertion measures layout/chrome stability, not frame-accurate pose.
+      maxDiffPixels: 1500,
     });
   });
 });
