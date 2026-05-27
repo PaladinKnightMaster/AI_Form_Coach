@@ -91,6 +91,11 @@ test.describe("coach visual regression", () => {
     await expect(page.getByTestId("coach-page-shell")).toHaveScreenshot("coach-mobile-active-android.png", {
       ...screenshotOptions,
       mask: getMobileDynamicMasks(page),
+      // Same canvas churn as the iphone-active sibling: scripted-pose frames
+      // advance every 16ms, so the skeleton position drifts by a handful of
+      // pixels between consecutive captures. Tolerance lets the assertion
+      // measure layout/chrome stability instead of frame-accurate pose.
+      maxDiffPixels: 1500,
     });
   });
 
