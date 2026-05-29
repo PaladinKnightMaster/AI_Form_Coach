@@ -21,5 +21,7 @@ describe("getSentryInitOptions", () => {
     expect(opts.enabled).toBe(true);
     expect(opts.tracesSampleRate).toBe(0);
     expect(opts.sendDefaultPii).toBe(false);
+    expect(opts.dsn).toBe("https://examplePublicKey@o0.ingest.sentry.io/0");
+    expect(opts.environment).toBe(process.env.VERCEL_ENV ?? process.env.NODE_ENV);
   });
 });
