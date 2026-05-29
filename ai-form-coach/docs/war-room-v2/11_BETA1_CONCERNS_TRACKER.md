@@ -26,13 +26,20 @@ current broken behavior so a future fix-or-replace PR has a clear green/red
 signal. Math fix or replacement is a separate follow-up — this concern stays
 🟡 until the SG code is deleted or fixed.
 
-**Pushup-test follow-up:** the `testPoseScripts.test.ts > drives the pushup
-validator through a counted rep` test was passing under broken smoothing
-(false positive: SG noise was producing accidental phase transitions that
-the rep counter caught). With clean raw input, the pushup-single-rep script
-no longer registers a rep — squat and plank still do. Marked `it.skip` with
-a TODO; needs investigation in a follow-up PR (script length, observation-
-matrix tuning, or rep-count algorithm).
+**Pushup-test follow-up (RESOLVED 2026-05-29):** the `testPoseScripts.test.ts >
+drives the pushup validator through a counted rep` test was passing under broken
+smoothing (false positive: SG noise was producing accidental phase transitions
+that the rep counter caught). With clean raw input it began failing — and the
+investigation found the cause was **not** in the pushup validator but in the
+synthetic test fixture. `buildPushupPose` in `src/lib/coach/testPoseScripts.ts`
+filtered its candidate shoulder vectors with `x <= 0 && y <= 0`, which rejected
+BOTH valid solutions for deep elbow bends (~100°) and silently fell back to a
+hardcoded near-straight default — so the deepest frame of the scripted rep
+reconstructed to ~175° instead of 102° and no descent was ever detected. The
+production pushup validator and shared HMM path are fine (squat + plank exercise
+the same code on correctly-reconstructed input). Fix: relaxed the filter to
+`x <= 0` (mirrors `buildSquatPose`); deepest frame now reconstructs to 102.0°,
+the HMM reaches `down`, and the rep counts. Test un-skipped.
 
 The Savitzky-Golay smoothing in `src/lib/phaseDetection/savitzkyGolay.ts`
 produces values outside [0,1] (e.g., `27000000002.1875` for constant 0.5 input).
@@ -269,6 +276,7 @@ Everything else can wait until after beta launches. But those three before the f
 | 2026-05-17 | #6 Brand identity | 🔴 → 🟡 | Brand work scheduled as next branch |
 | 2026-05-26 | #6 Brand identity | 🟡 → 🟢 | Carriage rollout 7/7 merged (PRs #48–#56) + e2e gate restored (#57) |
 | 2026-05-28 | #1 S-G coefficient | 🔴 → 🟡 | Production bypass; math fix deferred |
+| 2026-05-29 | #1 pushup-test follow-up | resolved | Root cause was broken `buildPushupPose` fixture, not the validator; filter fixed, test un-skipped |
 
 ---
 

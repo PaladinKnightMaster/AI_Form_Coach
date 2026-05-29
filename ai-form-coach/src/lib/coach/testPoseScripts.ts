@@ -116,6 +116,14 @@ function buildPushupPose({ elbowAngle, visibility = DEFAULT_VISIBILITY }: Synthe
   const candidateAngles = [wristAngle - elbowAngle, wristAngle + elbowAngle];
 
   const shoulderVectorLength = 0.17;
+  // Both candidate angles (wristAngle ± elbowAngle) reconstruct the exact
+  // requested elbow angle; we only need to place the shoulder to the left of
+  // the elbow (x <= 0) and pick the most-upward solution. The previous
+  // `x <= 0 && y <= 0` constraint rejected BOTH candidates for deep bends
+  // (~100°), silently falling back to a hardcoded near-straight default — so
+  // the deepest frame of the rep collapsed to ~175° and no descent was ever
+  // detected. Mirrors buildSquatPose's filter. See war-room concern #1
+  // pushup follow-up.
   const shoulderVector = candidateAngles
     .map((angle) => {
       const radians = degToRad(angle);
@@ -124,7 +132,7 @@ function buildPushupPose({ elbowAngle, visibility = DEFAULT_VISIBILITY }: Synthe
         y: Math.sin(radians) * shoulderVectorLength,
       };
     })
-    .filter((vector) => vector.x <= 0 && vector.y <= 0)
+    .filter((vector) => vector.x <= 0)
     .sort((left, right) => left.y - right.y)[0] ?? { x: -0.14, y: -0.08 };
 
   const shoulderRight = {
