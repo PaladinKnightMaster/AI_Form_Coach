@@ -211,6 +211,18 @@ function calculateFactorial(n: number): number {
 
 /**
  * Apply Savitzky-Golay smoothing to a time series
+ *
+ * @deprecated Math is broken. See war-room concern #1 in
+ *   `docs/war-room-v2/11_BETA1_CONCERNS_TRACKER.md`. The coefficient extractor
+ *   sums when it should pick (overshoots by ~(polynomialOrder + 1)×), the
+ *   post-convolution `/= validPoints` normalization is incorrect, and
+ *   `calculateSimplifiedInverse` for windowSize > 3 is element-wise reciprocal
+ *   instead of pseudo-inverse. Constant input does NOT round-trip.
+ *
+ *   Production uses `enabled: false` in the config (default since this PR).
+ *   Do not re-enable without fixing the math; see `sgDefaultDisabled.test.ts`
+ *   for the bug-existence pinning test that fails on a future correct
+ *   implementation.
  */
 export function applySavitzkyGolaySmoothing(
   timeSeries: TimeSeriesPoint[],
@@ -274,6 +286,19 @@ export function applySavitzkyGolaySmoothing(
 
 /**
  * Apply real-time Savitzky-Golay smoothing with a sliding window
+ *
+ * @deprecated Math is broken. See war-room concern #1 in
+ *   `docs/war-room-v2/11_BETA1_CONCERNS_TRACKER.md`. The coefficient extractor
+ *   sums when it should pick (overshoots by ~(polynomialOrder + 1)×) and
+ *   `calculateSimplifiedInverse` for windowSize > 3 is element-wise reciprocal
+ *   instead of pseudo-inverse. Constant input does NOT round-trip — `addPoint`
+ *   fed a constant 0.5 returns values like 27000000002.1875 for the production
+ *   config (windowSize=5, polynomialOrder=2).
+ *
+ *   Production uses `smoothing.enabled = false` in the config (default since
+ *   this PR). Do not re-instantiate this class without fixing the math; see
+ *   `sgDefaultDisabled.test.ts` for the bug-existence pinning test that fails
+ *   on a future correct implementation.
  */
 export class RealTimeSavitzkyGolay {
   private buffer: TimeSeriesPoint[] = [];
