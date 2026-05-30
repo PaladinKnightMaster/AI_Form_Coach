@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { MVP_DISABLED_EXACT_PATHS, MVP_DISABLED_PREFIXES } from "./src/lib/mvp/featureRegistry";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const legacyRouteRedirects = [
   ...MVP_DISABLED_EXACT_PATHS.map((source) => ({
@@ -53,4 +54,12 @@ const nextConfig: NextConfig = {
   redirects: async () => legacyRouteRedirects,
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: "paladinknightmaster",
+  project: "ai-form-coach",
+  // Source-map upload (readable stack traces). Build-time secret in Vercel.
+  // When unset (e.g. local/CI without the token), upload is skipped and the
+  // build still succeeds.
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+});
