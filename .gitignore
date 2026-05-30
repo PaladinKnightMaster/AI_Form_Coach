@@ -1,6 +1,7 @@
 # Editor / agent workspace files
 .cursor/
 .claude/
+.playwright-mcp/
 
 # Project scratch — not part of the deployed app
 brand_research/
