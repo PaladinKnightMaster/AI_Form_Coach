@@ -1,5 +1,5 @@
 "use client";
-import { Sentry } from '@/lib/observability/sentry';
+import * as Sentry from '@sentry/nextjs';
 
 export default function SentryExamplePage() {
 	function triggerError() {

@@ -73,7 +73,7 @@ with explicit language before recruiting any beta tester, even friends.
 
 ### 3. Sentry verification is P0, not P1
 
-**Status:** 🔴 open
+**Status:** 🟡 in progress — full @sentry/nextjs wiring shipped; awaiting preview-deploy verification
 **Owner:** Dev
 **Risk:** High — flying blind in beta = first crash burns a tester forever
 
@@ -277,6 +277,7 @@ Everything else can wait until after beta launches. But those three before the f
 | 2026-05-26 | #6 Brand identity | 🟡 → 🟢 | Carriage rollout 7/7 merged (PRs #48–#56) + e2e gate restored (#57) |
 | 2026-05-28 | #1 S-G coefficient | 🔴 → 🟡 | Production bypass; math fix deferred |
 | 2026-05-29 | #1 pushup-test follow-up | resolved | Root cause was broken `buildPushupPose` fixture, not the validator; filter fixed, test un-skipped |
+| 2026-05-29 | #3 Sentry verification | 🔴 → 🟡 | Full @sentry/nextjs (client+server+edge) wired; preview verification pending |
 
 ---
 
