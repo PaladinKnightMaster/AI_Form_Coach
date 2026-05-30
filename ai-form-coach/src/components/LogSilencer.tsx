@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 
 export default function LogSilencer() {
 	useEffect(() => {
+		// Sentry initializes in instrumentation-client.ts (Next.js client hook), not here.
 		const block = (msg?: unknown) => typeof msg === 'string' && msg.includes('TensorFlow Lite XNNPACK delegate');
 		const orig = { info: console.info, warn: console.warn, error: console.error };
 		console.info = (...a: unknown[]) => { if (!block(a[0])) orig.info(...(a as [])); };

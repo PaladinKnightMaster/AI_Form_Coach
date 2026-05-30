@@ -25,7 +25,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     Sentry.captureException(error, {
-      contexts: { react: { componentStack: errorInfo.componentStack } },
+      contexts: { react: { componentStack: errorInfo.componentStack ?? undefined } },
     });
     console.error("[ErrorBoundary] Uncaught error:", error, errorInfo);
   }
