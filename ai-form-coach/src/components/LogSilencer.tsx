@@ -3,8 +3,6 @@ import { useEffect } from 'react';
 
 export default function LogSilencer() {
 	useEffect(() => {
-		// Initialize Sentry (no-op if DSN missing)
-		import('@/lib/observability/sentry').then(m => m.initSentry()).catch(() => {});
 		const block = (msg?: unknown) => typeof msg === 'string' && msg.includes('TensorFlow Lite XNNPACK delegate');
 		const orig = { info: console.info, warn: console.warn, error: console.error };
 		console.info = (...a: unknown[]) => { if (!block(a[0])) orig.info(...(a as [])); };
