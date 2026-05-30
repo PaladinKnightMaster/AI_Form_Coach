@@ -1,0 +1,70 @@
+name: dev-pr-gate
+
+# War-room concern #4 — automated enforcement for PRs into `dev`.
+#
+# `release-gate.yml` is the heavy integration-to-prod gate (full Playwright e2e)
+# and runs only on PRs against `main`. It intentionally does NOT gate `dev` PRs,
+# which until now relied solely on local `npm run test:release` discipline — the
+# gap the war room flagged.
+#
+# This workflow is the lightweight complement: lint + unit tests + build on every
+# PR into `dev`. It deliberately SKIPS e2e/Playwright and perf-smoke to stay fast
+# and cheap on the solo-dev free-tier budget — the full e2e suite still runs at
+# the main boundary via release-gate.yml.
+on:
+  pull_request:
+    branches: [dev]
+
+concurrency:
+  # Newer pushes on the same PR ref cancel older runs so only the latest commit's
+  # signal counts and free-tier minutes aren't burned on superseded commits.
+  group: dev-pr-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least-privilege: this workflow only reads the repo for checkout + install.
+permissions:
+  contents: read
+
+jobs:
+  dev-pr-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        # The Next.js app lives under a subdir of the git repo root.
+        working-directory: ai-form-coach
+
+    # CI placeholders — `npm run build` needs these defined (non-null TS
+    # assertions + SSR static analysis). Values are irrelevant here: no unit
+    # test round-trips Supabase. Mirrors release-gate.yml. (Sentry needs no env:
+    # withSentryConfig skips source-map upload without SENTRY_AUTH_TOKEN, and the
+    # SDK no-ops without NEXT_PUBLIC_SENTRY_DSN — both build-safe.)
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
+      NEXT_PUBLIC_BASE_URL: http://127.0.0.1:3100
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: ai-form-coach/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build

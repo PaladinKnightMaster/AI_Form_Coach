@@ -102,9 +102,15 @@ deliberately injected error before Vercel deploy.
 
 ### 4. No CI workflow — release gate is a manual checklist
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30)
 **Owner:** Dev
 **Risk:** Medium — gate will eventually slip; bugs sneak into `dev`
+**Resolution:** Two complementary GitHub Actions now enforce the gate:
+`release-gate.yml` (heavy, full `npm run test:release` incl. Playwright e2e) on
+PRs into `main`, and the new `dev-pr-gate.yml` (lightweight: `lint` + `test` +
+`build`, no e2e) on every PR into `dev`. The dev gate closes the previously
+deliberate gap where `dev` PRs relied only on local discipline. E2E stays at the
+main boundary to keep dev CI fast and cheap on the free tier.
 
 No `.github/workflows/` enforcement of `npm run test:release` on PRs.
 
@@ -292,6 +298,7 @@ Everything else can wait until after beta launches. But those three before the f
 | 2026-05-29 | #1 pushup-test follow-up | resolved | Root cause was broken `buildPushupPose` fixture, not the validator; filter fixed, test un-skipped |
 | 2026-05-29 | #3 Sentry verification | 🔴 → 🟡 | Full @sentry/nextjs (client+server+edge) wired; preview verification pending |
 | 2026-05-30 | #3 Sentry verification | 🟡 → 🟢 | Client + server errors verified on Vercel preview with readable traces; serverless flush fix (`onRequestError` awaits `Sentry.flush`); temp /sentry-check surface removed |
+| 2026-05-30 | #4 CI workflow | 🔴 → 🟢 | Added `dev-pr-gate.yml` (lint+test+build on PRs to dev) complementing `release-gate.yml` (e2e on PRs to main) |
 
 ---
 
