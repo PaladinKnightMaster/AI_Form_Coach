@@ -73,14 +73,27 @@ with explicit language before recruiting any beta tester, even friends.
 
 ### 3. Sentry verification is P0, not P1
 
-**Status:** 🟡 in progress — full @sentry/nextjs wiring shipped; awaiting preview-deploy verification
+**Status:** 🟢 resolved (2026-05-30)
 **Owner:** Dev
 **Risk:** High — flying blind in beta = first crash burns a tester forever
+**Resolution:** Migrated to full `@sentry/nextjs` (client + server + edge).
+`getSentryInitOptions()` (error-only: no tracing/replay/PII) feeds
+`instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`;
+`instrumentation.ts` exports `onRequestError`. `ErrorBoundary` now forwards to
+Sentry (was swallowing); `withSentryConfig` uploads source maps. Verified on a
+Vercel preview: a client error and a server error both produced Sentry issues
+with readable, source-mapped stack traces.
 
-`src/lib/observability/` exists but production wiring is unverified. Without
-a working error pipeline, you cannot react in <24h to crashes during beta.
+**Server-capture fix (the non-obvious part):** server-side errors initially did
+NOT reach Sentry while client errors did. Root cause (found via local
+production-server repro): `onRequestError` fires and the event is captured, but
+on Vercel the serverless function freezes before Sentry's async transport
+delivers it — the event was silently dropped. Fixed by making `onRequestError`
+async and awaiting `Sentry.flush(2000)` (Next.js awaits the hook). Regression
+test: `src/__tests__/mvp/instrumentationFlush.test.ts`. The temporary
+`/sentry-check` verification surface was removed in this change.
 
-**Recommendation:** Promote to P0. Verify on production build with a
+**Recommendation (original):** Promote to P0. Verify on production build with a
 deliberately injected error before Vercel deploy.
 
 **Estimate:** 4 hours.
@@ -278,6 +291,7 @@ Everything else can wait until after beta launches. But those three before the f
 | 2026-05-28 | #1 S-G coefficient | 🔴 → 🟡 | Production bypass; math fix deferred |
 | 2026-05-29 | #1 pushup-test follow-up | resolved | Root cause was broken `buildPushupPose` fixture, not the validator; filter fixed, test un-skipped |
 | 2026-05-29 | #3 Sentry verification | 🔴 → 🟡 | Full @sentry/nextjs (client+server+edge) wired; preview verification pending |
+| 2026-05-30 | #3 Sentry verification | 🟡 → 🟢 | Client + server errors verified on Vercel preview with readable traces; serverless flush fix (`onRequestError` awaits `Sentry.flush`); temp /sentry-check surface removed |
 
 ---
 
