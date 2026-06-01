@@ -113,6 +113,27 @@ contrast so it doesn't fight the camera stage, but always legible.
 
 ---
 
+## UX/Accessibility refinements (design-team review, 2026-05-30)
+
+Baked into Phase C implementation:
+
+1. **First-session modal accessibility** — `role="dialog"`, `aria-modal="true"`,
+   `aria-labelledby` the heading; move focus into the dialog on open; **focus
+   trap** while open; **Escape does NOT dismiss** (acceptance is required);
+   return focus to the prior element on close. Add `max-h-[90vh]` +
+   `overflow-y-auto` so it fits short/landscape mobile viewports.
+2. **Signup legal links** — open in a new tab (`target="_blank"
+   rel="noopener noreferrer"`) so signup form state isn't lost; clicking a link
+   must not toggle the checkbox (links are separate interactive elements, label
+   association is explicit).
+3. **Disabled submit hint** — a small helper line near the checkbox (e.g.
+   "Required to create your account") so the disabled button is understood.
+4. **Micro-disclaimer legibility** — render on a solid scrim pill (e.g.
+   `bg-black/60 rounded-full px-3 py-1`) for contrast over the live camera, and
+   pad for `env(safe-area-inset-bottom)` so mobile browser chrome doesn't cover it.
+5. **No dark patterns** — checkbox unchecked by default, never pre-ticked; safety
+   gate reads as a self-check, not fine print.
+
 ## Open UI decisions for your review
 
 1. **Micro-disclaimer placement** — bottom-center of the camera stage (default
