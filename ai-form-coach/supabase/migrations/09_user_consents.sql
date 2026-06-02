@@ -16,10 +16,16 @@ CREATE INDEX IF NOT EXISTS user_consents_user_idx
 
 ALTER TABLE public.user_consents ENABLE ROW LEVEL SECURITY;
 
+-- Policies are dropped-then-created so this migration is safely re-runnable
+-- (CREATE POLICY has no IF NOT EXISTS form). Applied to the ai-form-coach
+-- Supabase project on 2026-05-30.
+
 -- Users can read their own consent rows.
+DROP POLICY IF EXISTS "user_consents_select_own" ON public.user_consents;
 CREATE POLICY "user_consents_select_own" ON public.user_consents
     FOR SELECT USING (auth.uid() = user_id);
 
 -- Users can insert their own consent rows.
+DROP POLICY IF EXISTS "user_consents_insert_own" ON public.user_consents;
 CREATE POLICY "user_consents_insert_own" ON public.user_consents
     FOR INSERT WITH CHECK (auth.uid() = user_id);
