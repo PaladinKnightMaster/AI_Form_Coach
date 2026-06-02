@@ -56,9 +56,23 @@ flag in production config.
 
 ### 2. Liability waiver and medical disclaimer in `/terms`
 
-**Status:** 🔴 open
+**Status:** 🟡 in progress — disclaimer/waiver draft + consent UX shipped for legal review (NOT lawyer-approved)
 **Owner:** External (lawyer) + Dev
 **Risk:** Catastrophic — single injured beta tester could end the project
+**Resolution (draft, pending lawyer):** Added a single versioned legal-content
+module (`src/lib/legal/legalContent.ts`, `DISCLAIMER_VERSION`) feeding a new
+`/medical-disclaimer` page (medical disclaimer + assumption of risk & release),
+strengthened `/terms` (safety, liability, 18+, governing-law placeholder) and
+`/privacy` (camera on-device, no health data, GDPR, 18+). Consent UX: signup
+clickwrap + 18+ checkbox, a one-time first-session safety self-attestation gate
+(show-don't-store PAR-Q criteria), and a persistent in-session micro-disclaimer.
+Consent recorded as `{disclaimer_version, accepted_at, context}` in
+`user_consents` (RLS, **no health data**). **Every string carries
+`[LAWYER REVIEW REQUIRED]`** — stays 🔴-worthy until a lawyer reviews/replaces the
+copy; this entry is 🟡 only because the draft + plumbing exist. Known limitation:
+email-confirmation signups don't write a 'signup' consent row (the first-session
+gate still enforces + records before any exercise). UI design + UX/a11y review:
+`docs/design/2026-05-30-disclaimer-ui-design.md`.
 
 Solo dev shipping movement correction without a properly worded waiver is a
 legal liability. `/terms` and `/privacy` likely lack explicit "not medical
@@ -299,6 +313,7 @@ Everything else can wait until after beta launches. But those three before the f
 | 2026-05-29 | #3 Sentry verification | 🔴 → 🟡 | Full @sentry/nextjs (client+server+edge) wired; preview verification pending |
 | 2026-05-30 | #3 Sentry verification | 🟡 → 🟢 | Client + server errors verified on Vercel preview with readable traces; serverless flush fix (`onRequestError` awaits `Sentry.flush`); temp /sentry-check surface removed |
 | 2026-05-30 | #4 CI workflow | 🔴 → 🟢 | Added `dev-pr-gate.yml` (lint+test+build on PRs to dev) complementing `release-gate.yml` (e2e on PRs to main) |
+| 2026-05-30 | #2 Liability waiver | 🔴 → 🟡 | Draft medical disclaimer + assumption-of-risk, /medical-disclaimer page, strengthened terms/privacy, signup clickwrap + 18+, first-session self-attestation gate, consent record. PLACEHOLDER copy pending lawyer review. |
 
 ---
 
