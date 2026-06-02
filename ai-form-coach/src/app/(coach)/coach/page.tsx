@@ -41,7 +41,9 @@ import {
   type Landmark3D,
   type PoseEstimateResult,
 } from "@/lib/pose/engine";
-import { getCurrentUserId } from "@/lib/supabase/client";
+import { getCurrentUserId, getSupabaseClient } from "@/lib/supabase/client";
+import FirstSessionSafetyGate from "@/components/coach/FirstSessionSafetyGate";
+import { hasAcceptedCurrentVersion, recordConsent } from "@/lib/legal/consent";
 import { createValidator } from "@/lib/validators";
 import type { Exercise, Phase, RepMetric } from "@/lib/validators/types";
 import { repMetricToDatabase } from "@/lib/validators/databaseUtils";
@@ -188,6 +190,7 @@ export default function CoachPage() {
   const [countdownValue, setCountdownValue] = useState<number | null>(null);
   const [hasPose, setHasPose] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [safetyGate, setSafetyGate] = useState<"loading" | "needed" | "ok">("loading");
 
   const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const poseScriptQuery = searchParams?.get("pose-script") ?? null;
@@ -218,6 +221,26 @@ export default function CoachPage() {
       setPermissionGranted(true);
     }
   }, [e2eAccessQuery, permissionGranted]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const userId = await getCurrentUserId();
+      if (cancelled) return;
+      if (!userId) {
+        setSafetyGate("ok"); // unauthenticated / e2e: no gate
+        return;
+      }
+      try {
+        const accepted = await hasAcceptedCurrentVersion(getSupabaseClient(), userId, "first_session");
+        if (!cancelled) setSafetyGate(accepted ? "ok" : "needed");
+      } catch {
+        if (!cancelled) setSafetyGate("ok"); // never hard-block the coach on a consent-check failure
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const running = sessionState === "active";
   const copy = EXERCISE_COPY[exercise];
   const framing = useMemo(() => getFramingGuidance({ exercise, cameraReady, visibilityScore, fps, hasPose }), [cameraReady, exercise, fps, hasPose, visibilityScore]);
@@ -326,6 +349,14 @@ export default function CoachPage() {
     setCueFeedback(feedback);
     trackCoachCueFeedback(exercise, feedback, repCount, elapsedMs, pauseCountRef.current);
   }, [elapsedMs, exercise, repCount]);
+
+  const handleAcceptSafety = useCallback(async () => {
+    const userId = await getCurrentUserId();
+    if (userId) {
+      await recordConsent(getSupabaseClient(), userId, "first_session");
+    }
+    setSafetyGate("ok");
+  }, []);
 
   const enableScriptedStage = useCallback((message?: string) => {
     const video = videoRef.current;
@@ -874,53 +905,56 @@ export default function CoachPage() {
   }
 
   return (
-    <CoachExperienceView
-      exercise={exercise}
-      exerciseLabel={copy.label}
-      subtitle={copy.subtitle}
-      checklist={copy.checklist}
-      sessionState={sessionState}
-      stageAlert={stageAlert}
-      cue={cue}
-      secondaryCue={secondaryCue}
-      repCount={repCount}
-      elapsedLabel={formatDuration(elapsedMs)}
-      visibilityLabel={formatPercent(visibilityScore)}
-      fpsLabel={fps > 0 ? `${fps}` : "-"}
-      qualityTone={qualityTone}
-      qualityLabel={qualityLabel}
-      phaseLabel={phaseLabel}
-      framingTone={framing.tone}
-      framingLabel={framing.label}
-      framingDetail={framing.detail}
-      cameraAngleLabel={framing.cameraAngleLabel}
-      cameraAngleDetail={framing.cameraAngleDetail}
-      countdownValue={countdownValue}
-      cameraReady={cameraReady}
-      hasStageError={Boolean(cameraError) || Boolean(detectorError)}
-      muted={muted}
-      mirrorVideo={mirrorVideo}
-      saving={saving}
-      offline={offline}
-      pendingWrites={pendingWrites}
-      saveNotice={saveNotice}
-      deviceSummary={deviceSummary}
-      recoveryTitle={recoveryGuide?.title ?? null}
-      recoverySteps={recoveryGuide?.steps ?? []}
-      cueFeedback={cueFeedback}
-      primaryActionLabel={primaryActionLabel}
-      videoRef={videoRef}
-      canvasRef={canvasRef}
-      overlayVideo={overlayVideo}
-      landmarksRef={landmarksRef}
-      onExerciseChange={handleExerciseChange}
-      onMutedChange={handleMutedChange}
-      onMirrorChange={handleMirrorChange}
-      onCueFeedback={handleCueFeedback}
-      onRetryCamera={handleRetryCamera}
-      onPrimaryAction={sessionState === "active" ? pause : sessionState === "paused" ? resume : queueSessionStart}
-      onEndAndSave={() => { void endAndSave(); }}
-    />
+    <>
+      <CoachExperienceView
+        exercise={exercise}
+        exerciseLabel={copy.label}
+        subtitle={copy.subtitle}
+        checklist={copy.checklist}
+        sessionState={sessionState}
+        stageAlert={stageAlert}
+        cue={cue}
+        secondaryCue={secondaryCue}
+        repCount={repCount}
+        elapsedLabel={formatDuration(elapsedMs)}
+        visibilityLabel={formatPercent(visibilityScore)}
+        fpsLabel={fps > 0 ? `${fps}` : "-"}
+        qualityTone={qualityTone}
+        qualityLabel={qualityLabel}
+        phaseLabel={phaseLabel}
+        framingTone={framing.tone}
+        framingLabel={framing.label}
+        framingDetail={framing.detail}
+        cameraAngleLabel={framing.cameraAngleLabel}
+        cameraAngleDetail={framing.cameraAngleDetail}
+        countdownValue={countdownValue}
+        cameraReady={cameraReady}
+        hasStageError={Boolean(cameraError) || Boolean(detectorError)}
+        muted={muted}
+        mirrorVideo={mirrorVideo}
+        saving={saving}
+        offline={offline}
+        pendingWrites={pendingWrites}
+        saveNotice={saveNotice}
+        deviceSummary={deviceSummary}
+        recoveryTitle={recoveryGuide?.title ?? null}
+        recoverySteps={recoveryGuide?.steps ?? []}
+        cueFeedback={cueFeedback}
+        primaryActionLabel={primaryActionLabel}
+        videoRef={videoRef}
+        canvasRef={canvasRef}
+        overlayVideo={overlayVideo}
+        landmarksRef={landmarksRef}
+        onExerciseChange={handleExerciseChange}
+        onMutedChange={handleMutedChange}
+        onMirrorChange={handleMirrorChange}
+        onCueFeedback={handleCueFeedback}
+        onRetryCamera={handleRetryCamera}
+        onPrimaryAction={sessionState === "active" ? pause : sessionState === "paused" ? resume : queueSessionStart}
+        onEndAndSave={() => { void endAndSave(); }}
+      />
+      {safetyGate === "needed" && <FirstSessionSafetyGate onAccept={handleAcceptSafety} />}
+    </>
   );
 }
 
