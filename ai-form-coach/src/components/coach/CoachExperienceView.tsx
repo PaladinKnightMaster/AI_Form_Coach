@@ -6,6 +6,7 @@ import type { CoachCueFeedback } from "@/lib/coach/telemetry";
 import type { Landmark3D } from "@/lib/pose/engine";
 import type { Exercise } from "@/lib/validators/types";
 import CoachCameraChrome from "@/components/coach/CoachCameraChrome";
+import { inSessionMicroDisclaimer } from "@/lib/legal/legalContent";
 import { useOverlayAutoHide } from "@/components/coach/useOverlayAutoHide";
 import { Badge, Button, Card, Icon } from "@/ui/DS";
 
@@ -310,6 +311,16 @@ export default function CoachExperienceView({
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div
+              data-testid="coach-micro-disclaimer"
+              className="pointer-events-none absolute inset-x-0 bottom-1 z-20 flex justify-center px-3"
+              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+            >
+              <span className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-medium text-white/85 backdrop-blur-sm">
+                {inSessionMicroDisclaimer}
+              </span>
             </div>
           </div>
         {/* end camera area */}
