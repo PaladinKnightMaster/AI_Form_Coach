@@ -15,6 +15,7 @@ import {
   normalizeAuthNext,
 } from '@/lib/auth/utils';
 import { recordConsent } from '@/lib/legal/consent';
+import { signupConsentLabel } from '@/lib/legal/legalContent';
 
 type AuthMode = 'signin' | 'signup' | 'reset-request' | 'magic-link';
 
@@ -463,15 +464,19 @@ function SignInContent() {
                 checked={agreed}
                 onChange={(e) => setAgreed(e.target.checked)}
                 disabled={loading}
+                aria-required="true"
                 className="mt-0.5 shrink-0"
               />
-              <span>
-                I am 18 or older and I have read and agree to the{" "}
-                <Link href="/terms" target="_blank" rel="noopener noreferrer" className="underline">Terms</Link>,{" "}
-                <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</Link>, and{" "}
-                <Link href="/medical-disclaimer" target="_blank" rel="noopener noreferrer" className="underline">Medical Disclaimer &amp; Assumption of Risk</Link>.
-              </span>
+              <span>{signupConsentLabel}</span>
             </label>
+            <p className="pl-6 text-[11px] text-slate-400">
+              Read:{" "}
+              <Link href="/terms" target="_blank" rel="noopener noreferrer" className="underline">Terms</Link>
+              {" · "}
+              <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</Link>
+              {" · "}
+              <Link href="/medical-disclaimer" target="_blank" rel="noopener noreferrer" className="underline">Medical Disclaimer</Link>
+            </p>
             {!agreed && (
               <p className="pl-6 text-[11px] text-slate-500">Required to create your account.</p>
             )}
