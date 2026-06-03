@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, Card, Container } from "@/ui/DS";
+import { termsSafety, termsLiability, termsEligibility } from "@/lib/legal/legalContent";
 
 const UPDATED_AT = "March 10, 2026";
 
@@ -55,14 +56,7 @@ const sections = [
       "By using the beta, you agree to the data practices described in the Privacy Policy. If you do not agree, do not use the service.",
     ],
   },
-  {
-    id: "safety",
-    title: "5. Safety and health disclaimer",
-    paragraphs: [
-      "AI Form Coach provides general fitness guidance only. It is not medical advice, physical therapy, diagnosis, treatment, or emergency support.",
-      "Stop exercising if you feel pain, dizziness, or discomfort. You are responsible for using the coach safely, warming up appropriately, and choosing movements that fit your own condition and ability.",
-    ],
-  },
+  { ...termsSafety, title: "5. " + termsSafety.title },
   {
     id: "payments",
     title: "6. Beta access and pricing",
@@ -87,15 +81,9 @@ const sections = [
       "Your saved session summaries remain associated with your account, subject to the product's storage and deletion processes.",
     ],
   },
-  {
-    id: "liability",
-    title: "9. Warranty and liability limits",
-    paragraphs: [
-      "The beta is provided on an as-is and as-available basis. To the extent allowed by law, we disclaim warranties and are not liable for indirect, incidental, or consequential damages arising from use of the service.",
-      "If applicable law does not allow some of these limitations, then they apply only to the maximum extent permitted.",
-    ],
-  },
-] as const;
+  { ...termsLiability, title: "9. " + termsLiability.title },
+  { ...termsEligibility, title: "10. " + termsEligibility.title },
+];
 
 export const metadata: Metadata = {
   title: "Terms of Service",

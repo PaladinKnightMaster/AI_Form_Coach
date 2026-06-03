@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, Suspense, useCallback } from 'react';
+import Link from 'next/link';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import AuthCard from '@/components/AuthCard';
@@ -13,6 +14,8 @@ import {
   isExistingSignupUser,
   normalizeAuthNext,
 } from '@/lib/auth/utils';
+import { recordConsent } from '@/lib/legal/consent';
+import { signupConsentLabel } from '@/lib/legal/legalContent';
 
 type AuthMode = 'signin' | 'signup' | 'reset-request' | 'magic-link';
 
@@ -29,6 +32,7 @@ function SignInContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
@@ -49,6 +53,7 @@ function SignInContent() {
       setSuccess(false);
       setResendCountdown(0);
     }
+    setAgreed(false);
   }, [mode]);
 
   const ensureProfile = useCallback(async (userId: string) => {
@@ -153,6 +158,11 @@ function SignInContent() {
           return;
         }
 
+        if (!agreed) {
+          showError('Please agree to continue', 'You must confirm you are 18+ and accept the Terms, Privacy Policy, and Medical Disclaimer to create an account.');
+          return;
+        }
+
         const {
           data: { user: existingUser },
         } = await supabase.auth.getUser();
@@ -216,6 +226,7 @@ function SignInContent() {
         if (data.session || hasImmediateSessionAccess(data.user)) {
           showSuccess('Account Created!', 'Your account has been created successfully.');
           await ensureProfile(data.user.id);
+          await recordConsent(supabase, data.user.id, 'signup');
           finishAuth();
           return;
         }
@@ -444,10 +455,39 @@ function SignInContent() {
           </div>
         )}
 
+        {mode === 'signup' && (
+          <div className="space-y-1">
+            <label htmlFor="auth-agree" className="flex items-start gap-2 text-xs leading-5 text-slate-300">
+              <input
+                id="auth-agree"
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                disabled={loading}
+                aria-required="true"
+                className="mt-0.5 shrink-0"
+              />
+              <span>{signupConsentLabel}</span>
+            </label>
+            <p className="pl-6 text-[11px] text-slate-400">
+              Read:{" "}
+              <Link href="/terms" target="_blank" rel="noopener noreferrer" className="underline">Terms</Link>
+              {" · "}
+              <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</Link>
+              {" · "}
+              <Link href="/medical-disclaimer" target="_blank" rel="noopener noreferrer" className="underline">Medical Disclaimer</Link>
+            </p>
+            {!agreed && (
+              <p className="pl-6 text-[11px] text-slate-500">Required to create your account.</p>
+            )}
+          </div>
+        )}
+
         <LoadingButton
           type="submit"
           loading={loading}
           loadingText={getButtonText()}
+          disabled={mode === 'signup' && !agreed}
           className="w-full py-3"
         >
           {getButtonText()}

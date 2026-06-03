@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, Card, Container } from "@/ui/DS";
+import { privacyHealthData } from "@/lib/legal/legalContent";
 
 const UPDATED_AT = "March 10, 2026";
 
@@ -55,9 +56,10 @@ const sections = [
       "This telemetry is about product behavior, not raw video capture. We use it to improve session completion, cue clarity, and recovery flows.",
     ],
   },
+  { ...privacyHealthData, title: "5. " + privacyHealthData.title },
   {
     id: "choices",
-    title: "5. Your choices and controls",
+    title: "6. Your choices and controls",
     paragraphs: [
       "You can stop using the coach at any time, revoke camera permission in your browser, and choose whether to sign in for history. Without sign-in, the app cannot attach saved sessions to your account.",
       "You can request account and stored-session deletion through support. During the beta, support channels are the practical path for deletion and export requests.",
@@ -65,13 +67,13 @@ const sections = [
   },
   {
     id: "safety",
-    title: "6. Safety and limits",
+    title: "7. Safety and limits",
     paragraphs: [
       "AI Form Coach is fitness software, not medical care. The live cues are intended to support general exercise form awareness for squat, pushup, and plank in this beta.",
       "Stop immediately if you feel pain, dizziness, or discomfort. If you have health concerns or injury history, consult a qualified professional before exercising.",
     ],
   },
-] as const;
+];
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
