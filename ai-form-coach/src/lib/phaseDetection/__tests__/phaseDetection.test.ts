@@ -1,74 +1,15 @@
 /**
  * Phase Detection Tests
- * 
+ *
  * Comprehensive test suite for the enhanced phase detection system
- * including Savitzky-Golay smoothing and HMM-based detection.
+ * including EMA smoothing and HMM-based detection.
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { applySavitzkyGolaySmoothing, RealTimeSavitzkyGolay } from '../savitzkyGolay';
 import { HMMPhaseDetector } from '../hmmPhaseDetector';
 import { createEnhancedPhaseDetector, normalizeAngleForPhaseDetection } from '../phaseDetector';
 import { ValidatorPhaseDetector } from '../validatorIntegration';
-import type { TimeSeriesPoint, Phase } from '../types';
-
-describe('Savitzky-Golay Smoothing', () => {
-  let testTimeSeries: TimeSeriesPoint[];
-  
-  beforeEach(() => {
-    // Create a test time series with noise
-    testTimeSeries = [
-      { timestamp: 0, value: 0.1 },
-      { timestamp: 100, value: 0.15 },
-      { timestamp: 200, value: 0.2 },
-      { timestamp: 300, value: 0.25 },
-      { timestamp: 400, value: 0.3 },
-      { timestamp: 500, value: 0.35 },
-      { timestamp: 600, value: 0.4 },
-      { timestamp: 700, value: 0.45 },
-      { timestamp: 800, value: 0.5 },
-      { timestamp: 900, value: 0.55 },
-    ];
-  });
-  
-  it('should smooth time series data', () => {
-    const result = applySavitzkyGolaySmoothing(testTimeSeries, {
-      windowSize: 5,
-      polynomialOrder: 2,
-      derivative: 0,
-    });
-    
-    expect(result.original).toEqual(testTimeSeries);
-    expect(result.smoothed).toHaveLength(testTimeSeries.length);
-    expect(result.windowSize).toBe(5);
-    expect(result.polynomialOrder).toBe(2);
-  });
-  
-  it('should handle insufficient data points', () => {
-    const shortSeries = testTimeSeries.slice(0, 3);
-    const result = applySavitzkyGolaySmoothing(shortSeries, {
-      windowSize: 5,
-      polynomialOrder: 2,
-      derivative: 0,
-    });
-    
-    expect(result.smoothed).toEqual(shortSeries);
-  });
-  
-  it('should work with real-time smoothing', () => {
-    const realTimeFilter = new RealTimeSavitzkyGolay(5, 2, 0);
-    
-    // Add points one by one
-    const smoothedValues: number[] = [];
-    for (const point of testTimeSeries) {
-      const smoothed = realTimeFilter.addPoint(point.timestamp, point.value);
-      smoothedValues.push(smoothed);
-    }
-    
-    expect(smoothedValues).toHaveLength(testTimeSeries.length);
-    expect(realTimeFilter.getBufferSize()).toBe(5); // Should maintain window size
-  });
-});
+import type { Phase } from '../types';
 
 describe('HMM Phase Detector', () => {
   let hmmDetector: HMMPhaseDetector;
