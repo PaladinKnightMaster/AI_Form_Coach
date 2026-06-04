@@ -14,7 +14,7 @@ import type {
   PhaseDetectionResult,
   PhaseDetectorConfig 
 } from './types';
-import { RealTimeSavitzkyGolay } from './savitzkyGolay';
+import { EmaSmoother, alphaFromWindow } from './ema';
 
 /**
  * Hidden Markov Model for phase detection
@@ -24,7 +24,7 @@ export class HMMPhaseDetector {
   private currentState: Phase = 'idle';
   private stateHistory: HMMState[] = [];
   private transitionHistory: PhaseTransition[] = [];
-  private smoothingFilter: RealTimeSavitzkyGolay;
+  private smoothingFilter: EmaSmoother;
   private debounceCounter = 0;
   private lastTransitionTime = 0;
   
@@ -33,9 +33,8 @@ export class HMMPhaseDetector {
     private detectorConfig: PhaseDetectorConfig
   ) {
     this.config = this.createHMMConfig();
-    this.smoothingFilter = new RealTimeSavitzkyGolay(
-      detectorConfig.smoothing.windowSize,
-      detectorConfig.smoothing.polynomialOrder
+    this.smoothingFilter = new EmaSmoother(
+      alphaFromWindow(detectorConfig.smoothing.windowSize)
     );
   }
   
@@ -378,9 +377,8 @@ export class HMMPhaseDetector {
     
     // Recreate smoothing filter if parameters changed
     if (newConfig.smoothing) {
-      this.smoothingFilter = new RealTimeSavitzkyGolay(
-        this.detectorConfig.smoothing.windowSize,
-        this.detectorConfig.smoothing.polynomialOrder
+      this.smoothingFilter = new EmaSmoother(
+        alphaFromWindow(this.detectorConfig.smoothing.windowSize)
       );
     }
     

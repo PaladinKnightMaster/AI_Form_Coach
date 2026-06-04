@@ -49,11 +49,8 @@ export class ValidatorPhaseDetector {
     return {
       exercise: this.exercise,
       smoothing: {
-        // War-room concern #1 — SG math is broken. Production bypasses the SG
-        // path until the math is fixed or replaced. HMM downstream works fine
-        // on raw normalized [0,1] angles. See sgDefaultDisabled.test.ts for
-        // the bug-existence pinning record.
-        enabled: enhancedConfig?.smoothing?.enabled ?? false,
+        // EMA smoother (war-room #1 fixed). Smoothing on by default; HMM consumes [0,1].
+        enabled: enhancedConfig?.smoothing?.enabled ?? true,
         windowSize: enhancedConfig?.smoothing?.windowSize ?? 5,
         polynomialOrder: enhancedConfig?.smoothing?.polynomialOrder ?? 2,
       },
@@ -264,8 +261,8 @@ export function createDefaultEnhancedPhaseConfig(): ValidatorConfig['enhancedPha
   return {
     enabled: true,
     smoothing: {
-      // War-room concern #1 — broken math, production bypassed until fixed.
-      enabled: false,
+      // EMA smoother (war-room #1 fixed).
+      enabled: true,
       windowSize: 5,
       polynomialOrder: 2,
     },

@@ -14,17 +14,23 @@ documented reason — do not let items expire silently.
 
 ### 1. S-G coefficient bug still in production code path
 
-**Status:** 🟡 in progress — production bypass shipped, math fix deferred
+**Status:** 🟢 resolved (2026-05-30) — broken S-G deleted; correct EMA smoother shipped + enabled
 **Owner:** Dev
 **Risk:** High — most likely "looks fine in dev, breaks on device" failure mode
-**Resolution (Beta 1):** Defaulted `smoothing.enabled` to `false` in
-`validatorIntegration.ts` (both `createConfigFromValidator` and
-`createDefaultEnhancedPhaseConfig`). Phase detection now runs HMM over raw
-normalized [0,1] angles. The SG functions remain in the repo marked
-`@deprecated`; `src/__tests__/mvp/sgDefaultDisabled.test.ts` locks in the
-current broken behavior so a future fix-or-replace PR has a clear green/red
-signal. Math fix or replacement is a separate follow-up — this concern stays
-🟡 until the SG code is deleted or fixed.
+**Resolution (2026-05-30, final):** Deleted `savitzkyGolay.ts` entirely and
+replaced it with a correct exponential moving average (`src/lib/phaseDetection/ema.ts`,
+`EmaSmoother` + `alphaFromWindow`, α = 2/(windowSize+1) ≈ 0.33). The EMA is
+seed-first (constant input round-trips exactly) and range-preserving (output
+stays in [0,1], so the HMM observation means remain valid). Smoothing is
+**re-enabled** in both `validatorIntegration.ts` config defaults. The old
+bug-pinning test was inverted: `sgDefaultDisabled.test.ts` (which locked the
+broken behavior) was replaced by `emaSmoothing.test.ts` (pins the correct
+round-trip). The squat/pushup/plank rep-count tests stay green with smoothing on
+(α=0.33 needed no tuning). EMA params can be tuned with real-device data (#12).
+
+**Resolution (interim, 2026-05-28):** Defaulted `smoothing.enabled` to `false`
+as a stopgap (HMM ran over raw normalized angles). Superseded by the EMA
+resolution above.
 
 **Pushup-test follow-up (RESOLVED 2026-05-29):** the `testPoseScripts.test.ts >
 drives the pushup validator through a counted rep` test was passing under broken
@@ -314,6 +320,7 @@ Everything else can wait until after beta launches. But those three before the f
 | 2026-05-30 | #3 Sentry verification | 🟡 → 🟢 | Client + server errors verified on Vercel preview with readable traces; serverless flush fix (`onRequestError` awaits `Sentry.flush`); temp /sentry-check surface removed |
 | 2026-05-30 | #4 CI workflow | 🔴 → 🟢 | Added `dev-pr-gate.yml` (lint+test+build on PRs to dev) complementing `release-gate.yml` (e2e on PRs to main) |
 | 2026-05-30 | #2 Liability waiver | 🔴 → 🟡 | Draft medical disclaimer + assumption-of-risk, /medical-disclaimer page, strengthened terms/privacy, signup clickwrap + 18+, first-session self-attestation gate, consent record. PLACEHOLDER copy pending lawyer review. |
+| 2026-05-30 | #1 S-G coefficient | 🟡 → 🟢 | Deleted broken Savitzky-Golay; shipped correct EMA smoother (α=2/(windowSize+1)), re-enabled smoothing, inverted the pinning test, rep-count tests green |
 
 ---
 
