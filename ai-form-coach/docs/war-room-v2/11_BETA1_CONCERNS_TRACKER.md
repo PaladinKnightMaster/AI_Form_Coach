@@ -236,9 +236,19 @@ public launch. Fitness content is the cheapest acquisition channel in 2026.
 
 ### 10. No accessibility audit
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30) — axe WCAG 2.1 AA audit: 0 serious/critical on public routes + coach; gated in test:e2e:release
 **Owner:** Dev / Design
 **Risk:** Beta testers with assistive needs will struggle; credibility hit
+**Resolution:** Added `@axe-core/playwright` + `tests/e2e/a11y.spec.ts` (chromium) over
+`/`, `/pricing`, `/signin`, `/terms`, `/privacy`, `/medical-disclaimer`, `/coach` — fails on
+any serious/critical WCAG 2.1 AA violation, now wired into the release gate. All findings were
+`color-contrast`: the muted-gold brand label `#8A6F4A → #7A6240` (approved; ~5:1 on bone), the
+signin form's semi-transparent-over-bone widgets made opaque + on-bone text darkened, terms/
+privacy `slate-500 → slate-600` + two near-invisible hero badges, and the coach device-summary
+`slate-500 → slate-400`. Note: the coach contrast fix shifts `coach.visual` snapshots — they
+re-baseline at `dev → main` (alongside the #2 micro-disclaimer). Follow-ups (documented in
+`docs/technical/accessibility.md`): auth-gated routes (`history`/`settings`/`session/[id]`) and
+`moderate`/`minor` violations.
 
 13 launch routes, no WCAG pass mentioned. Dark-only theme is a strong
 opinion that needs to be defensible.
@@ -332,6 +342,7 @@ Everything else can wait until after beta launches. But those three before the f
 | 2026-05-30 | #2 Liability waiver | 🔴 → 🟡 | Draft medical disclaimer + assumption-of-risk, /medical-disclaimer page, strengthened terms/privacy, signup clickwrap + 18+, first-session self-attestation gate, consent record. PLACEHOLDER copy pending lawyer review. |
 | 2026-05-30 | #1 S-G coefficient | 🟡 → 🟢 | Deleted broken Savitzky-Golay; shipped correct EMA smoother (α=2/(windowSize+1)), re-enabled smoothing, inverted the pinning test, rep-count tests green |
 | 2026-05-30 | #14 Account deletion | 🔴 → 🟢 | Audit: all user tables cascade via profiles chokepoint; fixed events SET NULL → CASCADE; added account_deletion_completeness() fn (MCP-verified empty) + gated RPC test + same-origin check + GDPR follow-up docs |
+| 2026-05-30 | #10 Accessibility | 🔴 → 🟢 | axe-core/playwright WCAG 2.1 AA audit over public routes + /coach; fixed all serious/critical color-contrast (brand label #8A6F4A→#7A6240 approved; signin/terms/privacy/coach utility contrast); gated in test:e2e:release; moderate/minor + auth-gated routes deferred |
 
 ---
 
