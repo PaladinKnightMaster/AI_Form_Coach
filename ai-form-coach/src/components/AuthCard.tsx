@@ -29,7 +29,7 @@ export default function AuthCard({ title, children }: AuthCardProps) {
             >
               Carriage
             </span>
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]">
+            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#7A6240]">
               AI Form Coach
             </p>
           </div>
@@ -56,7 +56,7 @@ export default function AuthCard({ title, children }: AuthCardProps) {
 
           {children}
 
-          <div className="pt-2 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-[#8A6F4A]">
+          <div className="pt-2 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-[#7A6240]">
             By continuing, you agree to our{" "}
             <Link
               href="/privacy"

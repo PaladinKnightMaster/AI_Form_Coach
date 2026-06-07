@@ -94,7 +94,7 @@ export default function Home() {
                     key={exercise}
                     className="rounded-md border border-[#C7B796] bg-[#FAF6EF] px-4 py-4"
                   >
-                    <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#7A6240]">
                       Launch movement
                     </div>
                     <div
@@ -136,7 +136,7 @@ export default function Home() {
                 Pose detection runs entirely in your browser. Camera frames are not uploaded during a live session. Session summaries — counts, cues, the line you held — save only when you sign in.
               </p>
               <hr className="my-6 border-0 border-t border-[#C7B796]" />
-              <dl className="grid grid-cols-2 gap-4 font-mono text-[10px] uppercase tracking-[0.18em] text-[#8A6F4A]">
+              <dl className="grid grid-cols-2 gap-4 font-mono text-[10px] uppercase tracking-[0.18em] text-[#7A6240]">
                 <div>
                   <dt>In beta</dt>
                   <dd className="mt-1 text-[#17120D] tracking-[0.12em]">Squat · Pushup · Plank</dd>
@@ -233,7 +233,7 @@ export default function Home() {
             </article>
 
             <article className="bg-[#F4EFE6] p-8 lg:p-12">
-              <div className="eyebrow !text-[#8A6F4A]">Not in the public beta</div>
+              <div className="eyebrow !text-[#7A6240]">Not in the public beta</div>
               <h2
                 className="mt-4 font-display italic text-[#17120D]"
                 style={{
@@ -303,7 +303,7 @@ export default function Home() {
                     >
                       {cue.message}
                     </p>
-                    <span className="mt-1 inline-block font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]">
+                    <span className="mt-1 inline-block font-mono text-[10px] uppercase tracking-[0.22em] text-[#7A6240]">
                       {cue.category}
                     </span>
                   </li>
@@ -323,7 +323,7 @@ export default function Home() {
                     key={sample.id}
                     className="border-t border-[#E5DDCD] pt-4 first:border-t-0 first:pt-0"
                   >
-                    <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#7A6240]">
                       {sample.exercise}
                     </div>
                     <p className="mt-2 text-sm leading-6 text-[#17120D]">{sample.notes}</p>
@@ -360,7 +360,7 @@ export default function Home() {
             >
               Form, carried.
             </p>
-            <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.22em] text-[#8A6F4A]">
+            <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.22em] text-[#7A6240]">
               Carriage — AI Form Coach · Public beta
             </p>
           </div>

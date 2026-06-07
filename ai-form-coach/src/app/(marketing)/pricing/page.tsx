@@ -74,7 +74,7 @@ export default function PricingPage() {
             </section>
 
             <section className="bg-[#F4EFE6] p-8 lg:p-12">
-              <div className="eyebrow !text-[#8A6F4A]">Not in the beta</div>
+              <div className="eyebrow !text-[#7A6240]">Not in the beta</div>
               <h2
                 className="mt-4 font-display italic text-[#17120D]"
                 style={{

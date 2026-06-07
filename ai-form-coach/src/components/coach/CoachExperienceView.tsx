@@ -413,7 +413,7 @@ export default function CoachExperienceView({
             </div>
 
             {/* Camera setup info */}
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-slate-400">
               <span>{cameraAngleLabel}: {cameraAngleDetail}</span>
               <br />
               <span>{deviceSummary}</span>
