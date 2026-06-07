@@ -284,10 +284,20 @@ angle, lighting, clothing, distance.
 
 ### 14. Account deletion not E2E tested (GDPR)
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30) — deletion verified complete (profiles-cascade chokepoint); `events` now CASCADE-deletes; audit fn + gated test guard regressions
 **Owner:** Dev
 **Risk:** Regulatory liability if deletion is incomplete
-**Estimate:** 30 min — one Playwright test: signup → delete → assert zero rows.
+**Resolution:** Audited all 42 user-scoped tables. Deletion cascades correctly via
+the `profiles.id → auth.users ON DELETE CASCADE` chokepoint — every user table
+cascade-deletes directly or through `profiles`. The one gap, `events.user_id`
+(`SET NULL`), was changed to `ON DELETE CASCADE` (migration `10_...`, applied via
+MCP). Added `public.account_deletion_completeness()` (MCP-verified to return zero
+offending tables) + a gated RPC regression test (`accountDeletionCompleteness.test.ts`,
+auto-skips in CI) + a same-origin CSRF check on the delete route. GDPR
+external-processor follow-ups documented in `docs/technical/account-deletion.md`.
+A literal signup→delete Playwright e2e was *not* added — CI uses placeholder
+Supabase creds; the audit function + MCP verification cover completeness instead.
+**Estimate (original):** 30 min — one Playwright test: signup → delete → assert zero rows.
 
 ### 15. No A/B test framework for cue effectiveness
 
@@ -321,6 +331,7 @@ Everything else can wait until after beta launches. But those three before the f
 | 2026-05-30 | #4 CI workflow | 🔴 → 🟢 | Added `dev-pr-gate.yml` (lint+test+build on PRs to dev) complementing `release-gate.yml` (e2e on PRs to main) |
 | 2026-05-30 | #2 Liability waiver | 🔴 → 🟡 | Draft medical disclaimer + assumption-of-risk, /medical-disclaimer page, strengthened terms/privacy, signup clickwrap + 18+, first-session self-attestation gate, consent record. PLACEHOLDER copy pending lawyer review. |
 | 2026-05-30 | #1 S-G coefficient | 🟡 → 🟢 | Deleted broken Savitzky-Golay; shipped correct EMA smoother (α=2/(windowSize+1)), re-enabled smoothing, inverted the pinning test, rep-count tests green |
+| 2026-05-30 | #14 Account deletion | 🔴 → 🟢 | Audit: all user tables cascade via profiles chokepoint; fixed events SET NULL → CASCADE; added account_deletion_completeness() fn (MCP-verified empty) + gated RPC test + same-origin check + GDPR follow-up docs |
 
 ---
 
