@@ -101,13 +101,13 @@ export default function TermsPage() {
       <Container className="py-16 sm:py-20">
         <div className="mx-auto max-w-5xl space-y-10">
           <div className="space-y-4 text-center">
-            <Badge tone="neutral" className="mx-auto uppercase tracking-[0.2em]">
+            <Badge tone="neutral" className="mx-auto uppercase tracking-[0.2em] bg-slate-100 text-slate-700 border-slate-300">
               Motion coaching beta terms
             </Badge>
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
               Terms of service
             </h1>
-            <p className="text-sm text-slate-500">Last updated: {UPDATED_AT}</p>
+            <p className="text-sm text-slate-600">Last updated: {UPDATED_AT}</p>
             <p className="mx-auto max-w-3xl text-base leading-8 text-slate-600">
               These terms are written for the current beta release, not a broader platform that has not shipped. They describe the coach as it exists today: a browser-based motion beta with optional sign-in for saved history.
             </p>
@@ -117,7 +117,7 @@ export default function TermsPage() {
             {summaryCards.map((item) => (
               <Card key={item.label} className="h-full rounded-[1.8rem] border border-slate-200 bg-slate-50/80 shadow-sm" padding="lg">
                 <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{item.label}</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">{item.label}</div>
                   <div className="text-2xl font-black tracking-tight text-slate-950">{item.value}</div>
                   <p className="text-sm leading-7 text-slate-600">{item.detail}</p>
                 </div>
@@ -142,7 +142,7 @@ export default function TermsPage() {
 
           <Card className="rounded-[1.9rem] border border-slate-200 bg-slate-50/80 shadow-sm" padding="lg">
             <div className="space-y-3 text-center sm:text-left">
-              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Need help?</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">Need help?</div>
               <div className="text-2xl font-black tracking-tight text-slate-950">Contact support or review privacy details</div>
               <p className="text-sm leading-7 text-slate-600">
                 Terms questions can be sent to <a className="font-semibold text-slate-950 underline decoration-slate-300 underline-offset-4" href="mailto:legal@aiformcoach.com">legal@aiformcoach.com</a>. For privacy details, review the privacy policy or contact the beta team directly.
