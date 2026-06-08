@@ -59,6 +59,7 @@ interface CoachExperienceViewProps {
   onRetryCamera: () => void;
   onPrimaryAction: () => void;
   onEndAndSave: () => void;
+  onShowTips?: () => void;
 }
 
 export default function CoachExperienceView({
@@ -107,6 +108,7 @@ export default function CoachExperienceView({
   onRetryCamera,
   onPrimaryAction,
   onEndAndSave,
+  onShowTips,
 }: CoachExperienceViewProps) {
   const showCenterPanel = sessionState !== "active";
   const canPrimaryAction = cameraReady && !hasStageError;
@@ -404,7 +406,18 @@ export default function CoachExperienceView({
 
             {/* Framing notes */}
             <div>
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Framing notes</div>
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Framing notes</span>
+                {onShowTips && (
+                  <button
+                    type="button"
+                    onClick={onShowTips}
+                    className="text-[11px] font-medium text-teal-300 underline-offset-2 hover:underline"
+                  >
+                    Setup tips
+                  </button>
+                )}
+              </div>
               <ul className="space-y-2 text-sm leading-6 text-slate-300">
                 {checklist.map((item) => (
                   <li key={item} className="flex gap-2"><span className="mt-0.5 text-teal-400"><Icon name="check-circle" className="h-4 w-4" /></span><span>{item}</span></li>
