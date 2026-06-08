@@ -32,21 +32,33 @@ Dark coach surface. Props: `{ onClose: () => void }`.
   2. **Light it softly** — "Face an even light; keep bright windows ahead of you, not behind."
   3. **Wear something fitted** — "Close-fitting layers let the coach trace your true line."
   4. **Make space** — "Step back roughly six feet, until shoulders to ankles rest comfortably in frame."
-- **Expectation line:** "Carriage is a single-camera companion, not a clinic. Read its counts
-  and angles as considered guidance — a mirror for your practice, not a clinical measurement."
+- **Expectation line:** "Carriage is a single-camera companion, not a clinic — read its counts
+  and angles as considered guidance, a mirror for your practice rather than a precise measurement."
 - **Button:** "I'm ready"
 
 (Copy lives as constants in the component; easy to tune. Final wording subject to user review.)
 
+### Accessibility (the modal is NOT covered by the axe gate)
+The axe spec audits `/coach?e2e-access=1`, but this modal is **suppressed under the e2e
+bypass** — so the regression gate will not see it. Therefore it must be **accessible by
+construction** (reuse the audited `FirstSessionSafetyGate` dialog pattern) AND covered by a
+component test (below) asserting `role="dialog"`, `aria-modal="true"`, `aria-labelledby` the
+heading, Escape-closes, and focus moves in on open / restores on close. The always-rendered
+sidebar "Setup tips" link IS in the audited DOM, so it must use an AA-contrast color
+(e.g. the existing `text-slate-300`/teal accent).
+
 ### Trigger / storage / ordering — `src/app/(coach)/coach/page.tsx`
 - A pure helper `shouldShowCoachTips(seen: boolean, isE2E: boolean): boolean` → `!seen && !isE2E`.
-- On coach mount, read `localStorage["carriage.coachTipsSeen"]`. `isE2E` reuses the page's
-  existing loopback/`e2e-access=1` computation (so the modal NEVER blocks the Playwright
-  harness). State machine: `tips: "loading" | "show" | "hidden"`.
+- **Hydration-safe:** `localStorage` is undefined during SSR, so read it **only inside a
+  `useEffect`** (client-only). Initial state is `tips: "loading"` which renders **no overlay**,
+  avoiding any hydration mismatch; the effect then sets `"show"` or `"hidden"`.
+- **Versioned key:** `localStorage["carriage.coachTipsSeenV1"]` (the `V1` lets a future copy
+  refresh re-prompt). `isE2E` **reuses the page's existing `allowLoopbackAutomation`** value
+  (do not reimplement the loopback check), so the modal NEVER blocks the Playwright harness.
 - **Ordering with the safety gate:** the required `FirstSessionSafetyGate` shows first; once
   it is satisfied (`safetyGate === "ok"`), the tips card shows if `shouldShowCoachTips(...)`.
   Then the coach is fully interactive. Only one overlay renders at a time (safety > tips).
-- `onClose`: set `localStorage["carriage.coachTipsSeen"] = "1"` and `tips = "hidden"`.
+- `onClose`: set `localStorage["carriage.coachTipsSeenV1"] = "1"` and `tips = "hidden"`.
 
 ### Re-view affordance — `src/components/coach/CoachExperienceView.tsx`
 A small **"Setup tips"** text button in the sidebar "Framing notes" header that calls a new
@@ -57,9 +69,14 @@ clearing the seen flag).
 
 - **Unit:** `src/__tests__/mvp/coachTips.test.ts` for `shouldShowCoachTips` — true when
   unseen and not e2e; false when seen; false when e2e (even if unseen).
+- **Component a11y (covers the gate gap):** a jsdom test renders `CoachTipsCard` and asserts
+  the dialog semantics — `role="dialog"`, `aria-modal="true"`, an `aria-labelledby` pointing
+  at the heading, an accessible "I'm ready" button, and that `onClose` fires on the button and
+  on Escape. This is the safety net the axe gate can't provide (the modal is e2e-suppressed).
 - The card is **suppressed under e2e**, so `coach.smoke` and `coach.visual` are unaffected by
   the modal. `npm run lint` / `npm run test` / `npm run build` stay green.
-- New modal a11y must keep the axe audit green (reuses the safety-gate accessible pattern).
+- The always-rendered sidebar "Setup tips" link is in the audited `/coach` DOM, so it keeps
+  the axe gate green (AA-contrast color).
 
 ## Risks / notes
 
