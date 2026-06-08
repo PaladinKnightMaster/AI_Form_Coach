@@ -43,6 +43,8 @@ import {
 } from "@/lib/pose/engine";
 import { getCurrentUserId, getSupabaseClient } from "@/lib/supabase/client";
 import FirstSessionSafetyGate from "@/components/coach/FirstSessionSafetyGate";
+import CoachTipsCard from "@/components/coach/CoachTipsCard";
+import { shouldShowCoachTips, COACH_TIPS_SEEN_KEY } from "@/lib/coach/coachTips";
 import { hasAcceptedCurrentVersion, recordConsent } from "@/lib/legal/consent";
 import { createValidator } from "@/lib/validators";
 import type { Exercise, Phase, RepMetric } from "@/lib/validators/types";
@@ -191,6 +193,7 @@ export default function CoachPage() {
   const [hasPose, setHasPose] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [safetyGate, setSafetyGate] = useState<"loading" | "needed" | "ok">("loading");
+  const [tips, setTips] = useState<"loading" | "show" | "hidden">("loading");
 
   const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const poseScriptQuery = searchParams?.get("pose-script") ?? null;
@@ -240,6 +243,16 @@ export default function CoachPage() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    let seen = false;
+    try { seen = localStorage.getItem(COACH_TIPS_SEEN_KEY) === "1"; } catch { /* private mode */ }
+    const isLoopbackHost =
+      typeof window !== "undefined" &&
+      (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost");
+    const isE2E = e2eAccessQuery === "1" && isLoopbackHost;
+    setTips(shouldShowCoachTips(seen, isE2E) ? "show" : "hidden");
+  }, [e2eAccessQuery]);
 
   const running = sessionState === "active";
   const copy = EXERCISE_COPY[exercise];
@@ -357,6 +370,12 @@ export default function CoachPage() {
     }
     setSafetyGate("ok");
   }, []);
+
+  const handleCloseTips = useCallback(() => {
+    try { localStorage.setItem(COACH_TIPS_SEEN_KEY, "1"); } catch { /* private mode */ }
+    setTips("hidden");
+  }, []);
+  const handleShowTips = useCallback(() => setTips("show"), []);
 
   const enableScriptedStage = useCallback((message?: string) => {
     const video = videoRef.current;
@@ -952,8 +971,10 @@ export default function CoachPage() {
         onRetryCamera={handleRetryCamera}
         onPrimaryAction={sessionState === "active" ? pause : sessionState === "paused" ? resume : queueSessionStart}
         onEndAndSave={() => { void endAndSave(); }}
+        onShowTips={handleShowTips}
       />
       {safetyGate === "needed" && <FirstSessionSafetyGate onAccept={handleAcceptSafety} />}
+      {safetyGate === "ok" && tips === "show" && <CoachTipsCard onClose={handleCloseTips} />}
     </>
   );
 }

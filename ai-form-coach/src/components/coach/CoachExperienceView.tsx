@@ -59,6 +59,7 @@ interface CoachExperienceViewProps {
   onRetryCamera: () => void;
   onPrimaryAction: () => void;
   onEndAndSave: () => void;
+  onShowTips?: () => void;
 }
 
 export default function CoachExperienceView({
