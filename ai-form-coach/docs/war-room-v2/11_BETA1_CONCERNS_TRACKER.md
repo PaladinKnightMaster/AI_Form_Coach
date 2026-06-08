@@ -286,9 +286,19 @@ counts for review. Build for Phase 1 retro.
 
 ### 13. Single-camera MediaPipe accuracy not communicated to users
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30) — one-time "Set the scene" tips card before the first session; re-viewable; e2e-suppressed
 **Owner:** Design / Dev
 **Risk:** Bad reviews for technical limits that aren't your fault
+**Resolution:** Added `CoachTipsCard` — a one-time, accessible (`role=dialog`, focus-trapped,
+Escape-closes), premium-voiced "Set the scene" interstitial shown before the first coach
+session. Covers the four setup essentials (side-on angle, soft even lighting, fitted clothing,
+~6 ft distance) plus an explicit single-camera expectation line ("a single-camera companion,
+not a clinic … a mirror for your practice rather than a precise measurement"). Gated once via
+`localStorage["carriage.coachTipsSeenV1"]`, suppressed under the `e2e-access` bypass (so
+`coach.smoke`/`coach.visual` are unaffected by the modal), and re-viewable via a "Setup tips"
+link in the sidebar framing notes. The existing in-session framing overlay/checklist stay for
+live feedback. (The sidebar link shifts `coach.visual` → folds into the pending #2 + #10
+re-baseline at `dev → main`.)
 **Action:** Add a "tips for best results" screen during onboarding. Sideline
 angle, lighting, clothing, distance.
 
@@ -343,6 +353,7 @@ Everything else can wait until after beta launches. But those three before the f
 | 2026-05-30 | #1 S-G coefficient | 🟡 → 🟢 | Deleted broken Savitzky-Golay; shipped correct EMA smoother (α=2/(windowSize+1)), re-enabled smoothing, inverted the pinning test, rep-count tests green |
 | 2026-05-30 | #14 Account deletion | 🔴 → 🟢 | Audit: all user tables cascade via profiles chokepoint; fixed events SET NULL → CASCADE; added account_deletion_completeness() fn (MCP-verified empty) + gated RPC test + same-origin check + GDPR follow-up docs |
 | 2026-05-30 | #10 Accessibility | 🔴 → 🟢 | axe-core/playwright WCAG 2.1 AA audit over public routes + /coach; fixed all serious/critical color-contrast (brand label #8A6F4A→#7A6240 approved; signin/terms/privacy/coach utility contrast); gated in test:e2e:release; moderate/minor + auth-gated routes deferred |
+| 2026-05-30 | #13 Single-camera comms | 🔴 → 🟢 | One-time accessible "Set the scene" tips modal (side-on/lighting/clothing/distance + single-camera expectation line) before first coach session; localStorage-gated, e2e-suppressed, re-viewable via sidebar "Setup tips" link |
 
 ---
 
