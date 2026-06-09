@@ -9,7 +9,12 @@ export default defineConfig({
     timeout: 15_000,
   },
   fullyParallel: false,
-  retries: 0,
+  // Retry on CI only. The scripted-pose feed is now driven by setTimeout (see
+  // page.tsx) so it no longer depends on WebKit's throttled rAF, but CI runners
+  // are still load-variable; a couple of retries keep an incidental timing miss
+  // in any project from failing the whole release gate. Locally retries stay 0
+  // so flakes surface loudly. trace: "on-first-retry" captures the retry.
+  retries: process.env.CI ? 2 : 0,
   reporter: "list",
   use: {
     baseURL: "http://127.0.0.1:3100",

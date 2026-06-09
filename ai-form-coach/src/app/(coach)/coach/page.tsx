@@ -59,6 +59,24 @@ const COUNTDOWN_SECONDS = 3;
 const PREVIEW_STALE_FRAME_LIMIT = 10;
 const SCRIPTED_FRAME_INTERVAL_MS = 16;
 
+// Headless WebKit throttles (and, when the page isn't compositing, fully
+// pauses) requestAnimationFrame. That starves the scripted-pose frame pump in
+// e2e/CI, so rep counts come back nondeterministically as "0 reps" on the
+// iphone-safari project while Chromium passes. Drive the scripted (test-only,
+// loopback + ?e2e-access gated) feed with setTimeout, which WebKit does not
+// throttle the same way; the live-camera path keeps rAF so real sessions are
+// unchanged. rAF handle ids and timeout ids live in independent pools, so a
+// cancel must clear both — calling the other is a harmless no-op.
+function schedulePoseLoop(useScriptedPump: boolean, callback: () => void): number {
+  return useScriptedPump ? window.setTimeout(callback, SCRIPTED_FRAME_INTERVAL_MS) : requestAnimationFrame(callback);
+}
+
+function cancelPoseLoop(handle: number | null): void {
+  if (handle === null) return;
+  cancelAnimationFrame(handle);
+  clearTimeout(handle);
+}
+
 type SessionState = "idle" | "active" | "paused" | "completed";
 type QualityState = "good" | "warn" | "bad";
 
@@ -394,7 +412,7 @@ export default function CoachPage() {
 
   const releaseCameraStage = useCallback(() => {
     if (poseLoopRef.current !== null) {
-      cancelAnimationFrame(poseLoopRef.current);
+      cancelPoseLoop(poseLoopRef.current);
       poseLoopRef.current = null;
     }
     if (countdownTimerRef.current !== null) {
@@ -835,7 +853,7 @@ export default function CoachPage() {
 
   useEffect(() => {
     if (!cameraReady || cameraError || detectorError) {
-      if (poseLoopRef.current !== null) cancelAnimationFrame(poseLoopRef.current);
+      cancelPoseLoop(poseLoopRef.current);
       return;
     }
     let cancelled = false;
@@ -870,13 +888,13 @@ export default function CoachPage() {
         }
       }
       if (!cancelled) {
-        poseLoopRef.current = requestAnimationFrame(() => { void loop(); });
+        poseLoopRef.current = schedulePoseLoop(Boolean(scriptedPoseFramesRef.current), () => { void loop(); });
       }
     };
-    poseLoopRef.current = requestAnimationFrame(() => { void loop(); });
+    poseLoopRef.current = schedulePoseLoop(Boolean(scriptedPoseFramesRef.current), () => { void loop(); });
     return () => {
       cancelled = true;
-      if (poseLoopRef.current !== null) cancelAnimationFrame(poseLoopRef.current);
+      cancelPoseLoop(poseLoopRef.current);
     };
   }, [cameraError, cameraReady, detectorError, onPose]);
 
