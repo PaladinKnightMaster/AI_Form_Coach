@@ -14,9 +14,38 @@ documented reason — do not let items expire silently.
 
 ### 1. S-G coefficient bug still in production code path
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30) — broken S-G deleted; correct EMA smoother shipped + enabled
 **Owner:** Dev
 **Risk:** High — most likely "looks fine in dev, breaks on device" failure mode
+**Resolution (2026-05-30, final):** Deleted `savitzkyGolay.ts` entirely and
+replaced it with a correct exponential moving average (`src/lib/phaseDetection/ema.ts`,
+`EmaSmoother` + `alphaFromWindow`, α = 2/(windowSize+1) ≈ 0.33). The EMA is
+seed-first (constant input round-trips exactly) and range-preserving (output
+stays in [0,1], so the HMM observation means remain valid). Smoothing is
+**re-enabled** in both `validatorIntegration.ts` config defaults. The old
+bug-pinning test was inverted: `sgDefaultDisabled.test.ts` (which locked the
+broken behavior) was replaced by `emaSmoothing.test.ts` (pins the correct
+round-trip). The squat/pushup/plank rep-count tests stay green with smoothing on
+(α=0.33 needed no tuning). EMA params can be tuned with real-device data (#12).
+
+**Resolution (interim, 2026-05-28):** Defaulted `smoothing.enabled` to `false`
+as a stopgap (HMM ran over raw normalized angles). Superseded by the EMA
+resolution above.
+
+**Pushup-test follow-up (RESOLVED 2026-05-29):** the `testPoseScripts.test.ts >
+drives the pushup validator through a counted rep` test was passing under broken
+smoothing (false positive: SG noise was producing accidental phase transitions
+that the rep counter caught). With clean raw input it began failing — and the
+investigation found the cause was **not** in the pushup validator but in the
+synthetic test fixture. `buildPushupPose` in `src/lib/coach/testPoseScripts.ts`
+filtered its candidate shoulder vectors with `x <= 0 && y <= 0`, which rejected
+BOTH valid solutions for deep elbow bends (~100°) and silently fell back to a
+hardcoded near-straight default — so the deepest frame of the scripted rep
+reconstructed to ~175° instead of 102° and no descent was ever detected. The
+production pushup validator and shared HMM path are fine (squat + plank exercise
+the same code on correctly-reconstructed input). Fix: relaxed the filter to
+`x <= 0` (mirrors `buildSquatPose`); deepest frame now reconstructs to 102.0°,
+the HMM reaches `down`, and the rep counts. Test un-skipped.
 
 The Savitzky-Golay smoothing in `src/lib/phaseDetection/savitzkyGolay.ts`
 produces values outside [0,1] (e.g., `27000000002.1875` for constant 0.5 input).
@@ -33,9 +62,23 @@ flag in production config.
 
 ### 2. Liability waiver and medical disclaimer in `/terms`
 
-**Status:** 🔴 open
+**Status:** 🟡 in progress — disclaimer/waiver draft + consent UX shipped for legal review (NOT lawyer-approved)
 **Owner:** External (lawyer) + Dev
 **Risk:** Catastrophic — single injured beta tester could end the project
+**Resolution (draft, pending lawyer):** Added a single versioned legal-content
+module (`src/lib/legal/legalContent.ts`, `DISCLAIMER_VERSION`) feeding a new
+`/medical-disclaimer` page (medical disclaimer + assumption of risk & release),
+strengthened `/terms` (safety, liability, 18+, governing-law placeholder) and
+`/privacy` (camera on-device, no health data, GDPR, 18+). Consent UX: signup
+clickwrap + 18+ checkbox, a one-time first-session safety self-attestation gate
+(show-don't-store PAR-Q criteria), and a persistent in-session micro-disclaimer.
+Consent recorded as `{disclaimer_version, accepted_at, context}` in
+`user_consents` (RLS, **no health data**). **Every string carries
+`[LAWYER REVIEW REQUIRED]`** — stays 🔴-worthy until a lawyer reviews/replaces the
+copy; this entry is 🟡 only because the draft + plumbing exist. Known limitation:
+email-confirmation signups don't write a 'signup' consent row (the first-session
+gate still enforces + records before any exercise). UI design + UX/a11y review:
+`docs/design/2026-05-30-disclaimer-ui-design.md`.
 
 Solo dev shipping movement correction without a properly worded waiver is a
 legal liability. `/terms` and `/privacy` likely lack explicit "not medical
@@ -50,14 +93,27 @@ with explicit language before recruiting any beta tester, even friends.
 
 ### 3. Sentry verification is P0, not P1
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30)
 **Owner:** Dev
 **Risk:** High — flying blind in beta = first crash burns a tester forever
+**Resolution:** Migrated to full `@sentry/nextjs` (client + server + edge).
+`getSentryInitOptions()` (error-only: no tracing/replay/PII) feeds
+`instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`;
+`instrumentation.ts` exports `onRequestError`. `ErrorBoundary` now forwards to
+Sentry (was swallowing); `withSentryConfig` uploads source maps. Verified on a
+Vercel preview: a client error and a server error both produced Sentry issues
+with readable, source-mapped stack traces.
 
-`src/lib/observability/` exists but production wiring is unverified. Without
-a working error pipeline, you cannot react in <24h to crashes during beta.
+**Server-capture fix (the non-obvious part):** server-side errors initially did
+NOT reach Sentry while client errors did. Root cause (found via local
+production-server repro): `onRequestError` fires and the event is captured, but
+on Vercel the serverless function freezes before Sentry's async transport
+delivers it — the event was silently dropped. Fixed by making `onRequestError`
+async and awaiting `Sentry.flush(2000)` (Next.js awaits the hook). Regression
+test: `src/__tests__/mvp/instrumentationFlush.test.ts`. The temporary
+`/sentry-check` verification surface was removed in this change.
 
-**Recommendation:** Promote to P0. Verify on production build with a
+**Recommendation (original):** Promote to P0. Verify on production build with a
 deliberately injected error before Vercel deploy.
 
 **Estimate:** 4 hours.
@@ -66,9 +122,15 @@ deliberately injected error before Vercel deploy.
 
 ### 4. No CI workflow — release gate is a manual checklist
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30)
 **Owner:** Dev
 **Risk:** Medium — gate will eventually slip; bugs sneak into `dev`
+**Resolution:** Two complementary GitHub Actions now enforce the gate:
+`release-gate.yml` (heavy, full `npm run test:release` incl. Playwright e2e) on
+PRs into `main`, and the new `dev-pr-gate.yml` (lightweight: `lint` + `test` +
+`build`, no e2e) on every PR into `dev`. The dev gate closes the previously
+deliberate gap where `dev` PRs relied only on local discipline. E2E stays at the
+main boundary to keep dev CI fast and cheap on the free tier.
 
 No `.github/workflows/` enforcement of `npm run test:release` on PRs.
 
@@ -174,9 +236,19 @@ public launch. Fitness content is the cheapest acquisition channel in 2026.
 
 ### 10. No accessibility audit
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30) — axe WCAG 2.1 AA audit: 0 serious/critical on public routes + coach; gated in test:e2e:release
 **Owner:** Dev / Design
 **Risk:** Beta testers with assistive needs will struggle; credibility hit
+**Resolution:** Added `@axe-core/playwright` + `tests/e2e/a11y.spec.ts` (chromium) over
+`/`, `/pricing`, `/signin`, `/terms`, `/privacy`, `/medical-disclaimer`, `/coach` — fails on
+any serious/critical WCAG 2.1 AA violation, now wired into the release gate. All findings were
+`color-contrast`: the muted-gold brand label `#8A6F4A → #7A6240` (approved; ~5:1 on bone), the
+signin form's semi-transparent-over-bone widgets made opaque + on-bone text darkened, terms/
+privacy `slate-500 → slate-600` + two near-invisible hero badges, and the coach device-summary
+`slate-500 → slate-400`. Note: the coach contrast fix shifts `coach.visual` snapshots — they
+re-baseline at `dev → main` (alongside the #2 micro-disclaimer). Follow-ups (documented in
+`docs/technical/accessibility.md`): auth-gated routes (`history`/`settings`/`session/[id]`) and
+`moderate`/`minor` violations.
 
 13 launch routes, no WCAG pass mentioned. Dark-only theme is a strong
 opinion that needs to be defensible.
@@ -214,18 +286,38 @@ counts for review. Build for Phase 1 retro.
 
 ### 13. Single-camera MediaPipe accuracy not communicated to users
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30) — one-time "Set the scene" tips card before the first session; re-viewable; e2e-suppressed
 **Owner:** Design / Dev
 **Risk:** Bad reviews for technical limits that aren't your fault
+**Resolution:** Added `CoachTipsCard` — a one-time, accessible (`role=dialog`, focus-trapped,
+Escape-closes), premium-voiced "Set the scene" interstitial shown before the first coach
+session. Covers the four setup essentials (side-on angle, soft even lighting, fitted clothing,
+~6 ft distance) plus an explicit single-camera expectation line ("a single-camera companion,
+not a clinic … a mirror for your practice rather than a precise measurement"). Gated once via
+`localStorage["carriage.coachTipsSeenV1"]`, suppressed under the `e2e-access` bypass (so
+`coach.smoke`/`coach.visual` are unaffected by the modal), and re-viewable via a "Setup tips"
+link in the sidebar framing notes. The existing in-session framing overlay/checklist stay for
+live feedback. (The sidebar link shifts `coach.visual` → folds into the pending #2 + #10
+re-baseline at `dev → main`.)
 **Action:** Add a "tips for best results" screen during onboarding. Sideline
 angle, lighting, clothing, distance.
 
 ### 14. Account deletion not E2E tested (GDPR)
 
-**Status:** 🔴 open
+**Status:** 🟢 resolved (2026-05-30) — deletion verified complete (profiles-cascade chokepoint); `events` now CASCADE-deletes; audit fn + gated test guard regressions
 **Owner:** Dev
 **Risk:** Regulatory liability if deletion is incomplete
-**Estimate:** 30 min — one Playwright test: signup → delete → assert zero rows.
+**Resolution:** Audited all 42 user-scoped tables. Deletion cascades correctly via
+the `profiles.id → auth.users ON DELETE CASCADE` chokepoint — every user table
+cascade-deletes directly or through `profiles`. The one gap, `events.user_id`
+(`SET NULL`), was changed to `ON DELETE CASCADE` (migration `10_...`, applied via
+MCP). Added `public.account_deletion_completeness()` (MCP-verified to return zero
+offending tables) + a gated RPC regression test (`accountDeletionCompleteness.test.ts`,
+auto-skips in CI) + a same-origin CSRF check on the delete route. GDPR
+external-processor follow-ups documented in `docs/technical/account-deletion.md`.
+A literal signup→delete Playwright e2e was *not* added — CI uses placeholder
+Supabase creds; the audit function + MCP verification cover completeness instead.
+**Estimate (original):** 30 min — one Playwright test: signup → delete → assert zero rows.
 
 ### 15. No A/B test framework for cue effectiveness
 
@@ -252,6 +344,16 @@ Everything else can wait until after beta launches. But those three before the f
 |------|---------|---------------|-------|
 | 2026-05-17 | #6 Brand identity | 🔴 → 🟡 | Brand work scheduled as next branch |
 | 2026-05-26 | #6 Brand identity | 🟡 → 🟢 | Carriage rollout 7/7 merged (PRs #48–#56) + e2e gate restored (#57) |
+| 2026-05-28 | #1 S-G coefficient | 🔴 → 🟡 | Production bypass; math fix deferred |
+| 2026-05-29 | #1 pushup-test follow-up | resolved | Root cause was broken `buildPushupPose` fixture, not the validator; filter fixed, test un-skipped |
+| 2026-05-29 | #3 Sentry verification | 🔴 → 🟡 | Full @sentry/nextjs (client+server+edge) wired; preview verification pending |
+| 2026-05-30 | #3 Sentry verification | 🟡 → 🟢 | Client + server errors verified on Vercel preview with readable traces; serverless flush fix (`onRequestError` awaits `Sentry.flush`); temp /sentry-check surface removed |
+| 2026-05-30 | #4 CI workflow | 🔴 → 🟢 | Added `dev-pr-gate.yml` (lint+test+build on PRs to dev) complementing `release-gate.yml` (e2e on PRs to main) |
+| 2026-05-30 | #2 Liability waiver | 🔴 → 🟡 | Draft medical disclaimer + assumption-of-risk, /medical-disclaimer page, strengthened terms/privacy, signup clickwrap + 18+, first-session self-attestation gate, consent record. PLACEHOLDER copy pending lawyer review. |
+| 2026-05-30 | #1 S-G coefficient | 🟡 → 🟢 | Deleted broken Savitzky-Golay; shipped correct EMA smoother (α=2/(windowSize+1)), re-enabled smoothing, inverted the pinning test, rep-count tests green |
+| 2026-05-30 | #14 Account deletion | 🔴 → 🟢 | Audit: all user tables cascade via profiles chokepoint; fixed events SET NULL → CASCADE; added account_deletion_completeness() fn (MCP-verified empty) + gated RPC test + same-origin check + GDPR follow-up docs |
+| 2026-05-30 | #10 Accessibility | 🔴 → 🟢 | axe-core/playwright WCAG 2.1 AA audit over public routes + /coach; fixed all serious/critical color-contrast (brand label #8A6F4A→#7A6240 approved; signin/terms/privacy/coach utility contrast); gated in test:e2e:release; moderate/minor + auth-gated routes deferred |
+| 2026-05-30 | #13 Single-camera comms | 🔴 → 🟢 | One-time accessible "Set the scene" tips modal (side-on/lighting/clothing/distance + single-camera expectation line) before first coach session; localStorage-gated, e2e-suppressed, re-viewable via sidebar "Setup tips" link |
 
 ---
 

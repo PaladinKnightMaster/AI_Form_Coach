@@ -49,6 +49,7 @@ export class ValidatorPhaseDetector {
     return {
       exercise: this.exercise,
       smoothing: {
+        // EMA smoother (war-room #1 fixed). Smoothing on by default; HMM consumes [0,1].
         enabled: enhancedConfig?.smoothing?.enabled ?? true,
         windowSize: enhancedConfig?.smoothing?.windowSize ?? 5,
         polynomialOrder: enhancedConfig?.smoothing?.polynomialOrder ?? 2,
@@ -260,6 +261,7 @@ export function createDefaultEnhancedPhaseConfig(): ValidatorConfig['enhancedPha
   return {
     enabled: true,
     smoothing: {
+      // EMA smoother (war-room #1 fixed).
       enabled: true,
       windowSize: 5,
       polynomialOrder: 2,

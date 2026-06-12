@@ -36,7 +36,7 @@ export default function SiteFooter() {
           <p className="max-w-sm text-sm leading-6 text-[#4B423A]">
             Private motion coaching for squat, pushup, and plank. The public beta focuses on the live coach and session history.
           </p>
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#7A6240]">
             Form, carried.
           </p>
         </section>
@@ -46,7 +46,7 @@ export default function SiteFooter() {
           <section key={group.title} aria-labelledby={`footer-${group.title}`}>
             <h3
               id={`footer-${group.title}`}
-              className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]"
+              className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[#7A6240]"
             >
               {group.title}
             </h3>
@@ -69,7 +69,7 @@ export default function SiteFooter() {
         <section aria-labelledby="footer-truth">
           <h3
             id="footer-truth"
-            className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]"
+            className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[#7A6240]"
           >
             Beta truth
           </h3>
@@ -85,7 +85,7 @@ export default function SiteFooter() {
       {/* Bottom bar */}
       <div className="border-t border-[#E5DDCD]">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-3 px-4 py-6 sm:px-6 md:flex-row md:items-center lg:px-8">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8A6F4A]">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#7A6240]">
             © {new Date().getFullYear()} Carriage · Public beta
           </p>
           <div className="flex items-center gap-6 text-sm">

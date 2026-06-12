@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, Card, Container } from "@/ui/DS";
+import { termsSafety, termsLiability, termsEligibility } from "@/lib/legal/legalContent";
 
 const UPDATED_AT = "March 10, 2026";
 
@@ -55,14 +56,7 @@ const sections = [
       "By using the beta, you agree to the data practices described in the Privacy Policy. If you do not agree, do not use the service.",
     ],
   },
-  {
-    id: "safety",
-    title: "5. Safety and health disclaimer",
-    paragraphs: [
-      "AI Form Coach provides general fitness guidance only. It is not medical advice, physical therapy, diagnosis, treatment, or emergency support.",
-      "Stop exercising if you feel pain, dizziness, or discomfort. You are responsible for using the coach safely, warming up appropriately, and choosing movements that fit your own condition and ability.",
-    ],
-  },
+  { ...termsSafety, title: "5. " + termsSafety.title },
   {
     id: "payments",
     title: "6. Beta access and pricing",
@@ -87,15 +81,9 @@ const sections = [
       "Your saved session summaries remain associated with your account, subject to the product's storage and deletion processes.",
     ],
   },
-  {
-    id: "liability",
-    title: "9. Warranty and liability limits",
-    paragraphs: [
-      "The beta is provided on an as-is and as-available basis. To the extent allowed by law, we disclaim warranties and are not liable for indirect, incidental, or consequential damages arising from use of the service.",
-      "If applicable law does not allow some of these limitations, then they apply only to the maximum extent permitted.",
-    ],
-  },
-] as const;
+  { ...termsLiability, title: "9. " + termsLiability.title },
+  { ...termsEligibility, title: "10. " + termsEligibility.title },
+];
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -113,13 +101,13 @@ export default function TermsPage() {
       <Container className="py-16 sm:py-20">
         <div className="mx-auto max-w-5xl space-y-10">
           <div className="space-y-4 text-center">
-            <Badge tone="neutral" className="mx-auto uppercase tracking-[0.2em]">
+            <Badge tone="neutral" className="mx-auto uppercase tracking-[0.2em] bg-slate-100 text-slate-700 border-slate-300">
               Motion coaching beta terms
             </Badge>
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
               Terms of service
             </h1>
-            <p className="text-sm text-slate-500">Last updated: {UPDATED_AT}</p>
+            <p className="text-sm text-slate-600">Last updated: {UPDATED_AT}</p>
             <p className="mx-auto max-w-3xl text-base leading-8 text-slate-600">
               These terms are written for the current beta release, not a broader platform that has not shipped. They describe the coach as it exists today: a browser-based motion beta with optional sign-in for saved history.
             </p>
@@ -129,7 +117,7 @@ export default function TermsPage() {
             {summaryCards.map((item) => (
               <Card key={item.label} className="h-full rounded-[1.8rem] border border-slate-200 bg-slate-50/80 shadow-sm" padding="lg">
                 <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{item.label}</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">{item.label}</div>
                   <div className="text-2xl font-black tracking-tight text-slate-950">{item.value}</div>
                   <p className="text-sm leading-7 text-slate-600">{item.detail}</p>
                 </div>
@@ -154,7 +142,7 @@ export default function TermsPage() {
 
           <Card className="rounded-[1.9rem] border border-slate-200 bg-slate-50/80 shadow-sm" padding="lg">
             <div className="space-y-3 text-center sm:text-left">
-              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Need help?</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">Need help?</div>
               <div className="text-2xl font-black tracking-tight text-slate-950">Contact support or review privacy details</div>
               <p className="text-sm leading-7 text-slate-600">
                 Terms questions can be sent to <a className="font-semibold text-slate-950 underline decoration-slate-300 underline-offset-4" href="mailto:legal@aiformcoach.com">legal@aiformcoach.com</a>. For privacy details, review the privacy policy or contact the beta team directly.

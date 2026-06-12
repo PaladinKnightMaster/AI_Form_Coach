@@ -41,7 +41,11 @@ import {
   type Landmark3D,
   type PoseEstimateResult,
 } from "@/lib/pose/engine";
-import { getCurrentUserId } from "@/lib/supabase/client";
+import { getCurrentUserId, getSupabaseClient } from "@/lib/supabase/client";
+import FirstSessionSafetyGate from "@/components/coach/FirstSessionSafetyGate";
+import CoachTipsCard from "@/components/coach/CoachTipsCard";
+import { shouldShowCoachTips, COACH_TIPS_SEEN_KEY } from "@/lib/coach/coachTips";
+import { hasAcceptedCurrentVersion, recordConsent } from "@/lib/legal/consent";
 import { createValidator } from "@/lib/validators";
 import type { Exercise, Phase, RepMetric } from "@/lib/validators/types";
 import { repMetricToDatabase } from "@/lib/validators/databaseUtils";
@@ -54,6 +58,24 @@ const TRACKING_TIMEOUT_MS = 1600;
 const COUNTDOWN_SECONDS = 3;
 const PREVIEW_STALE_FRAME_LIMIT = 10;
 const SCRIPTED_FRAME_INTERVAL_MS = 16;
+
+// Headless WebKit throttles (and, when the page isn't compositing, fully
+// pauses) requestAnimationFrame. That starves the scripted-pose frame pump in
+// e2e/CI, so rep counts come back nondeterministically as "0 reps" on the
+// iphone-safari project while Chromium passes. Drive the scripted (test-only,
+// loopback + ?e2e-access gated) feed with setTimeout, which WebKit does not
+// throttle the same way; the live-camera path keeps rAF so real sessions are
+// unchanged. rAF handle ids and timeout ids live in independent pools, so a
+// cancel must clear both — calling the other is a harmless no-op.
+function schedulePoseLoop(useScriptedPump: boolean, callback: () => void): number {
+  return useScriptedPump ? window.setTimeout(callback, SCRIPTED_FRAME_INTERVAL_MS) : requestAnimationFrame(callback);
+}
+
+function cancelPoseLoop(handle: number | null): void {
+  if (handle === null) return;
+  cancelAnimationFrame(handle);
+  clearTimeout(handle);
+}
 
 type SessionState = "idle" | "active" | "paused" | "completed";
 type QualityState = "good" | "warn" | "bad";
@@ -188,6 +210,8 @@ export default function CoachPage() {
   const [countdownValue, setCountdownValue] = useState<number | null>(null);
   const [hasPose, setHasPose] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [safetyGate, setSafetyGate] = useState<"loading" | "needed" | "ok">("loading");
+  const [tips, setTips] = useState<"loading" | "show" | "hidden">("loading");
 
   const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const poseScriptQuery = searchParams?.get("pose-script") ?? null;
@@ -218,6 +242,36 @@ export default function CoachPage() {
       setPermissionGranted(true);
     }
   }, [e2eAccessQuery, permissionGranted]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const userId = await getCurrentUserId();
+      if (cancelled) return;
+      if (!userId) {
+        setSafetyGate("ok"); // unauthenticated / e2e: no gate
+        return;
+      }
+      try {
+        const accepted = await hasAcceptedCurrentVersion(getSupabaseClient(), userId, "first_session");
+        if (!cancelled) setSafetyGate(accepted ? "ok" : "needed");
+      } catch {
+        if (!cancelled) setSafetyGate("ok"); // never hard-block the coach on a consent-check failure
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let seen = false;
+    try { seen = localStorage.getItem(COACH_TIPS_SEEN_KEY) === "1"; } catch { /* private mode */ }
+    const isLoopbackHost =
+      typeof window !== "undefined" &&
+      (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost");
+    const isE2E = e2eAccessQuery === "1" && isLoopbackHost;
+    setTips(shouldShowCoachTips(seen, isE2E) ? "show" : "hidden");
+  }, [e2eAccessQuery]);
+
   const running = sessionState === "active";
   const copy = EXERCISE_COPY[exercise];
   const framing = useMemo(() => getFramingGuidance({ exercise, cameraReady, visibilityScore, fps, hasPose }), [cameraReady, exercise, fps, hasPose, visibilityScore]);
@@ -327,6 +381,20 @@ export default function CoachPage() {
     trackCoachCueFeedback(exercise, feedback, repCount, elapsedMs, pauseCountRef.current);
   }, [elapsedMs, exercise, repCount]);
 
+  const handleAcceptSafety = useCallback(async () => {
+    const userId = await getCurrentUserId();
+    if (userId) {
+      await recordConsent(getSupabaseClient(), userId, "first_session");
+    }
+    setSafetyGate("ok");
+  }, []);
+
+  const handleCloseTips = useCallback(() => {
+    try { localStorage.setItem(COACH_TIPS_SEEN_KEY, "1"); } catch { /* private mode */ }
+    setTips("hidden");
+  }, []);
+  const handleShowTips = useCallback(() => setTips("show"), []);
+
   const enableScriptedStage = useCallback((message?: string) => {
     const video = videoRef.current;
     const scriptedFrames = scriptedPoseFramesRef.current;
@@ -344,7 +412,7 @@ export default function CoachPage() {
 
   const releaseCameraStage = useCallback(() => {
     if (poseLoopRef.current !== null) {
-      cancelAnimationFrame(poseLoopRef.current);
+      cancelPoseLoop(poseLoopRef.current);
       poseLoopRef.current = null;
     }
     if (countdownTimerRef.current !== null) {
@@ -785,7 +853,7 @@ export default function CoachPage() {
 
   useEffect(() => {
     if (!cameraReady || cameraError || detectorError) {
-      if (poseLoopRef.current !== null) cancelAnimationFrame(poseLoopRef.current);
+      cancelPoseLoop(poseLoopRef.current);
       return;
     }
     let cancelled = false;
@@ -820,13 +888,13 @@ export default function CoachPage() {
         }
       }
       if (!cancelled) {
-        poseLoopRef.current = requestAnimationFrame(() => { void loop(); });
+        poseLoopRef.current = schedulePoseLoop(Boolean(scriptedPoseFramesRef.current), () => { void loop(); });
       }
     };
-    poseLoopRef.current = requestAnimationFrame(() => { void loop(); });
+    poseLoopRef.current = schedulePoseLoop(Boolean(scriptedPoseFramesRef.current), () => { void loop(); });
     return () => {
       cancelled = true;
-      if (poseLoopRef.current !== null) cancelAnimationFrame(poseLoopRef.current);
+      cancelPoseLoop(poseLoopRef.current);
     };
   }, [cameraError, cameraReady, detectorError, onPose]);
 
@@ -874,53 +942,58 @@ export default function CoachPage() {
   }
 
   return (
-    <CoachExperienceView
-      exercise={exercise}
-      exerciseLabel={copy.label}
-      subtitle={copy.subtitle}
-      checklist={copy.checklist}
-      sessionState={sessionState}
-      stageAlert={stageAlert}
-      cue={cue}
-      secondaryCue={secondaryCue}
-      repCount={repCount}
-      elapsedLabel={formatDuration(elapsedMs)}
-      visibilityLabel={formatPercent(visibilityScore)}
-      fpsLabel={fps > 0 ? `${fps}` : "-"}
-      qualityTone={qualityTone}
-      qualityLabel={qualityLabel}
-      phaseLabel={phaseLabel}
-      framingTone={framing.tone}
-      framingLabel={framing.label}
-      framingDetail={framing.detail}
-      cameraAngleLabel={framing.cameraAngleLabel}
-      cameraAngleDetail={framing.cameraAngleDetail}
-      countdownValue={countdownValue}
-      cameraReady={cameraReady}
-      hasStageError={Boolean(cameraError) || Boolean(detectorError)}
-      muted={muted}
-      mirrorVideo={mirrorVideo}
-      saving={saving}
-      offline={offline}
-      pendingWrites={pendingWrites}
-      saveNotice={saveNotice}
-      deviceSummary={deviceSummary}
-      recoveryTitle={recoveryGuide?.title ?? null}
-      recoverySteps={recoveryGuide?.steps ?? []}
-      cueFeedback={cueFeedback}
-      primaryActionLabel={primaryActionLabel}
-      videoRef={videoRef}
-      canvasRef={canvasRef}
-      overlayVideo={overlayVideo}
-      landmarksRef={landmarksRef}
-      onExerciseChange={handleExerciseChange}
-      onMutedChange={handleMutedChange}
-      onMirrorChange={handleMirrorChange}
-      onCueFeedback={handleCueFeedback}
-      onRetryCamera={handleRetryCamera}
-      onPrimaryAction={sessionState === "active" ? pause : sessionState === "paused" ? resume : queueSessionStart}
-      onEndAndSave={() => { void endAndSave(); }}
-    />
+    <>
+      <CoachExperienceView
+        exercise={exercise}
+        exerciseLabel={copy.label}
+        subtitle={copy.subtitle}
+        checklist={copy.checklist}
+        sessionState={sessionState}
+        stageAlert={stageAlert}
+        cue={cue}
+        secondaryCue={secondaryCue}
+        repCount={repCount}
+        elapsedLabel={formatDuration(elapsedMs)}
+        visibilityLabel={formatPercent(visibilityScore)}
+        fpsLabel={fps > 0 ? `${fps}` : "-"}
+        qualityTone={qualityTone}
+        qualityLabel={qualityLabel}
+        phaseLabel={phaseLabel}
+        framingTone={framing.tone}
+        framingLabel={framing.label}
+        framingDetail={framing.detail}
+        cameraAngleLabel={framing.cameraAngleLabel}
+        cameraAngleDetail={framing.cameraAngleDetail}
+        countdownValue={countdownValue}
+        cameraReady={cameraReady}
+        hasStageError={Boolean(cameraError) || Boolean(detectorError)}
+        muted={muted}
+        mirrorVideo={mirrorVideo}
+        saving={saving}
+        offline={offline}
+        pendingWrites={pendingWrites}
+        saveNotice={saveNotice}
+        deviceSummary={deviceSummary}
+        recoveryTitle={recoveryGuide?.title ?? null}
+        recoverySteps={recoveryGuide?.steps ?? []}
+        cueFeedback={cueFeedback}
+        primaryActionLabel={primaryActionLabel}
+        videoRef={videoRef}
+        canvasRef={canvasRef}
+        overlayVideo={overlayVideo}
+        landmarksRef={landmarksRef}
+        onExerciseChange={handleExerciseChange}
+        onMutedChange={handleMutedChange}
+        onMirrorChange={handleMirrorChange}
+        onCueFeedback={handleCueFeedback}
+        onRetryCamera={handleRetryCamera}
+        onPrimaryAction={sessionState === "active" ? pause : sessionState === "paused" ? resume : queueSessionStart}
+        onEndAndSave={() => { void endAndSave(); }}
+        onShowTips={handleShowTips}
+      />
+      {safetyGate === "needed" && <FirstSessionSafetyGate onAccept={handleAcceptSafety} />}
+      {safetyGate === "ok" && tips === "show" && <CoachTipsCard onClose={handleCloseTips} />}
+    </>
   );
 }
 

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { initSentry, Sentry } from "@/lib/observability/sentry";
+import * as Sentry from "@sentry/nextjs";
 import { Button, Card, Icon } from "@/ui/DS";
 
 export default function Error({
@@ -13,7 +13,6 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    initSentry();
     Sentry.captureException(error);
     console.error("Route error boundary caught:", error);
   }, [error]);

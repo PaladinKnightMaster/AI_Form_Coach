@@ -6,6 +6,7 @@ import type { CoachCueFeedback } from "@/lib/coach/telemetry";
 import type { Landmark3D } from "@/lib/pose/engine";
 import type { Exercise } from "@/lib/validators/types";
 import CoachCameraChrome from "@/components/coach/CoachCameraChrome";
+import { inSessionMicroDisclaimer } from "@/lib/legal/legalContent";
 import { useOverlayAutoHide } from "@/components/coach/useOverlayAutoHide";
 import { Badge, Button, Card, Icon } from "@/ui/DS";
 
@@ -58,6 +59,7 @@ interface CoachExperienceViewProps {
   onRetryCamera: () => void;
   onPrimaryAction: () => void;
   onEndAndSave: () => void;
+  onShowTips?: () => void;
 }
 
 export default function CoachExperienceView({
@@ -106,6 +108,7 @@ export default function CoachExperienceView({
   onRetryCamera,
   onPrimaryAction,
   onEndAndSave,
+  onShowTips,
 }: CoachExperienceViewProps) {
   const showCenterPanel = sessionState !== "active";
   const canPrimaryAction = cameraReady && !hasStageError;
@@ -311,6 +314,16 @@ export default function CoachExperienceView({
                 </div>
               </div>
             </div>
+
+            <div
+              data-testid="coach-micro-disclaimer"
+              className="pointer-events-none absolute inset-x-0 bottom-1 z-20 flex justify-center px-3"
+              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+            >
+              <span className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-medium text-white/85 backdrop-blur-sm">
+                {inSessionMicroDisclaimer}
+              </span>
+            </div>
           </div>
         {/* end camera area */}
 
@@ -393,7 +406,18 @@ export default function CoachExperienceView({
 
             {/* Framing notes */}
             <div>
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Framing notes</div>
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Framing notes</span>
+                {onShowTips && (
+                  <button
+                    type="button"
+                    onClick={onShowTips}
+                    className="text-[11px] font-medium text-teal-300 underline-offset-2 hover:underline"
+                  >
+                    Setup tips
+                  </button>
+                )}
+              </div>
               <ul className="space-y-2 text-sm leading-6 text-slate-300">
                 {checklist.map((item) => (
                   <li key={item} className="flex gap-2"><span className="mt-0.5 text-teal-400"><Icon name="check-circle" className="h-4 w-4" /></span><span>{item}</span></li>
@@ -402,7 +426,7 @@ export default function CoachExperienceView({
             </div>
 
             {/* Camera setup info */}
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-slate-400">
               <span>{cameraAngleLabel}: {cameraAngleDetail}</span>
               <br />
               <span>{deviceSummary}</span>

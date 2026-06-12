@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { getSupabaseServerClient, getSupabaseServiceClient } from "@/lib/supabase/server";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    // Defense-in-depth against CSRF (Supabase cookies are SameSite=Lax, which
+    // already blocks cross-site POSTs; this rejects any that slip through).
+    const origin = request.headers.get("origin");
+    const host = request.headers.get("host");
+    if (origin && host && new URL(origin).host !== host) {
+      return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+    }
+
     const supabase = await getSupabaseServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 

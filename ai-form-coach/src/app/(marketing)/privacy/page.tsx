@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, Card, Container } from "@/ui/DS";
+import { privacyHealthData } from "@/lib/legal/legalContent";
 
 const UPDATED_AT = "March 10, 2026";
 
@@ -55,9 +56,10 @@ const sections = [
       "This telemetry is about product behavior, not raw video capture. We use it to improve session completion, cue clarity, and recovery flows.",
     ],
   },
+  { ...privacyHealthData, title: "5. " + privacyHealthData.title },
   {
     id: "choices",
-    title: "5. Your choices and controls",
+    title: "6. Your choices and controls",
     paragraphs: [
       "You can stop using the coach at any time, revoke camera permission in your browser, and choose whether to sign in for history. Without sign-in, the app cannot attach saved sessions to your account.",
       "You can request account and stored-session deletion through support. During the beta, support channels are the practical path for deletion and export requests.",
@@ -65,13 +67,13 @@ const sections = [
   },
   {
     id: "safety",
-    title: "6. Safety and limits",
+    title: "7. Safety and limits",
     paragraphs: [
       "AI Form Coach is fitness software, not medical care. The live cues are intended to support general exercise form awareness for squat, pushup, and plank in this beta.",
       "Stop immediately if you feel pain, dizziness, or discomfort. If you have health concerns or injury history, consult a qualified professional before exercising.",
     ],
   },
-] as const;
+];
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -89,13 +91,13 @@ export default function PrivacyPage() {
       <Container className="py-16 sm:py-20">
         <div className="mx-auto max-w-5xl space-y-10">
           <div className="space-y-4 text-center">
-            <Badge tone="info" className="mx-auto uppercase tracking-[0.2em]">
+            <Badge tone="info" className="mx-auto uppercase tracking-[0.2em] bg-blue-50 text-blue-700 border-blue-300">
               Private motion coaching beta
             </Badge>
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
               Privacy policy
             </h1>
-            <p className="text-sm text-slate-500">Last updated: {UPDATED_AT}</p>
+            <p className="text-sm text-slate-600">Last updated: {UPDATED_AT}</p>
             <p className="mx-auto max-w-3xl text-base leading-8 text-slate-600">
               The current release is intentionally narrow: live pose coaching for squat, pushup, and plank. This page explains what stays on your device, what can be saved if you sign in, and what is deliberately outside the beta scope.
             </p>
@@ -105,7 +107,7 @@ export default function PrivacyPage() {
             {principles.map((item) => (
               <Card key={item.label} className="h-full rounded-[1.8rem] border border-slate-200 bg-slate-50/80 shadow-sm" padding="lg">
                 <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{item.label}</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">{item.label}</div>
                   <div className="text-2xl font-black tracking-tight text-slate-950">{item.value}</div>
                   <p className="text-sm leading-7 text-slate-600">{item.detail}</p>
                 </div>
@@ -130,7 +132,7 @@ export default function PrivacyPage() {
 
           <Card className="rounded-[1.9rem] border border-slate-200 bg-slate-50/80 shadow-sm" padding="lg">
             <div className="space-y-3 text-center sm:text-left">
-              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Questions or deletion requests</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">Questions or deletion requests</div>
               <div className="text-2xl font-black tracking-tight text-slate-950">Contact the beta team</div>
               <p className="text-sm leading-7 text-slate-600">
                 For privacy questions, data export requests, or account deletion, contact <a className="font-semibold text-slate-950 underline decoration-slate-300 underline-offset-4" href="mailto:privacy@aiformcoach.com">privacy@aiformcoach.com</a>.

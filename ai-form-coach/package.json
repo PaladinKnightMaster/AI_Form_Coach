@@ -32,12 +32,12 @@
     "test:release": "npm run lint && npm run test && npm run test:perf-smoke && npm run build && npm run test:e2e:release",
     "test:e2e:coach:android:device": "node scripts/run-android-device-coach-smoke.mjs",
     "test:e2e:auth": "playwright test tests/e2e/auth.smoke.spec.ts",
-    "test:e2e:release": "playwright test tests/e2e/auth.smoke.spec.ts tests/e2e/coach.smoke.spec.ts tests/e2e/coach.visual.spec.ts"
+    "test:e2e:release": "playwright test tests/e2e/auth.smoke.spec.ts tests/e2e/coach.smoke.spec.ts tests/e2e/coach.visual.spec.ts tests/e2e/a11y.spec.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@mediapipe/tasks-vision": "^0.10.22-rc.20250304",
-    "@sentry/browser": "^8.36.0",
+    "@sentry/nextjs": "^10.55.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.56.1",
     "@zxing/library": "^0.21.3",
@@ -54,9 +54,12 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.1.13",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jspdf": "^1.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
