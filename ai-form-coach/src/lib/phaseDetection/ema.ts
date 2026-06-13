@@ -6,6 +6,15 @@
  *    round-trips exactly (no warm-up error).
  *  - output is a convex combination of inputs, so it stays within the input
  *    range — for normalized [0,1] angles the HMM observation means remain valid.
+ *
+ * Smoothing is intentionally PER-SAMPLE, not time-aware: alpha applies once per
+ * frame regardless of the gap since the last frame (hence the unused timestamp).
+ * This matches the rep-detection tuning validated in war-room #1 and the prior
+ * SG filter's sample-based behavior. The trade-off is that effective smoothing
+ * scales with frame rate; that's acceptable for Beta 1 (the HMM debounce absorbs
+ * it). If smoothing ever feels inconsistent across very different device frame
+ * rates, switch addPoint to a dt-based alpha (1 - exp(-dt/tau)) and re-validate
+ * the rep-count tests before shipping.
  */
 export class EmaSmoother {
   private smoothed: number | null = null;
