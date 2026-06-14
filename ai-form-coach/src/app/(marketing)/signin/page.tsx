@@ -14,7 +14,7 @@ import {
   isExistingSignupUser,
   normalizeAuthNext,
 } from '@/lib/auth/utils';
-import { recordConsent } from '@/lib/legal/consent';
+import { markPendingSignupConsent, flushPendingSignupConsent } from '@/lib/legal/consent';
 import { signupConsentLabel } from '@/lib/legal/legalContent';
 
 type AuthMode = 'signin' | 'signup' | 'reset-request' | 'magic-link';
@@ -223,10 +223,17 @@ function SignInContent() {
           return;
         }
 
+        // The user ticked the 18+/disclaimer box (enforced above). Remember it so
+        // the signup consent is recorded once a session exists — either right now
+        // (immediate-session path) or after the email-confirmation round-trip
+        // (flushed in /auth/callback). Without this, email-confirm signups left
+        // no signup-context proof in user_consents.
+        markPendingSignupConsent();
+
         if (data.session || hasImmediateSessionAccess(data.user)) {
           showSuccess('Account Created!', 'Your account has been created successfully.');
           await ensureProfile(data.user.id);
-          await recordConsent(supabase, data.user.id, 'signup');
+          await flushPendingSignupConsent(supabase, data.user.id);
           finishAuth();
           return;
         }

@@ -13,10 +13,10 @@ describe("legalContent module", () => {
     expect(DISCLAIMER_VERSION).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
-  it("every long-form legal section carries a [LAWYER REVIEW REQUIRED] marker", () => {
+  it("legal sections are counsel-reviewed: no pending flag and no [LAWYER REVIEW REQUIRED] markers", () => {
     for (const section of [medicalDisclaimer, assumptionOfRisk]) {
-      expect(section.reviewPending).toBe(true);
-      expect(section.paragraphs.join(" ")).toContain("[LAWYER REVIEW REQUIRED]");
+      expect(section.reviewPending).toBe(false);
+      expect(section.paragraphs.join(" ")).not.toContain("[LAWYER REVIEW REQUIRED]");
     }
   });
 

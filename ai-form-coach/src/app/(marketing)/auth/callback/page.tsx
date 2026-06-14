@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { normalizeAuthNext, DEFAULT_AUTH_NEXT } from "@/lib/auth/utils";
+import { flushPendingSignupConsent } from "@/lib/legal/consent";
 import AuthCard from "@/components/AuthCard";
 import { Suspense } from "react";
 
@@ -61,6 +62,9 @@ function CallbackContent() {
           } catch (err) {
             console.error("Profile upsert error:", err);
           }
+          // Record signup consent for the email-confirmation flow (no-op for
+          // existing users signing in via magic link — nothing was marked).
+          await flushPendingSignupConsent(supabase, data.user.id);
         }
       } else {
         // No code — check if user session exists (e.g. from hash fragment / implicit flow)
@@ -81,6 +85,8 @@ function CallbackContent() {
         } catch (err) {
           console.error("Profile upsert error:", err);
         }
+        // Record signup consent if it was marked on this browser at signup.
+        await flushPendingSignupConsent(supabase, user.id);
       }
 
       // Redirect to intended destination
