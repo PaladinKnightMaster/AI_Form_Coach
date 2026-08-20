@@ -37,19 +37,32 @@ export async function middleware(request: NextRequest) {
 
   if (isMvpDisabledPage(pathname)) {
     const redirectUrl = new URL(getMvpDisabledRedirect(pathname, Boolean(user)), request.url);
-    return NextResponse.redirect(redirectUrl);
+    return withRefreshedAuthCookies(NextResponse.redirect(redirectUrl), supabaseResponse);
   }
 
   if (!user && isMvpAuthOnlyPath(pathname) && !isLoopbackAutomationBypass) {
     const redirectUrl = new URL("/signin", request.url);
     const intendedPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
     redirectUrl.searchParams.set("redirect", intendedPath);
-    return NextResponse.redirect(redirectUrl);
+    return withRefreshedAuthCookies(NextResponse.redirect(redirectUrl), supabaseResponse);
   }
 
   return supabaseResponse;
 }
 
+/**
+ * Copy any auth cookies Supabase refreshed during `getUser()` onto a redirect.
+ *
+ * `NextResponse.redirect()` starts with an empty cookie jar, so returning one
+ * directly discards the rotated access/refresh tokens that `setAll` wrote to
+ * `supabaseResponse`. A session repaired mid-request would then be thrown away
+ * and the very next navigation would bounce to /signin again.
+ */
+function withRefreshedAuthCookies(redirect: NextResponse, carrier: NextResponse): NextResponse {
+  carrier.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+  return redirect;
+}
+
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/public|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/public|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
