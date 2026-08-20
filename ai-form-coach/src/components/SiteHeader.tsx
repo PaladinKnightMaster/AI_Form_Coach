@@ -228,6 +228,12 @@ export default function SiteHeader() {
                 {isAuthed ? "Start session" : "Sign in"}
               </Link>
             </div>
+
+            {/* Account block (email · Settings · Sign out). The drawer previously
+                rendered no AuthStatus at all, so on a phone there was no way to
+                sign out and no route to /settings — which is where account
+                deletion lives. Renders nothing when signed out. */}
+            <AuthStatus variant="mobile" onNavigate={() => setOpen(false)} />
           </aside>
         </div>
       ) : null}
